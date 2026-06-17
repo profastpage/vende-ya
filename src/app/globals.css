@@ -217,6 +217,10 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     /* iOS safe area */
     padding-top: env(safe-area-inset-top);
+    /* Prevent horizontal scroll globally — content should always flow
+       vertically unless inside an explicit overflow-x-auto container
+       (carousel, chat input row, etc.) */
+    overflow-x: hidden;
   }
   /* iOS safe area helpers */
   .pt-safe { padding-top: env(safe-area-inset-top); }

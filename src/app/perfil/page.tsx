@@ -4,6 +4,8 @@ import * as React from 'react'
 import Link from 'next/link'
 import { Edit, Heart, ShoppingBag, Star, Trophy, Verified, Settings, LogOut } from 'lucide-react'
 import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
+import { AuthGuard } from '@/components/vendeda/AuthGuard'
+import { useAuth } from '@/components/vendeda/AuthProvider'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -15,7 +17,23 @@ import { ROUTES } from '@/lib/vendeda/routes'
 const breadcrumbs: Breadcrumb[] = [{ label: 'Mi perfil' }]
 
 export default function ProfilePage() {
-  const user = MOCK_PROFILES[5]
+  return (
+    <AuthGuard>
+      <ProfileContent />
+    </AuthGuard>
+  )
+}
+
+function ProfileContent() {
+  const { user: authUser, signOut } = useAuth()
+  const user = authUser
+    ? {
+        ...MOCK_PROFILES[5],
+        id: authUser.id,
+        displayName: authUser.displayName,
+        avatarUrl: authUser.avatarUrl ?? MOCK_PROFILES[5].avatarUrl,
+      }
+    : MOCK_PROFILES[5]
   const myProducts = MOCK_PRODUCTS.slice(0, 2)
   const wonAuctions = MOCK_TRENDING_AUCTIONS.slice(0, 1)
 
@@ -119,10 +137,16 @@ export default function ProfilePage() {
           <Settings className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm flex-1">Direcciones de envío</span>
         </Link>
-        <Link href={ROUTES.login} className="flex items-center gap-3 p-2 rounded hover:bg-muted/50 text-destructive">
+        <button
+          onClick={async () => {
+            await signOut()
+            window.location.href = ROUTES.login
+          }}
+          className="w-full flex items-center gap-3 p-2 rounded hover:bg-muted/50 text-destructive"
+        >
           <LogOut className="h-4 w-4" />
-          <span className="text-sm flex-1">Cerrar sesión</span>
-        </Link>
+          <span className="text-sm flex-1 text-left">Cerrar sesión</span>
+        </button>
       </Card>
     </AppShell>
   )

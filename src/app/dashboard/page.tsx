@@ -7,6 +7,9 @@ import {
   TrendingUp, Wallet, Bell, ShoppingBag, ArrowUpRight, Trophy,
 } from 'lucide-react'
 import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
+import { AuthGuard } from '@/components/vendeda/AuthGuard'
+import { useAuth } from '@/components/vendeda/AuthProvider'
+import { PushSubscribeButton } from '@/components/vendeda/PWA'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -29,7 +32,25 @@ const TABS = [
 ] as const
 
 export default function DashboardPage() {
-  const user = MOCK_PROFILES[5] // "Tú (Invitado)"
+  return (
+    <AuthGuard>
+      <DashboardContent />
+    </AuthGuard>
+  )
+}
+
+function DashboardContent() {
+  const { user: authUser } = useAuth()
+  // Use auth user if available, else fall back to mock for demo mode
+  const user = authUser
+    ? {
+        ...MOCK_PROFILES[5],
+        id: authUser.id,
+        displayName: authUser.displayName,
+        avatarUrl: authUser.avatarUrl ?? MOCK_PROFILES[5].avatarUrl,
+        bio: authUser.isDemo ? MOCK_PROFILES[5].bio : (MOCK_PROFILES[5].bio ?? null),
+      }
+    : MOCK_PROFILES[5]
 
   return (
     <AppShell
@@ -176,6 +197,11 @@ export default function DashboardPage() {
                     <span className="text-xs">Pagos</span>
                   </Button>
                 </Link>
+              </div>
+
+              {/* Push notification opt-in */}
+              <div className="mt-4 pt-4 border-t">
+                <PushSubscribeButton className="w-full" />
               </div>
             </Card>
           </div>

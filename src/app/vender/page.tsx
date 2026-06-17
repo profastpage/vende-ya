@@ -8,6 +8,7 @@ import {
   Image as ImageIcon, DollarSign, Package, Settings,
 } from 'lucide-react'
 import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
+import { AuthGuard } from '@/components/vendeda/AuthGuard'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,11 +26,13 @@ type Mode = 'quick' | 'live' | 'ai'
 
 export default function VenderPage() {
   return (
-    <AppShell title="Vender" breadcrumbs={breadcrumbs} maxWidth="max-w-4xl">
-      <React.Suspense fallback={<Card className="p-8 text-center text-muted-foreground">Cargando...</Card>}>
-        <VenderInner />
-      </React.Suspense>
-    </AppShell>
+    <AuthGuard>
+      <AppShell title="Vender" breadcrumbs={breadcrumbs} maxWidth="max-w-4xl">
+        <React.Suspense fallback={<Card className="p-8 text-center text-muted-foreground">Cargando...</Card>}>
+          <VenderInner />
+        </React.Suspense>
+      </AppShell>
+    </AuthGuard>
   )
 }
 

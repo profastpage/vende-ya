@@ -4,6 +4,7 @@ import * as React from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Send, Phone, Video, MoreVertical, Search } from 'lucide-react'
 import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
+import { AuthGuard } from '@/components/vendeda/AuthGuard'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -30,11 +31,13 @@ const CONVERSATIONS = MOCK_PROFILES.slice(0, 5).map((p, i) => ({
 
 export default function MessagesPage() {
   return (
-    <AppShell title="Mensajes" breadcrumbs={breadcrumbs} maxWidth="max-w-5xl">
-      <React.Suspense fallback={<Card className="p-8 text-center text-muted-foreground">Cargando mensajes...</Card>}>
-        <MessagesInner />
-      </React.Suspense>
-    </AppShell>
+    <AuthGuard>
+      <AppShell title="Mensajes" breadcrumbs={breadcrumbs} maxWidth="max-w-5xl">
+        <React.Suspense fallback={<Card className="p-8 text-center text-muted-foreground">Cargando mensajes...</Card>}>
+          <MessagesInner />
+        </React.Suspense>
+      </AppShell>
+    </AuthGuard>
   )
 }
 

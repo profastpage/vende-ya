@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/vendeda/theme-provider";
+import { AuthProvider } from "@/components/vendeda/AuthProvider";
+import { PWAInstallPrompt, PWAUpdateBanner } from "@/components/vendeda/PWA";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,8 +42,19 @@ export const metadata: Metadata = {
   authors: [{ name: "Vende Ya" }],
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/logo.svg",
-    apple: "/logo.svg",
+    icon: [
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Vende Ya",
+    statusBarStyle: "default",
   },
   openGraph: {
     title: "Vende Ya — Subastas en Vivo & Marketplace",
@@ -64,8 +77,8 @@ export const viewport: Viewport = {
   ],
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5, // allow zoom for accessibility
-  viewportFit: "cover", // iOS safe area
+  maximumScale: 5,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -74,8 +87,7 @@ export default function RootLayout({
   return (
     <html lang="es-PE" suppressHydrationWarning>
       <head>
-        {/* Flaticon Uicons (free, CC BY 4.0) — used by Flaticon.tsx component.
-            Attribution: "Icons made by Flaticon (https://www.flaticon.com)" */}
+        {/* Flaticon Uicons (free, CC BY 4.0) */}
         <link
           rel="stylesheet"
           href="https://cdn-uicons.flaticon.com/3.0.2/uicons-regular-rounded/css/uicons-regular-rounded.css"
@@ -98,9 +110,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
-          <SonnerToaster position="top-center" richColors />
+          <AuthProvider>
+            {children}
+            <Toaster />
+            <SonnerToaster position="top-center" richColors />
+            <PWAInstallPrompt />
+            <PWAUpdateBanner />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { Plus, CreditCard, Smartphone, Ticket, Check, Trash2 } from 'lucide-react'
 import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
+import { AuthGuard } from '@/components/vendeda/AuthGuard'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -29,6 +30,7 @@ export default function PaymentsPage() {
   const [showAdd, setShowAdd] = React.useState(false)
 
   return (
+    <AuthGuard>
     <AppShell title="Métodos de pago" breadcrumbs={breadcrumbs} maxWidth="max-w-3xl">
       {/* Payment methods */}
       <Card className="p-5 mb-4">
@@ -137,5 +139,6 @@ export default function PaymentsPage() {
         </div>
       </Card>
     </AppShell>
+    </AuthGuard>
   )
 }

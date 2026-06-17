@@ -8,7 +8,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
+import { useAuth } from '@/components/vendeda/AuthProvider'
 import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { isValidPeruvianPhone } from '@/lib/vendeda/format'
@@ -16,6 +18,7 @@ import { isValidPeruvianPhone } from '@/lib/vendeda/format'
 export default function RegistroPage() {
   const router = useRouter()
   const { toast } = useToast()
+  const { signUp, isDemoMode } = useAuth()
   const [name, setName] = React.useState('')
   const [username, setUsername] = React.useState('')
   const [email, setEmail] = React.useState('')
@@ -48,11 +51,22 @@ export default function RegistroPage() {
       return
     }
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 1000))
+    const { error } = await signUp({
+      email,
+      password,
+      displayName: name,
+      phone: `+51${phone}`,
+    })
     setLoading(false)
+    if (error) {
+      toast({ title: '❌ Error', description: error, variant: 'destructive' })
+      return
+    }
     toast({
       title: '🎉 Cuenta creada',
-      description: 'Te enviamos un código SMS al ' + phone + ' para verificar.',
+      description: isDemoMode
+        ? 'Cuenta demo activa. Configura Supabase para auth real.'
+        : 'Te enviamos un email de confirmación. Revisa tu bandeja.',
     })
     router.push(ROUTES.dashboard)
   }
@@ -66,7 +80,14 @@ export default function RegistroPage() {
               <span className="text-white font-bold text-xl">V</span>
             </div>
           </Link>
-          <h1 className="text-2xl font-bold font-display">Crea tu cuenta</h1>
+          <h1 className="text-2xl font-bold font-display flex items-center gap-2">
+            Crea tu cuenta
+            {isDemoMode && (
+              <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-700 border-amber-300">
+                Modo demo
+              </Badge>
+            )}
+          </h1>
           <p className="text-sm text-muted-foreground mt-1">
             ¿Ya tienes cuenta?{' '}
             <Link href={ROUTES.login} className="text-salsa-600 hover:underline font-medium">

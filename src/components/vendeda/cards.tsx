@@ -161,7 +161,7 @@ export function LiveStreamCard({ stream, className }: { stream: LiveStream; clas
   return (
     <Link href={ROUTES.stream(stream.id)} className={cn('block', className)}>
       <Card className={cn(
-        'group relative overflow-hidden rounded-xl border bg-card shadow-soft hover:shadow-lift transition-all duration-300 cursor-pointer min-w-[200px] h-full'
+        'group relative overflow-hidden rounded-xl border bg-card shadow-soft hover:shadow-lift transition-all duration-300 cursor-pointer h-full w-full'
       )}>
         <div className="relative aspect-[4/5] overflow-hidden bg-muted">
           {stream.thumbnailUrl && (
@@ -218,7 +218,7 @@ export function SellerChip({ profile, className }: { profile: Profile; className
   return (
     <Link href={ROUTES.seller(profile.username)} className={cn('block', className)}>
       <div className={cn(
-        'flex flex-col items-center gap-1.5 p-3 rounded-xl border bg-card min-w-[100px] hover:shadow-soft transition-shadow cursor-pointer h-full'
+        'flex flex-col items-center gap-1.5 p-3 rounded-xl border bg-card hover:shadow-soft transition-shadow cursor-pointer h-full w-full'
       )}>
         <div className="relative">
           <Avatar className="h-14 w-14 border-2 border-salsa-200">

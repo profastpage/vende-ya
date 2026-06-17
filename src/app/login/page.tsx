@@ -8,13 +8,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
+import { useAuth } from '@/components/vendeda/AuthProvider'
 import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
 
 export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
+  const { signIn, signInWithOAuth, isDemoMode } = useAuth()
   const [mode, setMode] = React.useState<'email' | 'phone'>('email')
   const [email, setEmail] = React.useState('')
   const [phone, setPhone] = React.useState('')
@@ -26,9 +29,13 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // Simulated auth (in prod: Supabase auth.signInWithPassword)
-    await new Promise((r) => setTimeout(r, 800))
+    const identifier = mode === 'email' ? email : `${phone}@phone.vendeya.pe`
+    const { error } = await signIn(identifier, password)
     setLoading(false)
+    if (error) {
+      toast({ title: '❌ Error', description: error, variant: 'destructive' })
+      return
+    }
     toast({
       title: '✅ Sesión iniciada',
       description: 'Bienvenido de vuelta a Vende Ya.',
@@ -36,11 +43,15 @@ export default function LoginPage() {
     router.push(ROUTES.dashboard)
   }
 
-  const handleSocial = (provider: 'google' | 'facebook' | 'apple') => {
-    toast({
-      title: `🔐 Auth con ${provider}`,
-      description: 'En producción, esto abre OAuth del proveedor.',
-    })
+  const handleSocial = async (provider: 'google' | 'facebook' | 'apple') => {
+    setLoading(true)
+    const { error } = await signInWithOAuth(provider)
+    if (error) {
+      setLoading(false)
+      toast({ title: '❌ Error', description: error, variant: 'destructive' })
+      return
+    }
+    // OAuth redirects — no need to setLoading(false)
   }
 
   return (
@@ -95,12 +106,24 @@ export default function LoginPage() {
                 <span className="text-white font-bold">V</span>
               </div>
             </Link>
-            <h1 className="text-2xl md:text-3xl font-bold font-display">Inicia sesión</h1>
+            <h1 className="text-2xl md:text-3xl font-bold font-display flex items-center gap-2">
+              Inicia sesión
+              {isDemoMode && (
+                <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-700 border-amber-300">
+                  Modo demo
+                </Badge>
+              )}
+            </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              ¿No tienes cuenta?{' '}
-              <Link href={ROUTES.registro} className="text-salsa-600 hover:underline font-medium">
-                Regístrate gratis
-              </Link>
+              {isDemoMode
+                ? 'Supabase no configurado — cualquier email/password funciona.'
+                : '¿No tienes cuenta? '
+              }
+              {!isDemoMode && (
+                <Link href={ROUTES.registro} className="text-salsa-600 hover:underline font-medium">
+                  Regístrate gratis
+                </Link>
+              )}
             </p>
           </div>
 

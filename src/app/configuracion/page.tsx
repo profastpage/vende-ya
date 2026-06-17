@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { User, Bell, Lock, Globe, Palette, Trash2, Save } from 'lucide-react'
 import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
+import { AuthGuard } from '@/components/vendeda/AuthGuard'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,6 +39,7 @@ export default function SettingsPage() {
   }
 
   return (
+    <AuthGuard>
     <AppShell title="Configuración" breadcrumbs={breadcrumbs} maxWidth="max-w-3xl">
       {/* Profile */}
       <Card className="p-5 mb-4">
@@ -164,6 +166,8 @@ export default function SettingsPage() {
         </Button>
       </Card>
     </AppShell>
+    </AuthGuard>
+
   )
 }
 

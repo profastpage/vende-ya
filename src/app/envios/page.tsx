@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { Plus, MapPin, Package, Truck, Check, Edit, Trash2 } from 'lucide-react'
 import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
+import { AuthGuard } from '@/components/vendeda/AuthGuard'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -27,6 +28,7 @@ export default function ShippingPage() {
   const { toast } = useToast()
 
   return (
+    <AuthGuard>
     <AppShell title="Envíos y direcciones" breadcrumbs={breadcrumbs} maxWidth="max-w-4xl">
       {/* Addresses */}
       <Card className="p-5 mb-4">
@@ -123,5 +125,6 @@ export default function ShippingPage() {
         </div>
       </Card>
     </AppShell>
+    </AuthGuard>
   )
 }

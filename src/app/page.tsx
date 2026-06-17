@@ -179,7 +179,7 @@ export default function Home() {
               </Link>
             }
           />
-          <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 pb-2">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 pb-2">
             {MOCK_PROFILES.slice(0, 5).map((p) => (
               <SellerChip key={p.id} profile={p} />
             ))}
@@ -219,7 +219,7 @@ export default function Home() {
                   </Link>
                 }
               />
-              <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 pb-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 pb-2">
                 {MOCK_STREAMS.filter(s => s.isLive).map((s) => (
                   <LiveStreamCard key={s.id} stream={s} />
                 ))}
