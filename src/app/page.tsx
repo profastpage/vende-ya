@@ -3,6 +3,7 @@
 import * as React from 'react'
 import {
   Radio, TrendingUp, Flame, ChevronRight, Sparkles, Zap, ChevronLeft,
+  Share2, Link2, Check,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { LiveBiddingContainer } from '@/components/vendeda/LiveBiddingContainer'
@@ -10,11 +11,13 @@ import { MobileBottomNav } from '@/components/vendeda/MobileBottomNav'
 import { DesktopTopNav } from '@/components/vendeda/DesktopTopNav'
 import { CategorySidebar, CategoryRail } from '@/components/vendeda/CategorySidebar'
 import { QuickAuctionFab } from '@/components/vendeda/QuickAuctionFab'
+import { SectionNav, ScrollToTopButton, SECTIONS } from '@/components/vendeda/SectionNav'
 import {
   AuctionCard, ProductCard, LiveStreamCard, SellerChip,
 } from '@/components/vendeda/cards'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { useToast } from '@/hooks/use-toast'
 import {
   MOCK_AUCTION, MOCK_BIDS, MOCK_CHAT, MOCK_PROFILES, MOCK_PRODUCTS,
   MOCK_STREAMS, MOCK_TRENDING_AUCTIONS,
@@ -23,6 +26,58 @@ import { formatPEN, formatViewers } from '@/lib/vendeda/format'
 import { APP_NAME } from '@/lib/vendeda/constants'
 
 type Tab = 'feed' | 'live' | 'create' | 'notifications' | 'profile'
+
+/**
+ * SectionHeading — renders a consistent h2 with an anchor + share button.
+ * The `id` becomes the deep-link target (e.g. /#marketplace).
+ * Click the link icon to copy the shareable URL.
+ */
+function SectionHeading({
+  id, icon: Icon, iconColor = 'text-salsa-500',
+  title, subtitle, action,
+}: {
+  id: string
+  icon: React.ElementType
+  iconColor?: string
+  title: string
+  subtitle?: React.ReactNode
+  action?: React.ReactNode
+}) {
+  const [copied, setCopied] = React.useState(false)
+  const { toast } = useToast()
+
+  const copyLink = async () => {
+    const url = `${window.location.origin}${window.location.pathname}#${id}`
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      toast({ title: '🔗 Enlace copiado', description: url })
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast({ title: 'No se pudo copiar', variant: 'destructive' })
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-between mb-3 scroll-mt-20">
+      <div className="flex items-center gap-2 min-w-0">
+        <Icon className={`h-5 w-5 shrink-0 ${iconColor}`} />
+        <h2 className="text-lg md:text-xl font-bold font-display truncate">{title}</h2>
+        {subtitle}
+        {/* Anchor link — hover to reveal */}
+        <button
+          onClick={copyLink}
+          className="ml-1 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          aria-label={`Copiar enlace a ${title}`}
+          title="Copiar enlace directo"
+        >
+          {copied ? <Check className="h-3.5 w-3.5 text-lima-500" /> : <Link2 className="h-3.5 w-3.5" />}
+        </button>
+      </div>
+      {action}
+    </div>
+  )
+}
 
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState<Tab>('feed')
@@ -42,22 +97,25 @@ export default function Home() {
             </div>
             <span className="font-bold text-base font-display">{APP_NAME}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <a href="#live" className="flex items-center gap-1.5 px-2.5 h-8 rounded-full bg-salsa-50 text-salsa-700">
-              <span className="live-dot" />
-              <span className="text-xs font-bold">EN VIVO</span>
-              <span className="text-[10px] bg-salsa-200 text-salsa-800 rounded-full px-1.5 font-bold">3</span>
-            </a>
-          </div>
+          <a
+            href="#hero"
+            className="flex items-center gap-1.5 px-2.5 h-8 rounded-full bg-salsa-50 text-salsa-700"
+          >
+            <span className="live-dot" />
+            <span className="text-xs font-bold">EN VIVO</span>
+            <span className="text-[10px] bg-salsa-200 text-salsa-800 rounded-full px-1.5 font-bold">3</span>
+          </a>
         </div>
       </header>
 
       <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 md:px-6 pt-4 pb-24 md:pb-12">
-        {/* HERO — Live auction feature */}
+        {/* ============================================================= */}
+        {/* HERO — Live auction feature (deep-linkable: /#hero) */}
+        {/* ============================================================= */}
         <section
-          id="live"
+          id="hero"
           aria-label="Subasta en vivo destacada"
-          className="mb-6 md:mb-10"
+          className="mb-6 md:mb-10 scroll-mt-20"
         >
           <div className="flex items-end justify-between mb-3">
             <div>
@@ -98,17 +156,24 @@ export default function Home() {
           />
         </section>
 
-        {/* TRENDING SELLERS — horizontal rail */}
-        <section className="mb-6 md:mb-10">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg md:text-xl font-bold font-display flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-salsa-500" />
-              Vendedores en tendencia
-            </h2>
-            <Button variant="ghost" size="sm" className="text-salsa-600">
-              Ver todos <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+        {/* ============================================================= */}
+        {/* SELLERS — deep-linkable: /#sellers */}
+        {/* ============================================================= */}
+        <section
+          id="sellers"
+          aria-label="Vendedores en tendencia"
+          className="mb-6 md:mb-10 scroll-mt-20"
+        >
+          <SectionHeading
+            id="sellers"
+            icon={TrendingUp}
+            title="Vendedores en tendencia"
+            action={
+              <Button variant="ghost" size="sm" className="text-salsa-600">
+                Ver todos <ChevronRight className="h-4 w-4" />
+              </Button>
+            }
+          />
           <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 pb-2">
             {MOCK_PROFILES.slice(0, 5).map((p) => (
               <SellerChip key={p.id} profile={p} />
@@ -116,27 +181,37 @@ export default function Home() {
           </div>
         </section>
 
-        {/* MARKETPLACE GRID with desktop sidebar */}
-        <section className="flex gap-6">
+        {/* ============================================================= */}
+        {/* MARKETPLACE — composite section: live-rail + auctions + products */}
+        {/* Deep-linkable: /#marketplace, /#live-rail, /#products */}
+        {/* ============================================================= */}
+        <section
+          id="marketplace"
+          aria-label="Marketplace"
+          className="flex gap-6 scroll-mt-20"
+        >
           {/* Desktop categories sidebar */}
           <CategorySidebar active={activeCategory} onSelect={setActiveCategory} />
 
           {/* Feed grid */}
           <div className="flex-1 min-w-0 space-y-6">
             {/* Live now rail */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg md:text-xl font-bold font-display flex items-center gap-2">
-                  <Radio className="h-5 w-5 text-salsa-500" />
-                  En vivo ahora
+            <div id="live-rail" className="scroll-mt-20">
+              <SectionHeading
+                id="live-rail"
+                icon={Radio}
+                title="En vivo ahora"
+                subtitle={
                   <span className="ml-1 text-xs text-muted-foreground font-normal">
                     {MOCK_STREAMS.filter(s => s.isLive).length} transmisiones
                   </span>
-                </h2>
-                <Button variant="ghost" size="sm" className="text-salsa-600">
-                  Ver todo <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
+                }
+                action={
+                  <Button variant="ghost" size="sm" className="text-salsa-600">
+                    Ver todo <ChevronRight className="h-4 w-4" />
+                  </Button>
+                }
+              />
               <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 pb-2">
                 {MOCK_STREAMS.filter(s => s.isLive).map((s) => (
                   <LiveStreamCard key={s.id} stream={s} />
@@ -148,17 +223,19 @@ export default function Home() {
             <CategoryRail active={activeCategory} onSelect={setActiveCategory} />
 
             {/* Active auctions grid */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg md:text-xl font-bold font-display flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-lima-500" />
-                  Subastas activas
-                </h2>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Sparkles className="h-3 w-3 text-plin-500" />
-                  <span>AI moderado</span>
-                </div>
-              </div>
+            <div id="auctions" className="scroll-mt-20">
+              <SectionHeading
+                id="auctions"
+                icon={Zap}
+                iconColor="text-lima-500"
+                title="Subastas activas"
+                subtitle={
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-2">
+                    <Sparkles className="h-3 w-3 text-plin-500" />
+                    <span>AI moderado</span>
+                  </div>
+                }
+              />
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
                 {MOCK_TRENDING_AUCTIONS.map((a) => (
                   <AuctionCard key={a.id} auction={a} />
@@ -167,15 +244,17 @@ export default function Home() {
             </div>
 
             {/* Marketplace products */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg md:text-xl font-bold font-display">
-                  Productos del marketplace
-                </h2>
-                <Button variant="ghost" size="sm" className="text-salsa-600">
-                  Ver todo <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
+            <div id="products" className="scroll-mt-20">
+              <SectionHeading
+                id="products"
+                icon={TrendingUp}
+                title="Productos del marketplace"
+                action={
+                  <Button variant="ghost" size="sm" className="text-salsa-600">
+                    Ver todo <ChevronRight className="h-4 w-4" />
+                  </Button>
+                }
+              />
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
                 {MOCK_PRODUCTS.map((p) => (
                   <ProductCard key={p.id} product={p} />
@@ -197,7 +276,6 @@ export default function Home() {
                     <span className="text-xs font-bold text-muted-foreground w-4">{i + 1}</span>
                     <div className="h-10 w-10 rounded-md overflow-hidden bg-muted shrink-0">
                       {a.product?.images[0] && (
-                         
                         <img src={a.product.images[0]} alt="" className="h-full w-full object-cover" />
                       )}
                     </div>
@@ -248,12 +326,20 @@ export default function Home() {
           </aside>
         </section>
 
-        {/* ARCHITECTURE NOTE — for the reviewer (desktop only) */}
-        <section className="hidden md:block mt-12 rounded-2xl border border-dashed bg-muted/30 p-6">
-          <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-plin-500" />
-            MVP Core Bootstrap — Architecture Summary
-          </h3>
+        {/* ============================================================= */}
+        {/* ARCHITECTURE — deep-linkable: /#architecture */}
+        {/* ============================================================= */}
+        <section
+          id="architecture"
+          aria-label="Arquitectura del MVP"
+          className="hidden md:block mt-12 rounded-2xl border border-dashed bg-muted/30 p-6 scroll-mt-20"
+        >
+          <SectionHeading
+            id="architecture"
+            icon={Sparkles}
+            iconColor="text-plin-500"
+            title="MVP Core Bootstrap — Architecture Summary"
+          />
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
             <div>
               <div className="font-semibold text-foreground mb-1">Frontend</div>
@@ -283,6 +369,10 @@ export default function Home() {
         </section>
       </main>
 
+      {/* Floating section nav (scroll spy + deep linking UI) */}
+      <SectionNav />
+      <ScrollToTopButton />
+
       {/* FAB */}
       <QuickAuctionFab />
 
@@ -290,7 +380,10 @@ export default function Home() {
       <MobileBottomNav active={activeTab} onChange={setActiveTab} />
 
       {/* Footer */}
-      <footer className="hidden md:block mt-auto border-t bg-card/50">
+      <footer
+        id="footer"
+        className="hidden md:block mt-auto border-t bg-card/50 scroll-mt-20"
+      >
         <div className="max-w-[1400px] mx-auto px-6 py-6 flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <div className="h-6 w-6 rounded-md bg-gradient-to-br from-salsa-500 to-salsa-700 flex items-center justify-center">
@@ -299,10 +392,10 @@ export default function Home() {
             <span>© 2026 Vende Ya · Hecho en Perú 🇵🇪</span>
           </div>
           <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-foreground">Términos</a>
-            <a href="#" className="hover:text-foreground">Privacidad</a>
-            <a href="#" className="hover:text-foreground">Soporte</a>
-            <a href="#" className="hover:text-foreground">Olva tracking</a>
+            <a href="#hero" className="hover:text-foreground">Términos</a>
+            <a href="#hero" className="hover:text-foreground">Privacidad</a>
+            <a href="#hero" className="hover:text-foreground">Soporte</a>
+            <a href="#hero" className="hover:text-foreground">Olva tracking</a>
           </div>
         </div>
       </footer>

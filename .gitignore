@@ -78,6 +78,14 @@ test
 /scripts/final-*.png
 /scripts/*.webm
 
+# Playwright
+/test-results/
+/playwright-report/
+/tests/playwright-report/
+/playwright/.cache/
+/blob-report/
+/playwright-tmp/
+
 # editor
 .vscode/
 .idea/

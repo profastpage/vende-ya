@@ -201,7 +201,16 @@
   }
   html {
     -webkit-text-size-adjust: 100%;
+    /* Smooth scroll for hash navigation (respects prefers-reduced-motion below) */
     scroll-behavior: smooth;
+    /* Offset sticky headers when jumping to #anchor */
+    scroll-padding-top: 80px;
+  }
+  /* Disable smooth scroll for users who prefer reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
   body {
     @apply bg-background text-foreground antialiased;
@@ -221,6 +230,10 @@
     @media (min-width: 768px) {
       min-height: 36px;
     }
+  }
+  /* But NOT for inline icon-only links inside text — those should stay small */
+  a[href^="#"], button:has(> svg:only-child) {
+    min-height: 0;
   }
 }
 
