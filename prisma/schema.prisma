@@ -1,0 +1,351 @@
+// =====================================================================
+// VENDE YA — Prisma Schema (SQLite dev / Supabase PostgreSQL prod)
+// =====================================================================
+// This schema mirrors the production Supabase schema (see
+// /docs/supabase-schema.sql). SQLite is used for local/dev only — the
+// prod target is PostgreSQL with Row Level Security enabled on every
+// table that stores user-generated content.
+// =====================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------
+// PROFILES — extends Supabase auth.users (1:1)
+// ---------------------------------------------------------------------
+model Profile {
+  id            String   @id @default(cuid())
+  // In Supabase: uuid, FK -> auth.users.id
+  authId        String?  @unique
+  username      String   @unique
+  displayName   String
+  avatarUrl     String?
+  bio           String? 
+  phone         String?  // E.164, used for Yape/Plin identity
+  whatsapp      String?
+  // Reputation 0..5 (average of all received ratings)
+  rating        Float    @default(0)
+  ratingsCount  Int      @default(0)
+  salesCount    Int      @default(0)
+  isVerified    Boolean  @default(false)
+  isLiveSeller  Boolean  @default(false)
+  // Seller stats
+  totalRevenue  Float    @default(0) // PEN
+  followerCount Int      @default(0)
+  // Moderation
+  isBanned      Boolean  @default(false)
+  bannedReason  String?
+  // i18n
+  locale        String   @default("es-PE")
+  // Geo (Peru)
+  department    String?  // e.g. "Lima", "Arequipa"
+  province      String?
+  district      String?
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastSeenAt    DateTime @default(now())
+
+  products      Product[]
+  auctions      Auction[]
+  bids          Bid[]
+  ratingsGiven  UserRating[] @relation("RatingFrom")
+  ratingsRecv   UserRating[] @relation("RatingTo")
+  chatMessages  LiveChatMessage[]
+  streams       LiveStream[]
+  followsFrom   Follow[]      @relation("FollowFrom")
+  followsTo     Follow[]      @relation("FollowTo")
+  notifications Notification[]
+  paymentsBuyer  Payment[]    @relation("PaymentBuyer")
+  paymentsSeller Payment[]    @relation("PaymentSeller")
+}
+
+// ---------------------------------------------------------------------
+// FOLLOWS — social graph (followers / following)
+// ---------------------------------------------------------------------
+model Follow {
+  id        String   @id @default(cuid())
+  followerId String
+  followeeId String
+  createdAt DateTime @default(now())
+
+  follower  Profile  @relation("FollowFrom", fields: [followerId], references: [id], onDelete: Cascade)
+  followee  Profile  @relation("FollowTo",   fields: [followeeId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followeeId])
+  @@index([followeeId])
+}
+
+// ---------------------------------------------------------------------
+// CATEGORIES — marketplace taxonomy
+// ---------------------------------------------------------------------
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique // e.g. "moda-mujer", "electronica"
+  nameEs    String   // Spanish (primary)
+  nameEn    String?
+  icon      String?  // lucide icon name
+  color     String?  // tailwind color hint
+  parentId  String?  // self-reference for sub-categories
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  parent    Category? @relation("CategoryTree", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryTree")
+  products  Product[]
+}
+
+// ---------------------------------------------------------------------
+// PRODUCTS — items listed in the marketplace
+// ---------------------------------------------------------------------
+model Product {
+  id          String   @id @default(cuid())
+  sellerId    String
+  categoryId  String?
+  title       String
+  description String  
+  // Pricing in PEN (Peruvian Sol)
+  basePrice   Float
+  currency    String   @default("PEN")
+  // Stock / condition
+  condition   String   @default("nuevo") // nuevo | usado-como-nuevo | usado-bueno | usado-aceptable
+  stock       Int      @default(1)
+  // Media (Cloudflare R2 keys; signed URLs minted by API route)
+  images      String   // JSON array of R2 keys
+  // Optional video VOD key (R2)
+  videoKey    String?
+  // Shipping
+  shippingFrom String? // department
+  shipsNationwide Boolean @default(true)
+  shippingCost Float   @default(0)
+  // Payment methods accepted (JSON array: ["yape","plin","pagoefectivo","card"])
+  paymentMethods String   @default("yape,plin")
+  // Status
+  status      String   @default("draft") // draft | active | sold | archived | flagged
+  // Moderation
+  aiModerationStatus String? @default("pending") // pending | approved | rejected | review
+  aiModerationReason String?
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  seller      Profile  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category    Category? @relation(fields: [categoryId], references: [id])
+  auctions    Auction[]
+  ratings     UserRating[]
+
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------
+// LIVE STREAMS — Cloudflare Stream sessions
+// ---------------------------------------------------------------------
+model LiveStream {
+  id              String   @id @default(cuid())
+  sellerId        String
+  streamKey       String   @unique // Cloudflare Stream live input key
+  playbackId      String?  // Cloudflare Stream playback ID (HLS/DASH)
+  title           String
+  description     String? 
+  thumbnailUrl    String?
+  // State
+  status          String   @default("scheduled") // scheduled | live | ended | error
+  isLive          Boolean  @default(false)
+  // Engagement counters (denormalized for fast reads)
+  viewerCount     Int      @default(0)
+  peakViewerCount Int      @default(0)
+  likeCount       Int      @default(0)
+  shareCount      Int      @default(0)
+  // Moderation
+  aiModerationEnabled Boolean @default(true)
+  // Timestamps
+  scheduledAt     DateTime?
+  startedAt       DateTime?
+  endedAt         DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  seller          Profile  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  auctions        Auction[]
+  chatMessages    LiveChatMessage[]
+
+  @@index([sellerId])
+  @@index([status])
+  @@index([isLive])
+}
+
+// ---------------------------------------------------------------------
+// AUCTIONS — sells a product inside a live stream
+// ---------------------------------------------------------------------
+model Auction {
+  id            String    @id @default(cuid())
+  streamId      String?
+  sellerId      String
+  productId     String
+  // Pricing (PEN)
+  startingPrice Float
+  currentPrice  Float
+  reservePrice  Float?
+  buyNowPrice   Float?
+  bidIncrement  Float     @default(1) // minimum step
+  // State
+  status        String    @default("scheduled") // scheduled | live | sold | canceled | expired
+  winnerId      String?
+  // Timing
+  startsAt      DateTime
+  endsAt        DateTime?
+  durationSec   Int       @default(180) // 3 min default
+  // Engagement
+  bidCount      Int       @default(0)
+  watcherCount  Int       @default(0)
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  stream        LiveStream? @relation(fields: [streamId], references: [id])
+  seller        Profile   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  product       Product   @relation(fields: [productId], references: [id])
+  bids          Bid[]
+  payments      Payment[]
+  ratings       UserRating[]
+
+  @@index([streamId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([startsAt])
+}
+
+// ---------------------------------------------------------------------
+// BIDS — Real-time table (replicated to Supabase Realtime)
+// ---------------------------------------------------------------------
+model Bid {
+  id         String   @id @default(cuid())
+  auctionId  String
+  bidderId   String
+  amount     Float    // PEN
+  isWinning  Boolean  @default(false)
+  isAutoBid  Boolean  @default(false)
+  // Soft anti-fraud
+  ipHash     String?
+  deviceFp   String?
+  // Timestamps (precise to ms for ordering — Supabase Realtime relies on this)
+  createdAt  DateTime @default(now())
+
+  auction    Auction  @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  bidder     Profile  @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+
+  @@index([auctionId, createdAt])
+  @@index([bidderId])
+  @@index([auctionId, bidderId])
+}
+
+// ---------------------------------------------------------------------
+// LIVE CHAT MESSAGES — Real-time table
+// ---------------------------------------------------------------------
+model LiveChatMessage {
+  id         String   @id @default(cuid())
+  streamId   String
+  senderId   String?
+  // For guest viewers (not signed in)
+  guestName  String?
+  content    String  
+  type       String   @default("user") // user | system | ai | pinned | bid-event
+  // Moderation (AI edge)
+  aiFlagged  Boolean  @default(false)
+  aiCategory String?  // profanity | spam | competitor-url | toxic | clean
+  aiScore    Float?   // 0..1
+  isHidden   Boolean  @default(false)
+  // Timestamps
+  createdAt  DateTime @default(now())
+
+  stream     LiveStream @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  sender     Profile?   @relation(fields: [senderId], references: [id])
+
+  @@index([streamId, createdAt])
+  @@index([aiFlagged])
+}
+
+// ---------------------------------------------------------------------
+// USER RATINGS — buyer/seller reputation
+// ---------------------------------------------------------------------
+model UserRating {
+  id          String   @id @default(cuid())
+  fromUserId  String
+  toUserId    String
+  productId   String?
+  auctionId   String?
+  // Rating 1..5 stars (half-star not supported for simplicity)
+  rating      Int
+  review      String? 
+  // Tags (JSON array: ["rapido","confiable","buena-calidad"])
+  tags        String? 
+  // Moderation
+  isFlagged   Boolean  @default(false)
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  fromUser    Profile  @relation("RatingFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser      Profile  @relation("RatingTo",   fields: [toUserId],   references: [id], onDelete: Cascade)
+  product     Product? @relation(fields: [productId], references: [id])
+  auction     Auction? @relation(fields: [auctionId], references: [id])
+
+  @@unique([fromUserId, toUserId, productId, auctionId])
+  @@index([toUserId])
+}
+
+// ---------------------------------------------------------------------
+// PAYMENTS — Yape / Plin / PagoEfectivo / Cards
+// ---------------------------------------------------------------------
+model Payment {
+  id            String   @id @default(cuid())
+  auctionId     String?
+  buyerId       String
+  sellerId      String
+  amount        Float    // PEN
+  currency      String   @default("PEN")
+  method        String   // yape | plin | pagoefectivo | card | transfer
+  methodRef     String?  // operation number / txn id
+  status        String   @default("pending") // pending | verified | disputed | refunded | failed
+  shippingAddr  String? 
+  shippingCost  Float    @default(0)
+  // Timestamps
+  createdAt     DateTime @default(now())
+  verifiedAt    DateTime?
+
+  buyer         Profile  @relation("PaymentBuyer", fields: [buyerId], references: [id])
+  seller        Profile  @relation("PaymentSeller", fields: [sellerId], references: [id])
+  auction       Auction? @relation(fields: [auctionId], references: [id])
+
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------
+// NOTIFICATIONS — in-app
+// ---------------------------------------------------------------------
+model Notification {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String   // bid-outbid | auction-won | auction-sold | new-follower | live-started | payment-verified | chat-mention
+  title      String
+  body       String? 
+  linkUrl    String?
+  isRead     Boolean  @default(false)
+  metadata   String?  // JSON
+  createdAt  DateTime @default(now())
+
+  user       Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
