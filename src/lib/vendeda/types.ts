@@ -188,17 +188,23 @@ export type SocketEvent =
   | 'stream:ended'
 
 export interface BidPayload {
+  id?: ID
   auctionId: ID
   bidderId: ID
   bidderName: string
   bidderAvatar?: string | null
   amount: number
-  currency: Currency
+  currency?: Currency
   isAutoBid: boolean
   timestamp: string
+  // Server-included extras (for state sync)
+  currentPrice?: number
+  bidCount?: number
+  endsAt?: number | null
 }
 
 export interface ChatPayload {
+  id?: ID
   streamId: ID
   senderId: ID | null
   senderName: string
@@ -207,10 +213,12 @@ export interface ChatPayload {
   type: ChatMessageType
   aiFlagged: boolean
   aiCategory?: ModerationCategory | null
+  aiScore?: number | null
   timestamp: string
 }
 
 export interface ReactionPayload {
+  id?: ID
   streamId: ID
   emoji: string
   userId?: ID | null

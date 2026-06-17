@@ -54,7 +54,7 @@ export const PAYMENT_METHODS: Record<
     icon: 'smartphone',
   },
   pagoefectivo: {
-    id: ' pagoefectivo'.trim(),
+    id: 'pagoefectivo',
     label: 'PagoEfectivo',
     labelEn: 'PagoEfectivo',
     color: '#FF5A1F', // Salsa

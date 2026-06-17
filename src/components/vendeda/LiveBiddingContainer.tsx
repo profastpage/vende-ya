@@ -261,7 +261,7 @@ export function LiveBiddingContainer({
     socket.on('chat:history', (p: { streamId: string; messages: ChatPayload[] }) => {
       if (p.streamId !== auction.streamId) return
       setChat(p.messages.map((m) => ({
-        id: m.id,
+        id: m.id ?? Math.random().toString(36).slice(2),
         streamId: m.streamId,
         senderId: m.senderId,
         sender: m.senderId ? {
