@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Link from 'next/link'
 import {
   Radio, TrendingUp, Flame, ChevronRight, Sparkles, Zap, ChevronLeft,
   Share2, Link2, Check,
@@ -24,8 +25,7 @@ import {
 } from '@/lib/vendeda/mock-data'
 import { formatPEN, formatViewers } from '@/lib/vendeda/format'
 import { APP_NAME } from '@/lib/vendeda/constants'
-
-type Tab = 'feed' | 'live' | 'create' | 'notifications' | 'profile'
+import { ROUTES } from '@/lib/vendeda/routes'
 
 /**
  * SectionHeading — renders a consistent h2 with an anchor + share button.
@@ -80,7 +80,6 @@ function SectionHeading({
 }
 
 export default function Home() {
-  const [activeTab, setActiveTab] = React.useState<Tab>('feed')
   const [activeCategory, setActiveCategory] = React.useState('all')
 
   return (
@@ -91,20 +90,20 @@ export default function Home() {
       {/* Mobile compact header */}
       <header className="md:hidden sticky top-0 z-30 bg-card/95 backdrop-blur-lg border-b pt-safe">
         <div className="flex items-center justify-between px-4 h-14">
-          <div className="flex items-center gap-2">
+          <Link href={ROUTES.home} className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-salsa-500 to-salsa-700 flex items-center justify-center">
               <span className="text-white font-bold">V</span>
             </div>
             <span className="font-bold text-base font-display">{APP_NAME}</span>
-          </div>
-          <a
-            href="#hero"
+          </Link>
+          <Link
+            href={ROUTES.live}
             className="flex items-center gap-1.5 px-2.5 h-8 rounded-full bg-salsa-50 text-salsa-700"
           >
             <span className="live-dot" />
             <span className="text-xs font-bold">EN VIVO</span>
             <span className="text-[10px] bg-salsa-200 text-salsa-800 rounded-full px-1.5 font-bold">3</span>
-          </a>
+          </Link>
         </div>
       </header>
 
@@ -137,12 +136,16 @@ export default function Home() {
               <Badge variant="outline" className="border-salsa-300 text-salsa-700 bg-salsa-50">
                 <Flame className="h-3 w-3 mr-1" /> Trending
               </Badge>
-              <Button variant="outline" size="sm">
-                <ChevronLeft className="h-4 w-4" /> Anterior
-              </Button>
-              <Button variant="outline" size="sm">
-                Siguiente <ChevronRight className="h-4 w-4" />
-              </Button>
+              <Link href={ROUTES.live}>
+                <Button variant="outline" size="sm">
+                  <ChevronLeft className="h-4 w-4" /> Anterior
+                </Button>
+              </Link>
+              <Link href={ROUTES.live}>
+                <Button variant="outline" size="sm">
+                  Siguiente <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
 
@@ -169,9 +172,11 @@ export default function Home() {
             icon={TrendingUp}
             title="Vendedores en tendencia"
             action={
-              <Button variant="ghost" size="sm" className="text-salsa-600">
-                Ver todos <ChevronRight className="h-4 w-4" />
-              </Button>
+              <Link href={`${ROUTES.marketplace}?filter=sellers`}>
+                <Button variant="ghost" size="sm" className="text-salsa-600">
+                  Ver todos <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Link>
             }
           />
           <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 pb-2">
@@ -207,9 +212,11 @@ export default function Home() {
                   </span>
                 }
                 action={
-                  <Button variant="ghost" size="sm" className="text-salsa-600">
-                    Ver todo <ChevronRight className="h-4 w-4" />
-                  </Button>
+                  <Link href={ROUTES.live}>
+                    <Button variant="ghost" size="sm" className="text-salsa-600">
+                      Ver todo <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
                 }
               />
               <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 pb-2">
@@ -250,9 +257,11 @@ export default function Home() {
                 icon={TrendingUp}
                 title="Productos del marketplace"
                 action={
-                  <Button variant="ghost" size="sm" className="text-salsa-600">
-                    Ver todo <ChevronRight className="h-4 w-4" />
-                  </Button>
+                  <Link href={ROUTES.marketplace}>
+                    <Button variant="ghost" size="sm" className="text-salsa-600">
+                      Ver todo <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
                 }
               />
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
@@ -377,7 +386,7 @@ export default function Home() {
       <QuickAuctionFab />
 
       {/* Mobile bottom nav */}
-      <MobileBottomNav active={activeTab} onChange={setActiveTab} />
+      <MobileBottomNav />
 
       {/* Footer */}
       <footer
@@ -392,10 +401,10 @@ export default function Home() {
             <span>© 2026 Vende Ya · Hecho en Perú 🇵🇪</span>
           </div>
           <div className="flex items-center gap-4">
-            <a href="#hero" className="hover:text-foreground">Términos</a>
-            <a href="#hero" className="hover:text-foreground">Privacidad</a>
-            <a href="#hero" className="hover:text-foreground">Soporte</a>
-            <a href="#hero" className="hover:text-foreground">Olva tracking</a>
+            <Link href={ROUTES.terminos} className="hover:text-foreground">Términos</Link>
+            <Link href={ROUTES.privacidad} className="hover:text-foreground">Privacidad</Link>
+            <Link href={ROUTES.soporte} className="hover:text-foreground">Soporte</Link>
+            <Link href={ROUTES.envios} className="hover:text-foreground">Olva tracking</Link>
           </div>
         </div>
       </footer>
