@@ -28,7 +28,7 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t pb-safe"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-zinc-950/95 backdrop-blur-xl border-t border-white/5 pb-safe"
       role="navigation"
       aria-label="Navegación principal"
     >
@@ -45,14 +45,14 @@ export function MobileBottomNav() {
                 aria-current={active ? 'page' : undefined}
               >
                 <div className={cn(
-                  'h-10 w-10 rounded-full flex items-center justify-center -mt-4 shadow-glow-salsa transition-transform active:scale-95',
-                  'bg-salsa-500 text-white'
+                  'h-10 w-10 rounded-full flex items-center justify-center -mt-4 shadow-lg shadow-fuchsia-500/40 transition-transform active:scale-95',
+                  'bg-gradient-to-br from-amber-400 to-fuchsia-600 text-zinc-950'
                 )}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <span className={cn(
                   'text-[10px] font-medium -mt-1',
-                  active ? 'text-salsa-600' : 'text-muted-foreground'
+                  active ? 'text-amber-400' : 'text-zinc-500'
                 )}>
                   {label}
                 </span>
@@ -69,11 +69,11 @@ export function MobileBottomNav() {
             >
               <Icon className={cn(
                 'h-5 w-5 transition-colors',
-                active ? 'text-salsa-500' : 'text-muted-foreground'
+                active ? 'text-amber-400' : 'text-zinc-500'
               )} />
               <span className={cn(
                 'text-[10px] font-medium',
-                active ? 'text-salsa-600' : 'text-muted-foreground'
+                active ? 'text-amber-400' : 'text-zinc-500'
               )}>
                 {label}
               </span>
