@@ -381,9 +381,9 @@ export default function Home() {
         </section>
 
         {/* ============================================================= */}
-        {/* BENTO KPIs                                                     */}
+        {/* BENTO KPIs — solo desktop (mobile queda más limpio/imersivo)    */}
         {/* ============================================================= */}
-        <section className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <section className="hidden md:grid mb-8 grid-cols-4 gap-4">
           <BentoKpi
             icon={Radio}
             label="En vivo ahora"
@@ -393,20 +393,20 @@ export default function Home() {
             gradient="linear-gradient(135deg, #f43f5e, #ec4899)"
           />
           <BentoKpi
-            icon={Package}
-            label="Productos activos"
-            value={String(MOCK_PRODUCTS.length)}
-            delta="+12 esta semana"
-            accent="text-amber-400"
-            gradient="linear-gradient(135deg, #fbbf24, #f59e0b)"
-          />
-          <BentoKpi
             icon={Gavel}
             label="Subastas abiertas"
             value={String(MOCK_TRENDING_AUCTIONS.length)}
             delta="3 cierran <5min"
             accent="text-fuchsia-400"
             gradient="linear-gradient(135deg, #d946ef, #a855f7)"
+          />
+          <BentoKpi
+            icon={Package}
+            label="Productos activos"
+            value={String(MOCK_PRODUCTS.length)}
+            delta="+12 esta semana"
+            accent="text-amber-400"
+            gradient="linear-gradient(135deg, #fbbf24, #f59e0b)"
           />
           <BentoKpi
             icon={Users}
@@ -436,7 +436,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
-            {MOCK_PROFILES.slice(0, 6).map((p, i) => (
+            {MOCK_PROFILES.slice(0, 4).map((p, i) => (
               <motion.div
                 key={p.id}
                 whileHover={{ y: -2 }}
@@ -488,8 +488,8 @@ export default function Home() {
               </button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {liveStreams.map((s) => (
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 md:grid md:grid-cols-3 md:overflow-visible md:mx-0 md:px-0">
+            {liveStreams.slice(0, 3).map((s) => (
               <LiveRailCard key={s.id} stream={s} />
             ))}
           </div>
@@ -517,7 +517,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-            {MOCK_TRENDING_AUCTIONS.slice(0, 6).map((a) => (
+            {MOCK_TRENDING_AUCTIONS.slice(0, 3).map((a) => (
               <AuctionBentoCard key={a.id} auction={a} />
             ))}
           </div>
@@ -540,8 +540,8 @@ export default function Home() {
               </button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-            {MOCK_PRODUCTS.slice(0, 10).map((p, i) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+            {MOCK_PRODUCTS.slice(0, 6).map((p, i) => (
               <ProductBentoCard key={p.id} product={p} index={i} />
             ))}
           </div>

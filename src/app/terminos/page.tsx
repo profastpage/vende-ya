@@ -71,12 +71,44 @@ const SECTIONS: TocItem[] = [
     title: '4. Comisiones',
     body: (
       <>
-        Vende Ya cobra una comisión del 5% sobre el precio final de cada venta
-        exitosa, descontada automáticamente del pago al vendedor. Los vendedores Pro
-        (suscripción S/. 29/mes) pagan 3% de comisión. No hay cargo por publicar
-        productos, pujar, ni por las transacciones fallidas. La comisión se calcula
-        sobre el precio del producto, sin incluir el costo de envío. Las refacturas
-        por ajustes se emiten dentro de los 5 días hábiles posteriores al cierre.
+        <p className="mb-3">
+          Vende Ya cobra comisiones diferenciales según el canal de venta, descontadas
+          automáticamente del pago al vendedor en el momento de la liquidación.
+          Los porcentajes vigentes a partir del 17 de junio de 2026 son:
+        </p>
+        <ul className="space-y-2 mb-3">
+          <li className="flex gap-3 text-zinc-200">
+            <span className="text-rose-400 font-black shrink-0 w-32">12%</span>
+            <span>
+              <span className="font-bold text-white">Subastas y ventas en vivo.</span>{' '}
+              Aplica a todas las transacciones realizadas dentro de un stream en vivo,
+              incluyendo pujas ganadoras, "Comprar ya" durante el en vivo, y reservas
+              efectuadas por el chat en vivo. La comisión cubre moderation con IA,
+              streaming, infraestructura de real-time y el fondo de protección al comprador.
+            </span>
+          </li>
+          <li className="flex gap-3 text-zinc-200">
+            <span className="text-amber-400 font-black shrink-0 w-32">8%</span>
+            <span>
+              <span className="font-bold text-white">Marketplace clásico.</span>{' '}
+              Aplica a productos publicados en el marketplace que se venden sin transmisión
+              en vivo (compra directa con carrito o "Comprar ya" fuera de un stream).
+              Incluye publicación, procesamiento de pago escrow y gestion de disputas.
+            </span>
+          </li>
+        </ul>
+        <p className="mb-2">
+          <span className="font-bold text-white">No hay cargo por:</span>{' '}
+          publicar productos, pujar, ni por transacciones fallidas o reembolsadas.
+          La comisión se calcula sobre el precio final del producto, sin incluir el costo
+          de envío ni los impuestos (IGV) si aplican.
+        </p>
+        <p>
+          <span className="font-bold text-white">Vendedores Pro</span> (suscripción
+          S/. 29/mes) reciben 1 punto porcentual de descuento en cada tramo: 11% en vivo,
+          7% marketplace. Las refacturas por ajustes se emiten dentro de los 5 días
+          hábiles posteriores al cierre contable mensual.
+        </p>
       </>
     ),
   },
@@ -221,7 +253,7 @@ export default function TermsPage() {
         >
           <div className="flex items-center gap-2 text-xs text-zinc-500">
             <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-            Última actualización: 17 de junio, 2026
+            Última actualización: 16 de agosto, 2026
           </div>
 
           {SECTIONS.map((section) => (

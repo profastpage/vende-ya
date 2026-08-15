@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Flame, Eye, Heart, BadgeCheck, Radio, Package, Users,
@@ -211,20 +210,6 @@ function ProductBentoCard({
   const seller: Profile = product.seller ?? MOCK_PROFILES[index % MOCK_PROFILES.length]
   const isNew = index < 3
 
-  // Stock pressure: derive a stable 0-100 from product.stock + index
-  const stockPercent = Math.min(
-    100,
-    Math.max(6, Math.round(((product.stock ?? 1) / 50) * 100) + (index % 7)),
-  )
-  const stockColor =
-    stockPercent < 25 ? 'bg-rose-500' : stockPercent < 60 ? 'bg-amber-400' : 'bg-lime-400'
-  const stockLabel =
-    stockPercent < 25
-      ? `¡Solo ${product.stock}!`
-      : stockPercent < 60
-        ? `Stock bajo · ${product.stock}u`
-        : `${product.stock} disponibles`
-
   // Offer math: fake original price 1.3x base, discount pct
   const originalPrice = isOfferItem ? Math.round(product.basePrice * 1.3) : null
   const discountPct = isOfferItem
@@ -314,35 +299,10 @@ function ProductBentoCard({
         )}
       </Link>
 
-      {/* Body */}
-      <div className="p-2.5 md:p-3">
-        {/* Seller chip */}
-        <Link
-          href={ROUTES.seller(seller.username)}
-          className="flex items-center gap-1.5 mb-1.5 min-w-0"
-        >
-          <Image
-            src="/logo.png"
-            alt={seller.displayName}
-            width={16}
-            height={16}
-            className="rounded-full shrink-0 object-cover"
-          />
-          <span className="text-[10px] text-zinc-400 font-medium truncate">
-            {seller.displayName}
-          </span>
-          {seller.isVerified && (
-            <BadgeCheck className="h-3 w-3 text-sky-400 shrink-0" />
-          )}
-        </Link>
-
-        {/* Title */}
-        <h3 className="text-xs font-semibold text-white line-clamp-2 leading-snug min-h-[2.4em]">
-          {product.title}
-        </h3>
-
-        {/* Price */}
-        <div className="mt-1.5 flex items-baseline gap-1.5">
+      {/* Body — estilo Facebook Marketplace: limpio y directo */}
+      <div className="p-2.5 md:p-3 space-y-1">
+        {/* Precio — principal, lo primero que ve el usuario */}
+        <div className="flex items-baseline gap-1.5">
           <span className="text-base font-black text-amber-400 tabular-nums">
             {formatPEN(product.basePrice)}
           </span>
@@ -353,24 +313,21 @@ function ProductBentoCard({
           )}
         </div>
 
-        {/* Stock pressure bar */}
-        <div className="mt-2">
-          <div className="h-[3px] w-full rounded-full bg-zinc-800 overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${stockPercent}%` }}
-              transition={{ duration: 0.6, delay: 0.1 + index * 0.04, ease: 'easeOut' }}
-              className={`h-full ${stockColor} rounded-full`}
-            />
-          </div>
-          <p
-            className={`mt-1 text-[9px] font-bold ${
-              stockPercent < 25 ? 'text-rose-400' : 'text-zinc-500'
-            }`}
-          >
-            {stockLabel}
-          </p>
-        </div>
+        {/* Título */}
+        <h3 className="text-xs font-semibold text-white line-clamp-2 leading-snug min-h-[2.4em]">
+          {product.title}
+        </h3>
+
+        {/* Vendedor + ubicación — una sola línea */}
+        <Link
+          href={ROUTES.seller(seller.username)}
+          className="flex items-center gap-1 pt-1 min-w-0 text-[10px] text-zinc-400 hover:text-amber-400 transition-colors"
+        >
+          {seller.isVerified && <BadgeCheck className="h-3 w-3 text-sky-400 shrink-0" />}
+          <span className="truncate font-medium">{seller.displayName}</span>
+          <span className="text-zinc-600">·</span>
+          <span className="truncate text-zinc-500">{seller.department}</span>
+        </Link>
       </div>
     </motion.div>
   )

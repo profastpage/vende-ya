@@ -1,15 +1,14 @@
 'use client'
 
 /**
- * MobileTopActions — Header móvil (sticky top)
+ * MobileTopActions — Header móvil ESTABLE (sin parpadeo)
  * =====================================================================
- * Contiene:
- *   Izquierda: Botón "En vivo" con badge de transmisiones activas (pulso)
- *   Centro:    Logo de la marca (/logo.png, sin wordmark para ahorrar espacio)
- *   Derecha:   Botón "Alertas" con badge de notificaciones no leídas
- *
- * Es exclusivo de mobile (md:hidden). En desktop se muestra DesktopTopNav.
- * Es sticky-top para que siga visible al hacer scroll.
+ * Cambios vs versión anterior:
+ *   - Eliminado `backdrop-blur-xl` (causa repaints constantes al scrollear).
+ *   - Eliminado `animate-ping` (animación GPU infinita que parpadea).
+ *   - Background sólido `bg-zinc-950` (no translúcido) para estabilidad.
+ *   - `transform: translateZ(0)` para forzar capa GPU sin animar.
+ *   - El "En vivo" sigue con un punto rojo estático (no animado) + badge.
  * =====================================================================
  */
 import * as React from 'react'
@@ -32,7 +31,8 @@ export function MobileTopActions() {
 
   return (
     <header
-      className="md:hidden sticky top-0 z-40 h-14 flex items-center justify-between px-3 bg-zinc-950/90 backdrop-blur-xl border-b border-white/5"
+      className="md:hidden sticky top-0 z-40 h-14 flex items-center justify-between px-3 bg-zinc-950 border-b border-white/5"
+      style={{ transform: 'translateZ(0)', willChange: 'transform' }}
       role="banner"
     >
       {/* === Izquierda: En vivo === */}
@@ -47,7 +47,6 @@ export function MobileTopActions() {
         aria-label="Ver transmisiones en vivo"
       >
         <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-rose-400 animate-ping opacity-75" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
         </span>
         <Radio className="h-4 w-4" />
