@@ -81,6 +81,8 @@ export default function CheckoutBottomSheet({
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [orderId, setOrderId] = useState<string | null>(null);
   const [trackingCode, setTrackingCode] = useState<string | null>(null);
+  // Sprint 2-A: QR dinámico retornado por Mercado Pago
+  const [qrData, setQrData] = useState<{ qrCode?: string; qrCodeBase64?: string; deepLink?: string } | null>(null);
 
   // Cálculo del split Modo A
   const split = calculateSplit({ totalAmount: price, source });
@@ -120,6 +122,14 @@ export default function CheckoutBottomSheet({
         if (data.shipment?.trackingCode) {
           setTrackingCode(data.shipment.trackingCode);
         }
+        // Sprint 2-A: guardar QR devuelto por Mercado Pago
+        if (data.gateway?.qrCodeBase64 || data.gateway?.qrCode) {
+          setQrData({
+            qrCode: data.gateway.qrCode,
+            qrCodeBase64: data.gateway.qrCodeBase64,
+            deepLink: data.gateway.deepLink,
+          });
+        }
         setOrderStatus('success');
       } else {
         setErrorMessage(data.error || 'No se pudo procesar el pago.');
@@ -141,6 +151,7 @@ export default function CheckoutBottomSheet({
     setErrorMessage('');
     setOrderId(null);
     setTrackingCode(null);
+    setQrData(null);
     onClose();
   };
 
@@ -414,6 +425,23 @@ export default function CheckoutBottomSheet({
                   <p className="text-xs text-slate-500 mb-4">
                     Orden <span className="font-mono">{orderId}</span>
                   </p>
+                )}
+                {qrData?.qrCodeBase64 && (
+                  <div className="bg-white p-2 rounded-xl mb-4 mx-auto w-fit">
+                    <img
+                      src={qrData.qrCodeBase64}
+                      alt="QR de pago"
+                      className="w-40 h-40"
+                    />
+                    {qrData.deepLink && (
+                      <a
+                        href={qrData.deepLink}
+                        className="block mt-2 text-xs font-bold text-slate-950 bg-amber-500 px-3 py-1.5 rounded-lg"
+                      >
+                        Abrir app Yape/Plin →
+                      </a>
+                    )}
+                  </div>
                 )}
                 {trackingCode && (
                   <div className="bg-slate-800 rounded-xl p-4 mb-6">

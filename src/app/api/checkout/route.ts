@@ -3,12 +3,12 @@ import { db } from '@/lib/db';
 import {
   calculateSplit,
   assertWalletReady,
-  generateMockTransactionId,
   type OrderSource,
   type PaymentMethod,
 } from '@/lib/vendeda/payments';
 import { shalomClient } from '@/lib/vendeda/shalom';
 import { getAuthenticatedUser } from '@/lib/vendeda/supabase-server';
+import { callGatewaySplit } from '@/lib/vendeda/gateway/mercadopago';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -135,20 +135,33 @@ export async function POST(request: Request) {
     }
 
     // =================================================================
-    // 5. PASARELA (split automático)
+    // 5. PASARELA — Split de Mercado Pago (Modo A)
     // =================================================================
-    // TODO Sprint 2-A: reemplazar por Mercado Pago OAuth split payment.
-    // Hasta entonces, simulamos el ID de transacción.
-    const gatewayTransactionId =
-      process.env.NODE_ENV === 'production' && process.env.GATEWAY_ACCESS_TOKEN
-        ? await callGatewaySplit({
-            gatewayToken,
-            totalAmount,
-            paymentMethod,
-            platformCommissionAmount: split.platformCommissionAmount,
-            gatewaySellerId: sellerWallet.gatewaySellerId,
-          })
-        : generateMockTransactionId();
+    // Sprint 2-A: usa el adapter real. En modo demo (sin MP_ACCESS_TOKEN)
+    // el adapter simula el cobro y devuelve un QR mock para Yape/Plin.
+    let gatewayResult;
+    try {
+      gatewayResult = await callGatewaySplit({
+        gatewayToken,
+        totalAmount,
+        paymentMethod,
+        platformCommissionAmount: split.platformCommissionAmount,
+        gatewaySellerId: sellerWallet.gatewaySellerId,
+        orderId: undefined, // se setea después de crear la orden
+        buyerEmail: user.email ?? undefined,
+      });
+    } catch (e) {
+      console.error('[/api/checkout] Gateway call failed:', e);
+      return NextResponse.json(
+        {
+          error:
+            'Mercado Pago rechazó el pago. Verifica tus datos o intenta con otro método.',
+          detail: (e as Error).message,
+        },
+        { status: 402 }
+      );
+    }
+    const gatewayTransactionId = gatewayResult.transactionId;
 
     // =================================================================
     // 6. INSERTAR ORDEN EN DB (buyerId verificado del JWT)
@@ -245,6 +258,14 @@ export async function POST(request: Request) {
         gatewayCost: split.gatewayFeeWithIgv,
         sellerNet: split.sellerNetAmount,
       },
+      gateway: {
+        transactionId: gatewayResult.transactionId,
+        status: gatewayResult.status,
+        // Para Yape/Plin: devolver QR para que el frontend lo muestre
+        qrCode: gatewayResult.qrCode,
+        qrCodeBase64: gatewayResult.qrCodeBase64,
+        deepLink: gatewayResult.deepLink,
+      },
       shipment: shipmentInfo,
     });
   } catch (error: any) {
@@ -254,20 +275,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
-
-// =====================================================================
-// GATEWAY ADAPTER (Mercado Pago / Culqi — Sprint 2-A)
-// =====================================================================
-async function callGatewaySplit(params: {
-  gatewayToken: string;
-  totalAmount: number;
-  paymentMethod: PaymentMethod;
-  platformCommissionAmount: number;
-  gatewaySellerId: string;
-}): Promise<string> {
-  // TODO Sprint 2-A: Implementar split de Mercado Pago con OAuth del vendedor.
-  // Por ahora, simulación — NO se llama en dev porque GATEWAY_ACCESS_TOKEN
-  // no está seteado.
-  return generateMockTransactionId();
 }

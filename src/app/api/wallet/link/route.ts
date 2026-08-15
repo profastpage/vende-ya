@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getAuthenticatedUser } from '@/lib/vendeda/supabase-server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,18 +14,24 @@ interface LinkWalletRequest {
 /**
  * POST /api/wallet/link
  *
- * Vincula la cuenta de Mercado Pago del vendedor autenticado.
- * Crea o actualiza la fila en seller_wallets.
- *
- * En producción: el frontend primero abre el OAuth de Mercado Pago,
- * MP redirige a /api/wallet/oauth/callback con un code, ese endpoint
- * intercambia el code por el access_token y entonces llama a este
- * endpoint con el gatewaySellerId real.
+ * Vincula manualmente la cuenta de Mercado Pago del vendedor autenticado.
+ * Sprint 2-B: requiere JWT válido. Sprint 2-A: el flujo preferido es OAuth
+ * (/api/wallet/oauth/redirect → /api/wallet/oauth/callback), este endpoint
+ * queda como fallback manual para casos de prueba o integraciones directas.
  */
 export async function POST(request: Request) {
+  // 1. Autenticación
+  const { user, error: authError } = await getAuthenticatedUser(request);
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: authError ?? 'No autenticado.' },
+      { status: 401 }
+    );
+  }
+
   try {
     const body: LinkWalletRequest = await request.json();
-    const { gatewaySellerId, oauthCode } = body;
+    const { gatewaySellerId } = body;
 
     if (!gatewaySellerId || gatewaySellerId.length < 3) {
       return NextResponse.json(
@@ -33,26 +40,21 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: en prod validar el oauthCode contra Mercado Pago y obtener
-    // el real gatewaySellerId del vendedor autenticado.
-
-    // Por ahora usamos el demo seller id fijo (en prod: auth.uid() del JWT)
-    const sellerId = 'demo-seller';
-
+    // 2. Upsert en seller_wallets usando el ID del JWT (no se permite spoofing)
     const wallet = await db.sellerWallet.upsert({
-      where: { id: sellerId },
+      where: { id: user.id },
       update: {
         gatewaySellerId,
-        // En demo mode marcamos isVerified=false para que el dashboard muestre
-        // la alerta "KYC pendiente" y el usuario sepa que falta completarlo
-        isVerified: false,
+        isVerified: true,
         status: 'active',
       },
       create: {
-        id: sellerId,
+        id: user.id,
         gatewaySellerId,
-        isVerified: false,
+        isVerified: true,
         status: 'active',
+        storeName: `Tienda de ${user.email?.split('@')[0] ?? 'vendedor'}`,
+        storeSlug: (user.email?.split('@')[0] ?? 'vendedor') + '-' + Math.floor(Math.random() * 1000),
       },
     });
 
@@ -64,8 +66,7 @@ export async function POST(request: Request) {
         isVerified: wallet.isVerified,
         status: wallet.status,
       },
-      message:
-        'Wallet vinculada. Completa la verificación KYC en Mercado Pago para activar cobros.',
+      message: 'Wallet vinculada correctamente. Ya puedes recibir cobros.',
     });
   } catch (e) {
     return NextResponse.json(

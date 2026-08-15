@@ -123,6 +123,9 @@ function VenderInner() {
 
   return (
     <>
+      {/* Wallet status banner — Sprint 2-A */}
+      <WalletOnboardingBanner />
+
       {/* Mode selector */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
         <ModeCard
@@ -445,5 +448,71 @@ function ModeCard({
       <div className="font-semibold">{title}</div>
       <div className="text-xs text-muted-foreground mt-1">{desc}</div>
     </button>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Sprint 2-A — Wallet onboarding banner
+// Verifica si la wallet del vendedor está activa; si no, muestra CTA.
+// ─────────────────────────────────────────────────────────────────────
+function WalletOnboardingBanner() {
+  const [state, setState] = React.useState<{
+    loading: boolean
+    status: string | null
+    isVerified: boolean | null
+  }>({ loading: true, status: null, isVerified: null })
+
+  React.useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.wallet) {
+          setState({
+            loading: false,
+            status: data.wallet.status,
+            isVerified: data.wallet.isVerified,
+          })
+        } else {
+          setState({ loading: false, status: null, isVerified: null })
+        }
+      })
+      .catch(() => setState({ loading: false, status: null, isVerified: null }))
+  }, [])
+
+  if (state.loading) {
+    return null
+  }
+
+  // Si la wallet ya está activa y verificada, no mostrar el banner
+  if (state.status === 'active' && state.isVerified) {
+    return (
+      <div className="mb-6 p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-2 text-emerald-900 text-sm">
+        <Check className="h-4 w-4" />
+        <span>Tu Mercado Pago está conectado. Recibirás los pagos automáticamente.</span>
+      </div>
+    )
+  }
+
+  // Si la wallet no está activa → mostrar CTA de onboarding
+  return (
+    <div className="mb-6 p-4 rounded-2xl bg-gradient-to-br from-amber-50 via-orange-50 to-purple-50 border border-amber-300 relative overflow-hidden">
+      <div className="absolute right-[-20px] top-[-20px] text-6xl opacity-10 select-none">🔌</div>
+      <div className="relative">
+        <div className="flex items-center gap-2 mb-1">
+          <DollarSign className="h-4 w-4 text-amber-600" />
+          <h3 className="font-bold text-amber-900 text-sm">Conecta tu Mercado Pago para vender</h3>
+        </div>
+        <p className="text-xs text-amber-800 max-w-md mb-3">
+          Antes de publicar, vincula tu cuenta de Mercado Pago. Recibirás pagos con Yape, Plin y tarjetas.
+          Vende Ya retiene automáticamente su comisión (12% en vivo, 8% en marketplace) y tú recibes el 90% neto.
+        </p>
+        <a
+          href="/api/wallet/oauth/redirect"
+          className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs px-4 py-2 rounded-lg active:scale-95 transition-all shadow-md"
+        >
+          Conectar Mercado Pago <ArrowRight className="h-3 w-3" />
+        </a>
+      </div>
+    </div>
   )
 }
