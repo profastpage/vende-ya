@@ -4,20 +4,18 @@ import * as React from 'react'
 import Link from 'next/link'
 import {
   Radio, TrendingUp, Flame, ChevronRight, Sparkles, Zap, ChevronLeft,
-  Share2, Link2, Check,
+  Share2, Link2, Check, Eye, Gavel, ShoppingBag, BadgeCheck, ArrowRight,
+  Play, Crown, Star, Heart, Users, Package, TrendingDown,
 } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { LiveBiddingContainer } from '@/components/vendeda/LiveBiddingContainer'
 import { MobileBottomNav } from '@/components/vendeda/MobileBottomNav'
 import { DesktopTopNav } from '@/components/vendeda/DesktopTopNav'
-import { CategorySidebar, CategoryRail } from '@/components/vendeda/CategorySidebar'
-import { QuickAuctionFab } from '@/components/vendeda/QuickAuctionFab'
 import { SectionNav, ScrollToTopButton, SECTIONS } from '@/components/vendeda/SectionNav'
+import { QuickAuctionFab } from '@/components/vendeda/QuickAuctionFab'
 import {
   AuctionCard, ProductCard, LiveStreamCard, SellerChip,
 } from '@/components/vendeda/cards'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 import {
   MOCK_AUCTION, MOCK_BIDS, MOCK_CHAT, MOCK_PROFILES, MOCK_PRODUCTS,
@@ -27,286 +25,564 @@ import { formatPEN, formatViewers } from '@/lib/vendeda/format'
 import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
 
-/**
- * SectionHeading — renders a consistent h2 with an anchor + share button.
- * The `id` becomes the deep-link target (e.g. /#marketplace).
- * Click the link icon to copy the shareable URL.
- */
-function SectionHeading({
-  id, icon: Icon, iconColor = 'text-salsa-500',
-  title, subtitle, action,
-}: {
-  id: string
-  icon: React.ElementType
-  iconColor?: string
-  title: string
-  subtitle?: React.ReactNode
-  action?: React.ReactNode
-}) {
-  const [copied, setCopied] = React.useState(false)
-  const { toast } = useToast()
+/* ---------------------------------------------------------------- */
+/* Ultra Inmersiva — Dark Premium Homepage                           */
+/* TikTok-style hero + bento grid + neon accents + glassmorphism     */
+/* ---------------------------------------------------------------- */
 
-  const copyLink = async () => {
-    const url = `${window.location.origin}${window.location.pathname}#${id}`
-    try {
-      await navigator.clipboard.writeText(url)
-      setCopied(true)
-      toast({ title: '🔗 Enlace copiado', description: url })
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      toast({ title: 'No se pudo copiar', variant: 'destructive' })
-    }
-  }
+function HeroStatPill({
+  icon: Icon, label, value, accent,
+}: {
+  icon: React.ElementType
+  label: string
+  value: string
+  accent: string
+}) {
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10">
+      <Icon className={`h-3.5 w-3.5 ${accent}`} />
+      <span className="text-[11px] text-zinc-400 font-medium">{label}</span>
+      <span className="text-xs font-bold text-white tabular-nums">{value}</span>
+    </div>
+  )
+}
+
+function BentoKpi({
+  icon: Icon, label, value, delta, accent, gradient,
+}: {
+  icon: React.ElementType
+  label: string
+  value: string
+  delta?: string
+  accent: string
+  gradient: string
+}) {
+  return (
+    <motion.div
+      whileHover={{ y: -2, scale: 1.01 }}
+      className="relative overflow-hidden rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-4 md:p-5"
+    >
+      {/* glow */}
+      <div
+        className="absolute -top-12 -right-12 h-32 w-32 rounded-full blur-3xl opacity-30"
+        style={{ background: gradient }}
+      />
+      <div className="relative flex items-start justify-between">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">{label}</p>
+          <p className="mt-1 text-2xl md:text-3xl font-black text-white tabular-nums">{value}</p>
+          {delta && (
+            <p className={`mt-1 text-[11px] font-bold ${accent}`}>{delta}</p>
+          )}
+        </div>
+        <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+          <Icon className={`h-5 w-5 ${accent}`} />
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+function LiveRailCard({ stream }: { stream: typeof MOCK_STREAMS[number] }) {
+  return (
+    <Link href={`/en-vivo/${stream.id}`} className="group block">
+      <motion.div
+        whileHover={{ y: -4 }}
+        className="relative overflow-hidden rounded-2xl bg-zinc-900 aspect-[3/4] border border-white/5"
+      >
+        {/* Thumbnail */}
+        <div
+          className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
+          style={{ backgroundImage: `url(${stream.thumbnailUrl ?? ''})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
+
+        {/* LIVE badge */}
+        <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-full bg-rose-500/90 backdrop-blur-md border border-rose-300/30">
+          <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+          <span className="text-[10px] font-bold text-white tracking-wide">LIVE</span>
+        </div>
+
+        {/* Viewers */}
+        <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+          <Eye className="h-3 w-3 text-amber-400" />
+          <span className="text-[10px] font-bold text-white tabular-nums">
+            {formatViewers(stream.viewerCount)}
+          </span>
+        </div>
+
+        {/* Bottom info */}
+        <div className="absolute inset-x-0 bottom-0 p-3">
+          <p className="text-xs font-bold text-white line-clamp-2 leading-tight">
+            {stream.title}
+          </p>
+          <div className="mt-1.5 flex items-center gap-1.5">
+            <div className="h-5 w-5 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center text-[9px] font-bold text-white">
+              {stream.seller?.displayName?.[0] ?? 'V'}
+            </div>
+            <span className="text-[10px] text-zinc-300 truncate">
+              {stream.seller?.displayName}
+            </span>
+            {stream.seller?.isVerified && (
+              <BadgeCheck className="h-3 w-3 text-sky-400 shrink-0" />
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </Link>
+  )
+}
+
+function ProductBentoCard({ product, index }: { product: typeof MOCK_PRODUCTS[number], index: number }) {
+  const stockPercent = Math.min(100, Math.max(0, ((product.stock ?? 0) / 50) * 100))
+  const stockColor = stockPercent < 25 ? 'bg-rose-500' : stockPercent < 60 ? 'bg-amber-400' : 'bg-lime-400'
+  const isNew = index < 3
+  const isOffer = index % 4 === 2
 
   return (
-    <div className="flex items-center justify-between mb-3 scroll-mt-20">
-      <div className="flex items-center gap-2 min-w-0">
-        <Icon className={`h-5 w-5 shrink-0 ${iconColor}`} />
-        <h2 className="text-lg md:text-xl font-bold font-display truncate">{title}</h2>
-        {subtitle}
-        {/* Anchor link — hover to reveal */}
-        <button
-          onClick={copyLink}
-          className="ml-1 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
-          aria-label={`Copiar enlace a ${title}`}
-          title="Copiar enlace directo"
-        >
-          {copied ? <Check className="h-3.5 w-3.5 text-lima-500" /> : <Link2 className="h-3.5 w-3.5" />}
+    <motion.div
+      whileHover={{ y: -4 }}
+      className="group relative overflow-hidden rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm"
+    >
+      {/* Image */}
+      <Link href={ROUTES.marketplace} className="block relative aspect-square overflow-hidden bg-zinc-950">
+        {product.images?.[0] && (
+          <img
+            src={product.images[0]}
+            alt={product.title}
+            className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+
+        {/* Badges */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
+          {isNew && (
+            <span className="px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 text-[9px] font-black tracking-wider">
+              NUEVO
+            </span>
+          )}
+          {isOffer && (
+            <span className="px-2 py-0.5 rounded-md bg-fuchsia-500 text-white text-[9px] font-black tracking-wider">
+              OFERTA
+            </span>
+          )}
+        </div>
+
+        {/* Like button */}
+        <button className="absolute top-2 right-2 h-7 w-7 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center group/like">
+          <Heart className="h-3.5 w-3.5 text-zinc-300 group-hover/like:text-rose-400 transition-colors" />
         </button>
+      </Link>
+
+      {/* Body */}
+      <div className="p-3">
+        <p className="text-xs font-semibold text-white line-clamp-2 leading-tight min-h-[2rem]">
+          {product.title}
+        </p>
+        <div className="mt-1 flex items-center justify-between">
+          <span className="text-sm font-black text-amber-400 tabular-nums">
+            {formatPEN(product.basePrice ?? 0)}
+          </span>
+          <span className="text-[10px] text-zinc-500">
+            Stock: {product.stock ?? 0}
+          </span>
+        </div>
+        {/* Stock pressure bar */}
+        <div className="mt-1.5 h-1 w-full rounded-full bg-zinc-800 overflow-hidden">
+          <div
+            className={`h-full ${stockColor} transition-all duration-500`}
+            style={{ width: `${stockPercent}%` }}
+          />
+        </div>
       </div>
-      {action}
-    </div>
+    </motion.div>
+  )
+}
+
+function AuctionBentoCard({ auction }: { auction: typeof MOCK_TRENDING_AUCTIONS[number] }) {
+  const [secs, setSecs] = React.useState(180)
+  React.useEffect(() => {
+    const t = setInterval(() => setSecs((s) => Math.max(0, s - 1)), 1000)
+    return () => clearInterval(t)
+  }, [])
+  const mm = String(Math.floor(secs / 60)).padStart(2, '0')
+  const ss = String(secs % 60).padStart(2, '0')
+
+  return (
+    <motion.div
+      whileHover={{ y: -3 }}
+      className="relative overflow-hidden rounded-2xl p-4 border border-fuchsia-500/20"
+      style={{
+        background: 'linear-gradient(135deg, rgba(168,85,247,0.18) 0%, rgba(34,19,94,0.6) 50%, rgba(9,9,11,0.95) 100%)',
+      }}
+    >
+      {/* glow */}
+      <div className="absolute -top-8 -right-8 h-24 w-24 rounded-full bg-fuchsia-500/30 blur-3xl" />
+
+      <div className="relative flex items-start gap-3">
+        <div className="h-16 w-16 rounded-xl overflow-hidden bg-zinc-800 shrink-0">
+          {auction.product?.images?.[0] && (
+            <img
+              src={auction.product.images[0]}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1 mb-1">
+            <Gavel className="h-3 w-3 text-fuchsia-400" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-fuchsia-400">
+              Subasta en vivo
+            </span>
+          </div>
+          <p className="text-xs font-bold text-white line-clamp-1">
+            {auction.product?.title}
+          </p>
+          <div className="mt-1 flex items-baseline gap-1">
+            <span className="text-[10px] text-zinc-400">Puja actual</span>
+            <span className="text-base font-black text-amber-400 tabular-nums">
+              {formatPEN(auction.currentPrice)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative mt-3 flex items-center justify-between">
+        <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-rose-500/15 border border-rose-500/30">
+          <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
+          <span className="text-[10px] font-bold text-rose-300 tabular-nums">{mm}:{ss}</span>
+        </div>
+        <Link
+          href={ROUTES.live}
+          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-[11px] font-bold flex items-center gap-1"
+        >
+          Pujar <ArrowRight className="h-3 w-3" />
+        </Link>
+      </div>
+    </motion.div>
   )
 }
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = React.useState('all')
+  const liveStreams = MOCK_STREAMS.filter((s) => s.isLive)
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* Desktop top nav */}
+    <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100 dark">
+      {/* Desktop top nav (kept original) */}
       <DesktopTopNav />
 
-      {/* Mobile compact header */}
-      <header className="md:hidden sticky top-0 z-30 bg-card/95 backdrop-blur-lg border-b pt-safe">
+      {/* Mobile dark compact header */}
+      <header className="md:hidden sticky top-0 z-30 bg-zinc-950/95 backdrop-blur-xl border-b border-white/5 pt-safe">
         <div className="flex items-center justify-between px-4 h-14">
           <Link href={ROUTES.home} className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-salsa-500 to-salsa-700 flex items-center justify-center">
-              <span className="text-white font-bold">V</span>
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/30">
+              <span className="text-white font-black">V</span>
             </div>
-            <span className="font-bold text-base font-display">{APP_NAME}</span>
+            <span className="font-bold text-base font-display text-white">{APP_NAME}</span>
           </Link>
           <Link
             href={ROUTES.live}
-            className="flex items-center gap-1.5 px-2.5 h-8 rounded-full bg-salsa-50 text-salsa-700"
+            className="flex items-center gap-1.5 px-2.5 h-8 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30"
           >
-            <span className="live-dot" />
+            <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
             <span className="text-xs font-bold">EN VIVO</span>
-            <span className="text-[10px] bg-salsa-200 text-salsa-800 rounded-full px-1.5 font-bold">3</span>
+            <span className="text-[10px] bg-rose-500 text-white rounded-full px-1.5 font-bold">{liveStreams.length}</span>
           </Link>
         </div>
       </header>
 
       <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 md:px-6 pt-4 pb-24 md:pb-12">
+
         {/* ============================================================= */}
-        {/* HERO — Live auction feature (deep-linkable: /#hero) */}
+        {/* HERO — TikTok-style full-bleed with glassmorphism overlays     */}
         {/* ============================================================= */}
         <section
           id="hero"
           aria-label="Subasta en vivo destacada"
           className="mb-6 md:mb-10 scroll-mt-20"
         >
-          <div className="flex items-end justify-between mb-3">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="live-dot" />
-                <span className="text-xs font-bold uppercase tracking-wider text-salsa-600">
-                  Subasta en vivo ahora
+          {/* Hero background image */}
+          <div className="relative overflow-hidden rounded-3xl border border-white/5">
+            {/* BG image */}
+            {MOCK_AUCTION.product?.images?.[0] && (
+              <div
+                className="absolute inset-0 bg-cover bg-center scale-105"
+                style={{ backgroundImage: `url(${MOCK_AUCTION.product.images[0]})` }}
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-950/95 via-zinc-950/70 to-fuchsia-950/60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-zinc-950/40" />
+
+            {/* Floating stats */}
+            <div className="absolute top-3 md:top-5 right-3 md:right-5 flex flex-wrap gap-2 justify-end">
+              <HeroStatPill
+                icon={Eye}
+                label="Espectadores"
+                value={formatViewers(MOCK_AUCTION.stream?.viewerCount ?? 0)}
+                accent="text-amber-400"
+              />
+              <HeroStatPill
+                icon={Flame}
+                label="Pujas"
+                value={String(MOCK_BIDS.length)}
+                accent="text-rose-400"
+              />
+              <HeroStatPill
+                icon={Gavel}
+                label="Actual"
+                value={formatPEN(MOCK_AUCTION.currentPrice)}
+                accent="text-fuchsia-400"
+              />
+            </div>
+
+            <div className="relative px-5 md:px-10 py-10 md:py-16 max-w-3xl">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/90 backdrop-blur-md border border-rose-300/30">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                  <span className="text-[11px] font-bold text-white tracking-wider">EN VIVO AHORA</span>
+                </span>
+                <span className="px-2 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-bold tracking-wider">
+                  <Flame className="inline h-3 w-3 mr-1" />TRENDING
                 </span>
               </div>
-              <h1 className="text-2xl md:text-4xl font-bold font-display tracking-tight">
+
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black font-display tracking-tight text-white leading-tight drop-shadow-2xl">
                 {MOCK_AUCTION.product?.title}
               </h1>
-              <p className="text-sm text-muted-foreground mt-1 hidden md:block">
-                Subasta en vivo con <span className="font-semibold text-foreground">{MOCK_AUCTION.seller?.displayName}</span>{' '}
-                · {formatViewers(MOCK_AUCTION.stream?.viewerCount ?? 0)} · Paga con Yape / Plin
+
+              <p className="mt-3 text-sm md:text-base text-zinc-300 max-w-xl">
+                Subasta en vivo con{' '}
+                <span className="font-bold text-white">
+                  {MOCK_AUCTION.seller?.displayName}
+                </span>{' '}
+                · {formatViewers(MOCK_AUCTION.stream?.viewerCount ?? 0)} espectadores · Paga con{' '}
+                <span className="text-amber-400 font-semibold">Yape</span>{' / '}
+                <span className="text-cyan-400 font-semibold">Plin</span>
               </p>
-            </div>
-            <div className="hidden md:flex items-center gap-2">
-              <Badge variant="outline" className="border-salsa-300 text-salsa-700 bg-salsa-50">
-                <Flame className="h-3 w-3 mr-1" /> Trending
-              </Badge>
-              <Link href={ROUTES.live}>
-                <Button variant="outline" size="sm">
-                  <ChevronLeft className="h-4 w-4" /> Anterior
-                </Button>
-              </Link>
-              <Link href={ROUTES.live}>
-                <Button variant="outline" size="sm">
-                  Siguiente <ChevronRight className="h-4 w-4" />
-                </Button>
-              </Link>
+
+              {/* Seller chip */}
+              <div className="mt-5 flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 w-fit">
+                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center text-sm font-black text-white">
+                  {MOCK_AUCTION.seller?.displayName?.[0] ?? 'V'}
+                </div>
+                <div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-bold text-white">
+                      {MOCK_AUCTION.seller?.displayName}
+                    </span>
+                    {MOCK_AUCTION.seller?.isVerified && (
+                      <BadgeCheck className="h-4 w-4 text-sky-400" />
+                    )}
+                  </div>
+                  <p className="text-[10px] text-zinc-400">Vendedor verificado · Lima, PE</p>
+                </div>
+              </div>
+
+              {/* CTAs */}
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <Link href={`/en-vivo/${MOCK_AUCTION.stream?.id ?? 's1'}`}>
+                  <button className="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950 font-black text-sm flex items-center gap-2 shadow-lg shadow-fuchsia-500/30 hover:shadow-fuchsia-500/50 transition-shadow">
+                    <Play className="h-4 w-4 fill-current" /> Unirse a la subasta
+                  </button>
+                </Link>
+                <Link href={ROUTES.marketplace}>
+                  <button className="px-5 py-3 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 text-white font-bold text-sm flex items-center gap-2 hover:bg-white/10 transition-colors">
+                    <ShoppingBag className="h-4 w-4" /> Explorar marketplace
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
+        </section>
 
-          <LiveBiddingContainer
-            auction={MOCK_AUCTION}
-            currentUser={MOCK_PROFILES[5]}
-            streamPosterUrl={MOCK_AUCTION.stream?.thumbnailUrl}
-            streamPlaybackId={MOCK_AUCTION.stream?.playbackId}
-            initialBids={MOCK_BIDS}
-            initialChat={MOCK_CHAT}
+        {/* ============================================================= */}
+        {/* BENTO KPIs                                                     */}
+        {/* ============================================================= */}
+        <section className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          <BentoKpi
+            icon={Radio}
+            label="En vivo ahora"
+            value={String(liveStreams.length)}
+            delta="+2 vs. ayer"
+            accent="text-rose-400"
+            gradient="linear-gradient(135deg, #f43f5e, #ec4899)"
+          />
+          <BentoKpi
+            icon={Package}
+            label="Productos activos"
+            value={String(MOCK_PRODUCTS.length)}
+            delta="+12 esta semana"
+            accent="text-amber-400"
+            gradient="linear-gradient(135deg, #fbbf24, #f59e0b)"
+          />
+          <BentoKpi
+            icon={Gavel}
+            label="Subastas abiertas"
+            value={String(MOCK_TRENDING_AUCTIONS.length)}
+            delta="3 cierran <5min"
+            accent="text-fuchsia-400"
+            gradient="linear-gradient(135deg, #d946ef, #a855f7)"
+          />
+          <BentoKpi
+            icon={Users}
+            label="Vendedores top"
+            value={String(MOCK_PROFILES.length)}
+            delta="+4 nuevos hoy"
+            accent="text-lime-400"
+            gradient="linear-gradient(135deg, #84cc16, #22c55e)"
           />
         </section>
 
         {/* ============================================================= */}
-        {/* SELLERS — deep-linkable: /#sellers */}
+        {/* SELLERS — Trending                                             */}
         {/* ============================================================= */}
-        <section
-          id="sellers"
-          aria-label="Vendedores en tendencia"
-          className="mb-6 md:mb-10 scroll-mt-20"
-        >
-          <SectionHeading
-            id="sellers"
-            icon={TrendingUp}
-            title="Vendedores en tendencia"
-            action={
-              <Link href={`${ROUTES.marketplace}?filter=sellers`}>
-                <Button variant="ghost" size="sm" className="text-salsa-600">
-                  Ver todos <ChevronRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            }
-          />
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 pb-2">
-            {MOCK_PROFILES.slice(0, 5).map((p) => (
-              <SellerChip key={p.id} profile={p} />
+        <section id="sellers" className="mb-8 md:mb-10 scroll-mt-20">
+          <div className="flex items-end justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Crown className="h-5 w-5 text-amber-400" />
+              <h2 className="text-lg md:text-xl font-black text-white font-display">
+                Vendedores en tendencia
+              </h2>
+            </div>
+            <Link href={`${ROUTES.marketplace}?filter=sellers`}>
+              <button className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1">
+                Ver todos <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
+            {MOCK_PROFILES.slice(0, 6).map((p, i) => (
+              <motion.div
+                key={p.id}
+                whileHover={{ y: -2 }}
+                className="shrink-0 flex flex-col items-center gap-2 p-3 rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm min-w-[100px]"
+              >
+                <div className="relative">
+                  <div className="h-14 w-14 rounded-full bg-gradient-to-br from-amber-400 via-rose-500 to-fuchsia-600 p-0.5">
+                    <div className="h-full w-full rounded-full bg-zinc-950 flex items-center justify-center text-xl font-black text-white">
+                      {p.displayName?.[0] ?? 'V'}
+                    </div>
+                  </div>
+                  {i === 0 && (
+                    <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-amber-400 flex items-center justify-center">
+                      <Crown className="h-3 w-3 text-zinc-950" />
+                    </div>
+                  )}
+                  {p.isVerified && (
+                    <BadgeCheck className="absolute -bottom-1 -right-1 h-5 w-5 text-sky-400 bg-zinc-950 rounded-full" />
+                  )}
+                </div>
+                <div className="text-center">
+                  <p className="text-xs font-bold text-white truncate max-w-[90px]">{p.displayName}</p>
+                  <p className="text-[10px] text-zinc-500">@{p.username ?? p.id}</p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </section>
 
         {/* ============================================================= */}
-        {/* MARKETPLACE — composite section: live-rail + auctions + products */}
-        {/* Deep-linkable: /#marketplace, /#live-rail, /#products */}
+        {/* LIVE RAIL — Streams en vivo                                    */}
         {/* ============================================================= */}
-        <section
-          id="marketplace"
-          aria-label="Marketplace"
-          className="flex gap-6 scroll-mt-20"
-        >
-          {/* Desktop categories sidebar */}
-          <CategorySidebar active={activeCategory} onSelect={setActiveCategory} />
-
-          {/* Feed grid */}
-          <div className="flex-1 min-w-0 space-y-6">
-            {/* Live now rail */}
-            <div id="live-rail" className="scroll-mt-20">
-              <SectionHeading
-                id="live-rail"
-                icon={Radio}
-                title="En vivo ahora"
-                subtitle={
-                  <span className="ml-1 text-xs text-muted-foreground font-normal">
-                    {MOCK_STREAMS.filter(s => s.isLive).length} transmisiones
-                  </span>
-                }
-                action={
-                  <Link href={ROUTES.live}>
-                    <Button variant="ghost" size="sm" className="text-salsa-600">
-                      Ver todo <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                }
-              />
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 pb-2">
-                {MOCK_STREAMS.filter(s => s.isLive).map((s) => (
-                  <LiveStreamCard key={s.id} stream={s} />
-                ))}
-              </div>
+        <section id="live-rail" className="mb-8 md:mb-10 scroll-mt-20">
+          <div className="flex items-end justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center h-6 w-6 rounded-full bg-rose-500/15 border border-rose-500/30">
+                <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
+              </span>
+              <h2 className="text-lg md:text-xl font-black text-white font-display">
+                En vivo ahora
+              </h2>
+              <span className="text-xs text-zinc-500">
+                {liveStreams.length} transmisiones
+              </span>
             </div>
-
-            {/* Mobile category rail */}
-            <CategoryRail active={activeCategory} onSelect={setActiveCategory} />
-
-            {/* Active auctions grid */}
-            <div id="auctions" className="scroll-mt-20">
-              <SectionHeading
-                id="auctions"
-                icon={Zap}
-                iconColor="text-lima-500"
-                title="Subastas activas"
-                subtitle={
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-2">
-                    <Sparkles className="h-3 w-3 text-plin-500" />
-                    <span>AI moderado</span>
-                  </div>
-                }
-              />
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-                {MOCK_TRENDING_AUCTIONS.map((a) => (
-                  <AuctionCard key={a.id} auction={a} />
-                ))}
-              </div>
-            </div>
-
-            {/* Marketplace products */}
-            <div id="products" className="scroll-mt-20">
-              <SectionHeading
-                id="products"
-                icon={TrendingUp}
-                title="Productos del marketplace"
-                action={
-                  <Link href={ROUTES.marketplace}>
-                    <Button variant="ghost" size="sm" className="text-salsa-600">
-                      Ver todo <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                }
-              />
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-                {MOCK_PRODUCTS.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
-            </div>
+            <Link href={ROUTES.live}>
+              <button className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1">
+                Ver todo <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </Link>
           </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+            {liveStreams.map((s) => (
+              <LiveRailCard key={s.id} stream={s} />
+            ))}
+          </div>
+        </section>
 
-          {/* Desktop right rail: trending + payments */}
-          <aside className="hidden xl:flex flex-col gap-4 w-72 shrink-0">
-            <div className="rounded-2xl border bg-card p-4 shadow-soft">
-              <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
-                <Flame className="h-4 w-4 text-salsa-500" />
-                Más pujado hoy
-              </h3>
-              <div className="space-y-2">
-                {MOCK_TRENDING_AUCTIONS.map((a, i) => (
-                  <div key={a.id} className="flex items-center gap-2 text-sm">
-                    <span className="text-xs font-bold text-muted-foreground w-4">{i + 1}</span>
-                    <div className="h-10 w-10 rounded-md overflow-hidden bg-muted shrink-0">
-                      {a.product?.images[0] && (
-                        <img src={a.product.images[0]} alt="" className="h-full w-full object-cover" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate">{a.product?.title}</p>
-                      <p className="text-xs text-salsa-600 font-bold tabular-nums">
-                        {formatPEN(a.currentPrice)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        {/* ============================================================= */}
+        {/* AUCTIONS BENTO — Active auctions                               */}
+        {/* ============================================================= */}
+        <section id="auctions" className="mb-8 md:mb-10 scroll-mt-20">
+          <div className="flex items-end justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Gavel className="h-5 w-5 text-fuchsia-400" />
+              <h2 className="text-lg md:text-xl font-black text-white font-display">
+                Subastas activas
+              </h2>
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30">
+                <Sparkles className="h-3 w-3 text-fuchsia-400" />
+                <span className="text-[10px] font-bold text-fuchsia-300">AI moderado</span>
+              </span>
             </div>
+            <Link href={ROUTES.live}>
+              <button className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1">
+                Ver todo <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+            {MOCK_TRENDING_AUCTIONS.slice(0, 6).map((a) => (
+              <AuctionBentoCard key={a.id} auction={a} />
+            ))}
+          </div>
+        </section>
 
-            <div className="rounded-2xl border bg-gradient-to-br from-salsa-500 to-salsa-700 p-4 text-white shadow-glow-salsa">
-              <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
-                <Sparkles className="h-4 w-4" /> Métodos de pago
-              </h3>
-              <p className="text-xs text-white/80 mb-3">
-                Paga tus subastas en segundos, 24/7.
+        {/* ============================================================= */}
+        {/* PRODUCTS BENTO GRID                                            */}
+        {/* ============================================================= */}
+        <section id="products" className="mb-8 md:mb-10 scroll-mt-20">
+          <div className="flex items-end justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <ShoppingBag className="h-5 w-5 text-amber-400" />
+              <h2 className="text-lg md:text-xl font-black text-white font-display">
+                Productos del marketplace
+              </h2>
+            </div>
+            <Link href={ROUTES.marketplace}>
+              <button className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1">
+                Ver todo <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+            {MOCK_PRODUCTS.slice(0, 10).map((p, i) => (
+              <ProductBentoCard key={p.id} product={p} index={i} />
+            ))}
+          </div>
+        </section>
+
+        {/* ============================================================= */}
+        {/* PAYMENTS STRIP                                                 */}
+        {/* ============================================================= */}
+        <section className="mb-8 md:mb-10 rounded-3xl border border-white/5 overflow-hidden">
+          <div className="relative p-6 md:p-8 bg-gradient-to-br from-fuchsia-950/40 via-zinc-900 to-amber-950/30">
+            <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-fuchsia-500/20 blur-3xl" />
+            <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-amber-500/20 blur-3xl" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-5 w-5 text-amber-400" />
+                <h3 className="text-lg md:text-xl font-black text-white">
+                  Paga en segundos, 24/7
+                </h3>
+              </div>
+              <p className="text-sm text-zinc-400 mb-4 max-w-xl">
+                Integrado con Mercado Pago. Subastas con escrow automático y logística Shalom a todo Perú.
               </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-wrap gap-2">
                 {[
                   { id: 'yape',  label: 'Yape',          color: '#7B2C8C' },
                   { id: 'plin',  label: 'Plin',          color: '#00B4D8' },
@@ -315,62 +591,65 @@ export default function Home() {
                 ].map((p) => (
                   <div
                     key={p.id}
-                    className="rounded-lg px-2 py-1.5 text-xs font-semibold text-center"
-                    style={{ backgroundColor: `${p.color}30`, color: '#fff', border: `1px solid ${p.color}` }}
+                    className="rounded-xl px-3 py-2 text-xs font-bold backdrop-blur-md"
+                    style={{
+                      backgroundColor: `${p.color}30`,
+                      color: '#fff',
+                      border: `1px solid ${p.color}`,
+                    }}
                   >
                     {p.label}
                   </div>
                 ))}
               </div>
             </div>
-
-            <div className="rounded-2xl border bg-card p-4 shadow-soft">
-              <h3 className="text-sm font-bold mb-2">🚚 Envíos a todo Perú</h3>
-              <p className="text-xs text-muted-foreground">
-                Olva · Shalom · Marvisur · Recojo en tienda.
-                <br /><br />
-                Coordina con el vendedor al cerrar la subasta por WhatsApp.
-              </p>
-            </div>
-          </aside>
+          </div>
         </section>
 
         {/* ============================================================= */}
-        {/* ARCHITECTURE — deep-linkable: /#architecture */}
+        {/* ARCHITECTURE                                                   */}
         {/* ============================================================= */}
         <section
           id="architecture"
           aria-label="Arquitectura del MVP"
-          className="hidden md:block mt-12 rounded-2xl border border-dashed bg-muted/30 p-6 scroll-mt-20"
+          className="hidden md:block mt-12 rounded-2xl border border-white/5 bg-zinc-900/40 p-6 scroll-mt-20"
         >
-          <SectionHeading
-            id="architecture"
-            icon={Sparkles}
-            iconColor="text-plin-500"
-            title="MVP Core Bootstrap — Architecture Summary"
-          />
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="h-5 w-5 text-amber-400" />
+            <h2 className="text-lg font-black text-white font-display">
+              MVP Core Bootstrap — Architecture
+            </h2>
+          </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-            <div>
-              <div className="font-semibold text-foreground mb-1">Frontend</div>
-              <p className="text-muted-foreground">
-                Next.js 16 App Router · TypeScript · Tailwind CSS 4 · shadcn/ui · Framer Motion. Mobile-first, safe-area aware, Core Web Vitals optimized.
+            <div className="rounded-xl p-3 bg-white/5 border border-white/5">
+              <div className="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+                <Zap className="h-3 w-3" /> Frontend
+              </div>
+              <p className="text-zinc-400">
+                Next.js 16 App Router · TypeScript · Tailwind CSS 4 · shadcn/ui · Framer Motion. Mobile-first, safe-area aware.
               </p>
             </div>
-            <div>
-              <div className="font-semibold text-foreground mb-1">Real-time</div>
-              <p className="text-muted-foreground">
-                Socket.io mini-service (port 3003) for bids + chat. In prod: Supabase Realtime replication of <code>bids</code> + <code>live_chat_messages</code>.
+            <div className="rounded-xl p-3 bg-white/5 border border-white/5">
+              <div className="font-bold text-fuchsia-400 mb-1 flex items-center gap-1.5">
+                <Radio className="h-3 w-3" /> Real-time
+              </div>
+              <p className="text-zinc-400">
+                Socket.io mini-service (port 3003) for bids + chat. In prod: Supabase Realtime replication.
               </p>
             </div>
-            <div>
-              <div className="font-semibold text-foreground mb-1">Database</div>
-              <p className="text-muted-foreground">
-                Supabase PostgreSQL with RLS on every user-generated table. <code>place_bid()</code> RPC prevents race conditions. See <code>/docs/supabase-schema.sql</code>.
+            <div className="rounded-xl p-3 bg-white/5 border border-white/5">
+              <div className="font-bold text-lime-400 mb-1 flex items-center gap-1.5">
+                <Package className="h-3 w-3" /> Database
+              </div>
+              <p className="text-zinc-400">
+                Supabase PostgreSQL with RLS on every user-generated table. <code className="text-amber-400">place_bid()</code> RPC prevents race conditions.
               </p>
             </div>
-            <div>
-              <div className="font-semibold text-foreground mb-1">AI Edge</div>
-              <p className="text-muted-foreground">
+            <div className="rounded-xl p-3 bg-white/5 border border-white/5">
+              <div className="font-bold text-sky-400 mb-1 flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3" /> AI Edge
+              </div>
+              <p className="text-zinc-400">
                 DeepSeek-V4 (moderation) + Qwen-2.5-72B (sales assistant) via z-ai-web-dev-sdk. Rule-based prefilter at zero token cost.
               </p>
             </div>
@@ -378,11 +657,9 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Floating section nav (scroll spy + deep linking UI) */}
+      {/* Floating section nav */}
       <SectionNav />
       <ScrollToTopButton />
-
-      {/* FAB */}
       <QuickAuctionFab />
 
       {/* Mobile bottom nav */}
@@ -391,20 +668,20 @@ export default function Home() {
       {/* Footer */}
       <footer
         id="footer"
-        className="hidden md:block mt-auto border-t bg-card/50 scroll-mt-20"
+        className="hidden md:block mt-auto border-t border-white/5 bg-zinc-950 scroll-mt-20"
       >
-        <div className="max-w-[1400px] mx-auto px-6 py-6 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="max-w-[1400px] mx-auto px-6 py-6 flex items-center justify-between text-xs text-zinc-500">
           <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-md bg-gradient-to-br from-salsa-500 to-salsa-700 flex items-center justify-center">
-              <span className="text-white text-xs font-bold">V</span>
+            <div className="h-6 w-6 rounded-md bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center">
+              <span className="text-white text-xs font-black">V</span>
             </div>
             <span>© 2026 Vende Ya · Hecho en Perú 🇵🇪</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href={ROUTES.terminos} className="hover:text-foreground">Términos</Link>
-            <Link href={ROUTES.privacidad} className="hover:text-foreground">Privacidad</Link>
-            <Link href={ROUTES.soporte} className="hover:text-foreground">Soporte</Link>
-            <Link href={ROUTES.envios} className="hover:text-foreground">Olva tracking</Link>
+            <Link href={ROUTES.terminos} className="hover:text-amber-400 transition-colors">Términos</Link>
+            <Link href={ROUTES.privacidad} className="hover:text-amber-400 transition-colors">Privacidad</Link>
+            <Link href={ROUTES.soporte} className="hover:text-amber-400 transition-colors">Soporte</Link>
+            <Link href={ROUTES.envios} className="hover:text-amber-400 transition-colors">Olva tracking</Link>
           </div>
         </div>
       </footer>
