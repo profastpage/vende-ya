@@ -7,12 +7,13 @@ import {
   Heart, Share2, ShoppingBag, Flag, Verified, Truck, Shield, Minus, Plus, Check,
 } from 'lucide-react'
 import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
+import CheckoutBottomSheet from '@/components/vendeda/CheckoutBottomSheet'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useToast } from '@/hooks/use-toast'
-import { MOCK_PRODUCTS } from '@/lib/vendeda/mock-data'
+import { MOCK_PRODUCTS, MOCK_PROFILES } from '@/lib/vendeda/mock-data'
 import { formatPEN, initials } from '@/lib/vendeda/format'
 import { PAYMENT_METHODS, SHIPPING_CARRIERS } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
@@ -22,6 +23,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const { toast } = useToast()
   const [qty, setQty] = React.useState(1)
   const [favorited, setFavorited] = React.useState(false)
+  const [checkoutOpen, setCheckoutOpen] = React.useState(false)
 
   const product = MOCK_PRODUCTS.find((p) => p.id === id)
   if (!product) notFound()
@@ -33,10 +35,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   ]
 
   const handleBuy = () => {
-    toast({
-      title: '🛒 Producto añadido al carrito',
-      description: `${qty} × ${product.title} = ${formatPEN(product.basePrice * qty)}`,
-    })
+    setCheckoutOpen(true)
   }
 
   const handleShare = async () => {
@@ -204,6 +203,31 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </Card>
         </div>
       </div>
+
+      {/* Checkout Bottom Sheet */}
+      <CheckoutBottomSheet
+        isOpen={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        productId={product.id}
+        productName={product.title}
+        price={product.basePrice * qty}
+        source="marketplace"
+        sellerId={seller?.id ?? 'demo-seller'}
+        buyerId={MOCK_PROFILES[5]?.id ?? 'demo-buyer'}
+        shipment={{
+          originAgencyId: 'LIM-01',
+          destinationAgencyId: 'LIM-02',
+          senderDni: '12345678',
+          senderName: seller?.displayName ?? 'Vendedor',
+          senderPhone: '999888777',
+          receiverDni: '87654321',
+          receiverName: MOCK_PROFILES[5]?.displayName ?? 'Comprador',
+          receiverPhone: '999111222',
+          packageDescription: `${qty}x ${product.title}`,
+          weightKg: 0.5 * qty,
+          declaredValue: product.basePrice * qty,
+        }}
+      />
     </AppShell>
   )
 }

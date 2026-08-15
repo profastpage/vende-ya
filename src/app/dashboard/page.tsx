@@ -5,6 +5,7 @@ import Link from 'next/link'
 import {
   LayoutDashboard, Gavel, Tag, MessageSquare, Heart, Settings,
   TrendingUp, Wallet, Bell, ShoppingBag, ArrowUpRight, Trophy,
+  AlertTriangle, Package, ShieldAlert, Loader2, Truck,
 } from 'lucide-react'
 import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
 import { AuthGuard } from '@/components/vendeda/AuthGuard'
@@ -25,7 +26,7 @@ const breadcrumbs: Breadcrumb[] = [{ label: 'Dashboard' }]
 const TABS = [
   { id: 'overview',       label: 'Resumen',      icon: LayoutDashboard },
   { id: 'bids',           label: 'Mis pujas',    icon: Gavel },
-  { id: 'auctions',       label: 'Mis ventas',   icon: Tag },
+  { id: 'sales',          label: 'Ventas',       icon: Tag },
   { id: 'messages',       label: 'Mensajes',     icon: MessageSquare },
   { id: 'favorites',      label: 'Favoritos',    icon: Heart },
   { id: 'settings',       label: 'Ajustes',      icon: Settings },
@@ -240,35 +241,8 @@ function DashboardContent() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="auctions">
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">Mis productos en venta</h3>
-              <Link href={ROUTES.vender}>
-                <Button size="sm" className="bg-salsa-500 hover:bg-salsa-600 text-white">
-                  <Tag className="h-4 w-4 mr-1" /> Subir nuevo
-                </Button>
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {MOCK_PRODUCTS.slice(0, 3).map((p) => (
-                <Link key={p.id} href={ROUTES.product(p.id)}>
-                  <Card className="overflow-hidden hover:shadow-soft transition-shadow">
-                    <div className="aspect-square bg-muted">
-                      {p.images[0] && (
-                        <img src={p.images[0]} alt={p.title} className="h-full w-full object-cover" />
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <p className="text-sm font-medium line-clamp-1">{p.title}</p>
-                      <p className="text-sm font-bold text-salsa-600">{formatPEN(p.basePrice)}</p>
-                      <Badge variant="secondary" className="mt-1 text-[10px]">{p.status}</Badge>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </Card>
+        <TabsContent value="sales">
+          <SalesPanel sellerId={user.id} />
         </TabsContent>
 
         <TabsContent value="messages">
@@ -376,4 +350,381 @@ function StatCard({
       <div className="text-[10px] text-muted-foreground/70 mt-0.5">{trend}</div>
     </Card>
   )
+}
+
+// ----------------------------------------------------------------------
+// SalesPanel — consume /api/seller/dashboard y muestra:
+//   - Wallet status (KYC, gateway seller id, estado de cuenta)
+//   - Resumen financiero (ventas, comisiones, neto, escrow pendiente)
+//   - Últimas órdenes con desglose completo del split Modo A
+//   - Envíos Shalom pendientes de dropoff (con acción "Imprimir guía")
+//   - Alertas de moderación (KYC faltante, suspended, banned, reports)
+//   - Reportes de copyright contra el vendedor (si los hay)
+// ----------------------------------------------------------------------
+interface SellerDashboardData {
+  wallet: {
+    id: string;
+    gatewaySellerId: string;
+    isVerified: boolean;
+    status: string;
+  };
+  summary: {
+    totalSales: number;
+    totalCommissions: number;
+    totalGatewayFees: number;
+    totalNet: number;
+    pendingEscrow: number;
+  };
+  recentOrders: Array<{
+    id: string;
+    buyerId: string;
+    source: string;
+    totalAmount: number;
+    platformCommissionAmount: number;
+    gatewayFeeAmount: number;
+    sellerNetAmount: number;
+    paymentStatus: string;
+    paymentMethod: string;
+    gatewayTransactionId: string | null;
+    createdAt: string;
+    shipment?: {
+      trackingCode: string | null;
+      shipmentStatus: string;
+      pdfLabelUrl: string | null;
+    } | null;
+  }>;
+  pendingDropoffs: Array<{
+    order: { id: string; totalAmount: number; buyerId: string };
+    shipment: { trackingCode: string | null; pdfLabelUrl: string | null };
+  }>;
+  copyrightReports: Array<{
+    id: string;
+    reporterEmail: string;
+    infringedBrand: string;
+    status: string;
+    createdAt: string;
+  }>;
+  alerts: Array<{ level: 'info' | 'warning' | 'critical'; message: string }>;
+}
+
+function SalesPanel({ sellerId }: { sellerId: string }) {
+  const { user } = useAuth()
+  // Demo sellerId fallback cuando no hay auth real configurado
+  const effectiveSellerId = user?.id ?? sellerId ?? 'demo-seller'
+
+  const { data, isLoading, error } = useSellerDashboard(effectiveSellerId)
+
+  if (isLoading) {
+    return (
+      <Card className="p-6 flex items-center justify-center min-h-[200px]">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </Card>
+    )
+  }
+
+  if (error || !data) {
+    return (
+      <Card className="p-6">
+        <p className="text-sm text-muted-foreground">
+          No se pudo cargar el panel de ventas. {error ?? 'Intenta más tarde.'}
+        </p>
+        <p className="text-xs text-muted-foreground mt-2">
+          Esto es normal si tu wallet aún no está registrada en Vende Ya.
+        </p>
+      </Card>
+    )
+  }
+
+  const { wallet, summary, recentOrders, pendingDropoffs, copyrightReports, alerts } = data
+
+  return (
+    <div className="space-y-4">
+      {/* Alertas de moderación */}
+      {alerts.length > 0 && (
+        <Card className="p-4 space-y-2 border-amber-200 bg-amber-50">
+          <div className="flex items-center gap-2 text-amber-900 font-semibold text-sm">
+            <AlertTriangle className="h-4 w-4" /> Alertas de moderación
+          </div>
+          {alerts.map((a, i) => (
+            <div
+              key={i}
+              className={cn(
+                'text-xs px-3 py-2 rounded-md',
+                a.level === 'critical'
+                  ? 'bg-rose-100 text-rose-800'
+                  : a.level === 'warning'
+                    ? 'bg-amber-100 text-amber-800'
+                    : 'bg-blue-100 text-blue-800'
+              )}
+            >
+              {a.message}
+            </div>
+          ))}
+        </Card>
+      )}
+
+      {/* Wallet card */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold flex items-center gap-2">
+            <Wallet className="h-4 w-4 text-lima-500" /> Mi Billetera
+          </h3>
+          <Link href={ROUTES.pagos}>
+            <Button size="sm" variant="outline">
+              <Wallet className="h-3 w-3 mr-1" /> Configurar
+            </Button>
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div>
+            <p className="text-xs text-muted-foreground">Estado</p>
+            <p className="font-semibold capitalize">{wallet.status}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Verificación KYC</p>
+            <p className={cn(
+              'font-semibold',
+              wallet.isVerified ? 'text-lima-600' : 'text-rose-600'
+            )}>
+              {wallet.isVerified ? '✓ Verificada' : '✗ Pendiente'}
+            </p>
+          </div>
+          <div className="col-span-2">
+            <p className="text-xs text-muted-foreground">Gateway Seller ID</p>
+            <p className="font-mono text-xs break-all">{wallet.gatewaySellerId}</p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Resumen financiero */}
+      <Card className="p-6">
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-salsa-500" /> Resumen financiero
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <StatCard
+            icon={Trophy}
+            label="Ventas totales"
+            value={formatPEN(summary.totalSales)}
+            trend="Últimas 20 órdenes"
+            color="text-salsa-500"
+          />
+          <StatCard
+            icon={Tag}
+            label="Comisiones Vende Ya"
+            value={formatPEN(summary.totalCommissions)}
+            trend="12% en vivo / 8% mkt"
+            color="text-amber-500"
+          />
+          <StatCard
+            icon={Wallet}
+            label="Costos pasarela"
+            value={formatPEN(summary.totalGatewayFees)}
+            trend="3.9% + IGV"
+            color="text-rose-500"
+          />
+          <StatCard
+            icon={TrendingUp}
+            label="Tu neto"
+            value={formatPEN(summary.totalNet)}
+            trend={`Escrow: ${formatPEN(summary.pendingEscrow)}`}
+            color="text-lima-500"
+          />
+        </div>
+      </Card>
+
+      {/* Envíos pendientes de dropoff */}
+      {pendingDropoffs.length > 0 && (
+        <Card className="p-6">
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <Truck className="h-4 w-4 text-salsa-500" /> Envíos Shalom pendientes
+            <Badge variant="secondary">{pendingDropoffs.length}</Badge>
+          </h3>
+          <div className="space-y-2">
+            {pendingDropoffs.map(({ order, shipment }) => (
+              <div
+                key={order.id}
+                className="flex items-center justify-between p-3 rounded-lg border bg-amber-50 border-amber-200"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">Orden {order.id.slice(0, 8)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatPEN(order.totalAmount)} · Tracking:{' '}
+                    <span className="font-mono">{shipment.trackingCode ?? 'Pendiente'}</span>
+                  </p>
+                </div>
+                {shipment.pdfLabelUrl && (
+                  <a
+                    href={shipment.pdfLabelUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button size="sm" variant="outline">
+                      <Package className="h-3 w-3 mr-1" /> Imprimir guía
+                    </Button>
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Reportes de copyright */}
+      {copyrightReports.length > 0 && (
+        <Card className="p-6 border-rose-200 bg-rose-50">
+          <h3 className="font-semibold mb-4 flex items-center gap-2 text-rose-900">
+            <ShieldAlert className="h-4 w-4 text-rose-500" /> Reportes de PI contra ti
+            <Badge variant="destructive">{copyrightReports.length}</Badge>
+          </h3>
+          <div className="space-y-2">
+            {copyrightReports.map((r) => (
+              <div key={r.id} className="p-3 rounded-lg bg-white border border-rose-200">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-sm font-medium">Marca: {r.infringedBrand}</p>
+                  <Badge
+                    variant={
+                      r.status === 'pending' ? 'destructive' :
+                      r.status === 'resolved_ban' ? 'destructive' :
+                      r.status === 'investigating' ? 'secondary' : 'outline'
+                    }
+                  >
+                    {r.status}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Reportado por {r.reporterEmail} · {timeAgoEs(new Date(r.createdAt))}
+                </p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-rose-700 mt-3">
+            Si crees que es un error, contacta a{' '}
+            <a
+              href="mailto:legal@vendeya.pe"
+              className="underline font-semibold"
+            >
+              legal@vendeya.pe
+            </a>{' '}
+            para apelar.
+          </p>
+        </Card>
+      )}
+
+      {/* Últimas órdenes */}
+      <Card className="p-6">
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <ShoppingBag className="h-4 w-4 text-lima-500" /> Últimas órdenes
+        </h3>
+        {recentOrders.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-6 text-center">
+            Aún no tienes ventas. ¡Publica tu primer producto!
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {recentOrders.map((o) => (
+              <div
+                key={o.id}
+                className="p-3 rounded-lg border hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs">#{o.id.slice(0, 8)}</span>
+                    <Badge variant="outline" className="text-[10px] capitalize">
+                      {o.source === 'live_stream' ? '🎥 En vivo' : '🛒 Marketplace'}
+                    </Badge>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {timeAgoEs(new Date(o.createdAt))}
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-2 text-[11px]">
+                  <div>
+                    <div className="text-muted-foreground">Total</div>
+                    <div className="font-semibold">{formatPEN(o.totalAmount)}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Comisión</div>
+                    <div className="text-rose-600 font-semibold">
+                      -{formatPEN(o.platformCommissionAmount)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Pasarela</div>
+                    <div className="text-rose-600 font-semibold">
+                      -{formatPEN(o.gatewayFeeAmount)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Neto</div>
+                    <div className="text-lima-600 font-semibold">
+                      {formatPEN(o.sellerNetAmount)}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t">
+                  <Badge
+                    variant={
+                      o.paymentStatus === 'released' ? 'default' :
+                      o.paymentStatus === 'escrow_hold' ? 'secondary' :
+                      o.paymentStatus === 'paid' ? 'secondary' :
+                      o.paymentStatus === 'refunded' ? 'destructive' : 'outline'
+                    }
+                    className="text-[10px] capitalize"
+                  >
+                    {o.paymentStatus.replace('_', ' ')}
+                  </Badge>
+                  <span className="text-[10px] text-muted-foreground capitalize">
+                    {o.paymentMethod.replace('_', ' ')}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Hook para consumir /api/seller/dashboard con polling cada 30s.
+ * Si la wallet no existe, devuelve error (manejado por el UI).
+ */
+function useSellerDashboard(sellerId: string) {
+  const [data, setData] = React.useState<SellerDashboardData | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
+  const [isLoading, setIsLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    let active = true
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`/api/seller/dashboard?sellerId=${encodeURIComponent(sellerId)}`)
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}))
+          throw new Error(body.error ?? `HTTP ${res.status}`)
+        }
+        const json = await res.json()
+        if (active) {
+          setData(json)
+          setError(null)
+        }
+      } catch (e) {
+        if (active) {
+          setError(e instanceof Error ? e.message : 'Error desconocido')
+        }
+      } finally {
+        if (active) setIsLoading(false)
+      }
+    }
+    fetchData()
+    const interval = setInterval(fetchData, 30000)
+    return () => {
+      active = false
+      clearInterval(interval)
+    }
+  }, [sellerId])
+
+  return { data, error, isLoading }
 }

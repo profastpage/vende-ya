@@ -2,9 +2,10 @@
 
 import * as React from 'react'
 import { notFound } from 'next/navigation'
-import { Radio, Eye, Heart, Share2, ShoppingBag, Flag, Verified, Truck, Shield } from 'lucide-react'
+import { Radio, Eye, Heart, Share2, ShoppingBag, Flag, Verified, Truck, Shield, Zap } from 'lucide-react'
 import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
 import { LiveBiddingContainer } from '@/components/vendeda/LiveBiddingContainer'
+import CheckoutBottomSheet from '@/components/vendeda/CheckoutBottomSheet'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -21,6 +22,7 @@ import Link from 'next/link'
 export default function AuctionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params)
   const { toast } = useToast()
+  const [checkoutOpen, setCheckoutOpen] = React.useState(false)
 
   // Find auction by ID (mock lookup; in prod: fetch from DB)
   const auction =
@@ -194,8 +196,56 @@ export default function AuctionDetailPage({ params }: { params: Promise<{ id: st
               <Flag className="h-3 w-3" /> Reportar esta subasta
             </button>
           </Card>
+
+          {/* Buy Now CTA */}
+          {auction.buyNowPrice && (
+            <Card className="p-5 bg-gradient-to-br from-salsa-50 to-amber-50 border-salsa-200">
+              <h3 className="text-sm font-semibold mb-2 flex items-center gap-2 text-salsa-900">
+                <Zap className="h-4 w-4 text-salsa-600" /> Comprar ahora
+              </h3>
+              <p className="text-2xl font-black text-salsa-700 mb-3">
+                {formatPEN(auction.buyNowPrice)}
+              </p>
+              <Button
+                onClick={() => setCheckoutOpen(true)}
+                className="w-full bg-salsa-500 hover:bg-salsa-600 text-white font-bold"
+                size="lg"
+              >
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                Comprar ahora
+              </Button>
+              <p className="text-[10px] text-muted-foreground text-center mt-2">
+                Pago seguro · Yape · Plin · Tarjeta
+              </p>
+            </Card>
+          )}
         </div>
       </div>
+
+      {/* Checkout Bottom Sheet */}
+      <CheckoutBottomSheet
+        isOpen={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        productId={product?.id ?? id}
+        productName={product?.title ?? 'Subasta'}
+        price={auction.buyNowPrice ?? auction.currentPrice}
+        source="live_stream"
+        sellerId={seller?.id ?? 'demo-seller'}
+        buyerId={MOCK_PROFILES[5]?.id ?? 'demo-buyer'}
+        shipment={{
+          originAgencyId: 'LIM-01',
+          destinationAgencyId: 'LIM-02',
+          senderDni: '12345678',
+          senderName: seller?.displayName ?? 'Vendedor',
+          senderPhone: '999888777',
+          receiverDni: '87654321',
+          receiverName: MOCK_PROFILES[5]?.displayName ?? 'Comprador',
+          receiverPhone: '999111222',
+          packageDescription: product?.title ?? 'Subasta',
+          weightKg: 0.5,
+          declaredValue: auction.buyNowPrice ?? auction.currentPrice,
+        }}
+      />
     </AppShell>
   )
 }

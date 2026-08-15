@@ -12,6 +12,9 @@ generator client {
 }
 
 datasource db {
+  // Local dev: SQLite (no requiere conexión externa)
+  // Production: cambia provider a "postgresql" y setea DATABASE_URL al
+  // pooler de Supabase en Vercel env vars. Schema SQL ya está aplicado en Supabase.
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
