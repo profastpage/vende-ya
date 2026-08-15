@@ -61,12 +61,14 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## ☁️ Deploy en Vercel
+## ☁️ Deploy en Vercel (automático)
+
+### Opción A — Vercel + GitHub Integration (recomendado, 5 min)
 
 1. **Importa el repo** en [vercel.com/new](https://vercel.com/new)
 2. **Framework Preset**: Next.js (auto-detectado)
-3. **Build Command**: `next build` (ya configurado en `package.json`)
-4. **Install Command**: `bun install` (o `npm install`)
+3. **Build Command**: `bun run build` (configurado en `vercel.json`)
+4. **Install Command**: `bun install` (configurado en `vercel.json`)
 5. **Environment Variables** (ver `.env.example` para la lista completa):
    - `DATABASE_URL` — Supabase Postgres pooler URL
    - `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`
@@ -74,7 +76,27 @@ Open [http://localhost:3000](http://localhost:3000)
    - `CLOUDFLARE_R2_*` (4 vars)
    - `NEXT_PUBLIC_REALTIME_URL` — URL del Socket.io service desplegado en Render/Fly
 
-Vercel auto-despliega en cada push a `main`.
+Cada push a `main` dispara automáticamente un deploy en Vercel.
+
+### Opción B — GitHub Actions + Vercel CLI (deploy desde CI)
+
+Ya está configurado el workflow `.github/workflows/deploy-vercel.yml`. Para activarlo:
+
+1. **Obtén tus credenciales de Vercel**:
+   - Ve a [vercel.com/account/tokens](https://vercel.com/account/tokens) → crea un token → copia el valor
+   - En tu proyecto de Vercel → Settings → General → copia **Org ID** y **Project ID**
+2. **Agrega secrets en GitHub** (repo → Settings → Secrets and variables → Actions):
+   - `VERCEL_TOKEN` — el token del paso 1
+   - `VERCEL_ORG_ID` — Org ID del paso 1
+   - `VERCEL_PROJECT_ID` — Project ID del paso 1
+3. Haz push a `main` → GitHub Actions desplegará en Vercel automáticamente.
+
+### Verificación post-deploy
+
+- Visitá tu URL de Vercel (algo como `https://vende-ya-xxxx.vercel.app`)
+- Verificá: Hero con subasta en vivo, scroll spy, marketplace, login, dashboard
+- Activá Vercel Analytics (gratis) en Project Settings → Analytics
+- Activá Speed Insights para medir Core Web Vitals
 
 ---
 

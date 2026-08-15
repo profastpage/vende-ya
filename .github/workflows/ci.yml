@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs when a new commit lands on the same ref
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-verify:
+    name: Build & Lint (frontend gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Use webpack locally — Vercel provides the @vercel/turbopack-next
+      # internal font module only on its own infra.
+      NEXT_BUILD_USE_WEBPACK: "1"
+      DATABASE_URL: "file:./db/ci.db"
+      NEXT_PUBLIC_APP_NAME: "Vende Ya"
+      NEXT_PUBLIC_DEFAULT_LOCALE: "es-PE"
+      NEXT_PUBLIC_DEFAULT_CURRENCY: "PEN"
+
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: 📦 Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            .next/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: 📥 Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: 🧬 Generate Prisma Client
+        run: bunx prisma generate
+
+      - name: 🧹 Lint
+        run: bun run lint
+        continue-on-error: true
+
+      - name: 🏗️ Build (frontend priority gate)
+        run: bun run build
+
+      - name: 📤 Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build-${{ github.sha }}
+          path: .next
+          retention-days: 3

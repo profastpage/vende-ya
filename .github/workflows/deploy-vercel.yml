@@ -1,0 +1,60 @@
+name: Deploy to Vercel (prod)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Prevent overlapping prod deploys on the same project
+concurrency:
+  group: vercel-prod-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: 🚀 Deploy to Vercel (production)
+    runs-on: ubuntu-latest
+    needs: []
+    if: github.repository == 'profastpage/vende-ya'
+    timeout-minutes: 15
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: 📥 Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: 🧬 Generate Prisma Client
+        run: bunx prisma generate
+
+      - name: 🔌 Pull Vercel env (production)
+        run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+        continue-on-error: true
+
+      - name: 🏗️ Build on Vercel (root build via Vercel CLI)
+        run: vercel build --prod --token "$VERCEL_TOKEN"
+
+      - name: 🚀 Deploy to production
+        id: deploy
+        run: |
+          DEPLOY_URL=$(vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN" 2>&1 | tee /tmp/deploy.log | tail -1)
+          echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+          echo "::notice::Production URL: $DEPLOY_URL"
+
+      - name: 🎯 Assign production alias
+        run: |
+          # The first deploy becomes the production deployment automatically.
+          # If you have a custom domain on Vercel, it's already wired.
+          echo "Deployed to: ${{ steps.deploy.outputs.deploy_url }}"
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.deploy_url }}
