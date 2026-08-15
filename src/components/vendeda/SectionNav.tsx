@@ -88,47 +88,46 @@ export function SectionNav() {
       {!hidden && (
         <motion.nav
           key="section-nav"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.2 }}
-          style={{
-            position: 'fixed',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 30,
-            bottom: typeof window !== 'undefined' && window.innerWidth >= 768 ? '1.5rem' : '5rem',
-            padding: '6px 8px',
-            borderRadius: '9999px',
-          }}
-          className="glass border border-border/40 shadow-lift max-w-[95vw] overflow-x-auto no-scrollbar"
+          exit={{ opacity: 0, y: -16 }}
+          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          // 🔧 Cambio clave: sticky-top (debajo del header móvil/desktop)
+          // en vez de la píldora flotante bottom-center que se cortaba.
+          // El navegador puede scrollear el contenido horizontalmente sin overflow.
+          className="sticky top-14 md:top-16 z-30 bg-zinc-950/85 backdrop-blur-xl border-b border-white/5"
           aria-label="Navegación de secciones"
         >
-          <ul className="flex items-center gap-0.5" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {SECTIONS.map((section) => {
-              const isActive = activeId === section.id
-              const Icon = section.icon
-              return (
-                <li key={section.id} style={{ listStyle: 'none' }}>
-                  <a
-                    href={`#${section.id}`}
-                    onClick={(e) => handleClick(e, section.id)}
-                    aria-current={isActive ? 'true' : undefined}
-                    className={cn(
-                      'flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all',
-                      isActive
-                        ? 'bg-salsa-500 text-white shadow-glow-salsa'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                    )}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">{section.label}</span>
-                    <span className="sm:hidden">{section.shortLabel}</span>
-                  </a>
-                </li>
-              )
-            })}
-          </ul>
+          {/* max-w-md en mobile para centrar y limitar el ancho; full en desktop */}
+          <div className="mx-auto w-full max-w-[1400px] px-2 md:px-6">
+            <ul
+              className="flex items-center gap-0.5 overflow-x-auto no-scrollbar py-2"
+              style={{ listStyle: 'none', margin: 0, padding: 0 }}
+            >
+              {SECTIONS.map((section) => {
+                const isActive = activeId === section.id
+                const Icon = section.icon
+                return (
+                  <li key={section.id} style={{ listStyle: 'none' }} className="shrink-0">
+                    <a
+                      href={`#${section.id}`}
+                      onClick={(e) => handleClick(e, section.id)}
+                      aria-current={isActive ? 'true' : undefined}
+                      className={cn(
+                        'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all',
+                        isActive
+                          ? 'bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950 shadow-md shadow-fuchsia-500/30'
+                          : 'text-zinc-400 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white'
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      <span>{section.shortLabel}</span>
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
         </motion.nav>
       )}
     </AnimatePresence>
@@ -153,10 +152,10 @@ export function ScrollToTopButton() {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.8 }}
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      className="fixed right-4 bottom-44 md:bottom-24 z-30 h-10 w-10 rounded-full bg-card border shadow-lift flex items-center justify-center hover:bg-muted transition-colors"
+      className="fixed right-4 bottom-24 md:bottom-8 z-30 h-10 w-10 rounded-full bg-zinc-900 border border-white/10 shadow-lg flex items-center justify-center hover:bg-zinc-800 transition-colors"
       aria-label="Volver al inicio"
     >
-      <ChevronUp className="h-5 w-5" />
+      <ChevronUp className="h-5 w-5 text-amber-400" />
     </motion.button>
   )
 }

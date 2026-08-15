@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { Search, Bell, MessageCircle, Radio, Plus, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -27,11 +28,16 @@ export function DesktopTopNav() {
       className="hidden md:flex sticky top-0 z-40 h-16 items-center gap-4 px-6 bg-zinc-950/85 backdrop-blur-xl border-b border-white/5"
       role="banner"
     >
-      {/* Logo */}
-      <Link href={ROUTES.home} className="flex items-center gap-2 shrink-0">
-        <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/30">
-          <span className="text-white font-black text-lg">V</span>
-        </div>
+      {/* Logo — imagen oficial /logo.png */}
+      <Link href={ROUTES.home} className="flex items-center gap-2 shrink-0" aria-label={APP_NAME}>
+        <Image
+          src="/logo.png"
+          alt={`${APP_NAME} — Subastas en vivo del Perú`}
+          width={36}
+          height={36}
+          priority
+          className="rounded-lg shadow-lg shadow-fuchsia-500/30 object-contain"
+        />
         <div className="leading-none">
           <div className="font-bold text-lg font-display tracking-tight text-white">{APP_NAME}</div>
           <div className="text-[10px] text-zinc-500 -mt-0.5">Subastas en vivo</div>

@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Flame, Eye, Heart, BadgeCheck, Radio, Package, Users,
@@ -320,9 +321,13 @@ function ProductBentoCard({
           href={ROUTES.seller(seller.username)}
           className="flex items-center gap-1.5 mb-1.5 min-w-0"
         >
-          <div className="h-4 w-4 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center text-[8px] font-black text-white shrink-0">
-            {seller.displayName.slice(0, 1)}
-          </div>
+          <Image
+            src="/logo.png"
+            alt={seller.displayName}
+            width={16}
+            height={16}
+            className="rounded-full shrink-0 object-cover"
+          />
           <span className="text-[10px] text-zinc-400 font-medium truncate">
             {seller.displayName}
           </span>

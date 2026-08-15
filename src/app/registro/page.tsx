@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/components/vendeda/AuthProvider'
+import { SocialAuthButtons } from '@/components/vendeda/SocialAuthButtons'
 import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { isValidPeruvianPhone } from '@/lib/vendeda/format'
@@ -77,7 +79,7 @@ const LEFT_FEATURES: ReadonlyArray<{
 export default function RegistroPage() {
   const router = useRouter()
   const { toast } = useToast()
-  const { signUp, isDemoMode } = useAuth()
+  const { signUp, signInWithOAuth, isDemoMode } = useAuth()
 
   const [name, setName] = React.useState('')
   const [username, setUsername] = React.useState('')
@@ -205,12 +207,17 @@ export default function RegistroPage() {
           <div className="pointer-events-none absolute -bottom-32 -left-10 h-[28rem] w-[28rem] rounded-full bg-fuchsia-600/20 blur-3xl" />
           <div className="pointer-events-none absolute top-1/3 left-1/4 h-72 w-72 rounded-full bg-purple-700/10 blur-3xl" />
 
-          {/* Logo + tagline */}
+          {/* Logo — imagen oficial /logo.png */}
           <div className="relative">
             <Link href={ROUTES.home} className="inline-flex items-center gap-2.5">
-              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/40">
-                <span className="text-zinc-950 font-black text-xl">V</span>
-              </div>
+              <Image
+                src="/logo.png"
+                alt={`${APP_NAME} — Subastas en vivo del Perú`}
+                width={56}
+                height={56}
+                priority
+                className="rounded-2xl shadow-lg shadow-fuchsia-500/40 object-contain"
+              />
               <div className="leading-none">
                 <div className="font-black text-2xl font-display tracking-tight bg-gradient-to-r from-amber-200 via-white to-fuchsia-200 bg-clip-text text-transparent">
                   {APP_NAME}
@@ -276,11 +283,16 @@ export default function RegistroPage() {
             className="w-full max-w-md"
           >
             <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl shadow-black/40">
-              {/* Mobile-only logo */}
+              {/* Mobile-only logo — imagen oficial /logo.png */}
               <Link href={ROUTES.home} className="mb-6 flex items-center gap-2.5 md:hidden">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center">
-                  <span className="text-zinc-950 font-black text-lg">V</span>
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt={`${APP_NAME} — Subastas en vivo del Perú`}
+                  width={44}
+                  height={44}
+                  priority
+                  className="rounded-xl object-contain"
+                />
                 <span className="font-black text-lg font-display text-white">{APP_NAME}</span>
               </Link>
 
@@ -497,6 +509,21 @@ export default function RegistroPage() {
                   )}
                 </button>
               </form>
+
+              {/* Social login — mismo componente que en /login (UX 1:1)
+                  Google (multicolor) / Facebook / Apple */}
+              <SocialAuthButtons
+                signInWithOAuth={signInWithOAuth}
+                onLoadingChange={setLoading}
+                onError={(msg) =>
+                  toast({
+                    title: '❌ No se pudo continuar',
+                    description: msg,
+                    variant: 'destructive',
+                  })
+                }
+                dividerLabel="o regístrate con"
+              />
 
               {/* Divider */}
               <div className="relative my-6">

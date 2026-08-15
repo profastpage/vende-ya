@@ -165,9 +165,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithOAuth = React.useCallback(async (provider: 'google' | 'facebook' | 'apple') => {
     if (supabase) {
+      // ⚠️ Antes de navegar el navegador a la URL de authorize, hacemos un
+      // probe server-side a través de /api/auth/oauth-check (mismo origen,
+      // sin CORS). Si Supabase responde 400 con `error_code: validation_failed`,
+      // devolvemos el body crudo para que humanizeOAuthError() lo traduzca.
+      // Si responde 302 / OK, dejamos que el cliente JS de Supabase navegue
+      // normalmente (signInWithOAuth sin skipBrowserRedirect).
+      const redirectTo = window.location.origin + '/dashboard'
+      const probeUrl =
+        `/api/auth/oauth-check?provider=${encodeURIComponent(provider)}` +
+        `&redirect_to=${encodeURIComponent(redirectTo)}`
+
+      try {
+        const probe = await fetch(probeUrl, { method: 'GET' })
+        const json: { ok?: boolean; status?: number; body?: string } =
+          await probe.json().catch(() => ({ ok: true }))
+
+        if (json.ok === false) {
+          // Provider no habilitado o error de configuración.
+          // Devolvemos el body crudo (probablemente JSON serializado de Supabase)
+          // para que humanizeOAuthError() lo traduzca al español.
+          return { error: json.body ?? `HTTP ${json.status ?? 500}` }
+        }
+      } catch {
+        // Si el probe falla (red caída), dejamos que el flujo OAuth intente
+        // navegar normalmente — el navegador mostrará el error de Supabase.
+      }
+
+      // El provider está habilitado → navegación normal.
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: window.location.origin + '/dashboard' },
+        options: { redirectTo },
       })
       return { error: error?.message ?? null }
     }

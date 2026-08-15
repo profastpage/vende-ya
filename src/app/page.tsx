@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   Radio, TrendingUp, Flame, ChevronRight, Sparkles, Zap, ChevronLeft,
   Share2, Link2, Check, Eye, Gavel, ShoppingBag, BadgeCheck, ArrowRight,
@@ -269,7 +270,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100 dark">
-      <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 md:px-6 pt-4 pb-24 md:pb-12">
+      {/* SectionNav: sticky-top, debajo del header móvil/desktop.
+          Debe estar ANTES del main para que el sticky funcione en todo el scroll. */}
+      <SectionNav />
+
+      {/* pb-28: espacio seguro inferior para que el contenido pase por detrás
+          del MobileBottomNav fijo (h-16 + safe-area) sin colisionar ni cortarse */}
+      <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 md:px-6 pt-4 pb-28 md:pb-12">
 
         {/* ============================================================= */}
         {/* HERO — TikTok-style full-bleed with glassmorphism overlays     */}
@@ -277,7 +284,7 @@ export default function Home() {
         <section
           id="hero"
           aria-label="Subasta en vivo destacada"
-          className="mb-6 md:mb-10 scroll-mt-20"
+          className="mb-6 md:mb-10 scroll-mt-32 md:scroll-mt-20"
         >
           {/* Hero background image */}
           <div className="relative overflow-hidden rounded-3xl border border-white/5">
@@ -414,7 +421,7 @@ export default function Home() {
         {/* ============================================================= */}
         {/* SELLERS — Trending                                             */}
         {/* ============================================================= */}
-        <section id="sellers" className="mb-8 md:mb-10 scroll-mt-20">
+        <section id="sellers" className="mb-8 md:mb-10 scroll-mt-32 md:scroll-mt-20">
           <div className="flex items-end justify-between mb-3">
             <div className="flex items-center gap-2">
               <Crown className="h-5 w-5 text-amber-400" />
@@ -462,7 +469,7 @@ export default function Home() {
         {/* ============================================================= */}
         {/* LIVE RAIL — Streams en vivo                                    */}
         {/* ============================================================= */}
-        <section id="live-rail" className="mb-8 md:mb-10 scroll-mt-20">
+        <section id="live-rail" className="mb-8 md:mb-10 scroll-mt-32 md:scroll-mt-20">
           <div className="flex items-end justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="flex items-center justify-center h-6 w-6 rounded-full bg-rose-500/15 border border-rose-500/30">
@@ -491,7 +498,7 @@ export default function Home() {
         {/* ============================================================= */}
         {/* AUCTIONS BENTO — Active auctions                               */}
         {/* ============================================================= */}
-        <section id="auctions" className="mb-8 md:mb-10 scroll-mt-20">
+        <section id="auctions" className="mb-8 md:mb-10 scroll-mt-32 md:scroll-mt-20">
           <div className="flex items-end justify-between mb-3">
             <div className="flex items-center gap-2">
               <Gavel className="h-5 w-5 text-fuchsia-400" />
@@ -519,7 +526,7 @@ export default function Home() {
         {/* ============================================================= */}
         {/* PRODUCTS BENTO GRID                                            */}
         {/* ============================================================= */}
-        <section id="products" className="mb-8 md:mb-10 scroll-mt-20">
+        <section id="products" className="mb-8 md:mb-10 scroll-mt-32 md:scroll-mt-20">
           <div className="flex items-end justify-between mb-3">
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-5 w-5 text-amber-400" />
@@ -632,8 +639,7 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Floating section nav */}
-      <SectionNav />
+      {/* Scroll-to-top FAB (después de main para que no sea sticky) */}
       <ScrollToTopButton />
       <QuickAuctionFab />
 
@@ -644,9 +650,14 @@ export default function Home() {
       >
         <div className="max-w-[1400px] mx-auto px-6 py-6 flex items-center justify-between text-xs text-zinc-500">
           <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-md bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center">
-              <span className="text-white text-xs font-black">V</span>
-            </div>
+            <Image
+              src="/logo.png"
+              alt="Vende Ya"
+              width={24}
+              height={24}
+              priority
+              className="rounded-md object-contain"
+            />
             <span>© 2026 Vende Ya · Hecho en Perú 🇵🇪</span>
           </div>
           <div className="flex items-center gap-4">

@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeft, ChevronRight } from 'lucide-react'
 import { QuickAuctionFab } from '@/components/vendeda/QuickAuctionFab'
 import { APP_NAME } from '@/lib/vendeda/constants'
@@ -80,9 +81,14 @@ export function StaticPageShell({
             </div>
           </div>
           <Link href={ROUTES.home} className="flex items-center gap-2 shrink-0" aria-label={APP_NAME}>
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/30">
-              <span className="text-white font-black text-sm">V</span>
-            </div>
+            <Image
+              src="/logo.png"
+              alt={`${APP_NAME} — Subastas en vivo del Perú`}
+              width={32}
+              height={32}
+              priority
+              className="rounded-lg shadow-lg shadow-fuchsia-500/30 object-contain"
+            />
           </Link>
         </div>
       </header>

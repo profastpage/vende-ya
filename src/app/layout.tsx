@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/vendeda/theme-provider";
 import { AuthProvider } from "@/components/vendeda/AuthProvider";
 import { PWAInstallPrompt, PWAUpdateBanner } from "@/components/vendeda/PWA";
 import { DesktopTopNav } from "@/components/vendeda/DesktopTopNav";
+import { MobileTopActions } from "@/components/vendeda/MobileTopActions";
 import { MobileBottomNav } from "@/components/vendeda/MobileBottomNav";
 
 const geistSans = Geist({
@@ -45,6 +46,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any" },
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
@@ -52,6 +54,7 @@ export const metadata: Metadata = {
     apple: [
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
+    shortcut: ["/favicon.ico"],
   },
   appleWebApp: {
     capable: true,
@@ -74,7 +77,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FF5A1F" },
+    { media: "(prefers-color-scheme: light)", color: "#7A1342" },
     { media: "(prefers-color-scheme: dark)",  color: "#1A1410" },
   ],
   width: "device-width",
@@ -114,6 +117,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <DesktopTopNav />
+            <MobileTopActions />
             {children}
             <MobileBottomNav />
             <Toaster />
