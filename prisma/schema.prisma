@@ -349,3 +349,92 @@ model Notification {
   @@index([userId, isRead])
   @@index([createdAt])
 }
+
+// ---------------------------------------------------------------------
+// SELLER WALLETS — cuentas de cobro conectadas (Mercado Pago / Culqi)
+// ---------------------------------------------------------------------
+model SellerWallet {
+  id              String   @id @default(cuid()) // en prod: uuid -> auth.users.id
+  gatewaySellerId String
+  isVerified      Boolean  @default(false)
+  status          String   @default("active") // active | suspended | banned
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+
+  ordersBuyer       Order[]        @relation("OrderBuyer")
+  ordersSeller      Order[]        @relation("OrderSeller")
+  copyrightReports  CopyrightReport[]
+
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------
+// ORDERS — Split de pagos Modo A (vendedor absorbe comisiones)
+// ---------------------------------------------------------------------
+model Order {
+  id                       String   @id @default(cuid())
+  buyerId                  String
+  sellerId                 String
+  source                   String   // live_stream | marketplace
+  totalAmount              Float
+  platformCommissionRate   Float    // 12.00 o 8.00 (porcentaje)
+  platformCommissionAmount Float
+  gatewayFeeAmount         Float
+  sellerNetAmount          Float
+  paymentStatus            String   @default("pending") // pending | paid | escrow_hold | released | refunded
+  paymentMethod            String   // yape | plin | credit_card | pago_efectivo
+  gatewayTransactionId     String?  @unique
+  createdAt                DateTime @default(now())
+
+  buyer                    SellerWallet @relation("OrderBuyer",  fields: [buyerId],  references: [id])
+  seller                   SellerWallet @relation("OrderSeller", fields: [sellerId], references: [id])
+  shipment                 ShalomShipment?
+
+  @@index([sellerId])
+  @@index([buyerId])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------
+// SHALOM SHIPMENTS — envíos agencia-a-agencia
+// ---------------------------------------------------------------------
+model ShalomShipment {
+  id                  String   @id @default(cuid())
+  orderId             String   @unique
+  trackingCode        String?  @unique
+  originAgencyId      String
+  destinationAgencyId String
+  senderDni           String
+  receiverDni         String
+  shippingCost        Float
+  shipmentStatus      String   @default("pending_dropoff") // pending_dropoff | in_transit | ready_for_pickup | delivered
+  pdfLabelUrl         String?
+  updatedAt           DateTime @updatedAt
+  createdAt           DateTime @default(now())
+
+  order                Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([shipmentStatus])
+  @@index([trackingCode])
+}
+
+// ---------------------------------------------------------------------
+// COPYRIGHT REPORTS — DMCA / Indecopi (programa "Verifica")
+// ---------------------------------------------------------------------
+model CopyrightReport {
+  id                       String   @id @default(cuid())
+  reporterEmail            String
+  targetSellerId           String
+  targetOrderOrStreamId    String
+  infringedBrand           String
+  evidenceUrl              String?
+  status                   String   @default("pending") // pending | investigating | resolved_ban | rejected
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  targetSeller             SellerWallet @relation(fields: [targetSellerId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([targetSellerId])
+}
