@@ -9,8 +9,6 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LiveBiddingContainer } from '@/components/vendeda/LiveBiddingContainer'
-import { MobileBottomNav } from '@/components/vendeda/MobileBottomNav'
-import { DesktopTopNav } from '@/components/vendeda/DesktopTopNav'
 import { SectionNav, ScrollToTopButton, SECTIONS } from '@/components/vendeda/SectionNav'
 import { QuickAuctionFab } from '@/components/vendeda/QuickAuctionFab'
 import {
@@ -271,29 +269,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100 dark">
-      {/* Desktop top nav (kept original) */}
-      <DesktopTopNav />
-
-      {/* Mobile dark compact header */}
-      <header className="md:hidden sticky top-0 z-30 bg-zinc-950/95 backdrop-blur-xl border-b border-white/5 pt-safe">
-        <div className="flex items-center justify-between px-4 h-14">
-          <Link href={ROUTES.home} className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/30">
-              <span className="text-white font-black">V</span>
-            </div>
-            <span className="font-bold text-base font-display text-white">{APP_NAME}</span>
-          </Link>
-          <Link
-            href={ROUTES.live}
-            className="flex items-center gap-1.5 px-2.5 h-8 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
-            <span className="text-xs font-bold">EN VIVO</span>
-            <span className="text-[10px] bg-rose-500 text-white rounded-full px-1.5 font-bold">{liveStreams.length}</span>
-          </Link>
-        </div>
-      </header>
-
       <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 md:px-6 pt-4 pb-24 md:pb-12">
 
         {/* ============================================================= */}
@@ -661,9 +636,6 @@ export default function Home() {
       <SectionNav />
       <ScrollToTopButton />
       <QuickAuctionFab />
-
-      {/* Mobile bottom nav */}
-      <MobileBottomNav />
 
       {/* Footer */}
       <footer

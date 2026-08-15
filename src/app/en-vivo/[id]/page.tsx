@@ -4,14 +4,22 @@ import * as React from 'react'
 import { notFound, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  X, Flame, Eye, Heart, Share2, ShoppingBag, ChevronLeft,
-  MessageCircle, Send, Zap, Gavel, Clock, BadgeCheck, Loader2,
-  ShieldCheck,
+  ChevronLeft, Flame, Eye, Heart, Share2, ShoppingBag,
+  MessageCircle, Send, Gavel, Clock, BadgeCheck, ShieldCheck,
+  Bot, Users, Crown, MapPin, Package, Star,
 } from 'lucide-react'
-import { MOCK_STREAMS, MOCK_AUCTION, MOCK_BIDS, MOCK_CHAT, MOCK_PROFILES, MOCK_TRENDING_AUCTIONS } from '@/lib/vendeda/mock-data'
+import type { Profile, Product, Auction } from '@/lib/vendeda/types'
+import {
+  MOCK_STREAMS, MOCK_AUCTION, MOCK_BIDS,
+  MOCK_PROFILES, MOCK_TRENDING_AUCTIONS,
+} from '@/lib/vendeda/mock-data'
 import { formatViewers, formatPEN, timeAgoEs } from '@/lib/vendeda/format'
-import { ROUTES } from '@/lib/vendeda/routes'
 import CheckoutBottomSheet from '@/components/vendeda/CheckoutBottomSheet'
+
+/* ================================================================ *
+ * Ultra Inmersiva — Live Room detail page (Twitch/Kick on desktop, *
+ * TikTok full-screen vertical on mobile). Dark premium theme.       *
+ * ================================================================ */
 
 interface ChatMessage {
   id: string
@@ -22,37 +30,227 @@ interface ChatMessage {
 }
 
 const INITIAL_CHAT: ChatMessage[] = [
-  { id: '1', username: 'María', text: '¿Tienes talla M en terracota?', color: 'text-amber-400' },
-  { id: '2', username: 'YaBot AI', text: '¡Quedan 25 unidades en stock! 🤖', color: 'text-purple-400', isBot: true },
-  { id: '3', username: 'Diego', text: 'S/. 38! 💪', color: 'text-sky-400' },
-  { id: '4', username: 'Carla', text: 'Yape listoooo', color: 'text-lima-400' },
+  { id: '1', username: 'María', text: '¡Mío! Reservo talla M en terracota 🙌', color: 'text-amber-400' },
+  { id: '2', username: 'YaBot AI', text: 'Quedan 25 unidades en stock. Envío a todo Perú desde S/.8 🤖', color: 'text-purple-400', isBot: true },
+  { id: '3', username: 'Diego', text: 'S/. 38! 💪 voy por más', color: 'text-sky-400' },
+  { id: '4', username: 'Carla', text: 'Yape listo, ¿aceptan Plin también?', color: 'text-lime-400' },
+  { id: '5', username: 'YaBot AI', text: 'Sí Carla, aceptamos Yape, Plin y tarjeta. Pago 100% protegido 💜', color: 'text-purple-400', isBot: true },
 ]
+
+const QUICK_BIDS = [2, 5, 10]
+
+/* ---------------- Extracted presentational components ---------------- */
+
+function LiveBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full bg-rose-500/90 backdrop-blur-md border border-rose-300/30 ${
+        size === 'sm' ? 'px-2 py-0.5 text-[9px]' : 'px-2.5 py-1 text-[10px]'
+      } font-black tracking-wider text-white`}
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+      EN VIVO
+    </span>
+  )
+}
+
+function ViewersPill({ viewers }: { viewers: number }) {
+  return (
+    <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10">
+      <Eye className="h-3.5 w-3.5 text-amber-400" />
+      <span className="text-xs font-bold text-white tabular-nums">{formatViewers(viewers)}</span>
+    </div>
+  )
+}
+
+function SellerPill({ seller, initial }: { seller: Profile; initial: string }) {
+  return (
+    <div className="inline-flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10">
+      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-600 border border-amber-300/40 flex items-center justify-center font-black text-zinc-950 text-xs">
+        {initial}
+      </div>
+      <div className="flex flex-col leading-tight">
+        <span className="text-xs font-black tracking-tight flex items-center gap-1 text-white">
+          {seller.displayName}
+          {seller.isVerified && <BadgeCheck className="h-3 w-3 text-sky-400" />}
+        </span>
+        <span className="text-[10px] text-zinc-400 flex items-center gap-1">
+          <Star className="h-2.5 w-2.5 text-amber-400 fill-amber-400" />
+          {seller.rating.toFixed(1)} · {seller.department}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -8, y: 4 }}
+      animate={{ opacity: 1, x: 0, y: 0 }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+      className={`text-xs px-2.5 py-1.5 rounded-xl backdrop-blur-sm border ${
+        msg.isBot
+          ? 'bg-purple-500/15 border-purple-400/30 shadow-lg shadow-purple-500/10'
+          : 'bg-white/5 border-white/5'
+      }`}
+    >
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <span className={`font-bold ${msg.color}`}>{msg.username}</span>
+        {msg.isBot && (
+          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-purple-500/20 border border-purple-400/40 text-purple-300 text-[9px] font-black tracking-wider">
+            <Bot className="h-2.5 w-2.5" /> BOT AI
+          </span>
+        )}
+        {msg.isBot && <BadgeCheck className="h-3 w-3 text-purple-300" />}
+      </div>
+      <p className="mt-0.5 text-zinc-100 leading-snug">{msg.text}</p>
+    </motion.div>
+  )
+}
+
+function ChatInputBar({
+  chatInput,
+  setChatInput,
+  onSend,
+  compact = false,
+}: {
+  chatInput: string
+  setChatInput: (v: string) => void
+  onSend: () => void
+  compact?: boolean
+}) {
+  return (
+    <div className={`flex items-center gap-2 ${compact ? '' : 'px-3 py-2.5'} bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl`}>
+      <MessageCircle className="h-4 w-4 text-zinc-400 shrink-0" />
+      <input
+        type="text"
+        value={chatInput}
+        onChange={(e) => setChatInput(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && onSend()}
+        placeholder="Escribe..."
+        className="flex-1 bg-transparent text-xs text-white placeholder:text-zinc-500 outline-none py-1.5"
+      />
+      <motion.button
+        whileTap={{ scale: 0.92 }}
+        onClick={onSend}
+        className="h-8 w-8 rounded-xl bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-fuchsia-500/30"
+        aria-label="Enviar mensaje"
+      >
+        <Send className="h-3.5 w-3.5 text-zinc-950" />
+      </motion.button>
+    </div>
+  )
+}
+
+function CountdownCard({
+  mm, ss, lowTime, size = 'md',
+}: {
+  mm: string
+  ss: string
+  lowTime: boolean
+  size?: 'sm' | 'md'
+}) {
+  return (
+    <motion.div
+      animate={lowTime ? { scale: [1, 1.04, 1] } : {}}
+      transition={{ duration: 0.8, repeat: lowTime ? Infinity : 0 }}
+      className={`relative overflow-hidden rounded-2xl border px-3 py-2 flex flex-col items-center min-w-[88px] ${
+        lowTime
+          ? 'bg-gradient-to-br from-rose-500/30 to-rose-700/30 border-rose-400/50'
+          : 'bg-white/5 border-white/10'
+      }`}
+    >
+      <span className={`text-[9px] font-black tracking-widest uppercase ${lowTime ? 'text-rose-300' : 'text-amber-400'}`}>
+        <Clock className="inline h-2.5 w-2.5 mr-1" />
+        Cierra en
+      </span>
+      <span className={`font-mono font-black tabular-nums tracking-tight ${size === 'sm' ? 'text-base' : 'text-xl'} ${lowTime ? 'text-rose-200' : 'text-white'}`}>
+        {mm}:{ss}
+      </span>
+      {lowTime && <div className="absolute inset-0 bg-rose-500/10 animate-pulse pointer-events-none" />}
+    </motion.div>
+  )
+}
+
+function BidPill({ amount, onBid }: { amount: number; onBid: (n: number) => void }) {
+  return (
+    <motion.button
+      whileTap={{ scale: 0.92 }}
+      whileHover={{ scale: 1.05, y: -2 }}
+      onClick={() => onBid(amount)}
+      className="flex-1 rounded-full bg-white/5 hover:bg-amber-400/15 border border-white/10 hover:border-amber-400/40 px-3 py-2.5 text-xs font-black text-amber-300 transition-colors flex items-center justify-center gap-0.5"
+    >
+      <span className="text-zinc-500">+</span>S/{amount}
+    </motion.button>
+  )
+}
+
+function PujarButton({ increment, onBid, full = false }: { increment: number; onBid: (n: number) => void; full?: boolean }) {
+  return (
+    <motion.button
+      whileTap={{ scale: 0.97 }}
+      animate={{ boxShadow: ['0 0 20px rgba(245,158,11,0.4)', '0 0 32px rgba(217,70,239,0.5)', '0 0 20px rgba(245,158,11,0.4)'] }}
+      transition={{ duration: 2.4, repeat: Infinity }}
+      onClick={() => onBid(increment)}
+      className={`${full ? 'w-full' : 'flex-1'} relative overflow-hidden bg-gradient-to-r from-amber-400 via-amber-500 to-fuchsia-500 text-zinc-950 font-black uppercase tracking-wider text-sm py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-amber-500/30`}
+    >
+      <Gavel className="h-4 w-4" />
+      Pujar ahora
+      <span className="ml-1 text-[10px] bg-zinc-950/30 px-1.5 py-0.5 rounded-md">+S/{increment}</span>
+    </motion.button>
+  )
+}
+
+function ComprarYaButton({
+  buyNowPrice, onBuy, full = false,
+}: {
+  buyNowPrice: number
+  onBuy: () => void
+  full?: boolean
+}) {
+  return (
+    <motion.button
+      whileTap={{ scale: 0.97 }}
+      whileHover={{ borderColor: 'rgba(245,158,11,0.5)' }}
+      onClick={onBuy}
+      className={`${full ? 'w-full' : ''} bg-transparent border border-white/15 hover:border-amber-400/40 text-white text-xs font-bold py-3.5 px-4 rounded-2xl flex items-center justify-center gap-1.5 transition-colors`}
+    >
+      <ShoppingBag className="h-4 w-4 text-amber-400" />
+      <span className="text-zinc-300">Comprar ya</span>
+      <span className="text-white font-mono font-black">{formatPEN(buyNowPrice)}</span>
+    </motion.button>
+  )
+}
+
+/* ---------------- Main page ---------------- */
 
 export default function StreamDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params)
   const router = useRouter()
 
   const stream = MOCK_STREAMS.find((s) => s.id === id)
-  const auction = MOCK_TRENDING_AUCTIONS.find((a) => a.streamId === id) ?? MOCK_AUCTION
-  const seller = stream?.seller ?? MOCK_PROFILES[0]
-  const product = auction.product
+  const auction: Auction = MOCK_TRENDING_AUCTIONS.find((a) => a.streamId === id) ?? MOCK_AUCTION
+  const seller: Profile = stream?.seller ?? MOCK_PROFILES[0]
+  const product: Product | undefined = auction.product
 
   const [currentBid, setCurrentBid] = React.useState(auction.currentPrice)
-  const [bidCount, setBidCount] = React.useState(MOCK_BIDS.length)
+  const [bidCount, setBidCount] = React.useState(auction.bidCount || MOCK_BIDS.length)
   const [viewers] = React.useState(stream?.viewerCount ?? 248)
   const [likes, setLikes] = React.useState(stream?.likeCount ?? 1240)
   const [showCheckout, setShowCheckout] = React.useState(false)
   const [chat, setChat] = React.useState<ChatMessage[]>(INITIAL_CHAT)
   const [chatInput, setChatInput] = React.useState('')
-  const [secondsLeft, setSecondsLeft] = React.useState(164) // 02:44
+  const [secondsLeft, setSecondsLeft] = React.useState(164)
   const [liked, setLiked] = React.useState(false)
+  const [burstKey, setBurstKey] = React.useState(0)
+  const [mobileTab, setMobileTab] = React.useState<'chat' | 'bid'>('bid')
 
-  // Countdown
+  // Countdown ticker
   React.useEffect(() => {
     if (!stream?.isLive) return
-    const t = setInterval(() => {
-      setSecondsLeft((s) => (s > 0 ? s - 1 : 0))
-    }, 1000)
+    const t = setInterval(() => setSecondsLeft((s) => (s > 0 ? s - 1 : 0)), 1000)
     return () => clearInterval(t)
   }, [stream?.isLive])
 
@@ -60,262 +258,497 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
   const ss = String(secondsLeft % 60).padStart(2, '0')
   const lowTime = secondsLeft <= 30
 
-  // Quick bid handler
-  const handleQuickBid = (increment: number) => {
-    setCurrentBid((prev) => +(prev + increment).toFixed(2))
+  const handleQuickBid = (inc: number) => {
+    setCurrentBid((prev) => +(prev + inc).toFixed(2))
     setBidCount((prev) => prev + 1)
   }
 
-  // Send chat
+  const handleLike = () => {
+    setLiked((v) => !v)
+    setLikes((l) => (liked ? Math.max(0, l - 1) : l + 1))
+    setBurstKey((k) => k + 1)
+  }
+
   const sendChat = () => {
     if (!chatInput.trim()) return
     setChat((prev) => [
       ...prev,
-      { id: Date.now().toString(), username: 'Tú', text: chatInput.trim(), color: 'text-emerald-400' },
+      { id: Date.now().toString(), username: 'Tú', text: chatInput.trim(), color: 'text-lime-400' },
     ])
     setChatInput('')
   }
 
   if (!stream) notFound()
 
-  return (
-    <div className="fixed inset-0 bg-black text-white select-none antialiased overflow-hidden md:relative md:max-w-md md:mx-auto md:h-screen md:rounded-none">
-      {/* ────────────────────────────────────────────────────
-          CAPA 1: VIDEO STREAM DE FONDO RELLENO (Estilo TikTok Live)
-          ──────────────────────────────────────────────────── */}
+  const thumbnail = stream.thumbnailUrl ?? product?.images?.[0] ?? ''
+  const buyNowPrice = auction.buyNowPrice ?? currentBid + 50
+  const initial = seller.displayName?.slice(0, 2).toUpperCase() ?? 'VY'
+
+  /* ================================================================ *
+   * DESKTOP LAYOUT — 3 columns (55% video / 25% auction / 20% chat)   *
+   * ================================================================ */
+  const DesktopLayout = (
+    <div className="hidden md:grid md:grid-cols-[55fr_25fr_20fr] h-[calc(100vh-4rem)] w-full gap-3 p-3 bg-black text-white">
+      {/* ---------------- COL 1: VIDEO ---------------- */}
+      <section className="relative min-w-0 flex flex-col">
+        {/* Ambient glow */}
+        <div
+          className="absolute -inset-6 -z-10 blur-3xl opacity-30 pointer-events-none"
+          style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d946ef 45%, #f43f5e 100%)' }}
+        />
+        <div className="relative flex-1 min-h-0 rounded-2xl overflow-hidden border border-white/5 bg-zinc-950">
+          {/* Stream */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${thumbnail})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+
+          {/* Top overlays */}
+          <div className="absolute top-4 left-4 right-4 flex justify-between items-start gap-3 z-20">
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => router.back()}
+                className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                aria-label="Volver"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <SellerPill seller={seller} initial={initial} />
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <LiveBadge />
+              <ViewersPill viewers={viewers} />
+            </div>
+          </div>
+
+          {/* Floating actions right side */}
+          <div className="absolute right-4 bottom-28 z-20 flex flex-col gap-3">
+            <motion.button
+              key={`like-desktop-${burstKey}`}
+              whileTap={{ scale: 1.5 }}
+              onClick={handleLike}
+              className="flex flex-col items-center gap-1"
+            >
+              <div className="h-12 w-12 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center">
+                <motion.span
+                  key={burstKey}
+                  initial={liked ? { scale: 0.6, opacity: 0 } : false}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 14 }}
+                >
+                  <Heart className={`h-6 w-6 transition-colors ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
+                </motion.span>
+              </div>
+              <span className="text-[10px] font-bold text-white drop-shadow">
+                {formatViewers(likes).replace(' espectadores', '')}
+              </span>
+            </motion.button>
+
+            <button className="flex flex-col items-center gap-1">
+              <div className="h-12 w-12 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+                <Share2 className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-[10px] font-bold text-white drop-shadow">Compartir</span>
+            </button>
+
+            <button className="flex flex-col items-center gap-1">
+              <div className="h-12 w-12 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+                <MessageCircle className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-[10px] font-bold text-white drop-shadow">Chat</span>
+            </button>
+          </div>
+
+          {/* Stream title + product caption */}
+          <div className="absolute inset-x-0 bottom-0 p-5 z-10">
+            <div className="flex items-end justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
+                  <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 px-3 py-2 flex flex-col items-center min-w-[88px]">
+                    <span className="text-[9px] font-black tracking-widest uppercase text-zinc-400">
+                      <Gavel className="inline h-2.5 w-2.5 mr-1" />Pujas
+                    </span>
+                    <span className="text-xl font-black font-mono text-white tabular-nums">{bidCount}</span>
+                  </div>
+                </div>
+                <h2 className="text-xl font-black text-white leading-tight line-clamp-2 drop-shadow-lg">
+                  {stream.title}
+                </h2>
+                <p className="mt-1 text-xs text-zinc-300 line-clamp-1">
+                  {product?.title} · Stock {product?.stock ?? 0} uds · Envío desde {seller.department}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------- COL 2: AUCTION PANEL ---------------- */}
+      <section className="relative min-w-0 flex flex-col bg-zinc-950 rounded-2xl border border-white/5 overflow-hidden">
+        {/* Header */}
+        <div className="px-4 py-3 border-b border-white/5 bg-white/5">
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-fuchsia-400">
+              <Flame className="h-3.5 w-3.5" /> Subasta en vivo
+            </span>
+            <LiveBadge size="sm" />
+          </div>
+          <h3 className="mt-1 text-base font-black text-white leading-tight line-clamp-2">
+            {product?.title}
+          </h3>
+          <p className="mt-1.5 text-[11px] text-zinc-400 leading-relaxed">
+            Edición limitada del catálogo de {seller.displayName}. Cada puja incrementa el precio en S/{auction.bidIncrement}. La puja más alta al cerrar el cronómetro gana el producto. Envío inmediato a todo Perú con Shalom y Olva.
+          </p>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 no-scrollbar">
+          {/* Leader price card */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-2xl p-4 border border-amber-400/20"
+            style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(34,19,94,0.5) 60%, rgba(9,9,11,0.9) 100%)' }}
+          >
+            <div className="absolute -top-6 -right-6 h-20 w-20 rounded-full bg-amber-400/40 blur-3xl" />
+            <div className="relative">
+              <span className="text-[10px] font-black tracking-widest uppercase text-amber-300 flex items-center gap-1">
+                <Crown className="h-3 w-3" /> Puja líder
+              </span>
+              <p className="mt-1 text-4xl font-black text-amber-400 font-mono tabular-nums drop-shadow-lg">
+                {formatPEN(currentBid)}
+              </p>
+              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-zinc-300">
+                <div className="h-5 w-5 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 border border-sky-300/40 flex items-center justify-center text-[9px] font-black text-white">
+                  D
+                </div>
+                <span className="font-bold text-sky-400">Diego</span>
+                <span className="text-zinc-500">·</span>
+                <span className="text-zinc-400">hace 36s</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Countdown */}
+          <CountdownCard mm={mm} ss={ss} lowTime={lowTime} />
+
+          {/* Quick bid pills */}
+          <div>
+            <p className="text-[10px] font-black tracking-widest uppercase text-zinc-500 mb-2">
+              Puja rápida
+            </p>
+            <div className="flex gap-2">
+              {QUICK_BIDS.map((amt) => (
+                <BidPill key={amt} amount={amt} onBid={handleQuickBid} />
+              ))}
+            </div>
+            <p className="mt-2 text-[10px] text-zinc-500 leading-relaxed">
+              Toca un monto para subir tu puja al instante. Mientras más alta sea tu oferta, más probabilidades de ganar al cerrar el cronómetro. Tu puja es pública y se notifica a todos los espectadores en tiempo real.
+            </p>
+          </div>
+
+          {/* Primary CTA */}
+          <PujarButton increment={auction.bidIncrement || 2} onBid={handleQuickBid} full />
+
+          {/* Secondary CTA */}
+          <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => setShowCheckout(true)} full />
+
+          {/* Product details */}
+          <div className="rounded-2xl bg-white/5 border border-white/5 p-3 space-y-2">
+            <p className="text-[10px] font-black tracking-widest uppercase text-zinc-400">
+              Detalles del producto
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-[11px]">
+              <div className="flex items-center gap-1.5 text-zinc-300">
+                <Package className="h-3.5 w-3.5 text-amber-400" /> Stock: {product?.stock ?? 0} uds
+              </div>
+              <div className="flex items-center gap-1.5 text-zinc-300">
+                <MapPin className="h-3.5 w-3.5 text-fuchsia-400" /> {product?.shippingFrom ?? seller.department}
+              </div>
+              <div className="flex items-center gap-1.5 text-zinc-300">
+                <ShieldCheck className="h-3.5 w-3.5 text-lime-400" /> Envío {product?.shipsNationwide ? 'nacional' : 'local'}
+              </div>
+              <div className="flex items-center gap-1.5 text-zinc-300">
+                <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> {seller.rating.toFixed(1)} ({seller.ratingsCount})
+              </div>
+            </div>
+            <p className="pt-2 border-t border-white/5 text-[11px] text-zinc-400 leading-relaxed">
+              {product?.description}
+            </p>
+          </div>
+
+          {/* Payment methods */}
+          <div className="rounded-2xl bg-white/5 border border-white/5 p-3">
+            <p className="text-[10px] font-black tracking-widest uppercase text-zinc-400 mb-2">
+              Métodos de pago aceptados
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {product?.paymentMethods.map((m) => (
+                <span
+                  key={m}
+                  className="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-300 capitalize"
+                >
+                  {m === 'card' ? 'Tarjeta' : m === 'transfer' ? 'Transferencia' : m}
+                </span>
+              ))}
+            </div>
+            <p className="mt-2 text-[10px] text-zinc-500 leading-relaxed">
+              Todos los pagos están protegidos por Vende Ya con liberación escalonada al confirmar el envío. Si el producto no llega, reembolso garantizado en menos de 48 horas hábiles.
+            </p>
+          </div>
+
+          {/* Bid history */}
+          <div className="rounded-2xl bg-white/5 border border-white/5 p-3">
+            <p className="text-[10px] font-black tracking-widest uppercase text-zinc-400 mb-2">
+              Historial de pujas
+            </p>
+            <div className="space-y-1.5">
+              {MOCK_BIDS.slice().reverse().map((b) => (
+                <div key={b.id} className="flex items-center justify-between text-[11px]">
+                  <span className="font-bold text-sky-400">{b.bidder?.displayName}</span>
+                  <span className="font-mono font-black text-amber-400">{formatPEN(b.amount)}</span>
+                  <span className="text-zinc-500">{timeAgoEs(b.createdAt)}</span>
+                </div>
+              ))}
+              <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-white/5">
+                <span className="font-bold text-zinc-400">Puja inicial</span>
+                <span className="font-mono text-zinc-500">{formatPEN(auction.startingPrice)}</span>
+                <span className="text-zinc-600">inicio</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------- COL 3: LIVE CHAT ---------------- */}
+      <section className="relative min-w-0 flex flex-col bg-zinc-950 rounded-2xl border border-white/5 overflow-hidden">
+        {/* Chat header */}
+        <div className="px-4 py-3 border-b border-white/5 bg-white/5">
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-purple-400">
+              <MessageCircle className="h-3.5 w-3.5" /> Chat en vivo
+            </span>
+            <span className="inline-flex items-center gap-1 text-[10px] text-zinc-400">
+              <Users className="h-3 w-3 text-amber-400" /> {viewers} viendo
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] text-zinc-400 leading-relaxed">
+            Conversemos en tiempo real. YaBot AI modera el chat y responde dudas sobre tallas, stock y envíos. Sé respetuoso con la comunidad de Vende Ya.
+          </p>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 no-scrollbar">
+          <AnimatePresence initial={false}>
+            {chat.map((msg) => (
+              <ChatMessageBubble key={msg.id} msg={msg} />
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* Input */}
+        <div className="shrink-0 px-3 py-3 border-t border-white/5 bg-zinc-950">
+          <ChatInputBar
+            chatInput={chatInput}
+            setChatInput={setChatInput}
+            onSend={sendChat}
+          />
+          <p className="mt-1.5 text-[9px] text-zinc-600 text-center">
+            Pulsa enter para enviar · YaBot AI responde automático
+          </p>
+        </div>
+      </section>
+    </div>
+  )
+
+  /* ================================================================ *
+   * MOBILE LAYOUT — TikTok-style full-screen vertical                *
+   * ================================================================ */
+  const MobileLayout = (
+    <div className="md:hidden fixed inset-0 z-50 bg-black text-white select-none overflow-hidden">
+      {/* Video background */}
       <div className="absolute inset-0 z-0">
-        {/* Simulated video placeholder — in prod this is replaced by AWS IVS / Cloudflare Stream player */}
         <div
           className="w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${stream.thumbnailUrl ?? product?.images?.[0] ?? ''})` }}
+          style={{ backgroundImage: `url(${thumbnail})` }}
         />
-        {/* Vignette + dark gradient for readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/95" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
       </div>
 
-      {/* ────────────────────────────────────────────────────
-          CAPA 2: HEADER FLOTANTE SUPERIOR (Confianza)
-          ──────────────────────────────────────────────────── */}
-      <div className="absolute top-0 inset-x-0 p-4 pt-6 flex justify-between items-start z-20">
-        <button
-          onClick={() => router.back()}
-          className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center active:scale-95 transition-transform"
-          aria-label="Volver"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-
-        {/* Seller pill */}
-        <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md pl-1.5 pr-3 py-1.5 rounded-full border border-white/10">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 border border-amber-300 flex items-center justify-center font-black text-slate-950 text-xs">
-            {seller.displayName.slice(0, 2).toUpperCase()}
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-xs font-black tracking-tight flex items-center gap-1">
-              {seller.displayName}
-              {seller.isVerified && <BadgeCheck className="h-3 w-3 text-sky-400" />}
-            </span>
-            <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> EN VIVO
-            </span>
-          </div>
+      {/* Top bar */}
+      <div className="absolute top-0 inset-x-0 p-4 pt-6 flex justify-between items-start z-20 gap-2">
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => router.back()}
+            className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center active:scale-95 transition-transform"
+            aria-label="Volver"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <SellerPill seller={seller} initial={initial} />
         </div>
 
-        {/* Viewers pill */}
-        <div className="bg-rose-600/95 text-[10px] font-black tracking-wider px-2.5 py-1.5 rounded-full shadow-lg shadow-rose-600/30 backdrop-blur-sm flex items-center gap-1 uppercase">
-          <Flame className="h-3 w-3" /> {viewers}
+        <div className="flex flex-col items-end gap-2">
+          <LiveBadge />
+          <ViewersPill viewers={viewers} />
         </div>
       </div>
 
-      {/* ────────────────────────────────────────────────────
-          CAPA 3: CRONÓMETRO + INFO SUBASTA (Presión Psicológica)
-          ──────────────────────────────────────────────────── */}
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="absolute top-24 left-4 z-20 flex gap-2 items-start"
-      >
-        <div
-          className={`backdrop-blur-xl border px-3 py-2 rounded-2xl flex flex-col items-center min-w-[78px] shadow-2xl transition-colors ${
-            lowTime
-              ? 'bg-rose-950/80 border-rose-500/50'
-              : 'bg-slate-950/80 border-amber-500/30'
-          }`}
-        >
-          <span className={`text-[9px] font-bold tracking-widest uppercase ${lowTime ? 'text-rose-300' : 'text-amber-400'}`}>
-            Cierra en
-          </span>
-          <span className={`text-base font-black font-mono tracking-tight ${lowTime ? 'text-rose-300' : 'text-white'} ${lowTime ? 'animate-pulse' : ''}`}>
-            {mm}:{ss}
-          </span>
-        </div>
-
-        {/* Bids count */}
-        <div className="bg-slate-950/80 backdrop-blur-xl border border-white/10 px-3 py-2 rounded-2xl flex flex-col items-center min-w-[78px] shadow-xl">
-          <span className="text-[9px] font-bold tracking-widest text-slate-400 uppercase">Pujas</span>
-          <span className="text-base font-black font-mono text-white">{bidCount}</span>
-        </div>
-      </motion.div>
-
-      {/* ────────────────────────────────────────────────────
-          CAPA 4: ACCIONES SOCIALES DERECHA (Like / Share)
-          ──────────────────────────────────────────────────── */}
-      <div className="absolute right-3 bottom-72 z-20 flex flex-col gap-4 items-center pointer-events-auto">
+      {/* Right floating actions */}
+      <div className="absolute right-3 bottom-44 z-20 flex flex-col gap-4 items-center">
         <motion.button
-          whileTap={{ scale: 1.4 }}
-          onClick={() => {
-            setLiked((v) => !v)
-            setLikes((l) => (liked ? l - 1 : l + 1))
-          }}
+          key={`like-mobile-${burstKey}`}
+          whileTap={{ scale: 1.5 }}
+          onClick={handleLike}
           className="flex flex-col items-center gap-1"
         >
-          <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center">
-            <Heart className={`h-6 w-6 transition-colors ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
+          <div className="h-12 w-12 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center">
+            <motion.span
+              key={burstKey}
+              initial={liked ? { scale: 0.5, opacity: 0, y: 10 } : false}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 14 }}
+            >
+              <Heart className={`h-6 w-6 transition-colors ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
+            </motion.span>
           </div>
-          <span className="text-[10px] font-bold">{formatViewers(likes)}</span>
+          <span className="text-[10px] font-bold drop-shadow">
+            {formatViewers(likes).replace(' espectadores', '')}
+          </span>
         </motion.button>
 
+        <button
+          onClick={() => setMobileTab('chat')}
+          className="flex flex-col items-center gap-1"
+        >
+          <div className="h-12 w-12 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center">
+            <MessageCircle className="h-5 w-5" />
+          </div>
+          <span className="text-[10px] font-bold drop-shadow">Chat</span>
+        </button>
+
         <button className="flex flex-col items-center gap-1">
-          <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center">
+          <div className="h-12 w-12 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center">
             <Share2 className="h-5 w-5" />
           </div>
-          <span className="text-[10px] font-bold">Compartir</span>
+          <span className="text-[10px] font-bold drop-shadow">Compartir</span>
         </button>
       </div>
 
-      {/* ────────────────────────────────────────────────────
-          CAPA 5: CHAT TRASLÚCIDO (Fluida)
-          ──────────────────────────────────────────────────── */}
-      <div className="absolute bottom-56 inset-x-0 px-3 z-20 pointer-events-none">
-        <div className="space-y-1.5 max-h-44 overflow-y-auto no-scrollbar pointer-events-auto">
-          <AnimatePresence initial={false}>
-            {chat.map((msg) => (
+      {/* Bottom console — tabbed (Chat / Puja) */}
+      <div className="absolute bottom-0 inset-x-0 z-30">
+        {/* Tab toggle */}
+        <div className="px-3 pb-2">
+          <div className="inline-flex p-1 rounded-full bg-black/60 backdrop-blur-xl border border-white/10">
+            <button
+              onClick={() => setMobileTab('bid')}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                mobileTab === 'bid' ? 'bg-amber-400 text-zinc-950' : 'text-zinc-300'
+              }`}
+            >
+              <Gavel className="inline h-3 w-3 mr-1" />Puja
+            </button>
+            <button
+              onClick={() => setMobileTab('chat')}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                mobileTab === 'chat' ? 'bg-purple-400 text-zinc-950' : 'text-zinc-300'
+              }`}
+            >
+              <MessageCircle className="inline h-3 w-3 mr-1" />Chat
+            </button>
+          </div>
+        </div>
+
+        {/* Panel body */}
+        <div className="bg-zinc-950/95 backdrop-blur-xl border-t border-white/10 rounded-t-[2rem] p-4 pt-4 pb-6 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
+          <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mb-3" />
+
+          <AnimatePresence mode="wait">
+            {mobileTab === 'bid' ? (
               <motion.div
-                key={msg.id}
+                key="bid"
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-                className={`text-xs p-2 rounded-xl backdrop-blur-sm border ${
-                  msg.isBot
-                    ? 'bg-purple-950/50 border-purple-500/20'
-                    : 'bg-slate-900/60 border-white/5'
-                }`}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.18 }}
               >
-                <span className={`font-bold ${msg.color}`}>{msg.username}:</span>{' '}
-                <span className="text-slate-200">{msg.text}</span>
+                {/* Leader price compact */}
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <span className="text-[9px] font-black tracking-widest uppercase text-amber-400">
+                      <Crown className="inline h-2.5 w-2.5 mr-1" />Puja líder
+                    </span>
+                    <p className="text-2xl font-black text-amber-400 font-mono tabular-nums leading-none mt-0.5">
+                      {formatPEN(currentBid)}
+                    </p>
+                  </div>
+                  <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
+                </div>
+
+                {/* Quick bid pills */}
+                <div className="flex gap-2 mb-3">
+                  {QUICK_BIDS.map((amt) => (
+                    <BidPill key={amt} amount={amt} onBid={handleQuickBid} />
+                  ))}
+                </div>
+
+                {/* Primary CTA */}
+                <PujarButton increment={auction.bidIncrement || 2} onBid={handleQuickBid} full />
+
+                {/* Secondary CTA */}
+                <div className="mt-2">
+                  <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => setShowCheckout(true)} full />
+                </div>
+
+                {/* Stock mini-info */}
+                <p className="mt-3 text-[10px] text-zinc-500 leading-relaxed text-center">
+                  Stock: <span className="font-bold text-lime-400">{product?.stock ?? 0} uds</span> · {bidCount} pujas · {formatViewers(viewers)}
+                </p>
               </motion.div>
-            ))}
+            ) : (
+              <motion.div
+                key="chat"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                transition={{ duration: 0.18 }}
+              >
+                <div className="max-h-44 overflow-y-auto no-scrollbar space-y-1.5 mb-3">
+                  <AnimatePresence initial={false}>
+                    {chat.map((msg) => (
+                      <ChatMessageBubble key={msg.id} msg={msg} />
+                    ))}
+                  </AnimatePresence>
+                </div>
+                <ChatInputBar
+                  chatInput={chatInput}
+                  setChatInput={setChatInput}
+                  onSend={sendChat}
+                />
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </div>
+    </div>
+  )
 
-      {/* ────────────────────────────────────────────────────
-          CAPA 6: CONSOLA TRANSACCIONAL COMPACTA
-          ──────────────────────────────────────────────────── */}
-      <div className="absolute bottom-0 inset-x-0 bg-slate-950/95 border-t border-slate-800 rounded-t-[2rem] p-4 pt-5 pb-6 z-30 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
-        {/* Drag handle */}
-        <div className="w-10 h-1 bg-slate-700 rounded-full mx-auto mb-3" />
+  return (
+    <>
+      {DesktopLayout}
+      {MobileLayout}
 
-        {/* Product active row */}
-        <div className="flex gap-3 items-center mb-3 bg-slate-900/80 p-2.5 rounded-2xl border border-slate-800">
-          <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-800 shrink-0">
-            {product?.images?.[0] ? (
-              <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-slate-600">
-                IMG
-              </div>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="text-xs font-bold truncate text-slate-200">{product?.title ?? 'Subasta en vivo'}</h4>
-            <p className="text-[10px] text-slate-500 font-medium mt-0.5">
-              {auction.buyNowPrice ? (
-                <>
-                  Compra ya: <b className="text-slate-300">{formatPEN(auction.buyNowPrice)}</b>
-                </>
-              ) : (
-                'Puja creciente'
-              )}
-            </p>
-          </div>
-          <div className="text-right shrink-0">
-            <span className="text-[9px] font-black block uppercase text-slate-500 tracking-wider">Puja líder</span>
-            <span className="text-base font-black text-amber-400 font-mono">{formatPEN(currentBid)}</span>
-          </div>
-        </div>
-
-        {/* Quick bid increments */}
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          {[2, 5, 10].map((inc) => (
-            <button
-              key={inc}
-              onClick={() => handleQuickBid(inc)}
-              className="bg-slate-900 hover:bg-slate-800 border border-slate-800 active:scale-95 transition-all text-xs font-bold py-2.5 rounded-xl text-slate-300"
-            >
-              + {formatPEN(inc)}
-            </button>
-          ))}
-        </div>
-
-        {/* Master actions: Bid + Buy now */}
-        <div className="grid grid-cols-12 gap-2.5">
-          <button
-            onClick={() => handleQuickBid(2)}
-            className="col-span-7 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider py-4 rounded-2xl active:scale-[0.98] transition-all shadow-xl shadow-amber-500/30 flex items-center justify-center gap-1.5"
-          >
-            <Gavel className="h-4 w-4" /> Pujar ahora
-          </button>
-
-          <button
-            onClick={() => setShowCheckout(true)}
-            className="col-span-5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-bold py-4 rounded-2xl active:scale-[0.98] transition-all flex flex-col justify-center items-center gap-0.5"
-          >
-            <span className="text-[10px] text-slate-400 leading-none flex items-center gap-1">
-              <ShoppingBag className="h-3 w-3" /> Comprar ya
-            </span>
-            <span className="text-xs font-black text-white leading-none font-mono">
-              {auction.buyNowPrice ? formatPEN(auction.buyNowPrice) : formatPEN(currentBid + 50)}
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {/* ────────────────────────────────────────────────────
-          CAPA 7: CHAT INPUT FLOTANTE (cuando se enfoca)
-          ──────────────────────────────────────────────────── */}
-      <div className="absolute bottom-[200px] inset-x-3 z-20 pointer-events-auto">
-        <div className="flex items-center gap-2 bg-black/50 backdrop-blur-md border border-white/10 rounded-full pl-4 pr-1 py-1">
-          <MessageCircle className="h-4 w-4 text-slate-400 shrink-0" />
-          <input
-            type="text"
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendChat()}
-            placeholder="Escribe un mensaje..."
-            className="flex-1 bg-transparent text-xs text-white placeholder:text-slate-500 outline-none py-2"
-          />
-          <button
-            onClick={sendChat}
-            className="w-8 h-8 rounded-full bg-amber-500 hover:bg-amber-400 active:scale-95 transition-all flex items-center justify-center"
-            aria-label="Enviar"
-          >
-            <Send className="h-3.5 w-3.5 text-slate-950" />
-          </button>
-        </div>
-      </div>
-
-      {/* ────────────────────────────────────────────────────
-          CAPA 8: CHECKOUT BOTTOM SHEET (al comprar)
-          ──────────────────────────────────────────────────── */}
+      {/* Checkout bottom sheet — shared for both layouts */}
       <CheckoutBottomSheet
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}
         productId={product?.id ?? id}
         productName={product?.title ?? 'Subasta'}
-        price={auction.buyNowPrice ?? currentBid}
+        price={buyNowPrice}
         source="live_stream"
         sellerId={seller.id}
         shipment={{
@@ -329,9 +762,9 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
           receiverPhone: '999111222',
           packageDescription: product?.title ?? 'Subasta',
           weightKg: 0.5,
-          declaredValue: auction.buyNowPrice ?? currentBid,
+          declaredValue: buyNowPrice,
         }}
       />
-    </div>
+    </>
   )
 }

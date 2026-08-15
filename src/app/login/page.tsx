@@ -3,17 +3,27 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Smartphone } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
+import { motion } from 'framer-motion'
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Smartphone,
+  ShieldCheck,
+  Truck,
+  BadgeCheck,
+} from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/components/vendeda/AuthProvider'
 import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
+import { cn } from '@/lib/utils'
 
+// ---------------------------------------------------------------------
+// Page entry — wraps useSearchParams in Suspense (Next.js 16 requirement)
+// ---------------------------------------------------------------------
 export default function LoginPage() {
   return (
     <React.Suspense fallback={<LoginFallback />}>
@@ -24,17 +34,68 @@ export default function LoginPage() {
 
 function LoginFallback() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="h-10 w-10 rounded-full border-4 border-muted border-t-salsa-500 animate-spin" />
+    <div className="min-h-screen flex items-center justify-center bg-zinc-950">
+      <div className="h-10 w-10 rounded-full border-4 border-white/10 border-t-amber-400 animate-spin" />
     </div>
   )
 }
 
+// ---------------------------------------------------------------------
+// Dark premium input class — shared by both auth pages
+// ---------------------------------------------------------------------
+const INPUT_CLASS =
+  'w-full h-12 rounded-xl bg-white/5 border border-white/10 px-4 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus-visible:border-amber-400/60 focus-visible:ring-2 focus-visible:ring-amber-400/30 transition-colors disabled:opacity-60'
+
+// ---------------------------------------------------------------------
+// Left brand panel — feature blurbs (module-level so React doesn't
+// re-mount them on each render)
+// ---------------------------------------------------------------------
+const LEFT_FEATURES: ReadonlyArray<{
+  title: string
+  body: string
+  icon: React.ComponentType<{ className?: string }>
+  accent: string
+  ring: string
+  glow: string
+}> = [
+  {
+    title: 'Yape y Plin en vivo',
+    body:
+      'Cobra y paga en tiempo real durante la subasta. Cada transacción se aprueba en menos de 3 segundos con la API oficial de Yape y Plin, sin salir del vivo y sin comisiones ocultas para el comprador.',
+    icon: Smartphone,
+    accent: 'text-amber-400',
+    ring: 'bg-amber-500/10 border-amber-500/30',
+    glow: 'shadow-amber-500/30',
+  },
+  {
+    title: 'Envíos Shalom a todo el Perú',
+    body:
+      'Despachamos el mismo día con Shalom, Marvisur y Olva. Lima Metropolitana llega en 24 horas y provincias en 48 horas, con tracking en tiempo real visible dentro del app desde el momento en que ganas la subasta.',
+    icon: Truck,
+    accent: 'text-fuchsia-400',
+    ring: 'bg-fuchsia-500/10 border-fuchsia-500/30',
+    glow: 'shadow-fuchsia-500/30',
+  },
+  {
+    title: 'Vendedores verificados',
+    body:
+      'Verificamos la identidad, RUC y antecedentes de cada vendedor antes de permitirle transmitir. Además, el dinero queda en custodia hasta que confirmes la recepción del producto — si algo falla, lo recuperas íntegro.',
+    icon: BadgeCheck,
+    accent: 'text-lime-400',
+    ring: 'bg-lime-500/10 border-lime-500/30',
+    glow: 'shadow-lime-500/30',
+  },
+]
+
+// =====================================================================
+// LOGIN CONTENT
+// =====================================================================
 function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const { signIn, signInWithOAuth, isDemoMode } = useAuth()
+
   const [mode, setMode] = React.useState<'email' | 'phone'>('email')
   const [email, setEmail] = React.useState('')
   const [phone, setPhone] = React.useState('')
@@ -43,6 +104,9 @@ function LoginContent() {
   const [remember, setRemember] = React.useState(true)
   const [loading, setLoading] = React.useState(false)
 
+  // ---------------------------------------------------------------
+  // Submit — preserves redirect param + Supabase signIn call
+  // ---------------------------------------------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -57,21 +121,17 @@ function LoginContent() {
       title: '✅ Sesión iniciada',
       description: 'Bienvenido de vuelta a Vende Ya.',
     })
-    // Respetar el parámetro ?redirect= para volver a la página
-    // que pidió el checkout.
+    // Respetar el parámetro ?redirect= para volver a la página que pidió el checkout.
     const redirect = searchParams.get('redirect')
     router.push(redirect && redirect.startsWith('/') ? redirect : ROUTES.dashboard)
     router.refresh()
   }
 
+  // ---------------------------------------------------------------
+  // OAuth — preserves signInWithOAuth call
+  // ---------------------------------------------------------------
   const handleSocial = async (provider: 'google' | 'facebook' | 'apple') => {
     setLoading(true)
-    const redirect = searchParams.get('redirect')
-    const redirectTo = redirect && redirect.startsWith('/')
-      ? `${window.location.origin}${redirect}`
-      : `${window.location.origin}${ROUTES.dashboard}`
-    // signInWithOAuth in AuthProvider uses /dashboard hardcoded — we override here
-    // by setting the supabase redirectTo via the URL hash if needed.
     const { error } = await signInWithOAuth(provider)
     if (error) {
       setLoading(false)
@@ -82,217 +142,340 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-background">
-      {/* Left: brand panel (desktop) */}
-      <div className="hidden md:flex md:flex-1 bg-gradient-to-br from-salsa-500 via-salsa-600 to-salsa-800 p-12 flex-col justify-between text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 right-20 w-80 h-80 rounded-full bg-lima-300 blur-3xl" />
-          <div className="absolute bottom-20 left-10 w-96 h-96 rounded-full bg-plin-500 blur-3xl" />
-        </div>
-        <div className="relative">
-          <Link href={ROUTES.home} className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
-              <span className="text-white font-bold text-xl">V</span>
-            </div>
-            <span className="font-bold text-2xl font-display">{APP_NAME}</span>
-          </Link>
-        </div>
-        <div className="relative space-y-6">
-          <h2 className="text-4xl font-bold font-display leading-tight">
-            Subasta en vivo.<br />Compra ya. Vende ya.
-          </h2>
-          <p className="text-white/80 text-lg">
-            El marketplace social del Perú. Paga con Yape, Plin o PagoEfectivo. Envíos a todo el país.
-          </p>
-          <div className="flex items-center gap-6 pt-4">
-            <div>
-              <div className="text-3xl font-bold">50K+</div>
-              <div className="text-xs text-white/70">Usuarios activos</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold">S/. 2M</div>
-              <div className="text-xs text-white/70">Vendidos en vivo</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold">4.9★</div>
-              <div className="text-xs text-white/70">Rating</div>
-            </div>
-          </div>
-        </div>
-        <div className="relative text-xs text-white/60">
-          © 2026 Vende Ya · Hecho en Perú 🇵🇪
-        </div>
-      </div>
+    <main className="min-h-screen bg-zinc-950 text-white">
+      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-7xl flex-col md:flex-row">
+        {/* =================================================== */}
+        {/* LEFT — Brand panel (desktop only)                   */}
+        {/* =================================================== */}
+        <aside
+          aria-hidden="true"
+          className="relative hidden md:flex md:w-[46%] lg:w-[52%] flex-col justify-between overflow-hidden bg-gradient-to-br from-amber-500/20 via-fuchsia-900/30 to-zinc-950 p-12"
+        >
+          {/* Glow blobs */}
+          <div className="pointer-events-none absolute -top-24 -right-16 h-96 w-96 rounded-full bg-amber-500/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-32 -left-10 h-[28rem] w-[28rem] rounded-full bg-fuchsia-600/20 blur-3xl" />
+          <div className="pointer-events-none absolute top-1/3 left-1/4 h-72 w-72 rounded-full bg-purple-700/10 blur-3xl" />
 
-      {/* Right: form */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center md:text-left">
-            <Link href={ROUTES.home} className="md:hidden inline-flex items-center gap-2 mb-4">
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-salsa-500 to-salsa-700 flex items-center justify-center">
-                <span className="text-white font-bold">V</span>
+          {/* Logo + tagline */}
+          <div className="relative">
+            <Link href={ROUTES.home} className="inline-flex items-center gap-2.5">
+              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/40">
+                <span className="text-zinc-950 font-black text-xl">V</span>
+              </div>
+              <div className="leading-none">
+                <div className="font-black text-2xl font-display tracking-tight bg-gradient-to-r from-amber-200 via-white to-fuchsia-200 bg-clip-text text-transparent">
+                  {APP_NAME}
+                </div>
+                <div className="text-[11px] text-zinc-400 -mt-0.5">Subastas en vivo del Perú</div>
               </div>
             </Link>
-            <h1 className="text-2xl md:text-3xl font-bold font-display flex items-center gap-2">
-              Inicia sesión
-              {isDemoMode && (
-                <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-700 border-amber-300">
-                  Modo demo
-                </Badge>
-              )}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {isDemoMode
-                ? 'Supabase no configurado — cualquier email/password funciona.'
-                : '¿No tienes cuenta? '
-              }
-              {!isDemoMode && (
-                <Link href={ROUTES.registro} className="text-salsa-600 hover:underline font-medium">
+          </div>
+
+          {/* Hero copy + features */}
+          <div className="relative space-y-7">
+            <h2 className="text-4xl lg:text-5xl font-black font-display leading-[1.05] tracking-tight">
+              Subasta en vivo.
+              <br />
+              <span className="bg-gradient-to-r from-amber-300 via-amber-200 to-fuchsia-300 bg-clip-text text-transparent">
+                Compra ya. Vende ya.
+              </span>
+            </h2>
+            <p className="text-zinc-300/90 text-lg leading-relaxed max-w-md">
+              El marketplace social del Perú. Pujas en tiempo real, pagas con Yape, Plin o
+              PagoEfectivo, y recibes tus productos en 24 horas con envíos Shalom.
+            </p>
+
+            <ul className="space-y-5 pt-2">
+              {LEFT_FEATURES.map((f) => (
+                <li key={f.title} className="flex items-start gap-3.5">
+                  <div
+                    className={cn(
+                      'shrink-0 h-10 w-10 rounded-xl border flex items-center justify-center shadow-lg',
+                      f.ring,
+                      f.glow
+                    )}
+                  >
+                    <f.icon className={cn('h-5 w-5', f.accent)} />
+                  </div>
+                  <div className="space-y-1">
+                    <div className={cn('font-bold text-sm', f.accent)}>{f.title}</div>
+                    <p className="text-sm text-zinc-400 leading-relaxed max-w-sm">{f.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Footer */}
+          <div className="relative flex items-center justify-between text-xs text-zinc-500">
+            <span>© 2026 Vende Ya · Hecho en Perú 🇵🇪</span>
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="h-3.5 w-3.5 text-lime-400" />
+              Pago protegido
+            </span>
+          </div>
+        </aside>
+
+        {/* =================================================== */}
+        {/* RIGHT — Form                                        */}
+        {/* =================================================== */}
+        <section className="flex flex-1 items-center justify-center p-6 md:p-10 lg:p-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-md"
+          >
+            <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl shadow-black/40">
+              {/* Mobile-only logo */}
+              <Link
+                href={ROUTES.home}
+                className="mb-6 flex items-center gap-2.5 md:hidden"
+              >
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center">
+                  <span className="text-zinc-950 font-black text-lg">V</span>
+                </div>
+                <span className="font-black text-lg font-display text-white">{APP_NAME}</span>
+              </Link>
+
+              {/* Title */}
+              <div className="mb-6 space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-3xl font-black font-display tracking-tight text-white">
+                    Bienvenido de vuelta
+                  </h1>
+                  {isDemoMode && (
+                    <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                      Modo demo
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-zinc-400">
+                  {isDemoMode
+                    ? 'Supabase no configurado — cualquier email/password funciona.'
+                    : 'Ingresa para pujar en vivo y seguir tus subastas favoritas.'}
+                </p>
+              </div>
+
+              {/* Mode toggle (email / phone) */}
+              <div className="mb-5 grid grid-cols-2 gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
+                {(['email', 'phone'] as const).map((m) => {
+                  const Icon = m === 'email' ? Mail : Smartphone
+                  const active = mode === m
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setMode(m)}
+                      className={cn(
+                        'flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all',
+                        active
+                          ? 'bg-white/10 text-amber-400 shadow-sm'
+                          : 'text-zinc-400 hover:text-white'
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {m === 'email' ? 'Email' : 'Celular'}
+                    </button>
+                  )
+                })}
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {mode === 'email' ? (
+                  <Field
+                    htmlFor="email"
+                    label="Correo electrónico"
+                  >
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                    <input
+                      id="email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      placeholder="tucorreo@ejemplo.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={cn(INPUT_CLASS, 'pl-10')}
+                    />
+                  </Field>
+                ) : (
+                  <Field
+                    htmlFor="phone"
+                    label="Número de celular"
+                    hint="9 dígitos, empezando con 9"
+                  >
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-500">
+                      +51
+                    </span>
+                    <input
+                      id="phone"
+                      type="tel"
+                      required
+                      inputMode="numeric"
+                      pattern="9\d{8}"
+                      placeholder="987654321"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className={cn(INPUT_CLASS, 'pl-12 pr-10')}
+                      maxLength={9}
+                    />
+                    <Smartphone className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  </Field>
+                )}
+
+                <Field
+                  htmlFor="password"
+                  label="Contraseña"
+                  action={
+                    <Link
+                      href="#"
+                      className="text-xs font-semibold text-amber-400 hover:text-amber-300"
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </Link>
+                  }
+                >
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={cn(INPUT_CLASS, 'pl-10 pr-10')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </Field>
+
+                <label
+                  htmlFor="remember"
+                  className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer select-none"
+                >
+                  <input
+                    id="remember"
+                    type="checkbox"
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
+                    className="h-4 w-4 rounded border-white/20 bg-white/5 accent-amber-400 focus:ring-2 focus:ring-amber-400/40"
+                  />
+                  Mantener sesión iniciada
+                </label>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="group relative w-full h-12 rounded-xl bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950 font-black text-base shadow-lg shadow-fuchsia-500/30 hover:shadow-fuchsia-500/50 transition-shadow disabled:opacity-60 disabled:shadow-none flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <span className="h-4 w-4 rounded-full border-2 border-zinc-950/40 border-t-zinc-950 animate-spin" />
+                      Entrando...
+                    </>
+                  ) : (
+                    <>
+                      Entrar
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-0.5 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10" />
+                </div>
+                <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
+                  <span className="bg-zinc-950 px-3 text-zinc-500">o continúa con</span>
+                </div>
+              </div>
+
+              {/* Social buttons */}
+              <div className="grid grid-cols-3 gap-2">
+                <SocialButton onClick={() => handleSocial('google')} label="Google" />
+                <SocialButton onClick={() => handleSocial('facebook')} label="Facebook" />
+                <SocialButton onClick={() => handleSocial('apple')} label="Apple" />
+              </div>
+
+              {/* Footer links */}
+              <p className="mt-6 text-center text-sm text-zinc-400">
+                ¿No tienes cuenta?{' '}
+                <Link
+                  href={ROUTES.registro}
+                  className="font-semibold text-amber-400 hover:text-amber-300"
+                >
                   Regístrate gratis
                 </Link>
-              )}
-            </p>
-          </div>
-
-          {/* Mode toggle */}
-          <div className="grid grid-cols-2 gap-1 p-1 rounded-lg bg-muted">
-            <button
-              type="button"
-              onClick={() => setMode('email')}
-              className={`flex items-center justify-center gap-1.5 py-2 rounded-md text-sm font-medium transition-colors ${
-                mode === 'email' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
-              }`}
-            >
-              <Mail className="h-4 w-4" /> Email
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('phone')}
-              className={`flex items-center justify-center gap-1.5 py-2 rounded-md text-sm font-medium transition-colors ${
-                mode === 'phone' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
-              }`}
-            >
-              <Smartphone className="h-4 w-4" /> Celular
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === 'email' ? (
-              <div className="space-y-2">
-                <Label htmlFor="email">Correo electrónico</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    required
-                    placeholder="tucorreo@ejemplo.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-12"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Label htmlFor="phone">Número de celular</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">+51</span>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    required
-                    pattern="9\d{8}"
-                    placeholder="987654321"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="pl-12 h-12"
-                    maxLength={9}
-                  />
-                  <Smartphone className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                </div>
-                <p className="text-xs text-muted-foreground">9 dígitos, empezando con 9</p>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Contraseña</Label>
-                <Link href="#" className="text-xs text-salsa-600 hover:underline">
-                  ¿Olvidaste tu contraseña?
+              </p>
+              <p className="mt-3 text-center text-[11px] text-zinc-500">
+                Al continuar aceptas los{' '}
+                <Link href={ROUTES.terminos} className="text-amber-400 hover:text-amber-300 underline">
+                  Términos
+                </Link>{' '}
+                y la{' '}
+                <Link href={ROUTES.privacidad} className="text-amber-400 hover:text-amber-300 underline">
+                  Privacidad
                 </Link>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10 h-12"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label={showPassword ? 'Ocultar' : 'Mostrar'}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+                .
+              </p>
             </div>
-
-            <div className="flex items-center gap-2">
-              <Checkbox id="remember" checked={remember} onCheckedChange={(v) => setRemember(v === true)} />
-              <Label htmlFor="remember" className="text-sm cursor-pointer">Mantener sesión iniciada</Label>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-12 bg-salsa-500 hover:bg-salsa-600 text-white text-base font-bold gap-2"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                  Entrando...
-                </span>
-              ) : (
-                <>Entrar <ArrowRight className="h-5 w-5" /></>
-              )}
-            </Button>
-          </form>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">o continúa con</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2">
-            <Button variant="outline" onClick={() => handleSocial('google')} className="h-12">
-              <span className="text-xs font-semibold">Google</span>
-            </Button>
-            <Button variant="outline" onClick={() => handleSocial('facebook')} className="h-12">
-              <span className="text-xs font-semibold">Facebook</span>
-            </Button>
-            <Button variant="outline" onClick={() => handleSocial('apple')} className="h-12">
-              <span className="text-xs font-semibold">Apple</span>
-            </Button>
-          </div>
-
-          <p className="text-xs text-muted-foreground text-center">
-            Al continuar aceptas los{' '}
-            <Link href={ROUTES.terminos} className="underline hover:text-foreground">Términos</Link> y la{' '}
-            <Link href={ROUTES.privacidad} className="underline hover:text-foreground">Privacidad</Link>.
-          </p>
-        </div>
+          </motion.div>
+        </section>
       </div>
+    </main>
+  )
+}
+
+// =====================================================================
+// Sub-components — hoisted to module level (satisfies ESLint
+// react-hooks/static-components and avoids remounting on each render)
+// =====================================================================
+
+function Field({
+  label,
+  htmlFor,
+  hint,
+  action,
+  children,
+}: {
+  label: string
+  htmlFor: string
+  hint?: string
+  action?: React.ReactNode
+  children: React.ReactNode
+}) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between">
+        <label htmlFor={htmlFor} className="text-sm font-semibold text-zinc-200">
+          {label}
+        </label>
+        {action}
+      </div>
+      <div className="relative">{children}</div>
+      {hint && <p className="text-xs text-zinc-500">{hint}</p>}
     </div>
+  )
+}
+
+function SocialButton({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="h-11 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white text-xs font-semibold transition-colors"
+    >
+      {label}
+    </button>
   )
 }

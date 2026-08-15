@@ -3,22 +3,23 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Radio, Plus, Bell, User, Search } from 'lucide-react'
+import { Home, Radio, Plus, Bell, User, Search, ShoppingBag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { t } from '@/lib/vendeda/i18n'
 import { ROUTES } from '@/lib/vendeda/routes'
 
-type Tab = 'feed' | 'live' | 'create' | 'notifications' | 'profile'
+type Tab = 'feed' | 'live' | 'market' | 'create' | 'notifications' | 'profile'
 
 export function MobileBottomNav() {
   const pathname = usePathname()
 
   const items: { id: Tab; icon: React.ElementType; label: string; href: string }[] = [
-    { id: 'feed',          icon: Home,  label: t('nav.feed'),         href: ROUTES.home },
-    { id: 'live',          icon: Radio, label: t('nav.live'),         href: ROUTES.live },
-    { id: 'create',        icon: Plus,  label: t('nav.create'),       href: ROUTES.vender },
-    { id: 'notifications', icon: Bell,  label: t('nav.notifications'),href: ROUTES.notificaciones },
-    { id: 'profile',       icon: User,  label: t('nav.profile'),      href: ROUTES.perfil },
+    { id: 'feed',          icon: Home,        label: t('nav.feed'),         href: ROUTES.home },
+    { id: 'live',          icon: Radio,       label: t('nav.live'),         href: ROUTES.live },
+    { id: 'market',        icon: ShoppingBag, label: 'Market',              href: ROUTES.marketplace },
+    { id: 'create',        icon: Plus,        label: t('nav.create'),       href: ROUTES.vender },
+    { id: 'notifications', icon: Bell,        label: t('nav.notifications'),href: ROUTES.notificaciones },
+    { id: 'profile',       icon: User,        label: t('nav.profile'),      href: ROUTES.perfil },
   ]
 
   const isActive = (href: string): boolean => {
@@ -32,7 +33,7 @@ export function MobileBottomNav() {
       role="navigation"
       aria-label="Navegación principal"
     >
-      <div className="grid grid-cols-5 h-16">
+      <div className="grid grid-cols-6 h-16">
         {items.map(({ id, icon: Icon, label, href }) => {
           const active = isActive(href)
           if (id === 'create') {

@@ -1,464 +1,73 @@
 'use client'
 
+/* ------------------------------------------------------------------ */
+/* Seller Command Center — Ultra Inmersiva dark premium dashboard      */
+/* Pure dark (bg-zinc-950) · glassmorphism · neon accents · bento     */
+/* NO AppShell — navbar rendered at the layout level (layout.tsx).    */
+/* ------------------------------------------------------------------ */
+
 import * as React from 'react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import {
-  LayoutDashboard, Gavel, Tag, MessageSquare, Heart, Settings,
-  TrendingUp, Wallet, Bell, ShoppingBag, ArrowUpRight, Trophy,
-  AlertTriangle, Package, ShieldAlert, Loader2, Truck, ShieldCheck,
+  TrendingUp, Wallet, Bell, ShoppingBag,
+  AlertTriangle, Package, Loader2, Truck, ShieldCheck,
+  Radio, Eye, BadgeCheck, Gavel, Tag, Video, Clock,
+  ExternalLink, CreditCard, Smartphone, Zap, ChevronRight,
+  Trophy, MessageSquare, Heart, Settings, ShieldAlert,
 } from 'lucide-react'
-import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
 import { AuthGuard } from '@/components/vendeda/AuthGuard'
 import { useAuth } from '@/components/vendeda/AuthProvider'
 import { PushSubscribeButton } from '@/components/vendeda/PWA'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatPEN, timeAgoEs, initials } from '@/lib/vendeda/format'
-import { MOCK_PROFILES, MOCK_TRENDING_AUCTIONS, MOCK_PRODUCTS } from '@/lib/vendeda/mock-data'
+import { MOCK_PROFILES } from '@/lib/vendeda/mock-data'
 import { ROUTES } from '@/lib/vendeda/routes'
+import type { Profile } from '@/lib/vendeda/types'
 import { cn } from '@/lib/utils'
 
-const breadcrumbs: Breadcrumb[] = [{ label: 'Dashboard' }]
+/* ------------------------------------------------------------------ */
+/* Framer Motion variants                                              */
+/* ------------------------------------------------------------------ */
+const KPI_CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+  },
+} as const
 
-const TABS = [
-  { id: 'overview',       label: 'Resumen',      icon: LayoutDashboard },
-  { id: 'bids',           label: 'Mis pujas',    icon: Gavel },
-  { id: 'sales',          label: 'Ventas',       icon: Tag },
-  { id: 'messages',       label: 'Mensajes',     icon: MessageSquare },
-  { id: 'favorites',      label: 'Favoritos',    icon: Heart },
-  { id: 'settings',       label: 'Ajustes',      icon: Settings },
-] as const
+const KPI_ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 14, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
+  },
+} as const
 
-export default function DashboardPage() {
-  return (
-    <AuthGuard>
-      <DashboardContent />
-    </AuthGuard>
-  )
+const SECTION_MOTION = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+} as const
+
+/* ------------------------------------------------------------------ */
+/* Accent palette — matches Live Room + Marketplace visual language   */
+/* ------------------------------------------------------------------ */
+type KpiAccent = 'rose' | 'amber' | 'fuchsia' | 'lime' | 'purple' | 'sky'
+
+const KPI_ACCENTS: Record<KpiAccent, { text: string; gradient: string }> = {
+  rose:    { text: 'text-rose-400',    gradient: 'linear-gradient(135deg, #f43f5e, #fb7185)' },
+  amber:   { text: 'text-amber-400',   gradient: 'linear-gradient(135deg, #f59e0b, #fbbf24)' },
+  fuchsia: { text: 'text-fuchsia-400', gradient: 'linear-gradient(135deg, #d946ef, #f0abfc)' },
+  lime:    { text: 'text-lime-400',    gradient: 'linear-gradient(135deg, #84cc16, #bef264)' },
+  purple:  { text: 'text-purple-400',  gradient: 'linear-gradient(135deg, #a855f7, #d8b4fe)' },
+  sky:     { text: 'text-sky-400',     gradient: 'linear-gradient(135deg, #0ea5e9, #7dd3fc)' },
 }
 
-function DashboardContent() {
-  const { user: authUser } = useAuth()
-  // Use auth user if available, else fall back to mock for demo mode
-  const user = authUser
-    ? {
-        ...MOCK_PROFILES[5],
-        id: authUser.id,
-        displayName: authUser.displayName,
-        avatarUrl: authUser.avatarUrl ?? MOCK_PROFILES[5].avatarUrl,
-        bio: authUser.isDemo ? MOCK_PROFILES[5].bio : (MOCK_PROFILES[5].bio ?? null),
-      }
-    : MOCK_PROFILES[5]
-
-  return (
-    <AppShell
-      title="Mi Dashboard"
-      breadcrumbs={breadcrumbs}
-      showBack
-      maxWidth="max-w-6xl"
-    >
-      {/* Hero — Dark Command Center */}
-      <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-purple-950/30 border border-slate-800 rounded-3xl p-5 mb-6 relative overflow-hidden">
-        {/* Glow accents */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 blur-3xl rounded-full pointer-events-none" />
-
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-lg shadow-xl shadow-amber-500/20 border border-amber-300">
-              {initials(user.displayName)}
-            </div>
-            <div>
-              <h2 className="text-xl font-black tracking-tight text-white">{user.displayName}</h2>
-              <p className="text-xs text-slate-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                {authUser?.isDemo ? 'Modo demo' : 'Wallet conectada'} · @{user.username}
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Link href={ROUTES.vender}>
-              <Button className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs">
-                <Tag className="h-4 w-4 mr-1.5" /> Vender
-              </Button>
-            </Link>
-            <Link href={ROUTES.perfil}>
-              <Button variant="outline" className="bg-slate-900 border-slate-800 text-slate-200 hover:bg-slate-800 text-xs">
-                Ver perfil
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Quick stats inline */}
-        <div className="relative grid grid-cols-4 gap-3 mt-5 pt-5 border-t border-slate-800">
-          <div>
-            <div className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Seguidores</div>
-            <div className="text-lg font-black font-mono text-white">{user.followerCount.toLocaleString('es-PE')}</div>
-          </div>
-          <div>
-            <div className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Ventas</div>
-            <div className="text-lg font-black font-mono text-amber-400">{user.salesCount}</div>
-          </div>
-          <div>
-            <div className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Rating</div>
-            <div className="text-lg font-black font-mono text-emerald-400">⭐ {user.rating.toFixed(1)}</div>
-          </div>
-          <div>
-            <div className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Estado</div>
-            <div className="text-sm font-black text-emerald-400 flex items-center gap-1">
-              <ShieldCheck className="h-3.5 w-3.5" /> Activo
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bento metrics grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <BentoMetric
-          icon={Trophy}
-          label="Subastas ganadas"
-          value="3"
-          trend="+2 este mes"
-          color="text-lima-500"
-          accent="from-lima-500/10 to-transparent"
-        />
-        <BentoMetric
-          icon={Gavel}
-          label="Pujas activas"
-          value="2"
-          trend="1 ganando"
-          color="text-amber-400"
-          accent="from-amber-500/10 to-transparent"
-        />
-        <BentoMetric
-          icon={Wallet}
-          label="Total gastado"
-          value="S/. 480"
-          trend="Últimos 30 días"
-          color="text-purple-400"
-          accent="from-purple-500/10 to-transparent"
-        />
-        <BentoMetric
-          icon={TrendingUp}
-          label="Rating dado"
-          value="4.8 ★"
-          trend="12 reseñas"
-          color="text-rose-400"
-          accent="from-rose-500/10 to-transparent"
-        />
-      </div>
-
-      {/* Stream engine launcher */}
-      <div className="bg-gradient-to-r from-purple-900 via-indigo-950 to-purple-900 border border-purple-500/20 rounded-3xl p-5 mb-6 shadow-2xl relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[9px] font-black tracking-wider px-2 py-0.5 rounded-full uppercase">
-              Stream Engine
-            </span>
-            <h3 className="text-lg font-black mt-2 mb-1 text-white">¿Listo para retransmitir?</h3>
-            <p className="text-xs text-purple-200/70 max-w-md mb-3 leading-normal">
-              Inicia tu transmisión en vivo, recibe pujas en tiempo real y cierra ventas con Yape/Plin al instante.
-            </p>
-            <Link href={ROUTES.vender}>
-              <button className="bg-white hover:bg-slate-100 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl active:scale-95 transition-all shadow-xl flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" /> Iniciar transmisión
-              </button>
-            </Link>
-          </div>
-          <div className="text-7xl opacity-20 select-none">📹</div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto">
-          {TABS.map((tab) => (
-            <TabsTrigger
-              key={tab.id}
-              value={tab.id}
-              className="flex flex-col items-center gap-1 py-2 text-xs"
-            >
-              <tab.icon className="h-4 w-4" />
-              <span className="hidden sm:inline">{tab.label}</span>
-              <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          <Card className="p-6">
-            <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <Bell className="h-4 w-4 text-salsa-500" /> Actividad reciente
-            </h3>
-            <div className="space-y-3">
-              {[
-                { icon: Trophy, color: 'text-lima-500', title: '🎉 Ganaste la subasta', desc: 'Polo algodón pima — S/. 38.00', time: 'hace 2 horas' },
-                { icon: Gavel, color: 'text-salsa-500', title: 'Nueva puja en tu subasta', desc: 'Vestido artesanal — S/. 120', time: 'hace 5 horas' },
-                { icon: MessageSquare, color: 'text-plin-500', title: 'Nuevo mensaje de Rosa', desc: '"¿Te interesa otro talla?"', time: 'ayer' },
-                { icon: Heart, color: 'text-salsa-500', title: 'Tu producto favorito bajó de precio', desc: 'Samsung Galaxy A55 — S/. 1250', time: 'hace 2 días' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                  <item.icon className={cn('h-5 w-5 shrink-0 mt-0.5', item.color)} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{item.title}</p>
-                    <p className="text-xs text-muted-foreground">{item.desc}</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground shrink-0">{item.time}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card className="p-6">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <Gavel className="h-4 w-4 text-salsa-500" /> Próximas subastas
-              </h3>
-              <div className="space-y-2">
-                {MOCK_TRENDING_AUCTIONS.slice(0, 3).map((a) => (
-                  <Link
-                    key={a.id}
-                    href={ROUTES.auction(a.id)}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="h-10 w-10 rounded-md overflow-hidden bg-muted shrink-0">
-                      {a.product?.images[0] && (
-                        <img src={a.product.images[0]} alt="" className="h-full w-full object-cover" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{a.product?.title}</p>
-                      <p className="text-xs text-muted-foreground">Termina en 2:45</p>
-                    </div>
-                    <span className="text-sm font-bold text-salsa-600">{formatPEN(a.currentPrice)}</span>
-                  </Link>
-                ))}
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <ShoppingBag className="h-4 w-4 text-lima-500" /> Acciones rápidas
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                <Link href={ROUTES.vender}>
-                  <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-1">
-                    <Tag className="h-5 w-5 text-salsa-500" />
-                    <span className="text-xs">Vender producto</span>
-                  </Button>
-                </Link>
-                <Link href={ROUTES.live}>
-                  <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-1">
-                    <Gavel className="h-5 w-5 text-salsa-500" />
-                    <span className="text-xs">Ver en vivo</span>
-                  </Button>
-                </Link>
-                <Link href={ROUTES.mensajes}>
-                  <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-1">
-                    <MessageSquare className="h-5 w-5 text-plin-500" />
-                    <span className="text-xs">Mensajes</span>
-                  </Button>
-                </Link>
-                <Link href={ROUTES.pagos}>
-                  <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-1">
-                    <Wallet className="h-5 w-5 text-lima-500" />
-                    <span className="text-xs">Pagos</span>
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Push notification opt-in */}
-              <div className="mt-4 pt-4 border-t">
-                <PushSubscribeButton className="w-full" />
-              </div>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="bids">
-          <Card className="p-6">
-            <h3 className="font-semibold mb-4">Mis pujas activas</h3>
-            <div className="space-y-2">
-              {MOCK_TRENDING_AUCTIONS.map((a) => (
-                <Link
-                  key={a.id}
-                  href={ROUTES.auction(a.id)}
-                  className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-                >
-                  <div className="h-12 w-12 rounded-md overflow-hidden bg-muted shrink-0">
-                    {a.product?.images[0] && (
-                      <img src={a.product.images[0]} alt="" className="h-full w-full object-cover" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{a.product?.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Puja actual: <span className="font-semibold text-foreground">{formatPEN(a.currentPrice)}</span>
-                      {' · '}{a.bidCount} pujas
-                    </p>
-                  </div>
-                  <Badge className={cn(
-                    a.status === 'live' ? 'bg-salsa-100 text-salsa-700' : 'bg-lima-100 text-lima-700'
-                  )}>
-                    {a.status === 'live' ? 'EN VIVO' : 'Ganando'}
-                  </Badge>
-                </Link>
-              ))}
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="sales">
-          <SalesPanel sellerId={user.id} />
-        </TabsContent>
-
-        <TabsContent value="messages">
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">Mensajes recientes</h3>
-              <Link href={ROUTES.mensajes}>
-                <Button variant="ghost" size="sm" className="text-salsa-600">
-                  Ver todos <ArrowUpRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-            <div className="space-y-2">
-              {MOCK_PROFILES.slice(0, 3).map((p, i) => (
-                <Link
-                  key={p.id}
-                  href={`${ROUTES.mensajes}?u=${p.username}`}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={p.avatarUrl ?? undefined} alt={p.displayName} />
-                    <AvatarFallback>{initials(p.displayName)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{p.displayName}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {['Hola, ¿aún tienes el polo?', 'Te transfiero el Yape ahora 🙌', '¿Envías a Arequipa?'][i]}
-                    </p>
-                  </div>
-                  <span className="text-xs text-muted-foreground shrink-0">{timeAgoEs(new Date(Date.now() - i * 3600_000))}</span>
-                </Link>
-              ))}
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="favorites">
-          <Card className="p-6">
-            <h3 className="font-semibold mb-4">Favoritos guardados</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {MOCK_PRODUCTS.slice(0, 4).map((p) => (
-                <Link key={p.id} href={ROUTES.product(p.id)}>
-                  <Card className="overflow-hidden hover:shadow-soft transition-shadow">
-                    <div className="aspect-square bg-muted">
-                      {p.images[0] && (
-                        <img src={p.images[0]} alt={p.title} className="h-full w-full object-cover" />
-                      )}
-                    </div>
-                    <div className="p-2">
-                      <p className="text-xs font-medium line-clamp-1">{p.title}</p>
-                      <p className="text-sm font-bold text-salsa-600">{formatPEN(p.basePrice)}</p>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="settings">
-          <Card className="p-6 space-y-3">
-            <h3 className="font-semibold mb-2">Ajustes de cuenta</h3>
-            {[
-              { label: 'Información personal', href: ROUTES.configuracion, icon: Settings },
-              { label: 'Métodos de pago', href: ROUTES.pagos, icon: Wallet },
-              { label: 'Direcciones de envío', href: ROUTES.envios, icon: ShoppingBag },
-              { label: 'Notificaciones', href: ROUTES.notificaciones, icon: Bell },
-              { label: 'Privacidad y seguridad', href: ROUTES.privacidad, icon: Settings },
-            ].map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <item.icon className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">{item.label}</span>
-                </div>
-                <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-              </Link>
-            ))}
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </AppShell>
-  )
-}
-
-function StatCard({
-  icon: Icon, label, value, trend, color,
-}: {
-  icon: React.ElementType
-  label: string
-  value: string
-  trend: string
-  color: string
-}) {
-  return (
-    <Card className="p-4">
-      <div className="flex items-center justify-between">
-        <Icon className={cn('h-5 w-5', color)} />
-      </div>
-      <div className="text-2xl font-bold mt-2 tabular-nums">{value}</div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="text-[10px] text-muted-foreground/70 mt-0.5">{trend}</div>
-    </Card>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// BentoMetric — métrica oscura premium para el Command Center
-// ─────────────────────────────────────────────────────────────────────
-function BentoMetric({
-  icon: Icon, label, value, trend, color, accent,
-}: {
-  icon: React.ElementType
-  label: string
-  value: string
-  trend: string
-  color: string
-  accent: string
-}) {
-  return (
-    <div className={`bg-gradient-to-br ${accent} bg-slate-950 border border-slate-800 rounded-3xl p-4 shadow-xl relative overflow-hidden`}>
-      <div className="flex items-center justify-between mb-2">
-        <div className={`w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center`}>
-          <Icon className={cn('h-4 w-4', color)} />
-        </div>
-      </div>
-      <div className="text-2xl font-black font-mono tabular-nums text-white">{value}</div>
-      <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider mt-0.5">{label}</div>
-      <div className="text-[10px] text-emerald-400 font-medium mt-1">{trend}</div>
-    </div>
-  )
-}
-
-// ----------------------------------------------------------------------
-// SalesPanel — consume /api/seller/dashboard y muestra:
-//   - Wallet status (KYC, gateway seller id, estado de cuenta)
-//   - Resumen financiero (ventas, comisiones, neto, escrow pendiente)
-//   - Últimas órdenes con desglose completo del split Modo A
-//   - Envíos Shalom pendientes de dropoff (con acción "Imprimir guía")
-//   - Alertas de moderación (KYC faltante, suspended, banned, reports)
-//   - Reportes de copyright contra el vendedor (si los hay)
-// ----------------------------------------------------------------------
+/* ------------------------------------------------------------------ */
+/* Seller dashboard API types (preserved from prior version)          */
+/* ------------------------------------------------------------------ */
 interface SellerDashboardData {
   wallet: {
     id: string;
@@ -505,314 +114,1042 @@ interface SellerDashboardData {
   alerts: Array<{ level: 'info' | 'warning' | 'critical'; message: string }>;
 }
 
-function SalesPanel({ sellerId }: { sellerId: string }) {
-  const { user } = useAuth()
-  // Demo sellerId fallback cuando no hay auth real configurado
-  const effectiveSellerId = user?.id ?? sellerId ?? 'demo-seller'
+type PendingDropoff = SellerDashboardData['pendingDropoffs'][number]
+type RecentOrder = SellerDashboardData['recentOrders'][number]
+type WalletInfo = SellerDashboardData['wallet']
 
+/* ================================================================== */
+/* PAGE                                                                */
+/* ================================================================== */
+export default function DashboardPage() {
+  return (
+    <AuthGuard>
+      <DashboardContent />
+    </AuthGuard>
+  )
+}
+
+function DashboardContent() {
+  const { user: authUser } = useAuth()
+  // Use auth user if available, else fall back to mock for demo mode
+  const user: Profile = authUser
+    ? {
+        ...MOCK_PROFILES[5],
+        id: authUser.id,
+        displayName: authUser.displayName,
+        avatarUrl: authUser.avatarUrl ?? MOCK_PROFILES[5].avatarUrl ?? null,
+        bio: authUser.isDemo ? MOCK_PROFILES[5].bio : (MOCK_PROFILES[5].bio ?? null),
+      }
+    : MOCK_PROFILES[5]
+
+  // Pull seller dashboard data (wallet, orders, summary, dropoffs, alerts).
+  // Polls every 30s — same logic as the prior implementation.
+  const effectiveSellerId = authUser?.id ?? user.id ?? 'demo-seller'
   const { data, isLoading, error } = useSellerDashboard(effectiveSellerId)
 
-  if (isLoading) {
-    return (
-      <Card className="p-6 flex items-center justify-center min-h-[200px]">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </Card>
-    )
-  }
-
-  if (error || !data) {
-    return (
-      <Card className="p-6">
-        <p className="text-sm text-muted-foreground">
-          No se pudo cargar el panel de ventas. {error ?? 'Intenta más tarde.'}
-        </p>
-        <p className="text-xs text-muted-foreground mt-2">
-          Esto es normal si tu wallet aún no está registrada en Vende Ya.
-        </p>
-      </Card>
-    )
-  }
-
-  const { wallet, summary, recentOrders, pendingDropoffs, copyrightReports, alerts } = data
+  // KPI values — fall back to mock when data hasn't loaded yet
+  const ventasHoy = data?.summary?.totalSales ?? 1247
+  const ingresosDelta = '+18% mes'
+  const subastasActivas = 3
+  const espectadoresHoy = 2418
 
   return (
-    <div className="space-y-4">
-      {/* Alertas de moderación */}
-      {alerts.length > 0 && (
-        <Card className="p-4 space-y-2 border-amber-200 bg-amber-50">
-          <div className="flex items-center gap-2 text-amber-900 font-semibold text-sm">
-            <AlertTriangle className="h-4 w-4" /> Alertas de moderación
-          </div>
-          {alerts.map((a, i) => (
-            <div
-              key={i}
-              className={cn(
-                'text-xs px-3 py-2 rounded-md',
-                a.level === 'critical'
-                  ? 'bg-rose-100 text-rose-800'
-                  : a.level === 'warning'
-                    ? 'bg-amber-100 text-amber-800'
-                    : 'bg-blue-100 text-blue-800'
-              )}
-            >
-              {a.message}
-            </div>
-          ))}
-        </Card>
-      )}
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 dark">
+      <main className="w-full max-w-[1200px] mx-auto px-4 md:px-6 pt-4 md:pt-8 pb-24 md:pb-12">
+        {/* ─── HERO HEADER ─────────────────────────────────── */}
+        <HeroHeader
+          user={user}
+          isDemo={authUser?.isDemo ?? true}
+          walletActive={data?.wallet?.status === 'active'}
+        />
 
-      {/* Wallet card — rediseño Command Center */}
-      {wallet.status === 'active' ? (
-        <Card className="p-5 bg-gradient-to-br from-slate-950 to-slate-900 border-slate-800">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold flex items-center gap-2 text-white">
-              <Wallet className="h-4 w-4 text-emerald-400" /> Mi Billetera
-            </h3>
-            <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase px-2 py-1 rounded-full">
-              ● Activa
-            </span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Estado</p>
-              <p className="font-black text-emerald-400 capitalize">{wallet.status}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Verificación KYC</p>
-              <p className={cn(
-                'font-black',
-                wallet.isVerified ? 'text-emerald-400' : 'text-rose-400'
-              )}>
-                {wallet.isVerified ? '✓ Verificada' : '✗ Pendiente'}
-              </p>
-            </div>
-            <div className="col-span-2">
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Gateway Seller ID</p>
-              <p className="font-mono text-xs break-all text-amber-400">{wallet.gatewaySellerId}</p>
-            </div>
-          </div>
-        </Card>
-      ) : (
-        <Card className="p-5 bg-gradient-to-br from-amber-950/50 via-slate-950 to-purple-950/30 border-amber-500/30">
-          <div className="flex items-start justify-between gap-4 flex-col md:flex-row">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-black tracking-wider px-2 py-1 rounded-full uppercase">
-                  Onboarding requerido
-                </span>
-              </div>
-              <h3 className="text-lg font-black text-white mb-1">Conecta tu Mercado Pago</h3>
-              <p className="text-xs text-slate-400 max-w-md mb-3">
-                Para empezar a recibir pagos con Yape, Plin y tarjetas, y habilitar el split automático de comisiones.
-                Tú recibes el 90% neto, Vende Ya retiene su comisión automáticamente.
-              </p>
-              <a
-                href="/api/wallet/oauth/redirect"
-                className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl active:scale-95 transition-all shadow-lg shadow-amber-500/20"
-              >
-                <span className="text-base">🔌</span> Conectar Mercado Pago
-              </a>
-            </div>
-            <div className="text-5xl opacity-30 select-none">💰</div>
-          </div>
-        </Card>
-      )}
+        {/* ─── MODERATION ALERTS BANNER (conditional) ──────── */}
+        {data && data.alerts.length > 0 && (
+          <AlertsBanner alerts={data.alerts} />
+        )}
 
-      {/* Resumen financiero */}
-      <Card className="p-6">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-salsa-500" /> Resumen financiero
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard
-            icon={Trophy}
-            label="Ventas totales"
-            value={formatPEN(summary.totalSales)}
-            trend="Últimas 20 órdenes"
-            color="text-salsa-500"
-          />
-          <StatCard
+        {/* ─── BENTO KPI GRID (stagger entrance) ──────────── */}
+        <motion.section
+          variants={KPI_CONTAINER_VARIANTS}
+          initial="hidden"
+          animate="visible"
+          aria-label="Métricas clave"
+          className="mt-5 md:mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4"
+        >
+          <BentoKpiCard
             icon={Tag}
-            label="Comisiones Vende Ya"
-            value={formatPEN(summary.totalCommissions)}
-            trend="12% en vivo / 8% mkt"
-            color="text-amber-500"
+            label="Ventas hoy"
+            value={`S/ ${ventasHoy.toLocaleString('es-PE')}`}
+            delta="▲ +12 hoy"
+            sub="vs. ayer"
+            accent="lime"
           />
-          <StatCard
-            icon={Wallet}
-            label="Costos pasarela"
-            value={formatPEN(summary.totalGatewayFees)}
-            trend="3.9% + IGV"
-            color="text-rose-500"
-          />
-          <StatCard
+          <BentoKpiCard
             icon={TrendingUp}
-            label="Tu neto"
-            value={formatPEN(summary.totalNet)}
-            trend={`Escrow: ${formatPEN(summary.pendingEscrow)}`}
-            color="text-lima-500"
+            label="Ingresos"
+            value={ingresosDelta}
+            delta="Tendencia alcista"
+            sub="Últimos 30 días"
+            accent="amber"
+            sparkline
           />
-        </div>
-      </Card>
+          <BentoKpiCard
+            icon={Gavel}
+            label="Subastas"
+            value={`${subastasActivas} activas`}
+            delta="▲ LIVE"
+            sub="2 cerrando pronto"
+            accent="rose"
+          />
+          <BentoKpiCard
+            icon={Eye}
+            label="Espectadores"
+            value={espectadoresHoy.toLocaleString('es-PE')}
+            delta="▲ +320"
+            sub="Pico de hoy"
+            accent="fuchsia"
+          />
+        </motion.section>
 
-      {/* Envíos pendientes de dropoff */}
-      {pendingDropoffs.length > 0 && (
-        <Card className="p-6">
-          <h3 className="font-semibold mb-4 flex items-center gap-2">
-            <Truck className="h-4 w-4 text-salsa-500" /> Envíos Shalom pendientes
-            <Badge variant="secondary">{pendingDropoffs.length}</Badge>
-          </h3>
-          <div className="space-y-2">
-            {pendingDropoffs.map(({ order, shipment }) => (
-              <div
-                key={order.id}
-                className="flex items-center justify-between p-3 rounded-lg border bg-amber-50 border-amber-200"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">Orden {order.id.slice(0, 8)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatPEN(order.totalAmount)} · Tracking:{' '}
-                    <span className="font-mono">{shipment.trackingCode ?? 'Pendiente'}</span>
-                  </p>
-                </div>
-                {shipment.pdfLabelUrl && (
-                  <a
-                    href={shipment.pdfLabelUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button size="sm" variant="outline">
-                      <Package className="h-3 w-3 mr-1" /> Imprimir guía
-                    </Button>
-                  </a>
+        {/* ─── 2-COL: STREAM ENGINE + WALLET ──────────────── */}
+        <section className="mt-5 md:mt-6 grid md:grid-cols-2 gap-4 md:gap-6">
+          <StreamEngineLauncher />
+          <WalletPanel
+            wallet={data?.wallet ?? null}
+            summary={data?.summary ?? null}
+            isLoading={isLoading}
+            error={error}
+          />
+        </section>
+
+        {/* ─── SHALOM LOGISTICS ────────────────────────────── */}
+        <ShalomLogistics dropoffs={data?.pendingDropoffs ?? []} />
+
+        {/* ─── RECENT ORDERS + ACTIVITY FEED ───────────────── */}
+        <section className="mt-5 md:mt-6 grid lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="lg:col-span-2">
+            <RecentOrdersCard
+              orders={data?.recentOrders ?? []}
+              isLoading={isLoading}
+            />
+          </div>
+          <ActivityFeed />
+        </section>
+
+        {/* ─── COPYRIGHT REPORTS (conditional) ───────────── */}
+        {data && data.copyrightReports.length > 0 && (
+          <CopyrightReportsCard reports={data.copyrightReports} />
+        )}
+
+        {/* ─── QUICK ACTIONS FOOTER ───────────────────────── */}
+        <QuickActionsFooter />
+      </main>
+    </div>
+  )
+}
+
+/* ================================================================== */
+/* HERO HEADER                                                         */
+/* ================================================================== */
+function HeroHeader({
+  user,
+  isDemo,
+  walletActive,
+}: {
+  user: Profile
+  isDemo: boolean
+  walletActive: boolean
+}) {
+  const firstName = user.displayName.split(' ')[0] || user.displayName
+  return (
+    <motion.header
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 md:p-7"
+    >
+      {/* Ambient glow */}
+      <div className="absolute -top-24 -right-20 w-80 h-80 bg-fuchsia-500/20 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute -bottom-24 -left-20 w-72 h-72 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+        {/* Avatar + greeting */}
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="relative shrink-0">
+            <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-br from-amber-400 via-fuchsia-500 to-purple-500 blur-md opacity-60" />
+            <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-fuchsia-500 to-purple-500 p-[2px]">
+              <div className="w-full h-full rounded-2xl bg-zinc-950 flex items-center justify-center overflow-hidden">
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.displayName}
+                    className="w-full h-full object-cover rounded-2xl"
+                  />
+                ) : (
+                  <span className="text-lg md:text-xl font-black text-white">
+                    {initials(user.displayName)}
+                  </span>
                 )}
               </div>
-            ))}
+            </div>
           </div>
-        </Card>
-      )}
 
-      {/* Reportes de copyright */}
-      {copyrightReports.length > 0 && (
-        <Card className="p-6 border-rose-200 bg-rose-50">
-          <h3 className="font-semibold mb-4 flex items-center gap-2 text-rose-900">
-            <ShieldAlert className="h-4 w-4 text-rose-500" /> Reportes de PI contra ti
-            <Badge variant="destructive">{copyrightReports.length}</Badge>
-          </h3>
-          <div className="space-y-2">
-            {copyrightReports.map((r) => (
-              <div key={r.id} className="p-3 rounded-lg bg-white border border-rose-200">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="text-sm font-medium">Marca: {r.infringedBrand}</p>
-                  <Badge
-                    variant={
-                      r.status === 'pending' ? 'destructive' :
-                      r.status === 'resolved_ban' ? 'destructive' :
-                      r.status === 'investigating' ? 'secondary' : 'outline'
-                    }
-                  >
-                    {r.status}
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Reportado por {r.reporterEmail} · {timeAgoEs(new Date(r.createdAt))}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl md:text-3xl font-black tracking-tight text-white">
+                Hola, {firstName}
+              </h1>
+              {user.isVerified && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 text-[10px] font-bold uppercase tracking-wider">
+                  <BadgeCheck className="h-3.5 w-3.5" /> Verificado
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-[10px] font-bold uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                {isDemo ? 'Modo demo' : 'En sesión'}
+              </span>
+            </div>
+            <p className="mt-1.5 text-sm md:text-base text-zinc-300 max-w-2xl leading-relaxed">
+              Tu comando de ventas en tiempo real. Aquí ves cada ingreso, cada puja, cada envío y cada espectador conectado, todo en un solo panel.
+              {' '}
+              {walletActive
+                ? 'Tu wallet de Mercado Pago está activa y lista para recibir cobros con Yape, Plin y tarjetas.'
+                : 'Conecta Mercado Pago para desbloquear el cobro instantáneo y el split automático de comisiones.'}
+            </p>
+            <p className="mt-1 text-[11px] text-zinc-500">
+              @{user.username} · {user.followerCount.toLocaleString('es-PE')} seguidores · {user.salesCount} ventas · ⭐ {user.rating.toFixed(1)}
+            </p>
+          </div>
+        </div>
+
+        {/* CTA cluster */}
+        <div className="flex flex-col sm:flex-row md:flex-col gap-2 shrink-0">
+          {!walletActive && (
+            <a
+              href="/api/wallet/oauth/redirect"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-fuchsia-500 hover:from-amber-400 hover:to-fuchsia-400 text-zinc-950 font-black text-xs shadow-lg shadow-fuchsia-500/30 active:scale-95 transition-all"
+            >
+              <Wallet className="h-4 w-4" /> Conectar Mercado Pago
+            </a>
+          )}
+          <Link
+            href={ROUTES.live}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-zinc-100 font-bold text-xs active:scale-95 transition-all"
+          >
+            <Radio className="h-4 w-4 text-rose-400" /> Ir al en vivo
+          </Link>
+        </div>
+      </div>
+    </motion.header>
+  )
+}
+
+/* ================================================================== */
+/* BENTO KPI CARD                                                      */
+/* ================================================================== */
+function BentoKpiCard({
+  icon: Icon,
+  label,
+  value,
+  delta,
+  sub,
+  accent,
+  sparkline,
+}: {
+  icon: React.ElementType
+  label: string
+  value: string
+  delta: string
+  sub: string
+  accent: KpiAccent
+  sparkline?: boolean
+}) {
+  const colors = KPI_ACCENTS[accent]
+  return (
+    <motion.div
+      variants={KPI_ITEM_VARIANTS}
+      whileHover={{ y: -2 }}
+      className="relative overflow-hidden rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-4 md:p-5"
+    >
+      <div
+        className="absolute -top-14 -right-14 h-36 w-36 rounded-full blur-3xl opacity-40"
+        style={{ background: colors.gradient }}
+      />
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">{label}</p>
+          <p className="mt-1 text-xl md:text-2xl font-black text-white tabular-nums truncate">
+            {value}
+          </p>
+          <p className={cn('mt-1 text-[11px] font-bold', colors.text)}>{delta}</p>
+          <p className="mt-0.5 text-[10px] text-zinc-500">{sub}</p>
+        </div>
+        <div className="rounded-xl p-2 bg-white/5 border border-white/10 shrink-0">
+          <Icon className={cn('h-5 w-5', colors.text)} />
+        </div>
+      </div>
+      {sparkline && (
+        <div className="relative mt-3 h-8 flex items-end gap-0.5">
+          {[0.4, 0.55, 0.5, 0.7, 0.65, 0.85, 0.78, 0.95, 0.88, 1].map((h, i) => (
+            <div
+              key={i}
+              className="flex-1 rounded-t bg-gradient-to-t from-amber-500/40 to-amber-400/90"
+              style={{ height: `${h * 100}%`, opacity: 0.4 + (h * 0.6) }}
+            />
+          ))}
+        </div>
+      )}
+    </motion.div>
+  )
+}
+
+/* ================================================================== */
+/* STREAM ENGINE LAUNCHER                                              */
+/* ================================================================== */
+function StreamEngineLauncher() {
+  return (
+    <motion.div
+      {...SECTION_MOTION}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-900/40 via-zinc-900 to-fuchsia-900/30 border border-fuchsia-500/20 p-5 md:p-6"
+    >
+      <div className="absolute -top-20 -right-10 w-60 h-60 bg-purple-500/30 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute -bottom-16 -left-10 w-48 h-48 bg-fuchsia-500/20 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-[10px] font-black tracking-wider uppercase">
+            <Video className="h-3 w-3" /> Stream Engine
+          </span>
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-[10px] font-medium">
+            <Clock className="h-3 w-3" /> Listo en 30s
+          </span>
+        </div>
+
+        <h2 className="mt-3 text-xl md:text-2xl font-black text-white">
+          ¿Listo para retransmitir?
+        </h2>
+        <p className="mt-1.5 text-sm text-zinc-300 leading-relaxed max-w-md">
+          Inicia tu transmisión en vivo, recibe pujas en tiempo real y cierra ventas con Yape o Plin al instante.
+          El engine distribuye el video en adaptativo y baja latencia (menos de 2 segundos) para que tus compradores
+          no se pierdan ninguna puja. Cada espectador puede pujar sin salir del stream.
+        </p>
+
+        <div className="mt-4 flex flex-col sm:flex-row gap-2">
+          <Link
+            href={ROUTES.vender}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-400 hover:to-purple-500 text-white font-black text-xs shadow-lg shadow-purple-500/30 active:scale-95 transition-all"
+          >
+            <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse" /> Iniciar transmisión
+          </Link>
+          <Link
+            href={ROUTES.vender}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-zinc-100 font-bold text-xs active:scale-95 transition-all"
+          >
+            <Clock className="h-4 w-4 text-fuchsia-400" /> Programar stream
+          </Link>
+        </div>
+
+        {/* Mini live preview placeholder */}
+        <div className="mt-4 grid grid-cols-3 gap-2 text-[10px]">
+          <div className="rounded-lg bg-white/5 border border-white/5 px-2.5 py-2">
+            <p className="text-zinc-500 uppercase tracking-wider font-bold">Latencia</p>
+            <p className="text-white font-black tabular-nums">1.8s</p>
+          </div>
+          <div className="rounded-lg bg-white/5 border border-white/5 px-2.5 py-2">
+            <p className="text-zinc-500 uppercase tracking-wider font-bold">Bitrate</p>
+            <p className="text-white font-black tabular-nums">4.5 Mbps</p>
+          </div>
+          <div className="rounded-lg bg-white/5 border border-white/5 px-2.5 py-2">
+            <p className="text-zinc-500 uppercase tracking-wider font-bold">Calidad</p>
+            <p className="text-white font-black">1080p60</p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+/* ================================================================== */
+/* WALLET PANEL — status badge + Mercado Pago OAuth CTA                */
+/* ================================================================== */
+function WalletPanel({
+  wallet,
+  summary,
+  isLoading,
+  error,
+}: {
+  wallet: WalletInfo | null
+  summary: SellerDashboardData['summary'] | null
+  isLoading: boolean
+  error: string | null
+}) {
+  const isActive = wallet?.status === 'active'
+
+  return (
+    <motion.div
+      {...SECTION_MOTION}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
+      className="relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-5 md:p-6"
+    >
+      <div className="absolute -top-12 -right-12 w-44 h-44 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+              <Wallet className="h-4 w-4 text-amber-400" />
+            </div>
+            <h3 className="text-base font-black text-white">Wallet & Pagos</h3>
+          </div>
+          {isLoading ? (
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-[10px] font-bold uppercase">
+              <Loader2 className="h-3 w-3 animate-spin" /> Cargando
+            </span>
+          ) : isActive ? (
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-lime-500/10 border border-lime-400/30 text-lime-400 text-[10px] font-black uppercase">
+              <span className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse" /> Activa
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-400 text-[10px] font-black uppercase">
+              <Clock className="h-3 w-3" /> Pendiente
+            </span>
+          )}
+        </div>
+
+        {error && !wallet && (
+          <p className="mt-3 text-xs text-zinc-500">
+            No pudimos contactar tu wallet todavía. Esto es normal si aún no la registras en Vende Ya. {error}
+          </p>
+        )}
+
+        {isActive && wallet ? (
+          <div className="mt-4 space-y-3">
+            <p className="text-sm text-zinc-300 leading-relaxed">
+              Tu wallet de Mercado Pago está conectada y operativa. Recibes el 90% neto de cada venta;
+              Vende Ya retiene la comisión automáticamente y libera el saldo a tu cuenta bancaria en máximo 24h hábiles.
+              Las transacciones con Yape y Plin se acreditan en el instante.
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-[11px]">
+              <div className="rounded-lg bg-white/5 border border-white/5 px-3 py-2">
+                <p className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">KYC</p>
+                <p className={cn('font-black', wallet.isVerified ? 'text-lime-400' : 'text-rose-400')}>
+                  {wallet.isVerified ? '✓ Verificada' : '✗ Pendiente'}
                 </p>
               </div>
-            ))}
-          </div>
-          <p className="text-xs text-rose-700 mt-3">
-            Si crees que es un error, contacta a{' '}
-            <a
-              href="mailto:legal@vendeya.pe"
-              className="underline font-semibold"
+              <div className="rounded-lg bg-white/5 border border-white/5 px-3 py-2">
+                <p className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Estado</p>
+                <p className="font-black text-lime-400 capitalize">{wallet.status}</p>
+              </div>
+              {summary && (
+                <>
+                  <div className="rounded-lg bg-white/5 border border-white/5 px-3 py-2">
+                    <p className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Neto</p>
+                    <p className="font-black text-lime-400 tabular-nums">{formatPEN(summary.totalNet)}</p>
+                  </div>
+                  <div className="rounded-lg bg-white/5 border border-white/5 px-3 py-2">
+                    <p className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Escrow</p>
+                    <p className="font-black text-amber-400 tabular-nums">{formatPEN(summary.pendingEscrow)}</p>
+                  </div>
+                </>
+              )}
+              <div className="col-span-2 rounded-lg bg-white/5 border border-white/5 px-3 py-2">
+                <p className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Gateway Seller ID</p>
+                <p className="font-mono text-amber-400 break-all">{wallet.gatewaySellerId}</p>
+              </div>
+            </div>
+            <Link
+              href={ROUTES.pagos}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300"
             >
-              legal@vendeya.pe
-            </a>{' '}
-            para apelar.
-          </p>
-        </Card>
-      )}
-
-      {/* Últimas órdenes */}
-      <Card className="p-6">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <ShoppingBag className="h-4 w-4 text-lima-500" /> Últimas órdenes
-        </h3>
-        {recentOrders.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-6 text-center">
-            Aún no tienes ventas. ¡Publica tu primer producto!
-          </p>
+              Ver detalle de pagos <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         ) : (
-          <div className="space-y-2">
-            {recentOrders.map((o) => (
+          <div className="mt-4 space-y-3">
+            <p className="text-sm text-zinc-300 leading-relaxed">
+              Conecta Mercado Pago para empezar a recibir pagos con Yape, Plin y tarjetas.
+              Habilitamos el split automático de comisiones: recibes el 90% neto, nosotros retenemos el 10% en el momento del cobro.
+              Sin mensualidades, solo pagas por venta efectiva.
+            </p>
+            <div className="flex flex-wrap items-center gap-2 text-[10px] text-zinc-500">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
+                <Smartphone className="h-3 w-3 text-lime-400" /> Yape
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
+                <Smartphone className="h-3 w-3 text-sky-400" /> Plin
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
+                <CreditCard className="h-3 w-3 text-fuchsia-400" /> Tarjetas
+              </span>
+            </div>
+            <a
+              href="/api/wallet/oauth/redirect"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-fuchsia-500 hover:from-amber-400 hover:to-fuchsia-400 text-zinc-950 font-black text-xs shadow-lg shadow-fuchsia-500/30 active:scale-95 transition-all w-full sm:w-auto"
+            >
+              <Wallet className="h-4 w-4" /> Conectar Mercado Pago
+            </a>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  )
+}
+
+/* ================================================================== */
+/* SHALOM LOGISTICS                                                    */
+/* ================================================================== */
+type ShipmentStatus = 'pendiente' | 'transit' | 'entregado' | 'problem'
+
+const SHIPMENT_STATUS_CONFIG: Record<ShipmentStatus, {
+  label: string
+  badge: string
+  dot: string
+}> = {
+  pendiente: { label: 'Pendiente',   badge: 'bg-amber-500/10 border-amber-400/30 text-amber-400', dot: 'bg-amber-400' },
+  transit:   { label: 'En tránsito', badge: 'bg-sky-500/10 border-sky-400/30 text-sky-400',      dot: 'bg-sky-400' },
+  entregado: { label: 'Entregado',   badge: 'bg-lime-500/10 border-lime-400/30 text-lime-400',   dot: 'bg-lime-400' },
+  problem:   { label: 'Problema',    badge: 'bg-rose-500/10 border-rose-400/30 text-rose-400',   dot: 'bg-rose-400' },
+}
+
+interface ShipmentRow {
+  orderId: string
+  trackingCode: string | null
+  status: ShipmentStatus
+  agency: string
+  pdfLabelUrl?: string | null
+  amount: number
+}
+
+function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
+  // Real rows from API + mock fallback so the table always has content.
+  const realRows: ShipmentRow[] = dropoffs.map((d) => ({
+    orderId: d.order.id,
+    trackingCode: d.shipment.trackingCode,
+    status: 'pendiente' as ShipmentStatus,
+    agency: 'Shalom Express',
+    pdfLabelUrl: d.shipment.pdfLabelUrl,
+    amount: d.order.totalAmount,
+  }))
+
+  const mockRows: ShipmentRow[] = [
+    { orderId: 'SHL-2418-A', trackingCode: 'SHP2418K017', status: 'transit',   agency: 'Shalom Express', amount: 145.00 },
+    { orderId: 'SHL-2417-B', trackingCode: 'SHP2417J992', status: 'entregado', agency: 'Olva Courier',   amount: 88.50 },
+    { orderId: 'SHL-2416-C', trackingCode: null,          status: 'pendiente', agency: 'Shalom Express', amount: 220.00 },
+    { orderId: 'SHL-2415-D', trackingCode: 'SHP2415H843', status: 'problem',    agency: 'Shalom Express', amount: 56.90 },
+  ]
+
+  const rows = realRows.length > 0 ? realRows.slice(0, 6) : mockRows
+
+  return (
+    <motion.section
+      {...SECTION_MOTION}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
+      className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-5 md:p-6"
+    >
+      <div className="absolute -top-12 -right-12 w-44 h-44 bg-sky-500/10 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+              <Truck className="h-4 w-4 text-sky-400" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-white">Shalom Logística</h3>
+              <p className="text-[11px] text-zinc-500">Envíos recientes y estado de entrega</p>
+            </div>
+          </div>
+          <Link
+            href={ROUTES.envios}
+            className="inline-flex items-center gap-1 text-xs font-bold text-sky-400 hover:text-sky-300"
+          >
+            Ver todos <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        <div className="overflow-x-auto -mx-1 px-1">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-[10px] uppercase tracking-wider text-zinc-500 font-bold border-b border-white/5">
+                <th className="py-2 pr-3 font-bold">Orden</th>
+                <th className="py-2 pr-3 font-bold">Tracking</th>
+                <th className="py-2 pr-3 font-bold hidden sm:table-cell">Agencia</th>
+                <th className="py-2 pr-3 font-bold">Estado</th>
+                <th className="py-2 pr-3 font-bold text-right">Monto</th>
+                <th className="py-2 pl-3 font-bold text-right">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => {
+                const cfg = SHIPMENT_STATUS_CONFIG[row.status]
+                return (
+                  <tr
+                    key={row.orderId}
+                    className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                  >
+                    <td className="py-3 pr-3">
+                      <span className="font-mono text-xs text-zinc-300">{row.orderId}</span>
+                    </td>
+                    <td className="py-3 pr-3">
+                      {row.trackingCode ? (
+                        <span className="font-mono text-xs text-amber-400">{row.trackingCode}</span>
+                      ) : (
+                        <span className="text-xs text-zinc-600 italic">Sin generar</span>
+                      )}
+                    </td>
+                    <td className="py-3 pr-3 hidden sm:table-cell text-xs text-zinc-400">
+                      {row.agency}
+                    </td>
+                    <td className="py-3 pr-3">
+                      <span
+                        className={cn(
+                          'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider',
+                          cfg.badge,
+                        )}
+                      >
+                        <span className={cn('w-1.5 h-1.5 rounded-full', cfg.dot)} />
+                        {cfg.label}
+                      </span>
+                    </td>
+                    <td className="py-3 pr-3 text-right font-bold text-zinc-100 tabular-nums">
+                      {formatPEN(row.amount)}
+                    </td>
+                    <td className="py-3 pl-3 text-right">
+                      {row.pdfLabelUrl ? (
+                        <a
+                          href={row.pdfLabelUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-300 hover:bg-white/10"
+                        >
+                          <Package className="h-3 w-3" /> Guía
+                        </a>
+                      ) : (
+                        <Link
+                          href={ROUTES.envios}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-300 hover:bg-white/10"
+                        >
+                          <ExternalLink className="h-3 w-3" /> Seguir
+                        </Link>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="mt-3 text-[11px] text-zinc-500 leading-relaxed">
+          Las guías se generan automáticamente con Shalom al confirmar el pago. Imprímelas antes de acercarte
+          al punto de dropoff más cercano. El cliente recibe el código de seguimiento por WhatsApp y push notification
+          en tiempo real, y puede rastrear su pedido desde el link enviado.
+        </p>
+      </div>
+    </motion.section>
+  )
+}
+
+/* ================================================================== */
+/* RECENT ORDERS CARD                                                  */
+/* ================================================================== */
+const PAYMENT_STATUS_CONFIG: Record<string, { label: string; badge: string }> = {
+  released:    { label: 'Liberado',   badge: 'bg-lime-500/10 border-lime-400/30 text-lime-400' },
+  escrow_hold: { label: 'En escrow',  badge: 'bg-amber-500/10 border-amber-400/30 text-amber-400' },
+  paid:        { label: 'Pagado',    badge: 'bg-sky-500/10 border-sky-400/30 text-sky-400' },
+  refunded:    { label: 'Reembolsado', badge: 'bg-rose-500/10 border-rose-400/30 text-rose-400' },
+  pending:     { label: 'Pendiente',  badge: 'bg-zinc-500/10 border-zinc-400/30 text-zinc-300' },
+}
+
+const MOCK_ORDERS: RecentOrder[] = [
+  {
+    id: 'ORD-9F32', buyerId: 'usr_carla', source: 'live_stream',
+    totalAmount: 145.00, platformCommissionAmount: 17.40, gatewayFeeAmount: 5.66,
+    sellerNetAmount: 121.94, paymentStatus: 'released', paymentMethod: 'yape',
+    gatewayTransactionId: 'MP-9182734',
+    createdAt: new Date(Date.now() - 3600_000).toISOString(),
+  },
+  {
+    id: 'ORD-9F31', buyerId: 'usr_diego', source: 'marketplace',
+    totalAmount: 88.50, platformCommissionAmount: 7.08, gatewayFeeAmount: 3.45,
+    sellerNetAmount: 77.97, paymentStatus: 'escrow_hold', paymentMethod: 'plin',
+    gatewayTransactionId: 'MP-9182601',
+    createdAt: new Date(Date.now() - 7200_000).toISOString(),
+  },
+  {
+    id: 'ORD-9F30', buyerId: 'usr_rosa', source: 'live_stream',
+    totalAmount: 220.00, platformCommissionAmount: 26.40, gatewayFeeAmount: 8.58,
+    sellerNetAmount: 185.02, paymentStatus: 'paid', paymentMethod: 'card',
+    gatewayTransactionId: 'MP-9182401',
+    createdAt: new Date(Date.now() - 5400_000).toISOString(),
+  },
+  {
+    id: 'ORD-9F29', buyerId: 'usr_luis', source: 'marketplace',
+    totalAmount: 56.90, platformCommissionAmount: 4.55, gatewayFeeAmount: 2.22,
+    sellerNetAmount: 50.13, paymentStatus: 'refunded', paymentMethod: 'yape',
+    gatewayTransactionId: null,
+    createdAt: new Date(Date.now() - 86400_000).toISOString(),
+  },
+]
+
+function RecentOrdersCard({
+  orders,
+  isLoading,
+}: {
+  orders: RecentOrder[]
+  isLoading: boolean
+}) {
+  const list = orders.length > 0 ? orders.slice(0, 6) : MOCK_ORDERS
+
+  return (
+    <motion.div
+      {...SECTION_MOTION}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.32 }}
+      className="relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-5 md:p-6 h-full"
+    >
+      <div className="absolute -top-12 -right-12 w-44 h-44 bg-lime-500/10 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+              <ShoppingBag className="h-4 w-4 text-lime-400" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-white">Órdenes recientes</h3>
+              <p className="text-[11px] text-zinc-500">
+                {isLoading ? 'Cargando órdenes…' : `${list.length} órdenes mostradas`}
+              </p>
+            </div>
+          </div>
+          <Link
+            href={ROUTES.pagos}
+            className="inline-flex items-center gap-1 text-xs font-bold text-lime-400 hover:text-lime-300"
+          >
+            Ver todas <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        <div className="space-y-2">
+          {list.map((o) => {
+            const statusCfg =
+              PAYMENT_STATUS_CONFIG[o.paymentStatus] ?? PAYMENT_STATUS_CONFIG.pending
+            return (
               <div
                 key={o.id}
-                className="p-3 rounded-lg border hover:bg-muted/30 transition-colors"
+                className="rounded-xl border border-white/5 bg-white/[0.03] hover:bg-white/5 transition-colors p-3"
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs">#{o.id.slice(0, 8)}</span>
-                    <Badge variant="outline" className="text-[10px] capitalize">
-                      {o.source === 'live_stream' ? '🎥 En vivo' : '🛒 Marketplace'}
-                    </Badge>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-mono text-xs text-amber-400">#{o.id}</span>
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border',
+                        o.source === 'live_stream'
+                          ? 'bg-rose-500/10 text-rose-400 border-rose-400/20'
+                          : 'bg-sky-500/10 text-sky-400 border-sky-400/20',
+                      )}
+                    >
+                      {o.source === 'live_stream' ? 'En vivo' : 'Marketplace'}
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-[10px] text-zinc-500 shrink-0">
                     {timeAgoEs(new Date(o.createdAt))}
                   </span>
                 </div>
                 <div className="grid grid-cols-4 gap-2 text-[11px]">
                   <div>
-                    <div className="text-muted-foreground">Total</div>
-                    <div className="font-semibold">{formatPEN(o.totalAmount)}</div>
+                    <p className="text-zinc-500 uppercase tracking-wider text-[9px] font-bold">Total</p>
+                    <p className="text-white font-bold tabular-nums">{formatPEN(o.totalAmount)}</p>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Comisión</div>
-                    <div className="text-rose-600 font-semibold">
-                      -{formatPEN(o.platformCommissionAmount)}
-                    </div>
+                    <p className="text-zinc-500 uppercase tracking-wider text-[9px] font-bold">Comisión</p>
+                    <p className="text-rose-400 font-bold tabular-nums">-{formatPEN(o.platformCommissionAmount)}</p>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Pasarela</div>
-                    <div className="text-rose-600 font-semibold">
-                      -{formatPEN(o.gatewayFeeAmount)}
-                    </div>
+                    <p className="text-zinc-500 uppercase tracking-wider text-[9px] font-bold">Pasarela</p>
+                    <p className="text-rose-400 font-bold tabular-nums">-{formatPEN(o.gatewayFeeAmount)}</p>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Neto</div>
-                    <div className="text-lima-600 font-semibold">
-                      {formatPEN(o.sellerNetAmount)}
-                    </div>
+                    <p className="text-zinc-500 uppercase tracking-wider text-[9px] font-bold">Neto</p>
+                    <p className="text-lime-400 font-bold tabular-nums">{formatPEN(o.sellerNetAmount)}</p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between mt-2 pt-2 border-t">
-                  <Badge
-                    variant={
-                      o.paymentStatus === 'released' ? 'default' :
-                      o.paymentStatus === 'escrow_hold' ? 'secondary' :
-                      o.paymentStatus === 'paid' ? 'secondary' :
-                      o.paymentStatus === 'refunded' ? 'destructive' : 'outline'
-                    }
-                    className="text-[10px] capitalize"
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
+                  <span
+                    className={cn(
+                      'inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase tracking-wider',
+                      statusCfg.badge,
+                    )}
                   >
-                    {o.paymentStatus.replace('_', ' ')}
-                  </Badge>
-                  <span className="text-[10px] text-muted-foreground capitalize">
+                    {statusCfg.label}
+                  </span>
+                  <span className="text-[10px] text-zinc-500 capitalize">
                     {o.paymentMethod.replace('_', ' ')}
                   </span>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </Card>
-    </div>
+            )
+          })}
+        </div>
+      </div>
+    </motion.div>
   )
 }
 
-/**
- * Hook para consumir /api/seller/dashboard con polling cada 30s.
- * Si la wallet no existe, devuelve error (manejado por el UI).
- */
+/* ================================================================== */
+/* ACTIVITY FEED                                                      */
+/* ================================================================== */
+interface ActivityItem {
+  icon: React.ElementType
+  accent: KpiAccent
+  title: string
+  desc: string
+  time: string
+}
+
+const ACTIVITY_ITEMS: ActivityItem[] = [
+  { icon: Trophy,        accent: 'lime',    title: 'Ganaste la subasta',                  desc: 'Polo algodón pima — S/. 38.00',   time: 'hace 2 horas' },
+  { icon: Gavel,         accent: 'amber',   title: 'Nueva puja en tu subasta',            desc: 'Vestido artesanal — S/. 120',     time: 'hace 5 horas' },
+  { icon: MessageSquare, accent: 'sky',     title: 'Nuevo mensaje de Rosa',                desc: '"¿Te interesa otro talla?"',      time: 'ayer' },
+  { icon: Heart,         accent: 'fuchsia', title: 'Tu producto favorito bajó de precio', desc: 'Samsung Galaxy A55 — S/. 1250',   time: 'hace 2 días' },
+  { icon: ShieldCheck,   accent: 'lime',    title: 'Pago liberado de escrow',              desc: 'Orden #ORD-9F32 — S/. 121.94',    time: 'hace 3 horas' },
+  { icon: Truck,         accent: 'sky',     title: 'Envío entregado',                       desc: 'SHP2417J992 → San Isidro',         time: 'hace 6 horas' },
+]
+
+function ActivityFeed() {
+  return (
+    <motion.div
+      {...SECTION_MOTION}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
+      className="relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-5 md:p-6 h-full"
+    >
+      <div className="absolute -top-12 -right-12 w-44 h-44 bg-fuchsia-500/10 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+            <Bell className="h-4 w-4 text-fuchsia-400" />
+          </div>
+          <div>
+            <h3 className="text-base font-black text-white">Actividad reciente</h3>
+            <p className="text-[11px] text-zinc-500">Tus últimas notificaciones de venta</p>
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          {ACTIVITY_ITEMS.map((item, i) => {
+            const cfg = KPI_ACCENTS[item.accent]
+            const Icon = item.icon
+            return (
+              <div
+                key={i}
+                className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors"
+              >
+                <div className="rounded-lg p-1.5 bg-white/5 border border-white/10 shrink-0">
+                  <Icon className={cn('h-4 w-4', cfg.text)} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-zinc-100 leading-snug">{item.title}</p>
+                  <p className="text-[11px] text-zinc-400 truncate">{item.desc}</p>
+                </div>
+                <span className="text-[10px] text-zinc-500 shrink-0 mt-1">{item.time}</span>
+              </div>
+            )
+          })}
+        </div>
+
+        <Link
+          href={ROUTES.notificaciones}
+          className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-fuchsia-400 hover:text-fuchsia-300"
+        >
+          Ver todas las notificaciones <ChevronRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </motion.div>
+  )
+}
+
+/* ================================================================== */
+/* MODERATION ALERTS BANNER                                            */
+/* ================================================================== */
+function AlertsBanner({ alerts }: { alerts: SellerDashboardData['alerts'] }) {
+  return (
+    <motion.div
+      {...SECTION_MOTION}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+      className="mt-5 md:mt-6 relative overflow-hidden rounded-2xl border border-amber-400/30 bg-amber-500/5 backdrop-blur-xl p-4 md:p-5"
+    >
+      <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-500/20 blur-3xl rounded-full pointer-events-none" />
+      <div className="relative">
+        <div className="flex items-center gap-2 mb-2">
+          <AlertTriangle className="h-4 w-4 text-amber-400" />
+          <h3 className="text-sm font-black text-amber-300 uppercase tracking-wider">
+            Alertas de moderación
+          </h3>
+        </div>
+        <div className="space-y-1.5">
+          {alerts.map((a, i) => (
+            <div
+              key={i}
+              className={cn(
+                'text-xs px-3 py-2 rounded-lg border',
+                a.level === 'critical'
+                  ? 'bg-rose-500/10 border-rose-400/30 text-rose-300'
+                  : a.level === 'warning'
+                    ? 'bg-amber-500/10 border-amber-400/30 text-amber-200'
+                    : 'bg-sky-500/10 border-sky-400/30 text-sky-300',
+              )}
+            >
+              {a.message}
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+/* ================================================================== */
+/* COPYRIGHT REPORTS CARD                                             */
+/* ================================================================== */
+function CopyrightReportsCard({
+  reports,
+}: {
+  reports: SellerDashboardData['copyrightReports']
+}) {
+  return (
+    <motion.section
+      {...SECTION_MOTION}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+      className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-rose-500/20 backdrop-blur-xl p-5 md:p-6"
+    >
+      <div className="absolute -top-12 -right-12 w-44 h-44 bg-rose-500/15 blur-3xl rounded-full pointer-events-none" />
+      <div className="relative">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="rounded-xl p-2 bg-rose-500/10 border border-rose-400/30">
+            <ShieldAlert className="h-4 w-4 text-rose-400" />
+          </div>
+          <div>
+            <h3 className="text-base font-black text-white">Reportes de PI contra ti</h3>
+            <p className="text-[11px] text-zinc-500">
+              {reports.length} reporte{reports.length !== 1 ? 's' : ''} de propiedad intellectual
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          {reports.map((r) => (
+            <div
+              key={r.id}
+              className="p-3 rounded-xl bg-white/5 border border-white/5"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm font-bold text-zinc-100">Marca: {r.infringedBrand}</p>
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider',
+                    r.status === 'pending' || r.status === 'resolved_ban'
+                      ? 'bg-rose-500/10 border-rose-400/30 text-rose-400'
+                      : r.status === 'investigating'
+                        ? 'bg-amber-500/10 border-amber-400/30 text-amber-400'
+                        : 'bg-zinc-500/10 border-zinc-400/30 text-zinc-300',
+                  )}
+                >
+                  {r.status}
+                </span>
+              </div>
+              <p className="text-xs text-zinc-500">
+                Reportado por {r.reporterEmail} · {timeAgoEs(new Date(r.createdAt))}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-[11px] text-zinc-400 mt-3 leading-relaxed">
+          Si crees que es un error, contacta a{' '}
+          <a
+            href="mailto:legal@vendeya.pe"
+            className="underline font-bold text-rose-300 hover:text-rose-200"
+          >
+            legal@vendeya.pe
+          </a>{' '}
+          para apelar. La revisión toma máximo 72h hábiles y tu cuenta sigue operativa mientras tanto.
+        </p>
+      </div>
+    </motion.section>
+  )
+}
+
+/* ================================================================== */
+/* QUICK ACTIONS FOOTER                                               */
+/* ================================================================== */
+function QuickActionsFooter() {
+  const actions: Array<{
+    icon: React.ElementType
+    label: string
+    href: string
+    accent: KpiAccent
+  }> = [
+    { icon: Tag,            label: 'Vender producto', href: ROUTES.vender,         accent: 'amber' },
+    { icon: Gavel,          label: 'Crear subasta',   href: ROUTES.vender,         accent: 'rose' },
+    { icon: MessageSquare,  label: 'Mensajes',         href: ROUTES.mensajes,       accent: 'sky' },
+    { icon: Wallet,         label: 'Pagos',            href: ROUTES.pagos,          accent: 'lime' },
+    { icon: Settings,       label: 'Configuración',    href: ROUTES.configuracion,  accent: 'fuchsia' },
+    { icon: Heart,          label: 'Favoritos',        href: ROUTES.dashboard,      accent: 'purple' },
+  ]
+
+  return (
+    <motion.section
+      {...SECTION_MOTION}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.45 }}
+      className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-5 md:p-6"
+    >
+      <div className="absolute -top-12 -right-12 w-44 h-44 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
+      <div className="relative">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+            <Zap className="h-4 w-4 text-amber-400" />
+          </div>
+          <div>
+            <h3 className="text-base font-black text-white">Acciones rápidas</h3>
+            <p className="text-[11px] text-zinc-500">Atajos a las tareas más comunes</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          {actions.map((a) => {
+            const cfg = KPI_ACCENTS[a.accent]
+            const Icon = a.icon
+            return (
+              <Link
+                key={a.label}
+                href={a.href}
+                className="group flex flex-col items-center gap-2 p-3 rounded-2xl border border-white/5 bg-white/[0.03] hover:bg-white/5 hover:border-white/10 transition-all"
+              >
+                <div className="rounded-xl p-2 bg-white/5 border border-white/10 group-hover:scale-110 transition-transform">
+                  <Icon className={cn('h-5 w-5', cfg.text)} />
+                </div>
+                <span className="text-[11px] font-bold text-zinc-300 text-center">{a.label}</span>
+              </Link>
+            )
+          })}
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-white/5">
+          <PushSubscribeButton className="w-full" />
+        </div>
+      </div>
+    </motion.section>
+  )
+}
+
+/* ================================================================== */
+/* HOOK — useSellerDashboard                                          */
+/* Same logic as prior version: fetches /api/seller/dashboard         */
+/* every 30s, gracefully handles errors when wallet isn't registered.  */
+/* ================================================================== */
 function useSellerDashboard(sellerId: string) {
   const [data, setData] = React.useState<SellerDashboardData | null>(null)
   const [error, setError] = React.useState<string | null>(null)
@@ -822,7 +1159,9 @@ function useSellerDashboard(sellerId: string) {
     let active = true
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/seller/dashboard?sellerId=${encodeURIComponent(sellerId)}`)
+        const res = await fetch(
+          `/api/seller/dashboard?sellerId=${encodeURIComponent(sellerId)}`,
+        )
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
           throw new Error(body.error ?? `HTTP ${res.status}`)
@@ -850,3 +1189,4 @@ function useSellerDashboard(sellerId: string) {
 
   return { data, error, isLoading }
 }
+

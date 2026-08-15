@@ -1,193 +1,332 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import * as React from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { ShieldAlert, Loader2 } from 'lucide-react';
+  ShieldAlert, Loader2, Upload, FileText, AlertTriangle,
+  ArrowLeft, ExternalLink,
+} from 'lucide-react'
+import {
+  StaticPageShell,
+  PageHeader,
+  DarkInput,
+  DarkTextarea,
+  DarkLabel,
+  DarkSelect,
+  GradientButton,
+  GhostButton,
+} from '@/components/vendeda/StaticPageShell'
+import { useToast } from '@/hooks/use-toast'
+
+const REASONS = [
+  { value: 'counterfeit', label: 'Producto falsificado / réplica no declarada' },
+  { value: 'trademark', label: 'Infracción de marca registrada' },
+  { value: 'copyright', label: 'Infracción de derechos de autor' },
+  { value: 'stolen', label: 'Producto robado o reportado como tal' },
+  { value: 'prohibited', label: 'Producto prohibido por ley peruana' },
+  { value: 'other', label: 'Otro (especificar en descripción)' },
+] as const
 
 export default function ReportarInfraccionPage() {
-  const router = useRouter();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
+  const router = useRouter()
+  const { toast } = useToast()
+  const [loading, setLoading] = React.useState(false)
+  const [form, setForm] = React.useState({
     reporterEmail: '',
     targetSellerId: '',
     targetOrderOrStreamId: '',
     infringedBrand: '',
     evidenceUrl: '',
-  });
+    reason: '' as (typeof REASONS)[number]['value'] | '',
+    description: '',
+  })
+  const [fileName, setFileName] = React.useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     try {
       const res = await fetch('/api/copyright-reports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'No se pudo enviar el reporte');
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'No se pudo enviar el reporte')
 
       toast({
         title: 'Reporte enviado',
         description:
-          'Nuestro equipo de moderación lo revisará en las próximas 24 horas.',
-      });
-      router.push('/');
-    } catch (e: any) {
+          'Nuestro equipo de moderación lo revisará en las próximas 24 horas hábiles.',
+      })
+      router.push('/')
+    } catch (err) {
+      const e = err as Error
       toast({
         title: 'Error',
         description: e.message,
         variant: 'destructive',
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white py-10 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
-            <ShieldAlert className="h-6 w-6 text-red-600" />
+    <StaticPageShell
+      title="Reportar infracción"
+      breadcrumbs={[{ label: 'Reportar infracción' }]}
+      maxWidth="max-w-3xl"
+      pageHeader={
+        <PageHeader
+          title="Reportar infracción"
+          subtitle="Programa Verifica de Vende Ya Perú. Reporta productos que infrinjan propiedad intelectual, marca o derechos de autor."
+          icon={ShieldAlert}
+          iconAccent="text-rose-400"
+          glow="bg-rose-500"
+        />
+      }
+    >
+      {/* Before reporting — warning card */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl bg-gradient-to-br from-rose-500/10 via-zinc-900 to-amber-500/10 border border-rose-500/30 p-5 mb-6"
+      >
+        <div className="flex items-start gap-3">
+          <div className="h-9 w-9 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center shrink-0">
+            <AlertTriangle className="h-4 w-4 text-rose-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Reportar Infracción de Propiedad Intelectual
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Programa Verifica · Vende Ya Perú
+            <p className="font-black text-white text-sm mb-2 flex items-center gap-1.5">
+              Antes de reportar
             </p>
+            <ul className="space-y-1.5 text-xs text-zinc-300">
+              {[
+                'Solo reporta si eres el titular de la marca o su representante legal autorizado.',
+                'Incluye evidencia clara (URL del producto, capturas, registro de marca en INDECOPI).',
+                'Falsos reportes pueden resultar en acciones legales contra el reportante.',
+                'Vende Ya actuará en menos de 24 horas hábiles sobre tu reporte.',
+              ].map((rule, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="text-amber-400 shrink-0 mt-0.5">●</span>
+                  <span>{rule}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
+      </motion.div>
 
-        <Card className="mb-4 border-orange-200 bg-orange-50">
-          <CardContent className="pt-6 text-sm text-orange-900">
-            <p className="font-semibold mb-2">📋 Antes de reportar</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Solo reporta si eres el titular de la marca o su representante legal.</li>
-              <li>Incluye evidencia clara (URL del producto, capturas, registro de marca).</li>
-              <li>Falsos reportes pueden resultar en acciones legales contra el reportante.</li>
-              <li>Vende Ya actuará en menos de 24h hábiles sobre tu reporte.</li>
-            </ul>
-          </CardContent>
-        </Card>
+      <form onSubmit={handleSubmit}>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm overflow-hidden"
+        >
+          {/* Header */}
+          <div className="p-5 border-b border-white/5">
+            <div className="flex items-center gap-2 mb-1">
+              <FileText className="h-4 w-4 text-amber-400" />
+              <h3 className="font-black text-white text-base">Detalles del reporte</h3>
+            </div>
+            <p className="text-xs text-zinc-500">
+              Completa el formulario con la mayor cantidad de detalle posible. Los campos marcados con * son obligatorios.
+            </p>
+          </div>
 
-        <form onSubmit={handleSubmit}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Detalles del reporte</CardTitle>
-              <CardDescription>
-                Completa el formulario con la mayor cantidad de detalle posible.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="reporterEmail">Tu email *</Label>
-                <Input
-                  id="reporterEmail"
-                  type="email"
+          {/* Body */}
+          <div className="p-5 space-y-5">
+            <div>
+              <DarkLabel htmlFor="reporterEmail">Tu email *</DarkLabel>
+              <DarkInput
+                id="reporterEmail"
+                type="email"
+                required
+                value={form.reporterEmail}
+                onChange={(e) => setForm({ ...form, reporterEmail: e.target.value })}
+                placeholder="abogado@marca.com.pe"
+              />
+              <p className="text-[10px] text-zinc-500 mt-1.5">
+                Te contactaremos por este correo para validar tu identidad y notificarte el resultado.
+              </p>
+            </div>
+
+            <div>
+              <DarkLabel htmlFor="targetOrderOrStreamId">URL del producto o stream infractor *</DarkLabel>
+              <DarkInput
+                id="targetOrderOrStreamId"
+                required
+                value={form.targetOrderOrStreamId}
+                onChange={(e) => setForm({ ...form, targetOrderOrStreamId: e.target.value })}
+                placeholder="https://vendeya.pe/productos/xxx"
+              />
+              <p className="text-[10px] text-zinc-500 mt-1.5">
+                Copia la URL completa del producto, subasta o stream que contiene la infracción.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <DarkLabel htmlFor="targetSellerId">ID o usuario del vendedor *</DarkLabel>
+                <DarkInput
+                  id="targetSellerId"
                   required
-                  value={form.reporterEmail}
-                  onChange={(e) => setForm({ ...form, reporterEmail: e.target.value })}
-                  placeholder="abogado@marca.com.pe"
+                  value={form.targetSellerId}
+                  onChange={(e) => setForm({ ...form, targetSellerId: e.target.value })}
+                  placeholder="@username o usr_xxx"
                 />
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="targetSellerId">ID del vendedor *</Label>
-                  <Input
-                    id="targetSellerId"
-                    required
-                    value={form.targetSellerId}
-                    onChange={(e) => setForm({ ...form, targetSellerId: e.target.value })}
-                    placeholder="usr_xxx o username"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="infringedBrand">Marca infringida *</Label>
-                  <Input
-                    id="infringedBrand"
-                    required
-                    value={form.infringedBrand}
-                    onChange={(e) => setForm({ ...form, infringedBrand: e.target.value })}
-                    placeholder="Nike, Adidas, Samsung..."
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="targetOrderOrStreamId">
-                  URL o ID del producto/stream infractor *
-                </Label>
-                <Input
-                  id="targetOrderOrStreamId"
+              <div>
+                <DarkLabel htmlFor="infringedBrand">Marca infringida *</DarkLabel>
+                <DarkInput
+                  id="infringedBrand"
                   required
-                  value={form.targetOrderOrStreamId}
-                  onChange={(e) => setForm({ ...form, targetOrderOrStreamId: e.target.value })}
-                  placeholder="https://vendeya.pe/productos/xxx o stream ID"
+                  value={form.infringedBrand}
+                  onChange={(e) => setForm({ ...form, infringedBrand: e.target.value })}
+                  placeholder="Nike, Adidas, Samsung..."
                 />
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="evidenceUrl">URL de evidencia (opcional)</Label>
-                <Input
+            <div>
+              <DarkLabel htmlFor="reason">Motivo del reporte *</DarkLabel>
+              <DarkSelect
+                id="reason"
+                required
+                value={form.reason}
+                onChange={(e) => setForm({ ...form, reason: e.target.value as typeof form.reason })}
+              >
+                <option value="" className="bg-zinc-900">— Selecciona un motivo —</option>
+                {REASONS.map((r) => (
+                  <option key={r.value} value={r.value} className="bg-zinc-900">
+                    {r.label}
+                  </option>
+                ))}
+              </DarkSelect>
+            </div>
+
+            <div>
+              <DarkLabel htmlFor="description">Descripción del reporte *</DarkLabel>
+              <DarkTextarea
+                id="description"
+                required
+                rows={5}
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                placeholder="Describe en detalle la infracción: por qué consideras que el producto infringe, qué derechos posees, número de registro INDECOPI si aplica, etc."
+              />
+            </div>
+
+            {/* Evidence URL + upload */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <DarkLabel htmlFor="evidenceUrl">URL de evidencia</DarkLabel>
+                <DarkInput
                   id="evidenceUrl"
                   type="url"
                   value={form.evidenceUrl}
                   onChange={(e) => setForm({ ...form, evidenceUrl: e.target.value })}
-                  placeholder="https://drive.google.com/... o URL de captura"
+                  placeholder="https://drive.google.com/..."
                 />
-                <p className="text-xs text-muted-foreground">
-                  Link a capturas, registro SUNAT de la marca, contrato de representación, etc.
+                <p className="text-[10px] text-zinc-500 mt-1.5">
+                  Link a capturas, registro SUNAT, contrato de representación, etc.
                 </p>
               </div>
+              <div>
+                <DarkLabel>Adjuntar evidencia</DarkLabel>
+                <label
+                  htmlFor="evidence-file"
+                  className="flex items-center gap-3 cursor-pointer rounded-xl bg-white/5 border-2 border-dashed border-white/10 hover:border-amber-400/50 hover:bg-amber-400/5 transition-all p-3"
+                >
+                  <div className="h-10 w-10 rounded-lg bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
+                    <Upload className="h-4 w-4 text-amber-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-white truncate">
+                      {fileName ?? 'Subir archivo'}
+                    </p>
+                    <p className="text-[10px] text-zinc-500">
+                      {fileName ?? 'JPG, PNG, PDF. Máx 10MB.'}
+                    </p>
+                  </div>
+                </label>
+                <input
+                  id="evidence-file"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0]
+                    if (f) {
+                      setFileName(f.name)
+                      toast({
+                        title: 'Archivo cargado',
+                        description: `${f.name} (${(f.size / 1024).toFixed(1)} KB)`,
+                      })
+                    }
+                  }}
+                />
+              </div>
+            </div>
 
-              <Textarea
+            {/* Legal declaration */}
+            <div className="rounded-xl bg-zinc-950/60 border border-white/5 p-4">
+              <p className="text-[10px] uppercase tracking-wider text-amber-400 font-bold mb-2">
+                Declaración bajo juramento
+              </p>
+              <textarea
                 readOnly
-                value={`Al enviar este reporte, declaro bajo juramento que:\n\n1. Soy el titular legítimo de la marca "${form.infringedBrand || '[marca]'}" o su representante legal autorizado.\n2. La información proporcionada es veraz y tengo pruebas de la infracción.\n3. Acepto que Vende Ya actúe de buena fe para retirar el contenido reportado.\n4. Entiendo que falsos reportes pueden resultar en acciones legales contra mí.`}
-                className="bg-muted/50 text-xs h-32"
-              />
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="ghost" type="button" onClick={() => router.back()}>
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Enviar reporte
-              </Button>
-            </CardFooter>
-          </Card>
-        </form>
+                value={`Al enviar este reporte, declaro bajo juramento que:
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          Vende Ya actúa como intermediario neutro bajo el principio Safe Harbor.
-          Para disputas complejas, contacta a{' '}
+1. Soy el titular legítimo de la marca "${form.infringedBrand || '[marca]'}" o su representante legal autorizado.
+2. La información proporcionada es veraz y tengo pruebas de la infracción.
+3. Acepto que Vende Ya actúe de buena fe para retirar el contenido reportado.
+4. Entiendo que falsos reportes pueden resultar en acciones legales contra mí.`}
+                className="w-full bg-transparent text-xs text-zinc-400 leading-relaxed resize-none border-0 focus-visible:outline-none"
+                rows={6}
+              />
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="p-5 border-t border-white/5 flex flex-col-reverse md:flex-row justify-between items-center gap-3">
+            <GhostButton type="button" onClick={() => router.back()} className="w-full md:w-auto">
+              <ArrowLeft className="h-4 w-4" />
+              Cancelar
+            </GhostButton>
+            <GradientButton type="submit" disabled={loading} className="w-full md:w-auto">
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldAlert className="h-4 w-4" />}
+              {loading ? 'Enviando...' : 'Enviar reporte'}
+            </GradientButton>
+          </div>
+        </motion.div>
+      </form>
+
+      {/* Footer note */}
+      <div className="mt-6 rounded-2xl bg-white/5 border border-white/10 p-5">
+        <p className="text-xs text-zinc-400 leading-relaxed">
+          Vende Ya actúa como intermediario neutro bajo el principio Safe Harbor de la
+          Ley N° 29571 (Código de Protección y Defensa del Consumidor). Para disputas
+          complejas o requerimientos judiciales, contacta a{' '}
           <a
             href="mailto:legal@vendeya.pe"
-            className="underline hover:text-foreground"
+            className="text-amber-400 hover:text-amber-300 underline font-bold"
           >
             legal@vendeya.pe
           </a>
           .
         </p>
+        <div className="mt-3 flex items-center gap-2">
+          <ExternalLink className="h-3 w-3 text-zinc-500" />
+          <Link href="/terminos" className="text-xs text-zinc-500 hover:text-amber-400">
+            Ver términos y condiciones completos
+          </Link>
+        </div>
       </div>
-    </div>
-  );
+    </StaticPageShell>
+  )
 }

@@ -4,34 +4,62 @@ import * as React from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
-  Sparkles, Video, Radio, Tag, ArrowRight, Loader2, Check,
-  Image as ImageIcon, DollarSign, Package, Settings,
+  Sparkles, Video, Radio, Tag, ArrowRight, ArrowLeft, ChevronRight,
+  Loader2, Check, Image as ImageIcon, DollarSign, Package, Wallet,
+  ShieldCheck, Plug, ChevronRight as ChevronR, Plus, Rocket,
 } from 'lucide-react'
-import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
+import { motion } from 'framer-motion'
 import { AuthGuard } from '@/components/vendeda/AuthGuard'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { CATEGORIES, PAYMENT_METHODS } from '@/lib/vendeda/constants'
 import { formatPEN } from '@/lib/vendeda/format'
-
-const breadcrumbs: Breadcrumb[] = [{ label: 'Vender' }]
+import { cn } from '@/lib/utils'
 
 type Mode = 'quick' | 'live' | 'ai'
+
+const PAGE_TITLE = 'Vender'
+const STEPS = [
+  {
+    n: 1,
+    icon: Wallet,
+    title: 'Conecta tu wallet MP',
+    desc: 'Vincula tu cuenta de Mercado Pago para recibir pagos con Yape, Plin, tarjetas y PagoEfectivo. La comisión de Vende Ya se descuenta automáticamente en la fuente.',
+    color: 'text-amber-400',
+    bg: 'from-amber-400/15 to-amber-500/5',
+  },
+  {
+    n: 2,
+    icon: Package,
+    title: 'Crea tu producto',
+    desc: 'Sube fotos, define el precio base y describe el producto. Si quieres subastarlo, marca la casilla y fija el precio inicial y la duración del cronómetro.',
+    color: 'text-fuchsia-400',
+    bg: 'from-fuchsia-400/15 to-fuchsia-500/5',
+  },
+  {
+    n: 3,
+    icon: Radio,
+    title: 'Inicia tu en vivo',
+    desc: 'Genera tu clave de stream para OBS Studio y comienza a transmitir. Los espectadores pujan en tiempo real con latencia menor a 2 segundos vía Cloudflare Stream.',
+    color: 'text-rose-400',
+    bg: 'from-rose-400/15 to-rose-500/5',
+  },
+] as const
 
 export default function VenderPage() {
   return (
     <AuthGuard>
-      <AppShell title="Vender" breadcrumbs={breadcrumbs} maxWidth="max-w-4xl">
-        <React.Suspense fallback={<Card className="p-8 text-center text-muted-foreground">Cargando...</Card>}>
-          <VenderInner />
-        </React.Suspense>
-      </AppShell>
+      <React.Suspense fallback={
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-full border-4 border-white/10 border-t-amber-400 animate-spin" />
+        </div>
+      }>
+        <VenderInner />
+      </React.Suspense>
     </AuthGuard>
   )
 }
@@ -63,6 +91,33 @@ function VenderInner() {
   const [startingPrice, setStartingPrice] = React.useState('')
   const [duration, setDuration] = React.useState('180')
   const [submitting, setSubmitting] = React.useState(false)
+
+  // Wallet status (drives hero CTA + banner)
+  const [wallet, setWallet] = React.useState<{
+    loading: boolean
+    status: string | null
+    isVerified: boolean | null
+  }>({ loading: true, status: null, isVerified: null })
+
+  React.useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.wallet) {
+          setWallet({
+            loading: false,
+            status: data.wallet.status,
+            isVerified: data.wallet.isVerified,
+          })
+        } else {
+          setWallet({ loading: false, status: null, isVerified: null })
+        }
+      })
+      .catch(() => setWallet({ loading: false, status: null, isVerified: null }))
+  }, [])
+
+  const walletConnected =
+    !wallet.loading && wallet.status === 'active' && wallet.isVerified === true
 
   const handleExtract = async () => {
     if (!aiInput.trim()) {
@@ -122,311 +177,494 @@ function VenderInner() {
   }
 
   return (
-    <>
-      {/* Wallet status banner — Sprint 2-A */}
-      <WalletOnboardingBanner />
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-24 md:pb-12">
+      {/* Mobile compact header */}
+      <header className="md:hidden sticky top-0 z-30 bg-zinc-950/85 backdrop-blur-xl border-b border-white/5 pt-safe">
+        <div className="flex items-center gap-3 px-4 h-14">
+          <Link href={ROUTES.dashboard} aria-label="Volver" className="p-2 -ml-2 text-zinc-400 hover:text-white">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <div className="min-w-0">
+            <h1 className="text-base font-bold font-display truncate text-white">{PAGE_TITLE}</h1>
+            <p className="text-[10px] text-zinc-500 truncate">Empieza a vender en vivo</p>
+          </div>
+        </div>
+      </header>
 
-      {/* Mode selector */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-        <ModeCard
-          active={mode === 'quick'}
-          onClick={() => setMode('quick')}
-          icon={Tag}
-          title="Subasta rápida"
-          desc="Publica y subasta en 3 min"
-          color="text-salsa-500"
-        />
-        <ModeCard
-          active={mode === 'live'}
-          onClick={() => setMode('live')}
-          icon={Video}
-          title="Subastar en vivo"
-          desc="Conecta tu cámara y subasta en directo"
-          color="text-salsa-500"
-        />
-        <ModeCard
-          active={mode === 'ai'}
-          onClick={() => setMode('ai')}
-          icon={Sparkles}
-          title="Extraer con IA"
-          desc="Describe y la IA arma el listing"
-          color="text-lima-500"
-        />
+      {/* Desktop breadcrumb bar */}
+      <div className="hidden md:block border-b border-white/5">
+        <div className="max-w-5xl mx-auto px-6 py-3 flex items-center gap-1 text-sm text-zinc-500">
+          <Link href={ROUTES.home} className="hover:text-zinc-200">Inicio</Link>
+          <ChevronRight className="h-3 w-3 mx-1" />
+          <span className="text-white font-medium">{PAGE_TITLE}</span>
+        </div>
       </div>
 
-      {/* AI extraction mode */}
-      {mode === 'ai' && (
-        <Card className="p-6 mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-5 w-5 text-lima-500" />
-            <h3 className="font-semibold">Describe tu producto en lenguaje natural</h3>
-          </div>
-          <p className="text-sm text-muted-foreground mb-4">
-            Escribe como si le hablaras a un amigo. La IA extrae título, descripción, precio sugerido y categoría automáticamente.
-          </p>
-          <Textarea
-            value={aiInput}
-            onChange={(e) => setAiInput(e.target.value)}
-            placeholder="Tengo un polo de algodón pima peruano, talla M, color terracota. Es nuevo con etiqueta. Lo compré en Lima pero no me quedó. Quiero venderlo rápido, unos 40 soles."
-            rows={5}
-            className="mb-3"
-          />
-          <Button
-            onClick={handleExtract}
-            disabled={aiLoading || !aiInput.trim()}
-            className="w-full bg-lima-500 hover:bg-lima-600 text-white"
-          >
-            {aiLoading ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" /> Extrayendo...
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4" /> Extraer con IA
-              </span>
-            )}
-          </Button>
+      <main className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-10 space-y-8">
+        {/* ─── Hero ─── */}
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-zinc-900 via-zinc-950 to-zinc-950 p-6 md:p-10"
+        >
+          {/* Ambient glows */}
+          <div className="absolute top-0 right-0 w-72 h-72 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-fuchsia-600/10 blur-3xl rounded-full pointer-events-none" />
 
-          {extracted && (
-            <div className="mt-4 p-4 rounded-lg bg-lima-50 border border-lima-200">
-              <p className="text-sm font-semibold text-lima-900 mb-2 flex items-center gap-2">
-                <Check className="h-4 w-4" /> Extracción exitosa
+          <div className="relative max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-amber-400 mb-4">
+              <Rocket className="h-3.5 w-3.5" />
+              Programa de vendedores · Dark Premium
+            </div>
+            <h1 className="text-3xl md:text-5xl font-black font-display tracking-tight text-white leading-tight">
+              Empieza a vender <span className="bg-gradient-to-r from-amber-400 to-fuchsia-500 bg-clip-text text-transparent">en vivo</span>.
+            </h1>
+            <p className="mt-4 text-sm md:text-base text-zinc-400 leading-relaxed">
+              Conecta tu billetera de Mercado Pago, crea tu producto y empieza a transmitir en menos de cinco minutos.
+              Los compradores pujan en tiempo real con Yape, Plin, tarjetas o PagoEfectivo. Vende Ya retiene
+              su comisión automáticamente (12% en vivo / 8% marketplace) y tú recibes el neto en tu cuenta.
+            </p>
+            <p className="mt-2 text-sm text-zinc-500 leading-relaxed">
+              No necesitas programar ni integrar APIs de pago: el split de comisiones ocurre en la fuente de Mercado Pago.
+              Si tu cliente no paga, la subasta se reabre automáticamente y el siguiente postor gana.
+            </p>
+
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              {!walletConnected ? (
+                <a
+                  href="/api/wallet/oauth/redirect"
+                  className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-fuchsia-600 hover:from-amber-500 hover:to-fuchsia-700 text-zinc-950 font-bold text-sm shadow-lg shadow-fuchsia-500/30 transition-all active:scale-95"
+                >
+                  <Plug className="h-4 w-4" /> Conectar Mercado Pago
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              ) : (
+                <a
+                  href="#producto"
+                  className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-fuchsia-600 hover:from-amber-500 hover:to-fuchsia-700 text-zinc-950 font-bold text-sm shadow-lg shadow-fuchsia-500/30 transition-all active:scale-95"
+                >
+                  <Plus className="h-4 w-4" /> Crear producto
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              )}
+              <Link
+                href="/wallet"
+                className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium text-sm transition-all"
+              >
+                <Wallet className="h-4 w-4 text-amber-400" /> Ver estado de wallet
+              </Link>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* ─── Wallet status banner ─── */}
+        <WalletStatusBanner
+          loading={wallet.loading}
+          connected={walletConnected}
+          status={wallet.status}
+        />
+
+        {/* ─── 3-step process cards ─── */}
+        <section>
+          <div className="flex items-end justify-between mb-4">
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold font-display text-white">3 pasos para vender en vivo</h2>
+              <p className="text-sm text-zinc-400 mt-1">
+                Sigue esta secuencia y estarás transmitiendo tu primera subasta antes de que termines tu café.
               </p>
-              <div className="text-xs space-y-1 text-lima-800">
-                <p><strong>Título:</strong> {extracted.title}</p>
-                <p><strong>Precio sugerido:</strong> {formatPEN(extracted.suggestedPrice)}</p>
-                <p><strong>Categoría:</strong> {extracted.suggestedCategory}</p>
-                <p><strong>Condición:</strong> {extracted.condition}</p>
-              </div>
-              <p className="text-xs text-lima-700 mt-2">
-                ↓ Revisa y edita el formulario abajo antes de publicar
-              </p>
-            </div>
-          )}
-        </Card>
-      )}
-
-      {/* Live stream setup */}
-      {mode === 'live' && (
-        <Card className="p-6 mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Video className="h-5 w-5 text-salsa-500" />
-            <h3 className="font-semibold">Configura tu transmisión en vivo</h3>
-          </div>
-          <div className="space-y-4">
-            <div className="rounded-lg bg-salsa-50 border border-salsa-200 p-4 text-sm">
-              <p className="font-semibold text-salsa-900 mb-2">📡 Cómo funciona</p>
-              <ol className="list-decimal list-inside space-y-1 text-salsa-800">
-                <li>Recibirás una <strong>clave de stream</strong> única (ej. para OBS Studio)</li>
-                <li>Configura OBS con: <code className="bg-white px-1 rounded">rtmp://stream.vendeya.pe/live</code></li>
-                <li>Pega tu clave de stream y empieza a transmitir</li>
-                <li>Los viewers ven el stream con ~2s de latencia vía Cloudflare Stream</li>
-              </ol>
-            </div>
-            <Button className="w-full bg-salsa-500 hover:bg-salsa-600 text-white">
-              <Video className="h-4 w-4 mr-2" /> Generar clave de stream y empezar
-            </Button>
-          </div>
-        </Card>
-      )}
-
-      {/* Main form */}
-      <Card className="p-6 space-y-5">
-        <h3 className="font-semibold flex items-center gap-2">
-          <Package className="h-5 w-5 text-salsa-500" /> Detalles del producto
-        </h3>
-
-        <div className="space-y-2">
-          <Label htmlFor="title">Título *</Label>
-          <Input
-            id="title" required placeholder="Polo algodón pima — edición Lima"
-            value={title} onChange={(e) => setTitle(e.target.value)}
-            className="h-12"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="description">Descripción</Label>
-          <Textarea
-            id="description" rows={4}
-            placeholder="Describe materiales, tallas, colores disponibles, condición, etc."
-            value={description} onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <Label htmlFor="price">Precio base (S/.) *</Label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="price" type="number" required min="0" step="0.5"
-                placeholder="40.00"
-                value={price} onChange={(e) => setPrice(e.target.value)}
-                className="pl-10 h-12"
-              />
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="stock">Stock disponible</Label>
-            <Input
-              id="stock" type="number" min="1"
-              value={stock} onChange={(e) => setStock(e.target.value)}
-              className="h-12"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <Label htmlFor="category">Categoría</Label>
-            <select
-              id="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full h-12 rounded-md border bg-background px-3 text-sm"
-            >
-              <option value="">Selecciona...</option>
-              {CATEGORIES.map((c) => (
-                <option key={c.id} value={c.slug}>{c.nameEs}</option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="condition">Condición</Label>
-            <select
-              id="condition"
-              value={condition}
-              onChange={(e) => setCondition(e.target.value)}
-              className="w-full h-12 rounded-md border bg-background px-3 text-sm"
-            >
-              <option value="nuevo">Nuevo</option>
-              <option value="usado-como-nuevo">Usado - como nuevo</option>
-              <option value="usado-bueno">Usado - bueno</option>
-              <option value="usado-aceptable">Usado - aceptable</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Photos */}
-        <div className="space-y-2">
-          <Label>Fotos</Label>
-          <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-            <button className="aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1 text-muted-foreground hover:bg-muted/50 hover:border-salsa-300 transition-colors">
-              <ImageIcon className="h-6 w-6" />
-              <span className="text-xs">Subir</span>
-            </button>
-            {[1, 2].map((i) => (
-              <div key={i} className="aspect-square rounded-lg bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                Foto {i}
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {STEPS.map((step, i) => (
+              <motion.div
+                key={step.n}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.05 * i }}
+                className={cn(
+                  'relative overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/80 backdrop-blur-sm p-6',
+                  'hover:border-white/10 transition-colors'
+                )}
+              >
+                <div className={cn('absolute inset-0 bg-gradient-to-br opacity-60', step.bg)} />
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="h-11 w-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                      <step.icon className={cn('h-5 w-5', step.color)} />
+                    </div>
+                    <span className="text-4xl font-black font-display text-white/5 tabular-nums">
+                      {String(step.n).padStart(2, '0')}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-white text-base mb-2">{step.title}</h3>
+                  <p className="text-xs text-zinc-400 leading-relaxed">{step.desc}</p>
+                </div>
+              </motion.div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground">Hasta 8 fotos. Primera foto = portada.</p>
-        </div>
+        </section>
 
-        {/* Auction toggle */}
-        <div className="rounded-lg border p-4 space-y-3">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isAuction}
-              onChange={(e) => setIsAuction(e.target.checked)}
-              className="h-4 w-4 accent-salsa-500"
+        {/* ─── Mode selector ─── */}
+        <section>
+          <h2 className="text-xl md:text-2xl font-bold font-display text-white mb-1">¿Cómo quieres empezar?</h2>
+          <p className="text-sm text-zinc-400 mb-4">
+            Elige el modo que mejor se ajuste a tu inventario y a tu estilo de venta.
+            Puedes cambiar de modo en cualquier momento sin perder lo que ya diligenciaste.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <ModeCard
+              active={mode === 'quick'}
+              onClick={() => setMode('quick')}
+              icon={Tag}
+              title="Subasta rápida"
+              desc="Publica y subasta en 3 minutos"
+              color="text-amber-400"
             />
-            <div>
-              <p className="text-sm font-semibold">Subastar este producto</p>
-              <p className="text-xs text-muted-foreground">Si activas, los usuarios pujan en tiempo real</p>
-            </div>
-          </label>
+            <ModeCard
+              active={mode === 'live'}
+              onClick={() => setMode('live')}
+              icon={Video}
+              title="Subastar en vivo"
+              desc="Conecta tu cámara y subasta en directo"
+              color="text-fuchsia-400"
+            />
+            <ModeCard
+              active={mode === 'ai'}
+              onClick={() => setMode('ai')}
+              icon={Sparkles}
+              title="Extraer con IA"
+              desc="Describe y la IA arma el listing"
+              color="text-purple-400"
+            />
+          </div>
+        </section>
 
-          {isAuction && (
-            <div className="grid grid-cols-2 gap-3 pl-7">
+        {/* ─── AI extraction mode ─── */}
+        {mode === 'ai' && (
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-2xl border border-white/5 bg-zinc-900/80 backdrop-blur-sm p-6"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <div className="h-9 w-9 rounded-lg bg-purple-400/10 border border-purple-400/20 flex items-center justify-center">
+                <Sparkles className="h-4 w-4 text-purple-400" />
+              </div>
+              <h3 className="font-bold text-white">Describe tu producto en lenguaje natural</h3>
+            </div>
+            <p className="text-sm text-zinc-400 mb-4 leading-relaxed">
+              Escribe como si le hablaras a un amigo. La IA extrae título, descripción, precio sugerido y categoría automáticamente.
+              El modelo usa un fine-tune sobre catálogos peruanos para reconocer Yape, Plin, Olva, Shalom y los departamentos.
+            </p>
+            <Textarea
+              value={aiInput}
+              onChange={(e) => setAiInput(e.target.value)}
+              placeholder="Tengo un polo de algodón pima peruano, talla M, color terracota. Es nuevo con etiqueta. Lo compré en Lima pero no me quedó. Quiero venderlo rápido, unos 40 soles."
+              rows={5}
+              className="mb-3 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus-visible:ring-purple-400/40"
+            />
+            <Button
+              onClick={handleExtract}
+              disabled={aiLoading || !aiInput.trim()}
+              className="w-full h-11 bg-gradient-to-r from-purple-500 to-fuchsia-600 hover:from-purple-600 hover:to-fuchsia-700 text-white border-0"
+            >
+              {aiLoading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Extrayendo...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" /> Extraer con IA
+                </span>
+              )}
+            </Button>
+
+            {extracted && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mt-4 p-4 rounded-xl bg-purple-400/10 border border-purple-400/30"
+              >
+                <p className="text-sm font-semibold text-purple-300 mb-2 flex items-center gap-2">
+                  <Check className="h-4 w-4" /> Extracción exitosa
+                </p>
+                <div className="text-xs space-y-1 text-purple-200">
+                  <p><strong className="text-purple-100">Título:</strong> {extracted.title}</p>
+                  <p><strong className="text-purple-100">Precio sugerido:</strong> {formatPEN(extracted.suggestedPrice)}</p>
+                  <p><strong className="text-purple-100">Categoría:</strong> {extracted.suggestedCategory}</p>
+                  <p><strong className="text-purple-100">Condición:</strong> {extracted.condition}</p>
+                </div>
+                <p className="text-xs text-purple-300/80 mt-2">
+                  ↓ Revisa y edita el formulario abajo antes de publicar
+                </p>
+              </motion.div>
+            )}
+          </motion.section>
+        )}
+
+        {/* ─── Live stream setup ─── */}
+        {mode === 'live' && (
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-2xl border border-white/5 bg-zinc-900/80 backdrop-blur-sm p-6"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <div className="h-9 w-9 rounded-lg bg-rose-400/10 border border-rose-400/20 flex items-center justify-center">
+                <Video className="h-4 w-4 text-rose-400" />
+              </div>
+              <h3 className="font-bold text-white">Configura tu transmisión en vivo</h3>
+            </div>
+            <div className="space-y-4">
+              <div className="rounded-xl bg-white/5 border border-white/10 p-4 text-sm">
+                <p className="font-semibold text-white mb-2 flex items-center gap-2">
+                  📡 Cómo funciona
+                </p>
+                <ol className="list-decimal list-inside space-y-1.5 text-zinc-300">
+                  <li>Recibirás una <strong className="text-amber-300">clave de stream</strong> única (ej. para OBS Studio).</li>
+                  <li>Configura OBS con: <code className="bg-black/40 text-amber-300 px-1.5 py-0.5 rounded text-xs">rtmp://stream.vendeya.pe/live</code></li>
+                  <li>Pega tu clave de stream y empieza a transmitir desde tu cámara o celular.</li>
+                  <li>Los viewers ven el stream con ~2s de latencia vía Cloudflare Stream y pueden pujar en vivo.</li>
+                </ol>
+              </div>
+              <Button className="w-full h-11 bg-gradient-to-r from-amber-400 to-fuchsia-600 hover:from-amber-500 hover:to-fuchsia-700 text-zinc-950 font-bold border-0">
+                <Video className="h-4 w-4 mr-2" /> Generar clave de stream y empezar
+              </Button>
+              <p className="text-xs text-zinc-500 text-center">
+                Recomendamos resolución 720p @ 30fps y bitrate entre 2500–4000 kbps para estabilidad móvil.
+              </p>
+            </div>
+          </motion.section>
+        )}
+
+        {/* ─── Main form ─── */}
+        <section id="producto" className="scroll-mt-20">
+          <h2 className="text-xl md:text-2xl font-bold font-display text-white mb-1">Detalles del producto</h2>
+          <p className="text-sm text-zinc-400 mb-4">
+            Completa los campos obligatorios marcados con asterisco. Cuanta más información des, mayor será la conversión.
+            Las fotos son la primera impresión del comprador: usa luz natural y muestra detalles del producto.
+          </p>
+          <form className="rounded-2xl border border-white/5 bg-zinc-900/80 backdrop-blur-sm p-6 space-y-5">
+            <div className="flex items-center gap-2 mb-2">
+              <Package className="h-5 w-5 text-amber-400" />
+              <h3 className="font-bold text-white">Información principal</h3>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-zinc-300">Título *</Label>
+              <Input
+                id="title" required placeholder="Polo algodón pima — edición Lima"
+                value={title} onChange={(e) => setTitle(e.target.value)}
+                className="h-12 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus-visible:ring-amber-400/40"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-zinc-300">Descripción</Label>
+              <Textarea
+                id="description" rows={4}
+                placeholder="Describe materiales, tallas, colores disponibles, condición, etc."
+                value={description} onChange={(e) => setDescription(e.target.value)}
+                className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus-visible:ring-amber-400/40"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="starting">Precio inicial (S/.)</Label>
-                <Input
-                  id="starting" type="number" min="1" step="1"
-                  value={startingPrice}
-                  onChange={(e) => setStartingPrice(e.target.value)}
-                  className="h-10"
-                  placeholder="1"
-                />
+                <Label htmlFor="price" className="text-zinc-300">Precio base (S/.) *</Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <Input
+                    id="price" type="number" required min="0" step="0.5"
+                    placeholder="40.00"
+                    value={price} onChange={(e) => setPrice(e.target.value)}
+                    className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus-visible:ring-amber-400/40"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="duration">Duración (segundos)</Label>
+                <Label htmlFor="stock" className="text-zinc-300">Stock disponible</Label>
+                <Input
+                  id="stock" type="number" min="1"
+                  value={stock} onChange={(e) => setStock(e.target.value)}
+                  className="h-12 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus-visible:ring-amber-400/40"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-zinc-300">Categoría</Label>
                 <select
-                  id="duration"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="w-full h-10 rounded-md border bg-background px-3 text-sm"
+                  id="category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full h-12 rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-400/40"
                 >
-                  <option value="60">1 minuto</option>
-                  <option value="180">3 minutos</option>
-                  <option value="300">5 minutos</option>
-                  <option value="600">10 minutos</option>
-                  <option value="1800">30 minutos</option>
+                  <option value="" className="bg-zinc-900">Selecciona...</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.slug} className="bg-zinc-900">{c.nameEs}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="condition" className="text-zinc-300">Condición</Label>
+                <select
+                  id="condition"
+                  value={condition}
+                  onChange={(e) => setCondition(e.target.value)}
+                  className="w-full h-12 rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+                >
+                  <option value="nuevo" className="bg-zinc-900">Nuevo</option>
+                  <option value="usado-como-nuevo" className="bg-zinc-900">Usado - como nuevo</option>
+                  <option value="usado-bueno" className="bg-zinc-900">Usado - bueno</option>
+                  <option value="usado-aceptable" className="bg-zinc-900">Usado - aceptable</option>
                 </select>
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Payment methods */}
-        <div className="space-y-2">
-          <Label>Métodos de pago aceptados</Label>
-          <div className="flex flex-wrap gap-2">
-            {Object.values(PAYMENT_METHODS).map((pm) => {
-              const active = paymentMethods.includes(pm.id)
-              return (
+            {/* Photos */}
+            <div className="space-y-2">
+              <Label className="text-zinc-300">Fotos</Label>
+              <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
                 <button
-                  key={pm.id}
                   type="button"
-                  onClick={() => togglePayment(pm.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
-                    active
-                      ? 'border-salsa-500 bg-salsa-50 text-salsa-700'
-                      : 'border-input bg-background hover:bg-muted'
-                  }`}
+                  className="aspect-square rounded-lg border-2 border-dashed border-white/15 flex flex-col items-center justify-center gap-1 text-zinc-500 hover:bg-white/5 hover:border-amber-400/40 transition-colors"
                 >
-                  {active && <Check className="h-3.5 w-3.5" />}
-                  {pm.label}
+                  <ImageIcon className="h-6 w-6" />
+                  <span className="text-xs">Subir</span>
                 </button>
-              )
-            })}
-          </div>
-        </div>
+                {[1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="aspect-square rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs text-zinc-500"
+                  >
+                    Foto {i}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-zinc-500">Hasta 8 fotos. Primera foto = portada.</p>
+            </div>
 
-        {/* Shipping */}
-        <div className="space-y-2">
-          <Label htmlFor="shipping">Costo de envío (S/. / 0 = gratis)</Label>
-          <Input
-            id="shipping" type="number" min="0" step="0.5"
-            value={shippingCost}
-            onChange={(e) => setShippingCost(e.target.value)}
-            className="h-12"
-          />
-        </div>
+            {/* Auction toggle */}
+            <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isAuction}
+                  onChange={(e) => setIsAuction(e.target.checked)}
+                  className="h-4 w-4 accent-amber-400"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-white">Subastar este producto</p>
+                  <p className="text-xs text-zinc-400">Si activas, los usuarios pujan en tiempo real durante tu en vivo.</p>
+                </div>
+              </label>
 
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="w-full h-12 bg-salsa-500 hover:bg-salsa-600 text-white text-base font-bold gap-2"
-        >
-          {submitting ? (
-            <span className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" /> Publicando...
-            </span>
-          ) : (
-            <>
-              {isAuction ? '🎉 Iniciar subasta' : '📦 Publicar producto'} <ArrowRight className="h-5 w-5" />
-            </>
-          )}
-        </Button>
-      </Card>
-    </>
+              {isAuction && (
+                <div className="grid grid-cols-2 gap-3 pl-7">
+                  <div className="space-y-2">
+                    <Label htmlFor="starting" className="text-zinc-300">Precio inicial (S/.)</Label>
+                    <Input
+                      id="starting" type="number" min="1" step="1"
+                      value={startingPrice}
+                      onChange={(e) => setStartingPrice(e.target.value)}
+                      className="h-10 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus-visible:ring-amber-400/40"
+                      placeholder="1"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="duration" className="text-zinc-300">Duración</Label>
+                    <select
+                      id="duration"
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
+                      className="w-full h-10 rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+                    >
+                      <option value="60" className="bg-zinc-900">1 minuto</option>
+                      <option value="180" className="bg-zinc-900">3 minutos</option>
+                      <option value="300" className="bg-zinc-900">5 minutos</option>
+                      <option value="600" className="bg-zinc-900">10 minutos</option>
+                      <option value="1800" className="bg-zinc-900">30 minutos</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Payment methods */}
+            <div className="space-y-2">
+              <Label className="text-zinc-300">Métodos de pago aceptados</Label>
+              <div className="flex flex-wrap gap-2">
+                {Object.values(PAYMENT_METHODS).map((pm) => {
+                  const active = paymentMethods.includes(pm.id)
+                  return (
+                    <button
+                      key={pm.id}
+                      type="button"
+                      onClick={() => togglePayment(pm.id)}
+                      className={cn(
+                        'flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-medium transition-all',
+                        active
+                          ? 'border-amber-400/50 bg-amber-400/10 text-amber-300'
+                          : 'border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white'
+                      )}
+                    >
+                      {active && <Check className="h-3.5 w-3.5" />}
+                      {pm.label}
+                    </button>
+                  )
+                })}
+              </div>
+              <p className="text-xs text-zinc-500">
+                Mercado Pago procesa Yape, Plin, tarjetas y PagoEfectivo en una sola API.
+              </p>
+            </div>
+
+            {/* Shipping */}
+            <div className="space-y-2">
+              <Label htmlFor="shipping" className="text-zinc-300">Costo de envío (S/. / 0 = gratis)</Label>
+              <Input
+                id="shipping" type="number" min="0" step="0.5"
+                value={shippingCost}
+                onChange={(e) => setShippingCost(e.target.value)}
+                className="h-12 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus-visible:ring-amber-400/40"
+              />
+            </div>
+
+            <Button
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="w-full h-12 bg-gradient-to-r from-amber-400 to-fuchsia-600 hover:from-amber-500 hover:to-fuchsia-700 text-zinc-950 text-base font-bold gap-2 border-0 shadow-lg shadow-fuchsia-500/30"
+            >
+              {submitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Publicando...
+                </span>
+              ) : (
+                <>
+                  {isAuction ? '🎉 Iniciar subasta' : '📦 Publicar producto'} <ArrowRight className="h-5 w-5" />
+                </>
+              )}
+            </Button>
+            <p className="text-xs text-zinc-500 text-center">
+              Al publicar aceptas los{' '}
+              <Link href={ROUTES.terminos} className="underline hover:text-zinc-300">Términos</Link> y la{' '}
+              <Link href={ROUTES.privacidad} className="underline hover:text-zinc-300">Política de Privacidad</Link>.
+            </p>
+          </form>
+        </section>
+      </main>
+    </div>
   )
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// ModeCard — dark premium variant
+// ─────────────────────────────────────────────────────────────────────
 function ModeCard({
   active, onClick, icon: Icon, title, desc, color,
 }: {
@@ -440,79 +678,155 @@ function ModeCard({
   return (
     <button
       onClick={onClick}
-      className={`text-left p-4 rounded-xl border-2 transition-all ${
-        active ? 'border-salsa-500 bg-salsa-50 shadow-glow-salsa' : 'border-border bg-card hover:border-salsa-300'
-      }`}
+      className={cn(
+        'text-left p-5 rounded-2xl border transition-all',
+        active
+          ? 'border-amber-400/40 bg-amber-400/5 ring-1 ring-amber-400/20'
+          : 'border-white/5 bg-zinc-900/80 hover:border-white/15 hover:bg-zinc-900'
+      )}
     >
-      <Icon className={`h-6 w-6 mb-2 ${color}`} />
-      <div className="font-semibold">{title}</div>
-      <div className="text-xs text-muted-foreground mt-1">{desc}</div>
+      <div className="flex items-center justify-between mb-3">
+        <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+          <Icon className={cn('h-5 w-5', color)} />
+        </div>
+        {active && (
+          <span className="flex items-center gap-1 text-[10px] font-bold text-amber-300 bg-amber-400/15 border border-amber-400/30 px-2 py-0.5 rounded-full">
+            <Check className="h-2.5 w-2.5" /> ACTIVO
+          </span>
+        )}
+      </div>
+      <div className="font-bold text-white text-sm">{title}</div>
+      <div className="text-xs text-zinc-400 mt-1 leading-relaxed">{desc}</div>
     </button>
   )
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// Sprint 2-A — Wallet onboarding banner
-// Verifica si la wallet del vendedor está activa; si no, muestra CTA.
+// Wallet status banner — preserved from Sprint 2-A
+// Drives hero CTA + step preview
 // ─────────────────────────────────────────────────────────────────────
-function WalletOnboardingBanner() {
-  const [state, setState] = React.useState<{
-    loading: boolean
-    status: string | null
-    isVerified: boolean | null
-  }>({ loading: true, status: null, isVerified: null })
-
-  React.useEffect(() => {
-    fetch('/api/auth/me', { credentials: 'include' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data?.wallet) {
-          setState({
-            loading: false,
-            status: data.wallet.status,
-            isVerified: data.wallet.isVerified,
-          })
-        } else {
-          setState({ loading: false, status: null, isVerified: null })
-        }
-      })
-      .catch(() => setState({ loading: false, status: null, isVerified: null }))
-  }, [])
-
-  if (state.loading) {
-    return null
-  }
-
-  // Si la wallet ya está activa y verificada, no mostrar el banner
-  if (state.status === 'active' && state.isVerified) {
+function WalletStatusBanner({
+  loading,
+  connected,
+  status,
+}: {
+  loading: boolean
+  connected: boolean
+  status: string | null
+}) {
+  if (loading) {
     return (
-      <div className="mb-6 p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-2 text-emerald-900 text-sm">
-        <Check className="h-4 w-4" />
-        <span>Tu Mercado Pago está conectado. Recibirás los pagos automáticamente.</span>
+      <div className="rounded-2xl border border-white/5 bg-zinc-900/80 backdrop-blur-sm p-6 animate-pulse">
+        <div className="h-4 w-1/3 bg-white/5 rounded mb-3" />
+        <div className="h-3 w-2/3 bg-white/5 rounded mb-2" />
+        <div className="h-3 w-1/2 bg-white/5 rounded" />
       </div>
     )
   }
 
-  // Si la wallet no está activa → mostrar CTA de onboarding
-  return (
-    <div className="mb-6 p-4 rounded-2xl bg-gradient-to-br from-amber-50 via-orange-50 to-purple-50 border border-amber-300 relative overflow-hidden">
-      <div className="absolute right-[-20px] top-[-20px] text-6xl opacity-10 select-none">🔌</div>
-      <div className="relative">
-        <div className="flex items-center gap-2 mb-1">
-          <DollarSign className="h-4 w-4 text-amber-600" />
-          <h3 className="font-bold text-amber-900 text-sm">Conecta tu Mercado Pago para vender</h3>
+  if (connected) {
+    // Connected — show "próximos pasos" preview
+    return (
+      <motion.section
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="rounded-2xl border border-lime-400/30 bg-lime-400/10 backdrop-blur-sm p-6"
+      >
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-xl bg-lime-400/15 border border-lime-400/30 flex items-center justify-center shrink-0">
+            <ShieldCheck className="h-5 w-5 text-lime-300" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-lime-200 mb-1">Tu Mercado Pago está conectado y verificado</p>
+            <p className="text-sm text-lime-200/80 leading-relaxed mb-4">
+              Recibirás los pagos automáticamente en tu cuenta. La comisión de Vende Ya (12% en vivo / 8% marketplace)
+              se descuenta en la fuente vía split payment de Mercado Pago. Ya puedes publicar productos y empezar a transmitir.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="rounded-xl bg-black/30 border border-lime-400/20 p-3">
+                <div className="flex items-center gap-2 text-xs font-semibold text-lime-200 mb-1">
+                  <span className="h-5 w-5 rounded-full bg-lime-400/20 border border-lime-400/40 flex items-center justify-center text-[10px]">1</span>
+                  Crea tu producto
+                </div>
+                <p className="text-[11px] text-lime-200/70">Completa el formulario de abajo con fotos y precio base.</p>
+              </div>
+              <div className="rounded-xl bg-black/30 border border-lime-400/20 p-3">
+                <div className="flex items-center gap-2 text-xs font-semibold text-lime-200 mb-1">
+                  <span className="h-5 w-5 rounded-full bg-lime-400/20 border border-lime-400/40 flex items-center justify-center text-[10px]">2</span>
+                  Activa la subasta
+                </div>
+                <p className="text-[11px] text-lime-200/70">Marca la casilla y fija precio inicial + duración del cronómetro.</p>
+              </div>
+              <div className="rounded-xl bg-black/30 border border-lime-400/20 p-3">
+                <div className="flex items-center gap-2 text-xs font-semibold text-lime-200 mb-1">
+                  <span className="h-5 w-5 rounded-full bg-lime-400/20 border border-lime-400/40 flex items-center justify-center text-[10px]">3</span>
+                  Inicia tu en vivo
+                </div>
+                <p className="text-[11px] text-lime-200/70">Genera la clave de stream y empieza a transmitir en OBS Studio.</p>
+              </div>
+            </div>
+            <div className="mt-4 flex items-center gap-3">
+              <Link
+                href="#producto"
+                className="inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-lime-400/20 hover:bg-lime-400/30 border border-lime-400/40 text-lime-100 text-sm font-semibold transition-colors"
+              >
+                <Plus className="h-4 w-4" /> Crear producto ahora
+              </Link>
+              <Link
+                href="/wallet"
+                className="inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-200 text-sm font-medium transition-colors"
+              >
+                Ver mi billetera <ChevronR className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
         </div>
-        <p className="text-xs text-amber-800 max-w-md mb-3">
-          Antes de publicar, vincula tu cuenta de Mercado Pago. Recibirás pagos con Yape, Plin y tarjetas.
-          Vende Ya retiene automáticamente su comisión (12% en vivo, 8% en marketplace) y tú recibes el 90% neto.
-        </p>
-        <a
-          href="/api/wallet/oauth/redirect"
-          className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs px-4 py-2 rounded-lg active:scale-95 transition-all shadow-md"
-        >
-          Conectar Mercado Pago <ArrowRight className="h-3 w-3" />
-        </a>
+      </motion.section>
+    )
+  }
+
+  // Not connected — amber warning + CTA
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="relative overflow-hidden rounded-2xl border border-amber-400/30 bg-amber-400/10 backdrop-blur-sm p-6"
+    >
+      <div className="absolute right-[-30px] top-[-30px] w-40 h-40 bg-amber-500/20 blur-3xl rounded-full pointer-events-none" />
+      <div className="relative flex flex-col md:flex-row md:items-center gap-4">
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <div className="h-12 w-12 rounded-xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-center shrink-0">
+            {/* Mercado Pago logo placeholder */}
+            <span className="text-amber-300 font-black text-xs leading-none">MP</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-amber-200 mb-1 flex items-center gap-2">
+              Conecta tu Mercado Pago para empezar a vender
+            </p>
+            <p className="text-sm text-amber-200/80 leading-relaxed">
+              Antes de publicar, vincula tu cuenta de Mercado Pago. Recibirás pagos con Yape, Plin y tarjetas.
+              Vende Ya retiene automáticamente su comisión (12% en vivo, 8% marketplace) y tú recibes el neto exacto.
+              Sin KYC completo los pagos quedan retenidos hasta 7 días, así que completa la verificación cuanto antes.
+            </p>
+            <p className="text-xs text-amber-200/60 mt-2">
+              Estado actual:{' '}
+              <span className="font-semibold text-amber-200">
+                {status === 'pending' ? 'Verificación pendiente' : 'No conectada'}
+              </span>
+            </p>
+          </div>
+        </div>
+        <div className="shrink-0">
+          <a
+            href="/api/wallet/oauth/redirect"
+            className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-gradient-to-r from-amber-400 to-fuchsia-600 hover:from-amber-500 hover:to-fuchsia-700 text-zinc-950 font-bold text-sm shadow-lg shadow-fuchsia-500/30 transition-all active:scale-95 whitespace-nowrap"
+          >
+            <Plug className="h-4 w-4" /> Conectar Mercado Pago
+          </a>
+        </div>
       </div>
-    </div>
+    </motion.section>
   )
 }

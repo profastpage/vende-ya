@@ -1,10 +1,18 @@
 'use client'
 
 import * as React from 'react'
-import { Search, ChevronRight } from 'lucide-react'
-import { AppShell, type Breadcrumb } from '@/components/vendeda/AppShell'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { Search, ChevronRight, HelpCircle, MessageCircle } from 'lucide-react'
+import {
+  StaticPageShell,
+  PageHeader,
+  DarkInput,
+  staggerContainer,
+  staggerItem,
+} from '@/components/vendeda/StaticPageShell'
+import { ROUTES } from '@/lib/vendeda/routes'
+import type { Breadcrumb } from '@/components/vendeda/AppShell'
 
 const breadcrumbs: Breadcrumb[] = [{ label: 'FAQ' }]
 
@@ -44,7 +52,7 @@ const FAQS = [
       { q: '¿Cómo elimino mi cuenta?', a: 'Configuración → Zona peligrosa → Eliminar cuenta. Tienes 30 días para revertir. Después, todos tus datos se borran permanentemente salvo los obligatorios por ley (facturas por 7 años).' },
     ],
   },
-]
+] as const
 
 export default function FAQPage() {
   const [query, setQuery] = React.useState('')
@@ -63,57 +71,112 @@ export default function FAQPage() {
   }, [query])
 
   return (
-    <AppShell title="Preguntas frecuentes" breadcrumbs={breadcrumbs} maxWidth="max-w-3xl">
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
+    <StaticPageShell
+      title="Preguntas frecuentes"
+      breadcrumbs={breadcrumbs}
+      maxWidth="max-w-3xl"
+      pageHeader={
+        <PageHeader
+          title="Preguntas frecuentes"
+          subtitle="Todo lo que necesitas saber sobre pujas, pagos, envíos y seguridad en Vende Ya Perú."
+          icon={HelpCircle}
+          glow="bg-amber-500"
+        />
+      }
+    >
+      {/* Search */}
+      <div className="relative mb-5">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none" />
+        <DarkInput
           placeholder="Busca una pregunta..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-10 h-12"
+          className="pl-11 h-12 text-base"
         />
       </div>
 
+      {/* Category chips */}
       {!query && (
-        <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar">
-          {FAQS.map((cat) => (
-            <button
-              key={cat.cat}
-              onClick={() => setActiveCat(cat.cat)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                activeCat === cat.cat ? 'bg-salsa-500 text-white' : 'bg-muted text-foreground'
-              }`}
-            >
-              {cat.cat}
-            </button>
-          ))}
+        <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar">
+          {FAQS.map((cat) => {
+            const active = activeCat === cat.cat
+            return (
+              <button
+                key={cat.cat}
+                onClick={() => setActiveCat(cat.cat)}
+                className={`px-3.5 h-9 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
+                  active
+                    ? 'bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950 border-amber-400/50 shadow-lg shadow-fuchsia-500/20'
+                    : 'bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10'
+                }`}
+              >
+                {cat.cat}
+              </button>
+            )
+          })}
         </div>
       )}
 
-      <div className="space-y-3">
+      {/* FAQ accordion list */}
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="space-y-3"
+      >
         {filteredFaqs
           .filter((cat) => query || cat.cat === activeCat)
           .map((cat) =>
             cat.items.map((item, i) => (
-              <Card key={`${cat.cat}-${i}`} className="overflow-hidden">
-                <details className="group">
-                  <summary className="cursor-pointer p-4 flex items-center justify-between hover:bg-muted/30">
-                    <span className="text-sm font-medium pr-3">{item.q}</span>
-                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-90" />
+              <motion.div key={`${cat.cat}-${i}`} variants={staggerItem}>
+                <details className="group relative rounded-xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm overflow-hidden transition-colors hover:border-white/10">
+                  <summary className="cursor-pointer list-none p-5 flex items-center justify-between gap-3">
+                    <span className="text-sm md:text-base font-bold text-white pr-3 leading-snug">
+                      {item.q}
+                    </span>
+                    <span className="h-7 w-7 shrink-0 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center transition-transform group-open:rotate-90">
+                      <ChevronRight className="h-4 w-4 text-amber-400" />
+                    </span>
                   </summary>
-                  <div className="px-4 pb-4 text-sm text-muted-foreground leading-relaxed">
+                  <div className="px-5 pb-5 -mt-1 text-sm text-zinc-400 leading-relaxed">
                     {item.a}
                   </div>
                 </details>
-              </Card>
+              </motion.div>
             ))
-        )}
+          )}
         {filteredFaqs.length === 0 && (
-          <Card className="p-8 text-center text-muted-foreground">
-            Sin resultados para "{query}"
-          </Card>
+          <motion.div variants={staggerItem}>
+            <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-12 text-center">
+              <Search className="h-10 w-10 mx-auto mb-3 text-zinc-600" />
+              <p className="text-zinc-400 text-sm">
+                Sin resultados para{' '}
+                <span className="text-amber-400 font-bold">"{query}"</span>
+              </p>
+              <p className="text-zinc-600 text-xs mt-1">
+                Prueba con otros términos o explora las categorías.
+              </p>
+            </div>
+          </motion.div>
         )}
+      </motion.div>
+
+      {/* Still need help? CTA */}
+      <div className="mt-8 rounded-2xl bg-gradient-to-br from-amber-500/10 via-zinc-900 to-fuchsia-500/10 border border-white/10 p-6 text-center">
+        <p className="text-sm text-zinc-300">
+          ¿No encuentras lo que buscas?
+        </p>
+        <p className="text-xs text-zinc-500 mt-1 mb-4">
+          Nuestro equipo de soporte está disponible todos los días de 9am a 9pm.
+        </p>
+        <Link
+          href={ROUTES.soporte}
+          className="inline-flex items-center gap-2 px-5 h-11 rounded-xl bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950 font-black text-sm shadow-lg shadow-fuchsia-500/30 transition-transform hover:scale-[1.02]"
+        >
+          <MessageCircle className="h-4 w-4" />
+          Contactar con soporte
+        </Link>
       </div>
-    </AppShell>
+    </StaticPageShell>
   )
 }

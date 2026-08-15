@@ -6,6 +6,8 @@ import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/vendeda/theme-provider";
 import { AuthProvider } from "@/components/vendeda/AuthProvider";
 import { PWAInstallPrompt, PWAUpdateBanner } from "@/components/vendeda/PWA";
+import { DesktopTopNav } from "@/components/vendeda/DesktopTopNav";
+import { MobileBottomNav } from "@/components/vendeda/MobileBottomNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -106,12 +108,14 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          enableSystem
+          defaultTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <AuthProvider>
+            <DesktopTopNav />
             {children}
+            <MobileBottomNav />
             <Toaster />
             <SonnerToaster position="top-center" richColors />
             <PWAInstallPrompt />
