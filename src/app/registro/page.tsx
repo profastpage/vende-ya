@@ -27,6 +27,7 @@ export default function RegistroPage() {
   const [showPassword, setShowPassword] = React.useState(false)
   const [acceptTerms, setAcceptTerms] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
+  const [emailSent, setEmailSent] = React.useState(false)
 
   const strength = React.useMemo(() => {
     let s = 0
@@ -62,13 +63,49 @@ export default function RegistroPage() {
       toast({ title: '❌ Error', description: error, variant: 'destructive' })
       return
     }
+    if (isDemoMode) {
+      toast({
+        title: '🎉 Cuenta demo creada',
+        description: 'Modo demo: cualquier email funciona. Configura Supabase para auth real.',
+      })
+      router.push(ROUTES.dashboard)
+      return
+    }
+    // Real Supabase: depending on project settings, the user may need to
+    // confirm their email before they can log in.
+    setEmailSent(true)
     toast({
-      title: '🎉 Cuenta creada',
-      description: isDemoMode
-        ? 'Cuenta demo activa. Configura Supabase para auth real.'
-        : 'Te enviamos un email de confirmación. Revisa tu bandeja.',
+      title: '✉️ Revisa tu correo',
+      description: 'Te enviamos un enlace de confirmación. Haz clic para activar tu cuenta.',
     })
-    router.push(ROUTES.dashboard)
+  }
+
+  if (emailSent) {
+    return (
+      <div className="min-h-screen bg-background py-8 px-4 flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center space-y-6">
+          <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-lima-400 to-lima-600 flex items-center justify-center mx-auto">
+            <Mail className="h-8 w-8 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold">Revisa tu correo</h1>
+          <p className="text-muted-foreground">
+            Te enviamos un enlace de confirmación a <b className="text-foreground">{email}</b>.
+            Haz clic en el enlace para activar tu cuenta y podrás iniciar sesión.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            ¿No recibiste el correo? Revisa tu carpeta de spam o espera unos minutos.
+          </p>
+          <div className="flex flex-col gap-2 pt-4">
+            <Button asChild className="h-12">
+              <Link href={ROUTES.login}>Ya tengo cuenta — Iniciar sesión</Link>
+            </Button>
+            <Button variant="outline" asChild className="h-12">
+              <Link href={ROUTES.home}>Volver al inicio</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

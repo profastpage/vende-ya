@@ -360,7 +360,9 @@ model SellerWallet {
   id              String   @id @default(cuid()) // en prod: uuid -> auth.users.id
   gatewaySellerId String
   isVerified      Boolean  @default(false)
-  status          String   @default("active") // active | suspended | banned
+  status          String   @default("active") // pending | active | suspended | banned
+  storeName       String?  // Sprint 2-B: set by handle_new_user trigger
+  storeSlug       String?  // Sprint 2-B: URL slug /vendedores/[slug]
   updatedAt       DateTime @updatedAt
   createdAt       DateTime @default(now())
 
@@ -369,6 +371,8 @@ model SellerWallet {
   copyrightReports  CopyrightReport[]
 
   @@index([status])
+  @@index([storeSlug])
+  @@unique([storeSlug])
 }
 
 // ---------------------------------------------------------------------

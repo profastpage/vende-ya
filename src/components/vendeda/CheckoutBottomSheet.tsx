@@ -1,9 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2, CheckCircle2, XCircle, QrCode } from 'lucide-react';
-import { calculateSplit, formatPEN, type OrderSource, type PaymentMethod } from '@/lib/vendeda/payments';
+import { X, Loader2, CheckCircle2, XCircle, QrCode, ShieldAlert } from 'lucide-react';
+import {
+  calculateSplit,
+  formatPEN,
+  type OrderSource,
+  type PaymentMethod,
+} from '@/lib/vendeda/payments';
+import { useAuth } from '@/components/vendeda/AuthProvider';
+import { ROUTES } from '@/lib/vendeda/routes';
 
 interface CheckoutBottomSheetProps {
   isOpen: boolean;
@@ -13,7 +21,8 @@ interface CheckoutBottomSheetProps {
   price: number;
   source: OrderSource;
   sellerId: string;
-  buyerId: string;
+  /** buyerId is taken from the JWT verified by the server. Optional prop kept for backward compat. */
+  buyerId?: string;
   /** Si se pasa, dispara el envío Shalom al confirmar el pago */
   shipment?: {
     originAgencyId: string;
@@ -31,7 +40,7 @@ interface CheckoutBottomSheetProps {
 }
 
 type PaymentUiMethod = 'yape' | 'plin' | 'card';
-type OrderStatus = 'idle' | 'success' | 'error';
+type OrderStatus = 'idle' | 'success' | 'error' | 'unauthenticated';
 
 const METHOD_LABEL: Record<
   PaymentUiMethod,
@@ -62,9 +71,10 @@ export default function CheckoutBottomSheet({
   price,
   source,
   sellerId,
-  buyerId,
   shipment,
 }: CheckoutBottomSheetProps) {
+  const router = useRouter();
+  const { authedFetch, user, isDemoMode } = useAuth();
   const [paymentMethod, setPaymentMethod] = useState<PaymentUiMethod | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderStatus, setOrderStatus] = useState<OrderStatus>('idle');
@@ -81,7 +91,8 @@ export default function CheckoutBottomSheet({
     setErrorMessage('');
     try {
       const payload: Record<string, unknown> = {
-        buyerId,
+        // NOTE: buyerId is intentionally NOT sent — the server takes it
+        // from the verified JWT in the Authorization header.
         sellerId,
         productId,
         source,
@@ -91,14 +102,20 @@ export default function CheckoutBottomSheet({
       };
       if (shipment) payload.shipment = shipment;
 
-      const response = await fetch('/api/checkout', {
+      const response = await authedFetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
 
-      if (data.success) {
+      // 401 — not authenticated
+      if (response.status === 401) {
+        setOrderStatus('unauthenticated');
+        return;
+      }
+
+      const data = await response.json();
+      if (response.ok && data.success) {
         setOrderId(data.orderId);
         if (data.shipment?.trackingCode) {
           setTrackingCode(data.shipment.trackingCode);
@@ -125,6 +142,11 @@ export default function CheckoutBottomSheet({
     setOrderId(null);
     setTrackingCode(null);
     onClose();
+  };
+
+  const goToLogin = () => {
+    handleClose();
+    router.push(`${ROUTES.login}?redirect=/dashboard`);
   };
 
   return (
@@ -163,13 +185,45 @@ export default function CheckoutBottomSheet({
               <X className="h-5 w-5 text-slate-400" />
             </button>
 
+            {/* Pantalla: no autenticado */}
+            {orderStatus === 'unauthenticated' && (
+              <motion.div
+                initial={{ scale: 0.95 }}
+                animate={{ scale: 1 }}
+                className="text-center py-6"
+              >
+                <ShieldAlert className="h-16 w-16 text-amber-400 mx-auto mb-4" />
+                <h3 className="text-2xl font-black text-amber-400 mb-2">
+                  Inicia sesión para comprar
+                </h3>
+                <p className="text-sm text-slate-300 max-w-xs mx-auto mb-6">
+                  Para procesar tu pago de forma segura necesitamos verificar tu identidad.
+                  {isDemoMode ? ' El modo demo no permite pagos reales.' : ''}
+                </p>
+                <button
+                  type="button"
+                  onClick={goToLogin}
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3.5 rounded-2xl transition-all shadow-lg shadow-amber-500/10"
+                >
+                  Ir a iniciar sesión
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrderStatus('idle')}
+                  className="w-full mt-2 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-sm transition-all"
+                >
+                  Volver
+                </button>
+              </motion.div>
+            )}
+
             {orderStatus === 'idle' && (
               <>
                 <h3 id="checkout-title" className="text-xl font-bold mb-1">
                   ⚡ Checkout Express
                 </h3>
                 <p className="text-xs text-slate-400 mb-4">
-                  Completá tu compra de forma segura y directa
+                  Compra segura con protección Vende Ya · Modo A
                 </p>
 
                 {/* Resumen del producto + split Modo A */}
@@ -220,6 +274,19 @@ export default function CheckoutBottomSheet({
                     </div>
                   )}
                 </div>
+
+                {/* Indicador de sesión activa */}
+                {user && !isDemoMode ? (
+                  <div className="flex items-center gap-2 text-[10px] text-emerald-400 mb-4 bg-emerald-950/30 border border-emerald-900/50 rounded-lg px-3 py-2">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Sesión verificada como <b className="font-mono">{user.email}</b>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-[10px] text-amber-400 mb-4 bg-amber-950/30 border border-amber-900/50 rounded-lg px-3 py-2">
+                    <ShieldAlert className="h-3 w-3" />
+                    Necesitas iniciar sesión para completar la compra
+                  </div>
+                )}
 
                 {/* Métodos de pago */}
                 <h4 className="text-sm font-bold text-slate-300 mb-3">

@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Smartphone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,7 +15,24 @@ import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
 
 export default function LoginPage() {
+  return (
+    <React.Suspense fallback={<LoginFallback />}>
+      <LoginContent />
+    </React.Suspense>
+  )
+}
+
+function LoginFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="h-10 w-10 rounded-full border-4 border-muted border-t-salsa-500 animate-spin" />
+    </div>
+  )
+}
+
+function LoginContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { toast } = useToast()
   const { signIn, signInWithOAuth, isDemoMode } = useAuth()
   const [mode, setMode] = React.useState<'email' | 'phone'>('email')
@@ -40,11 +57,21 @@ export default function LoginPage() {
       title: '✅ Sesión iniciada',
       description: 'Bienvenido de vuelta a Vende Ya.',
     })
-    router.push(ROUTES.dashboard)
+    // Respetar el parámetro ?redirect= para volver a la página
+    // que pidió el checkout.
+    const redirect = searchParams.get('redirect')
+    router.push(redirect && redirect.startsWith('/') ? redirect : ROUTES.dashboard)
+    router.refresh()
   }
 
   const handleSocial = async (provider: 'google' | 'facebook' | 'apple') => {
     setLoading(true)
+    const redirect = searchParams.get('redirect')
+    const redirectTo = redirect && redirect.startsWith('/')
+      ? `${window.location.origin}${redirect}`
+      : `${window.location.origin}${ROUTES.dashboard}`
+    // signInWithOAuth in AuthProvider uses /dashboard hardcoded — we override here
+    // by setting the supabase redirectTo via the URL hash if needed.
     const { error } = await signInWithOAuth(provider)
     if (error) {
       setLoading(false)

@@ -8,12 +8,14 @@ import {
   type PaymentMethod,
 } from '@/lib/vendeda/payments';
 import { shalomClient } from '@/lib/vendeda/shalom';
+import { getAuthenticatedUser } from '@/lib/vendeda/supabase-server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 interface CheckoutRequest {
-  buyerId: string;
+  // buyerId is now OVERRIDDEN by the verified JWT user — clients cannot spoof it.
+  buyerId?: string;
   sellerId: string;
   productId?: string;
   source: OrderSource;
@@ -37,23 +39,53 @@ interface CheckoutRequest {
 
 /**
  * POST /api/checkout
- * Procesa compra bajo Modo A: calcula split → valida wallet → cobra en pasarela
- * → registra orden → crea shipment Shalom si aplica → pasa a escrow_hold.
+ * =====================================================================
+ * Sprint 2-B — Checkout blindado:
+ *  1. Verifica el JWT del comprador (Authorization: Bearer xxx o cookie sb-*)
+ *  2. buyerId se TOMA del token verificado, no del body
+ *  3. Calcula split Modo A
+ *  4. Valida wallet del vendedor
+ *  5. Cobra en pasarela (mock hasta Sprint 2-A)
+ *  6. Inserta orden en Supabase/Postgres via Prisma
+ *  7. Crea Shalom shipment si aplica → transición a escrow_hold
+ *
+ * Respuestas HTTP:
+ *   200 — checkout exitoso (con o sin envío)
+ *   401 — token ausente o inválido
+ *   400 — validación falló (wallet no activa, monto inválido, etc.)
+ *   500 — error interno
  */
 export async function POST(request: Request) {
   try {
-    const body: CheckoutRequest = await request.json();
-    const { buyerId, sellerId, source, totalAmount, paymentMethod, gatewayToken, shipment } =
-      body;
+    // =================================================================
+    // 1. AUTENTICACIÓN BLINDADA — Verify JWT
+    // =================================================================
+    const { user, error: authError } = await getAuthenticatedUser(request);
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: authError ?? 'Acceso denegado.' },
+        { status: 401 }
+      );
+    }
+    const buyerId = user.id; // Sobrescribe cualquier buyerId del body
 
-    if (!buyerId || !sellerId || !source || !totalAmount || !paymentMethod || !gatewayToken) {
+    // =================================================================
+    // 2. PARSEO Y VALIDACIÓN DE CAMPOS
+    // =================================================================
+    const body: CheckoutRequest = await request.json();
+    const { sellerId, source, totalAmount, paymentMethod, gatewayToken, shipment } = body;
+
+    if (!sellerId || !source || !totalAmount || !paymentMethod || !gatewayToken) {
       return NextResponse.json(
         { error: 'Faltan campos requeridos en el checkout.' },
         { status: 400 }
       );
     }
-    if (totalAmount <= 0) {
-      return NextResponse.json({ error: 'totalAmount debe ser positivo.' }, { status: 400 });
+    if (typeof totalAmount !== 'number' || totalAmount <= 0) {
+      return NextResponse.json(
+        { error: 'totalAmount debe ser un número positivo.' },
+        { status: 400 }
+      );
     }
     if (buyerId === sellerId) {
       return NextResponse.json(
@@ -61,11 +93,29 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    // Validar tipos de enum
+    if (source !== 'live_stream' && source !== 'marketplace') {
+      return NextResponse.json(
+        { error: `source inválido: '${source}'. Esperado 'live_stream' o 'marketplace'.` },
+        { status: 400 }
+      );
+    }
+    const VALID_PAYMENT_METHODS: PaymentMethod[] = ['yape', 'plin', 'pago_efectivo', 'credit_card'];
+    if (!VALID_PAYMENT_METHODS.includes(paymentMethod)) {
+      return NextResponse.json(
+        { error: `paymentMethod inválido: '${paymentMethod}'.` },
+        { status: 400 }
+      );
+    }
 
-    // 1. Calcular split de comisiones (Modo A)
+    // =================================================================
+    // 3. SPLIT MODO A (cálculo puro)
+    // =================================================================
     const split = calculateSplit({ totalAmount, source });
 
-    // 2. Validar wallet del vendedor
+    // =================================================================
+    // 4. WALLET DEL VENDEDOR
+    // =================================================================
     const sellerWallet = await db.sellerWallet.findUnique({
       where: { id: sellerId },
     });
@@ -84,9 +134,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Llamar a la pasarela (split automático)
+    // =================================================================
+    // 5. PASARELA (split automático)
+    // =================================================================
+    // TODO Sprint 2-A: reemplazar por Mercado Pago OAuth split payment.
+    // Hasta entonces, simulamos el ID de transacción.
     const gatewayTransactionId =
-      process.env.NODE_ENV === 'production'
+      process.env.NODE_ENV === 'production' && process.env.GATEWAY_ACCESS_TOKEN
         ? await callGatewaySplit({
             gatewayToken,
             totalAmount,
@@ -96,7 +150,9 @@ export async function POST(request: Request) {
           })
         : generateMockTransactionId();
 
-    // 4. Registrar la orden en DB
+    // =================================================================
+    // 6. INSERTAR ORDEN EN DB (buyerId verificado del JWT)
+    // =================================================================
     const order = await db.order.create({
       data: {
         buyerId,
@@ -113,7 +169,9 @@ export async function POST(request: Request) {
       },
     });
 
-    // 5. Si requiere envío físico → crear Shalom shipment
+    // =================================================================
+    // 7. SHALOM SHIPMENT (opcional) → escrow_hold
+    // =================================================================
     let shipmentInfo: { trackingCode: string; pdfLabelUrl: string; shippingCost: number } | null = null;
     if (shipment) {
       try {
@@ -146,7 +204,7 @@ export async function POST(request: Request) {
           },
         });
 
-        // Pasar a escrow_hold hasta que el envío se entregue
+        // Transición a escrow_hold — el pago se retiene hasta delivered
         await db.order.update({
           where: { id: order.id },
           data: { paymentStatus: 'escrow_hold' },
@@ -158,13 +216,14 @@ export async function POST(request: Request) {
           shippingCost: shalomResult.shippingCost,
         };
       } catch (e) {
-        console.error('Shalom createShipment failed:', e);
+        console.error('[/api/checkout] Shalom createShipment failed:', e);
+        // El pago ya se procesó — no fallar el checkout completo.
         return NextResponse.json(
           {
             success: true,
             orderId: order.id,
             warning:
-              'Pago procesado pero falló la creación del envío Shalom. Contactar soporte.',
+              'Pago procesado pero falló la creación del envío Shalom. Contactar soporte con el orderId.',
             breakdown: split,
           },
           { status: 200 }
@@ -172,10 +231,14 @@ export async function POST(request: Request) {
       }
     }
 
+    // =================================================================
+    // 8. RESPUESTA
+    // =================================================================
     return NextResponse.json({
       success: true,
-      message: 'Pago procesado exitosamente y comisiones distribuidas en la fuente.',
+      message: 'Pago procesado exitosamente. Comisiones distribuidas en la fuente.',
       orderId: order.id,
+      buyer: { id: buyerId, email: user.email },
       breakdown: {
         total: split.totalAmount,
         platformCommission: split.platformCommissionAmount,
@@ -193,6 +256,9 @@ export async function POST(request: Request) {
   }
 }
 
+// =====================================================================
+// GATEWAY ADAPTER (Mercado Pago / Culqi — Sprint 2-A)
+// =====================================================================
 async function callGatewaySplit(params: {
   gatewayToken: string;
   totalAmount: number;
@@ -200,6 +266,8 @@ async function callGatewaySplit(params: {
   platformCommissionAmount: number;
   gatewaySellerId: string;
 }): Promise<string> {
-  // TODO: Implementar con SDK de Mercado Pago / Culqi cuando esté el contrato
+  // TODO Sprint 2-A: Implementar split de Mercado Pago con OAuth del vendedor.
+  // Por ahora, simulación — NO se llama en dev porque GATEWAY_ACCESS_TOKEN
+  // no está seteado.
   return generateMockTransactionId();
 }

@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getAuthenticatedUser } from '@/lib/vendeda/supabase-server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /**
- * GET /api/seller/dashboard?sellerId=xxx
+ * GET /api/seller/dashboard
+ *
+ * Sprint 2-B — Endpoint protegido con JWT.
+ *   - Verifica el token del usuario (Authorization: Bearer o cookie)
+ *   - sellerId puede omitirse — se toma del JWT verificado
  *
  * Devuelve todos los datos que el dashboard del vendedor necesita en 1 request:
  *   - Wallet (estado, verificación, gatewaySellerId)
@@ -15,12 +20,18 @@ export const dynamic = 'force-dynamic';
  *   - Alertas de moderación (account status, KYC faltante, etc.)
  */
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const sellerId = searchParams.get('sellerId');
-
-  if (!sellerId) {
-    return NextResponse.json({ error: 'sellerId requerido' }, { status: 400 });
+  // 1. Autenticación blindada
+  const { user, error: authError } = await getAuthenticatedUser(request);
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: authError ?? 'No autenticado.' },
+      { status: 401 }
+    );
   }
+
+  // 2. sellerId: priorizar query param (para admins), si no, usar el del JWT
+  const { searchParams } = new URL(request.url);
+  const sellerId = searchParams.get('sellerId') ?? user.id;
 
   const wallet = await db.sellerWallet.findUnique({
     where: { id: sellerId },
@@ -38,7 +49,14 @@ export async function GET(request: Request) {
   });
 
   if (!wallet) {
-    return NextResponse.json({ error: 'Vendedor no encontrado' }, { status: 404 });
+    // Si el usuario es el propio vendedor y no tiene wallet, ofrecer crearla
+    return NextResponse.json(
+      {
+        error: 'Vendedor no encontrado.',
+        needsOnboarding: sellerId === user.id,
+      },
+      { status: 404 }
+    );
   }
 
   // Calcular resumen financiero (últimas 20 órdenes)

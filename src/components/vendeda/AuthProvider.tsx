@@ -33,6 +33,10 @@ interface AuthContextValue {
   user: AuthUser | null
   loading: boolean
   isDemoMode: boolean
+  /** Current access token (JWT) — pass to API routes via `Authorization: Bearer xxx` */
+  accessToken: string | null
+  /** Fetch wrapper that auto-attaches the JWT bearer header */
+  authedFetch: (input: string, init?: RequestInit) => Promise<Response>
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signUp: (params: {
     email: string
@@ -50,6 +54,7 @@ const DEMO_USER_KEY = 'vendeya:demoUser'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<AuthUser | null>(null)
+  const [accessToken, setAccessToken] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(true)
   const supabase = getSupabaseSafe()
 
@@ -66,13 +71,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!mounted) return
         if (session?.user) {
           setUser(supabaseUserToAuthUser(session.user))
+          setAccessToken(session.access_token ?? null)
         }
 
-        // Subscribe to auth changes
+        // Subscribe to auth changes (token refresh included)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (_event, session) => {
             if (!mounted) return
             setUser(session?.user ? supabaseUserToAuthUser(session.user) : null)
+            setAccessToken(session?.access_token ?? null)
           }
         )
 
@@ -88,6 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(JSON.parse(stored))
           } catch {}
         }
+        // Demo token — backend treats 'demo' as a special non-verified case
+        setAccessToken('demo')
         setLoading(false)
       }
     }
@@ -172,12 +181,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.localStorage.removeItem(DEMO_USER_KEY)
     }
     setUser(null)
+    setAccessToken(null)
   }, [supabase])
+
+  /**
+   * Fetch wrapper that auto-attaches `Authorization: Bearer <jwt>`.
+   * Falls back to plain fetch when no token is available.
+   */
+  const authedFetch = React.useCallback(
+    (input: string, init?: RequestInit) => {
+      const headers = new Headers(init?.headers)
+      if (accessToken && accessToken !== 'demo') {
+        headers.set('Authorization', `Bearer ${accessToken}`)
+      }
+      // Always send cookies — the middleware reads the sb-* cookies too
+      return fetch(input, { ...init, headers, credentials: 'include' })
+    },
+    [accessToken]
+  )
 
   const value: AuthContextValue = {
     user,
     loading,
     isDemoMode: !isSupabaseConfigured,
+    accessToken,
+    authedFetch,
     signIn,
     signUp,
     signInWithOAuth,
