@@ -194,11 +194,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Si responde 302 / OK, dejamos que el cliente JS de Supabase navegue
       // normalmente (signInWithOAuth sin skipBrowserRedirect).
       //
-      // 🔑 REDIRECT CANÓNICO: SIEMPRE apuntar a NEXT_PUBLIC_APP_URL (URL de
-      // producción pública) en vez de window.location.origin. Esto evita que
-      // Vercel Deployment Protection intercepte el callback OAuth cuando el
-      // usuario arranca el flujo desde un deployment preview protegido
-      // (URLs tipo `<project>-<team>-<hash>.vercel.app`).
+      // 🔑 RESOLUCIÓN DE REDIRECT URL — orden de prioridad:
+      //
+      //   1. Si NEXT_PUBLIC_APP_URL coincide con window.location.origin → usarlo.
+      //   2. Si NEXT_PUBLIC_APP_URL está seteada pero DIFIERE del origin actual
+      //      Y el usuario está en una URL pública HTTPS (no localhost, no
+      //      preview hash) → usar `window.location.origin`. Esto es CRÍTICO
+      //      para evitar el bug del "SSO loop de Vercel" cuando la env var
+      //      aún apunta a un deployment viejo y protegido (p.ej.
+      //      `vende-ya-profastpage-4762s-projects.vercel.app`).
+      //   3. Si el usuario está en localhost (dev) → usar NEXT_PUBLIC_APP_URL
+      //      (producción) si está seteada, si no, window.location.origin.
+      //   4. Si NEXT_PUBLIC_APP_URL no está seteada → usar window.location.origin.
       //
       // 🔑 CALLBACK EN NUESTRO DOMINIO: usamos /auth/callback como destino,
       // NO /dashboard directamente. Esto es crítico porque Supabase JS
@@ -208,9 +215,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // (las cookies todavía no se han seteado) y redirige a /login,
       // perdiéndose el hash. /auth/callback es una página pública que
       // espera a que se establezca la sesión y LUEGO redirige a /dashboard.
-      const appUrl =
-        process.env.NEXT_PUBLIC_APP_URL ||
-        (typeof window !== 'undefined' ? window.location.origin : '')
+      const envAppUrl = process.env.NEXT_PUBLIC_APP_URL || ''
+      const currentOrigin =
+        typeof window !== 'undefined' ? window.location.origin : ''
+
+      const isPublicHttps = (url: string) =>
+        url.startsWith('https://') &&
+        !url.includes('localhost') &&
+        // Filtra deployments preview con hash largo tipo `<proj>-<hash>.vercel.app`
+        !/-[a-z0-9]{20,}\./i.test(url)
+
+      let appUrl: string
+      if (!envAppUrl) {
+        appUrl = currentOrigin
+      } else if (envAppUrl === currentOrigin) {
+        appUrl = currentOrigin
+      } else if (currentOrigin && isPublicHttps(currentOrigin)) {
+        // 🚨 La env var apunta a OTRO dominio (probablemente un deployment
+        // viejo y protegido). Usar el origin actual, que es 100% alcanzable
+        // porque el usuario ya está aquí.
+        console.warn(
+          `[auth] ⚠️ NEXT_PUBLIC_APP_URL (${envAppUrl}) no coincide con ` +
+          `el origin actual (${currentOrigin}). Usando el origin actual ` +
+          `para evitar el loop de SSO de Vercel. Actualiza la env var en ` +
+          `Vercel → Settings → Environment Variables.`
+        )
+        appUrl = currentOrigin
+      } else {
+        // Usuario en localhost o preview hash → confiar en la env var.
+        appUrl = envAppUrl
+      }
+
       const redirectTo = appUrl + '/auth/callback'
       const probeUrl =
         `/api/auth/oauth-check?provider=${encodeURIComponent(provider)}` +
