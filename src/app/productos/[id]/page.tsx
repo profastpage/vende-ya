@@ -98,7 +98,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   ]
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Ambient background glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden>
         <div className="absolute -top-40 left-1/4 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl" />
@@ -107,7 +107,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
       <div className="relative max-w-6xl mx-auto px-4 md:px-6 py-4 md:py-8 pb-24 md:pb-16">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1 text-xs md:text-sm text-zinc-500 mb-6 overflow-hidden">
+        <nav className="flex items-center gap-1 text-xs md:text-sm text-muted-foreground mb-6 overflow-hidden">
           <Link href={ROUTES.home} className="hover:text-amber-400 transition-colors shrink-0">
             Inicio
           </Link>
@@ -119,7 +119,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   {bc.label}
                 </Link>
               ) : (
-                <span className="text-white font-medium truncate">{bc.label}</span>
+                <span className="text-foreground font-medium truncate">{bc.label}</span>
               )}
             </React.Fragment>
           ))}
@@ -134,7 +134,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         >
           {/* Images */}
           <motion.div variants={staggerItem} className="space-y-3">
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-zinc-900 border border-white/5">
+            <div className="relative aspect-square rounded-2xl overflow-hidden bg-card border border-border">
               {product.images[activeImage] && (
                 <img
                   src={product.images[activeImage]}
@@ -149,11 +149,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <button
                 onClick={() => setFavorited((v) => !v)}
                 aria-label="Favorito"
-                className="absolute top-3 right-3 h-10 w-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+                className="absolute top-3 right-3 h-10 w-10 rounded-full bg-black/40 backdrop-blur-md border border-border flex items-center justify-center hover:bg-black/60 transition-colors"
               >
                 <Heart
                   className={`h-5 w-5 transition-colors ${
-                    favorited ? 'text-rose-400 fill-rose-400' : 'text-white'
+                    favorited ? 'text-rose-400 fill-rose-400' : 'text-foreground'
                   }`}
                 />
               </button>
@@ -167,7 +167,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
                       i === activeImage
                         ? 'border-amber-400 ring-2 ring-amber-400/30'
-                        : 'border-white/10 hover:border-white/30'
+                        : 'border-border hover:border-amber-400/40'
                     }`}
                   >
                     <img src={img} alt="" className="h-full w-full object-cover" />
@@ -181,11 +181,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <motion.div variants={staggerItem} className="space-y-5">
             {/* Title + price */}
             <div>
-              <h1 className="text-2xl md:text-3xl font-black font-display text-white leading-tight">
+              <h1 className="text-2xl md:text-3xl font-black font-display text-foreground leading-tight">
                 {product.title}
               </h1>
               {product.category && (
-                <p className="text-xs text-zinc-500 mt-1.5 flex items-center gap-1">
+                <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
                   <Tag className="h-3 w-3" /> {product.category.nameEs}
                 </p>
               )}
@@ -193,31 +193,31 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <p className="text-4xl md:text-5xl font-black text-amber-400 tabular-nums leading-none">
                   {formatPEN(product.basePrice, product.currency)}
                 </p>
-                <div className="flex items-center gap-1 text-xs text-zinc-400 mb-1">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
                   <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-                  <span className="font-bold text-white">{avgRating.toFixed(1)}</span>
+                  <span className="font-bold text-foreground">{avgRating.toFixed(1)}</span>
                   <span>· {MOCK_REVIEWS.length} reseñas</span>
                 </div>
               </div>
               {product.shippingCost === 0 ? (
                 <p className="text-sm text-lime-400 font-bold mt-2">🚚 Envío gratis a todo Perú</p>
               ) : (
-                <p className="text-sm text-zinc-400 mt-2">
-                  Envío desde <span className="font-bold text-white">{formatPEN(product.shippingCost)}</span>
-                  <span className="text-zinc-500"> · Olva / Shalom / Marvisur</span>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Envío desde <span className="font-bold text-foreground">{formatPEN(product.shippingCost)}</span>
+                  <span className="text-muted-foreground"> · Olva / Shalom / Marvisur</span>
                 </p>
               )}
             </div>
 
             {/* Stock pressure bar */}
-            <div className="rounded-xl bg-zinc-900/80 border border-white/5 p-4">
+            <div className="rounded-xl bg-card/80 border border-border p-4">
               <div className="flex items-center justify-between text-xs mb-2">
-                <span className="text-zinc-400 font-bold uppercase tracking-wider">Stock disponible</span>
-                <span className={`font-black tabular-nums ${lowStock ? 'text-rose-400' : 'text-white'}`}>
+                <span className="text-muted-foreground font-bold uppercase tracking-wider">Stock disponible</span>
+                <span className={`font-black tabular-nums ${lowStock ? 'text-rose-400' : 'text-foreground'}`}>
                   {product.stock} {product.stock === 1 ? 'unidad' : 'unidades'}
                 </span>
               </div>
-              <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div className="h-2 rounded-full bg-muted overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
                     lowStock
@@ -241,10 +241,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {/* Seller chip */}
             {seller && (
               <Link href={ROUTES.seller(seller.username)} className="block">
-                <GlassCard className="p-4 hover:bg-white/10 transition-colors">
+                <GlassCard className="p-4 hover:bg-muted transition-colors">
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-full bg-gradient-to-br from-amber-400 via-fuchsia-500 to-purple-500 p-0.5 shrink-0">
-                      <div className="h-full w-full rounded-full bg-zinc-900 overflow-hidden flex items-center justify-center">
+                      <div className="h-full w-full rounded-full bg-card overflow-hidden flex items-center justify-center">
                         {seller.avatarUrl ? (
                           <img
                             src={seller.avatarUrl}
@@ -252,7 +252,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <span className="text-sm font-bold text-white">
+                          <span className="text-sm font-bold text-foreground">
                             {initials(seller.displayName)}
                           </span>
                         )}
@@ -260,10 +260,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1">
-                        <span className="font-bold text-sm text-white truncate">{seller.displayName}</span>
+                        <span className="font-bold text-sm text-foreground truncate">{seller.displayName}</span>
                         {seller.isVerified && <Verified className="h-3.5 w-3.5 text-sky-400 shrink-0" />}
                       </div>
-                      <div className="text-xs text-zinc-400 flex items-center gap-2 mt-0.5">
+                      <div className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
                         <span className="flex items-center gap-0.5">
                           <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
                           {seller.rating.toFixed(1)}
@@ -291,22 +291,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {/* Quantity + Buy */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-zinc-300">Cantidad</span>
-                <div className="flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 p-1">
+                <span className="text-sm font-bold text-muted-foreground">Cantidad</span>
+                <div className="flex items-center gap-2 rounded-xl bg-muted border border-border p-1">
                   <button
                     onClick={() => setQty((q) => Math.max(1, q - 1))}
                     disabled={qty <= 1}
                     aria-label="Disminuir"
-                    className="h-8 w-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
-                  <span className="w-10 text-center font-black text-white tabular-nums">{qty}</span>
+                  <span className="w-10 text-center font-black text-foreground tabular-nums">{qty}</span>
                   <button
                     onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
                     disabled={qty >= product.stock}
                     aria-label="Aumentar"
-                    className="h-8 w-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     <Plus className="h-4 w-4" />
                   </button>
@@ -325,14 +325,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setFavorited((v) => !v)}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 h-10 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-white transition-colors"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 h-10 rounded-lg bg-muted border border-border hover:bg-muted text-xs font-semibold text-foreground transition-colors"
                 >
                   <Heart className={`h-3.5 w-3.5 ${favorited ? 'text-rose-400 fill-rose-400' : ''}`} />
                   {favorited ? 'Guardado' : 'Favorito'}
                 </button>
                 <button
                   onClick={handleShare}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 h-10 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-white transition-colors"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 h-10 rounded-lg bg-muted border border-border hover:bg-muted text-xs font-semibold text-foreground transition-colors"
                 >
                   <Share2 className="h-3.5 w-3.5" /> Compartir
                 </button>
@@ -340,8 +340,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Payment chips */}
-            <div className="rounded-xl bg-zinc-900/80 border border-white/5 p-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3 flex items-center gap-2">
+            <div className="rounded-xl bg-card/80 border border-border p-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
                 <Shield className="h-3.5 w-3.5 text-lime-400" /> Métodos de pago aceptados
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -351,15 +351,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   return (
                     <div
                       key={pmId}
-                      className="flex items-center gap-2 rounded-lg bg-white/5 border border-white/10 px-3 py-1.5"
+                      className="flex items-center gap-2 rounded-lg bg-muted border border-border px-3 py-1.5"
                     >
                       <div
-                        className="h-5 w-5 rounded-md flex items-center justify-center text-white text-[10px] font-black"
+                        className="h-5 w-5 rounded-md flex items-center justify-center text-foreground text-[10px] font-black"
                         style={{ backgroundColor: pm.color }}
                       >
                         {pm.label.charAt(0)}
                       </div>
-                      <span className="text-xs font-bold text-white">{pm.label}</span>
+                      <span className="text-xs font-bold text-foreground">{pm.label}</span>
                       {(pmId === 'yape' || pmId === 'plin') && (
                         <span className="text-[9px] font-bold text-lime-400 bg-lime-400/15 px-1.5 py-0.5 rounded">
                           Instantáneo
@@ -375,7 +375,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
         {/* Tabs */}
         <div className="mt-10 md:mt-14">
-          <div className="flex items-center gap-1 border-b border-white/10 mb-6 overflow-x-auto">
+          <div className="flex items-center gap-1 border-b border-border mb-6 overflow-x-auto">
             {[
               { id: 'description' as TabId, label: 'Descripción' },
               { id: 'reviews' as TabId, label: `Reseñas (${MOCK_REVIEWS.length})` },
@@ -385,7 +385,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`relative px-4 md:px-5 py-3 text-sm font-bold whitespace-nowrap transition-colors ${
-                  activeTab === tab.id ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+                  activeTab === tab.id ? 'text-foreground' : 'text-muted-foreground hover:text-muted-foreground'
                 }`}
               >
                 {tab.label}
@@ -404,32 +404,32 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-6 md:p-8"
+              className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-6 md:p-8"
             >
-              <h3 className="text-lg font-black text-white mb-3 flex items-center gap-2">
+              <h3 className="text-lg font-black text-foreground mb-3 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-amber-400" /> Sobre este producto
               </h3>
-              <p className="text-sm text-zinc-300 whitespace-pre-line leading-relaxed">
+              <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
                 {product.description}
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-border">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Condición</p>
-                  <p className="text-sm font-bold text-white mt-0.5 capitalize">{product.condition}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Condición</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5 capitalize">{product.condition}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Envía desde</p>
-                  <p className="text-sm font-bold text-white mt-0.5">{product.shippingFrom ?? 'Lima'}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Envía desde</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">{product.shippingFrom ?? 'Lima'}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Cobertura</p>
-                  <p className="text-sm font-bold text-white mt-0.5">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Cobertura</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">
                     {product.shipsNationwide ? 'Todo Perú' : 'Solo local'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Publicado</p>
-                  <p className="text-sm font-bold text-white mt-0.5">{timeAgoEs(product.createdAt)}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Publicado</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">{timeAgoEs(product.createdAt)}</p>
                 </div>
               </div>
             </motion.div>
@@ -443,7 +443,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               className="space-y-4"
             >
               {/* Summary */}
-              <div className="rounded-2xl bg-gradient-to-br from-amber-500/10 via-zinc-900/80 to-fuchsia-500/10 border border-white/5 p-6 flex flex-col md:flex-row items-center gap-6">
+              <div className="rounded-2xl bg-gradient-to-br from-amber-500/10 via-card/80 to-fuchsia-500/10 border border-border p-6 flex flex-col md:flex-row items-center gap-6">
                 <div className="text-center">
                   <p className="text-5xl font-black text-amber-400 tabular-nums leading-none">
                     {avgRating.toFixed(1)}
@@ -455,27 +455,27 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         className={`h-4 w-4 ${
                           n <= Math.round(avgRating)
                             ? 'text-amber-400 fill-amber-400'
-                            : 'text-zinc-700'
+                            : 'text-muted-foreground'
                         }`}
                       />
                     ))}
                   </div>
-                  <p className="text-xs text-zinc-400 mt-1">{MOCK_REVIEWS.length} reseñas</p>
+                  <p className="text-xs text-muted-foreground mt-1">{MOCK_REVIEWS.length} reseñas</p>
                 </div>
                 <div className="flex-1 w-full space-y-1.5">
                   {[5, 4, 3, 2, 1].map((stars, i) => {
                     const pct = stars === 5 ? 67 : stars === 4 ? 22 : stars === 3 ? 11 : 0
                     return (
                       <div key={stars} className="flex items-center gap-2 text-xs">
-                        <span className="text-zinc-400 w-3">{stars}</span>
+                        <span className="text-muted-foreground w-3">{stars}</span>
                         <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
-                        <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-amber-400 to-fuchsia-500"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
-                        <span className="text-zinc-500 w-8 text-right tabular-nums">{pct}%</span>
+                        <span className="text-muted-foreground w-8 text-right tabular-nums">{pct}%</span>
                       </div>
                     )
                   })}
@@ -485,17 +485,17 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {MOCK_REVIEWS.map((r) => (
                 <div
                   key={r.id}
-                  className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-5"
+                  className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-5"
                 >
                   <div className="flex items-start gap-3">
                     <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-400 via-fuchsia-500 to-purple-500 p-0.5 shrink-0">
-                      <div className="h-full w-full rounded-full bg-zinc-900 flex items-center justify-center">
-                        <span className="text-xs font-bold text-white">{initials(r.name)}</span>
+                      <div className="h-full w-full rounded-full bg-card flex items-center justify-center">
+                        <span className="text-xs font-bold text-foreground">{initials(r.name)}</span>
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-sm text-white">{r.name}</span>
+                        <span className="font-bold text-sm text-foreground">{r.name}</span>
                         {r.verified && (
                           <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-sky-300 bg-sky-400/15 border border-sky-400/30 px-1.5 py-0.5 rounded">
                             <Verified className="h-2.5 w-2.5" /> Verificado
@@ -506,14 +506,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                             <Star
                               key={n}
                               className={`h-3 w-3 ${
-                                n <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-zinc-700'
+                                n <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground'
                               }`}
                             />
                           ))}
                         </div>
                       </div>
-                      <p className="text-[11px] text-zinc-500 mt-0.5">{r.date}</p>
-                      <p className="text-sm text-zinc-300 mt-2 leading-relaxed">{r.text}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{r.date}</p>
+                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{r.text}</p>
                     </div>
                   </div>
                 </div>
@@ -526,26 +526,26 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-6 md:p-8"
+              className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-6 md:p-8"
             >
-              <h3 className="text-lg font-black text-white mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-black text-foreground mb-4 flex items-center gap-2">
                 <Truck className="h-4 w-4 text-amber-400" /> Opciones de envío
               </h3>
               <div className="space-y-3">
                 {SHIPPING_CARRIERS.map((c) => (
                   <div
                     key={c.id}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-muted border border-border"
                   >
                     <div
-                      className="h-10 w-10 rounded-lg flex items-center justify-center text-white text-xs font-black shrink-0"
+                      className="h-10 w-10 rounded-lg flex items-center justify-center text-foreground text-xs font-black shrink-0"
                       style={{ backgroundColor: c.color }}
                     >
                       {c.label.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-white">{c.label}</p>
-                      <p className="text-xs text-zinc-500">{c.estDays}</p>
+                      <p className="text-sm font-bold text-foreground">{c.label}</p>
+                      <p className="text-xs text-muted-foreground">{c.estDays}</p>
                     </div>
                     <span className="text-sm font-bold text-amber-400 tabular-nums">
                       {product.shippingCost === 0 && c.id !== 'pickup'
@@ -557,19 +557,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   </div>
                 ))}
               </div>
-              <div className="mt-6 pt-6 border-t border-white/5 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div className="mt-6 pt-6 border-t border-border grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Origen</p>
-                  <p className="text-sm font-bold text-white mt-0.5">{product.shippingFrom ?? 'Lima'}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Origen</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">{product.shippingFrom ?? 'Lima'}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Cobertura</p>
-                  <p className="text-sm font-bold text-white mt-0.5">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Cobertura</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">
                     {product.shipsNationwide ? 'Todo el Perú' : 'Solo local'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Protección</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Protección</p>
                   <p className="text-sm font-bold text-lime-400 mt-0.5 flex items-center gap-1">
                     <Shield className="h-3.5 w-3.5" /> Escrow Vende Ya
                   </p>
@@ -583,7 +583,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         {related.length > 0 && (
           <div className="mt-12 md:mt-16">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl md:text-2xl font-black text-white">Productos relacionados</h2>
+              <h2 className="text-xl md:text-2xl font-black text-foreground">Productos relacionados</h2>
               <Link
                 href={ROUTES.marketplace}
                 className="text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors"
@@ -596,9 +596,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <Link
                   key={p.id}
                   href={ROUTES.product(p.id)}
-                  className="group rounded-2xl bg-zinc-900/80 border border-white/5 overflow-hidden hover:border-amber-400/30 transition-colors"
+                  className="group rounded-2xl bg-card/80 border border-border overflow-hidden hover:border-amber-400/30 transition-colors"
                 >
-                  <div className="aspect-square bg-zinc-800 overflow-hidden">
+                  <div className="aspect-square bg-card overflow-hidden">
                     {p.images[0] && (
                       <img
                         src={p.images[0]}
@@ -608,7 +608,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     )}
                   </div>
                   <div className="p-2.5">
-                    <p className="text-xs font-medium text-white line-clamp-2 leading-tight">{p.title}</p>
+                    <p className="text-xs font-medium text-foreground line-clamp-2 leading-tight">{p.title}</p>
                     <p className="text-sm font-black text-amber-400 mt-1.5 tabular-nums">
                       {formatPEN(p.basePrice)}
                     </p>

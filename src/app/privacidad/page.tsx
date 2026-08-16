@@ -28,12 +28,12 @@ const SECTIONS: TocItem[] = [
         <p className="mb-3">Recopilamos las siguientes categorías de información:</p>
         <ul className="space-y-2">
           {[
-            <><strong className="text-white">Datos de registro:</strong> nombre, usuario, email, celular, foto de perfil.</>,
-            <><strong className="text-white">Datos de transacciones:</strong> compras, ventas, pujas, mensajes, calificaciones.</>,
-            <><strong className="text-white">Datos técnicos:</strong> dirección IP, dispositivo, navegador, ubicación aproximada por IP.</>,
-            <><strong className="text-white">Datos de uso:</strong> páginas visitadas, tiempo en la app, clics, eventos analíticos.</>,
+            <><strong className="text-foreground">Datos de registro:</strong> nombre, usuario, email, celular, foto de perfil.</>,
+            <><strong className="text-foreground">Datos de transacciones:</strong> compras, ventas, pujas, mensajes, calificaciones.</>,
+            <><strong className="text-foreground">Datos técnicos:</strong> dirección IP, dispositivo, navegador, ubicación aproximada por IP.</>,
+            <><strong className="text-foreground">Datos de uso:</strong> páginas visitadas, tiempo en la app, clics, eventos analíticos.</>,
           ].map((item, i) => (
-            <li key={i} className="flex gap-3 text-zinc-300">
+            <li key={i} className="flex gap-3 text-muted-foreground">
               <span className="text-amber-400 shrink-0">●</span>
               <span>{item}</span>
             </li>
@@ -61,7 +61,7 @@ const SECTIONS: TocItem[] = [
             'Mejorar la plataforma mediante analytics agregados y anónimos.',
             'Cumplir obligaciones legales ante SUNAT, INDECOPI y autoridades peruanas.',
           ].map((item, i) => (
-            <li key={i} className="flex gap-3 text-zinc-300">
+            <li key={i} className="flex gap-3 text-muted-foreground">
               <span className="text-amber-400 shrink-0">●</span>
               <span>{item}</span>
             </li>
@@ -83,12 +83,12 @@ const SECTIONS: TocItem[] = [
         <p className="mb-3">Compartimos datos mínimos y necesarios con:</p>
         <ul className="space-y-2">
           {[
-            <><strong className="text-white">Procesadores de pago</strong> (Yape, Plin, Niubiz): solo monto y referencia.</>,
-            <><strong className="text-white">Empresas de envío</strong> (Olva, Shalom): nombre, dirección, teléfono.</>,
-            <><strong className="text-white">Cloudflare</strong>: hosting, CDN y streaming de video.</>,
-            <><strong className="text-white">Autoridades peruanas</strong> cuando lo exijan por mandato judicial.</>,
+            <><strong className="text-foreground">Procesadores de pago</strong> (Yape, Plin, Niubiz): solo monto y referencia.</>,
+            <><strong className="text-foreground">Empresas de envío</strong> (Olva, Shalom): nombre, dirección, teléfono.</>,
+            <><strong className="text-foreground">Cloudflare</strong>: hosting, CDN y streaming de video.</>,
+            <><strong className="text-foreground">Autoridades peruanas</strong> cuando lo exijan por mandato judicial.</>,
           ].map((item, i) => (
-            <li key={i} className="flex gap-3 text-zinc-300">
+            <li key={i} className="flex gap-3 text-muted-foreground">
               <span className="text-amber-400 shrink-0">●</span>
               <span>{item}</span>
             </li>
@@ -114,7 +114,7 @@ const SECTIONS: TocItem[] = [
             'Oponerte al tratamiento para fines de marketing.',
             'Solicitar portabilidad de tus datos en formato estructurado.',
           ].map((item, i) => (
-            <li key={i} className="flex gap-3 text-zinc-300">
+            <li key={i} className="flex gap-3 text-muted-foreground">
               <span className="text-amber-400 shrink-0">●</span>
               <span>{item}</span>
             </li>
@@ -151,10 +151,10 @@ const SECTIONS: TocItem[] = [
     title: '6. Cookies',
     body: (
       <>
-        Usamos dos tipos de cookies. Las <strong className="text-white">esenciales</strong>{' '}
+        Usamos dos tipos de cookies. Las <strong className="text-foreground">esenciales</strong>{' '}
         (sesión, carrito de compras, preferencia de idioma) son necesarias para el
         funcionamiento del sitio y no se pueden desactivar. Las{' '}
-        <strong className="text-white">opcionales</strong> (analytics, marketing,
+        <strong className="text-foreground">opcionales</strong> (analytics, marketing,
         redes sociales) solo se activan con tu consentimiento explícito, que puedes
         dar o retirar desde Configuración → Privacidad → Cookies. Mantenemos un
         registro de tu consentimiento por 12 meses, conforme a la normativa europea
@@ -214,21 +214,21 @@ const SECTIONS: TocItem[] = [
     body: (
       <>
         <p className="mb-3">Para cualquier consulta relacionada con privacidad:</p>
-        <div className="rounded-xl bg-white/5 border border-white/10 p-4 space-y-2 text-sm">
+        <div className="rounded-xl bg-muted border border-border p-4 space-y-2 text-sm">
           <div className="flex items-center justify-between gap-4">
-            <span className="text-zinc-400">Preguntas de privacidad</span>
+            <span className="text-muted-foreground">Preguntas de privacidad</span>
             <a href="mailto:privacidad@vendeya.pe" className="text-amber-400 hover:text-amber-300 font-bold">
               privacidad@vendeya.pe
             </a>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <span className="text-zinc-400">Ejercer derechos ARCO</span>
+            <span className="text-muted-foreground">Ejercer derechos ARCO</span>
             <a href="mailto:datos@vendeya.pe" className="text-amber-400 hover:text-amber-300 font-bold">
               datos@vendeya.pe
             </a>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <span className="text-zinc-400">Autoridad peruana</span>
+            <span className="text-muted-foreground">Autoridad peruana</span>
             <a href="https://www.mininter.gob.pe" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 font-bold">
               INDECOPI
             </a>
@@ -262,7 +262,7 @@ export default function PrivacyPage() {
           animate="show"
           className="space-y-4 min-w-0"
         >
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="h-2 w-2 rounded-full bg-fuchsia-400 animate-pulse" />
             Última actualización: 17 de junio, 2026
           </div>
@@ -272,12 +272,12 @@ export default function PrivacyPage() {
               key={section.id}
               id={section.id}
               variants={staggerItem}
-              className="scroll-mt-24 rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-6 md:p-7"
+              className="scroll-mt-24 rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-6 md:p-7"
             >
-              <h2 className="text-xl md:text-2xl font-black text-white font-display mb-3 leading-tight">
+              <h2 className="text-xl md:text-2xl font-black text-foreground font-display mb-3 leading-tight">
                 {section.title}
               </h2>
-              <div className="text-sm md:text-[15px] text-zinc-300 leading-relaxed space-y-3">
+              <div className="text-sm md:text-[15px] text-muted-foreground leading-relaxed space-y-3">
                 {section.body}
               </div>
             </motion.section>
@@ -286,8 +286,8 @@ export default function PrivacyPage() {
 
         {/* Sticky TOC (desktop only) */}
         <aside className="hidden lg:block">
-          <div className="sticky top-24 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5">
-            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-3">
+          <div className="sticky top-24 rounded-2xl bg-muted backdrop-blur-xl border border-border p-5">
+            <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-3">
               Contenido
             </p>
             <nav className="space-y-1">
@@ -295,9 +295,9 @@ export default function PrivacyPage() {
                 <a
                   key={section.id}
                   href={`#${section.id}`}
-                  className="group flex items-start gap-2 rounded-lg px-2 py-1.5 text-xs text-zinc-400 hover:text-amber-400 hover:bg-white/5 transition-colors"
+                  className="group flex items-start gap-2 rounded-lg px-2 py-1.5 text-xs text-muted-foreground hover:text-amber-400 hover:bg-muted transition-colors"
                 >
-                  <span className="text-zinc-600 font-mono text-[10px] mt-0.5">
+                  <span className="text-muted-foreground font-mono text-[10px] mt-0.5">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <span className="leading-snug">{section.title.replace(/^\d+\.\s*/, '')}</span>

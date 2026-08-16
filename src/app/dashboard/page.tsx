@@ -2,7 +2,7 @@
 
 /* ------------------------------------------------------------------ */
 /* Seller Command Center — Ultra Inmersiva dark premium dashboard      */
-/* Pure dark (bg-zinc-950) · glassmorphism · neon accents · bento     */
+/* Pure dark (bg-background) · glassmorphism · neon accents · bento     */
 /* NO AppShell — navbar rendered at the layout level (layout.tsx).    */
 /* ------------------------------------------------------------------ */
 
@@ -154,7 +154,7 @@ function DashboardContent() {
   const espectadoresHoy = 2418
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 dark">
+    <div className="min-h-screen bg-background text-foreground dark">
       <main className="w-full max-w-[1200px] mx-auto px-4 md:px-6 pt-4 md:pt-8 pb-24 md:pb-12">
         {/* ─── HERO HEADER ─────────────────────────────────── */}
         <HeroHeader
@@ -266,7 +266,7 @@ function HeroHeader({
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 md:p-7"
+      className="relative overflow-hidden rounded-3xl bg-muted backdrop-blur-xl border border-border p-5 md:p-7"
     >
       {/* Ambient glow */}
       <div className="absolute -top-24 -right-20 w-80 h-80 bg-fuchsia-500/20 blur-3xl rounded-full pointer-events-none" />
@@ -278,7 +278,7 @@ function HeroHeader({
           <div className="relative shrink-0">
             <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-br from-amber-400 via-fuchsia-500 to-purple-500 blur-md opacity-60" />
             <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-fuchsia-500 to-purple-500 p-[2px]">
-              <div className="w-full h-full rounded-2xl bg-zinc-950 flex items-center justify-center overflow-hidden">
+              <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center overflow-hidden">
                 {user.avatarUrl ? (
                   <img
                     src={user.avatarUrl}
@@ -286,7 +286,7 @@ function HeroHeader({
                     className="w-full h-full object-cover rounded-2xl"
                   />
                 ) : (
-                  <span className="text-lg md:text-xl font-black text-white">
+                  <span className="text-lg md:text-xl font-black text-foreground">
                     {initials(user.displayName)}
                   </span>
                 )}
@@ -296,7 +296,7 @@ function HeroHeader({
 
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl md:text-3xl font-black tracking-tight text-white">
+              <h1 className="text-xl md:text-3xl font-black tracking-tight text-foreground">
                 Hola, {firstName}
               </h1>
               {user.isVerified && (
@@ -304,19 +304,19 @@ function HeroHeader({
                   <BadgeCheck className="h-3.5 w-3.5" /> Verificado
                 </span>
               )}
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-[10px] font-bold uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted border border-border text-muted-foreground text-[10px] font-bold uppercase tracking-wider">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 {isDemo ? 'Modo demo' : 'En sesión'}
               </span>
             </div>
-            <p className="mt-1.5 text-sm md:text-base text-zinc-300 max-w-2xl leading-relaxed">
+            <p className="mt-1.5 text-sm md:text-base text-muted-foreground max-w-2xl leading-relaxed">
               Tu comando de ventas en tiempo real. Aquí ves cada ingreso, cada puja, cada envío y cada espectador conectado, todo en un solo panel.
               {' '}
               {walletActive
                 ? 'Tu wallet de Mercado Pago está activa y lista para recibir cobros con Yape, Plin y tarjetas.'
                 : 'Conecta Mercado Pago para desbloquear el cobro instantáneo y el split automático de comisiones.'}
             </p>
-            <p className="mt-1 text-[11px] text-zinc-500">
+            <p className="mt-1 text-[11px] text-muted-foreground">
               @{user.username} · {user.followerCount.toLocaleString('es-PE')} seguidores · {user.salesCount} ventas · ⭐ {user.rating.toFixed(1)}
             </p>
           </div>
@@ -334,7 +334,7 @@ function HeroHeader({
           )}
           <Link
             href={ROUTES.live}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-zinc-100 font-bold text-xs active:scale-95 transition-all"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-muted hover:bg-accent text-foreground font-bold text-xs active:scale-95 transition-all"
           >
             <Radio className="h-4 w-4 text-rose-400" /> Ir al en vivo
           </Link>
@@ -369,7 +369,7 @@ function BentoKpiCard({
     <motion.div
       variants={KPI_ITEM_VARIANTS}
       whileHover={{ y: -2 }}
-      className="relative overflow-hidden rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-4 md:p-5"
+      className="relative overflow-hidden rounded-2xl bg-card/80 border border-border backdrop-blur-xl p-4 md:p-5"
     >
       <div
         className="absolute -top-14 -right-14 h-36 w-36 rounded-full blur-3xl opacity-40"
@@ -377,14 +377,14 @@ function BentoKpiCard({
       />
       <div className="relative flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">{label}</p>
-          <p className="mt-1 text-xl md:text-2xl font-black text-white tabular-nums truncate">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{label}</p>
+          <p className="mt-1 text-xl md:text-2xl font-black text-foreground tabular-nums truncate">
             {value}
           </p>
           <p className={cn('mt-1 text-[11px] font-bold', colors.text)}>{delta}</p>
-          <p className="mt-0.5 text-[10px] text-zinc-500">{sub}</p>
+          <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>
         </div>
-        <div className="rounded-xl p-2 bg-white/5 border border-white/10 shrink-0">
+        <div className="rounded-xl p-2 bg-muted border border-border shrink-0">
           <Icon className={cn('h-5 w-5', colors.text)} />
         </div>
       </div>
@@ -411,7 +411,7 @@ function StreamEngineLauncher() {
     <motion.div
       {...SECTION_MOTION}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-900/40 via-zinc-900 to-fuchsia-900/30 border border-fuchsia-500/20 p-5 md:p-6"
+      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-900/40 via-card to-fuchsia-900/30 border border-fuchsia-500/20 p-5 md:p-6"
     >
       <div className="absolute -top-20 -right-10 w-60 h-60 bg-purple-500/30 blur-3xl rounded-full pointer-events-none" />
       <div className="absolute -bottom-16 -left-10 w-48 h-48 bg-fuchsia-500/20 blur-3xl rounded-full pointer-events-none" />
@@ -421,15 +421,15 @@ function StreamEngineLauncher() {
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-[10px] font-black tracking-wider uppercase">
             <Video className="h-3 w-3" /> Stream Engine
           </span>
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-[10px] font-medium">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-muted border border-border text-muted-foreground text-[10px] font-medium">
             <Clock className="h-3 w-3" /> Listo en 30s
           </span>
         </div>
 
-        <h2 className="mt-3 text-xl md:text-2xl font-black text-white">
+        <h2 className="mt-3 text-xl md:text-2xl font-black text-foreground">
           ¿Listo para retransmitir?
         </h2>
-        <p className="mt-1.5 text-sm text-zinc-300 leading-relaxed max-w-md">
+        <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed max-w-md">
           Inicia tu transmisión en vivo, recibe pujas en tiempo real y cierra ventas con Yape o Plin al instante.
           El engine distribuye el video en adaptativo y baja latencia (menos de 2 segundos) para que tus compradores
           no se pierdan ninguna puja. Cada espectador puede pujar sin salir del stream.
@@ -438,13 +438,13 @@ function StreamEngineLauncher() {
         <div className="mt-4 flex flex-col sm:flex-row gap-2">
           <Link
             href={ROUTES.vender}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-400 hover:to-purple-500 text-white font-black text-xs shadow-lg shadow-purple-500/30 active:scale-95 transition-all"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-400 hover:to-purple-500 text-foreground font-black text-xs shadow-lg shadow-purple-500/30 active:scale-95 transition-all"
           >
             <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse" /> Iniciar transmisión
           </Link>
           <Link
             href={ROUTES.vender}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-zinc-100 font-bold text-xs active:scale-95 transition-all"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-muted hover:bg-accent text-foreground font-bold text-xs active:scale-95 transition-all"
           >
             <Clock className="h-4 w-4 text-fuchsia-400" /> Programar stream
           </Link>
@@ -452,17 +452,17 @@ function StreamEngineLauncher() {
 
         {/* Mini live preview placeholder */}
         <div className="mt-4 grid grid-cols-3 gap-2 text-[10px]">
-          <div className="rounded-lg bg-white/5 border border-white/5 px-2.5 py-2">
-            <p className="text-zinc-500 uppercase tracking-wider font-bold">Latencia</p>
-            <p className="text-white font-black tabular-nums">1.8s</p>
+          <div className="rounded-lg bg-muted border border-border px-2.5 py-2">
+            <p className="text-muted-foreground uppercase tracking-wider font-bold">Latencia</p>
+            <p className="text-foreground font-black tabular-nums">1.8s</p>
           </div>
-          <div className="rounded-lg bg-white/5 border border-white/5 px-2.5 py-2">
-            <p className="text-zinc-500 uppercase tracking-wider font-bold">Bitrate</p>
-            <p className="text-white font-black tabular-nums">4.5 Mbps</p>
+          <div className="rounded-lg bg-muted border border-border px-2.5 py-2">
+            <p className="text-muted-foreground uppercase tracking-wider font-bold">Bitrate</p>
+            <p className="text-foreground font-black tabular-nums">4.5 Mbps</p>
           </div>
-          <div className="rounded-lg bg-white/5 border border-white/5 px-2.5 py-2">
-            <p className="text-zinc-500 uppercase tracking-wider font-bold">Calidad</p>
-            <p className="text-white font-black">1080p60</p>
+          <div className="rounded-lg bg-muted border border-border px-2.5 py-2">
+            <p className="text-muted-foreground uppercase tracking-wider font-bold">Calidad</p>
+            <p className="text-foreground font-black">1080p60</p>
           </div>
         </div>
       </div>
@@ -490,20 +490,20 @@ function WalletPanel({
     <motion.div
       {...SECTION_MOTION}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
-      className="relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-5 md:p-6"
+      className="relative overflow-hidden rounded-3xl bg-card/80 border border-border backdrop-blur-xl p-5 md:p-6"
     >
       <div className="absolute -top-12 -right-12 w-44 h-44 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
 
       <div className="relative">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+            <div className="rounded-xl p-2 bg-muted border border-border">
               <Wallet className="h-4 w-4 text-amber-400" />
             </div>
-            <h3 className="text-base font-black text-white">Wallet & Pagos</h3>
+            <h3 className="text-base font-black text-foreground">Wallet & Pagos</h3>
           </div>
           {isLoading ? (
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-[10px] font-bold uppercase">
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted border border-border text-muted-foreground text-[10px] font-bold uppercase">
               <Loader2 className="h-3 w-3 animate-spin" /> Cargando
             </span>
           ) : isActive ? (
@@ -518,43 +518,43 @@ function WalletPanel({
         </div>
 
         {error && !wallet && (
-          <p className="mt-3 text-xs text-zinc-500">
+          <p className="mt-3 text-xs text-muted-foreground">
             No pudimos contactar tu wallet todavía. Esto es normal si aún no la registras en Vende Ya. {error}
           </p>
         )}
 
         {isActive && wallet ? (
           <div className="mt-4 space-y-3">
-            <p className="text-sm text-zinc-300 leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Tu wallet de Mercado Pago está conectada y operativa. Recibes el 90% neto de cada venta;
               Vende Ya retiene la comisión automáticamente y libera el saldo a tu cuenta bancaria en máximo 24h hábiles.
               Las transacciones con Yape y Plin se acreditan en el instante.
             </p>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
-              <div className="rounded-lg bg-white/5 border border-white/5 px-3 py-2">
-                <p className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">KYC</p>
+              <div className="rounded-lg bg-muted border border-border px-3 py-2">
+                <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">KYC</p>
                 <p className={cn('font-black', wallet.isVerified ? 'text-lime-400' : 'text-rose-400')}>
                   {wallet.isVerified ? '✓ Verificada' : '✗ Pendiente'}
                 </p>
               </div>
-              <div className="rounded-lg bg-white/5 border border-white/5 px-3 py-2">
-                <p className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Estado</p>
+              <div className="rounded-lg bg-muted border border-border px-3 py-2">
+                <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">Estado</p>
                 <p className="font-black text-lime-400 capitalize">{wallet.status}</p>
               </div>
               {summary && (
                 <>
-                  <div className="rounded-lg bg-white/5 border border-white/5 px-3 py-2">
-                    <p className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Neto</p>
+                  <div className="rounded-lg bg-muted border border-border px-3 py-2">
+                    <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">Neto</p>
                     <p className="font-black text-lime-400 tabular-nums">{formatPEN(summary.totalNet)}</p>
                   </div>
-                  <div className="rounded-lg bg-white/5 border border-white/5 px-3 py-2">
-                    <p className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Escrow</p>
+                  <div className="rounded-lg bg-muted border border-border px-3 py-2">
+                    <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">Escrow</p>
                     <p className="font-black text-amber-400 tabular-nums">{formatPEN(summary.pendingEscrow)}</p>
                   </div>
                 </>
               )}
-              <div className="col-span-2 rounded-lg bg-white/5 border border-white/5 px-3 py-2">
-                <p className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Gateway Seller ID</p>
+              <div className="col-span-2 rounded-lg bg-muted border border-border px-3 py-2">
+                <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">Gateway Seller ID</p>
                 <p className="font-mono text-amber-400 break-all">{wallet.gatewaySellerId}</p>
               </div>
             </div>
@@ -567,19 +567,19 @@ function WalletPanel({
           </div>
         ) : (
           <div className="mt-4 space-y-3">
-            <p className="text-sm text-zinc-300 leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Conecta Mercado Pago para empezar a recibir pagos con Yape, Plin y tarjetas.
               Habilitamos el split automático de comisiones: recibes el 90% neto, nosotros retenemos el 10% en el momento del cobro.
               Sin mensualidades, solo pagas por venta efectiva.
             </p>
-            <div className="flex flex-wrap items-center gap-2 text-[10px] text-zinc-500">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
+            <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted border border-border">
                 <Smartphone className="h-3 w-3 text-lime-400" /> Yape
               </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted border border-border">
                 <Smartphone className="h-3 w-3 text-sky-400" /> Plin
               </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted border border-border">
                 <CreditCard className="h-3 w-3 text-fuchsia-400" /> Tarjetas
               </span>
             </div>
@@ -645,19 +645,19 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
     <motion.section
       {...SECTION_MOTION}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
-      className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-5 md:p-6"
+      className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-card/80 border border-border backdrop-blur-xl p-5 md:p-6"
     >
       <div className="absolute -top-12 -right-12 w-44 h-44 bg-sky-500/10 blur-3xl rounded-full pointer-events-none" />
 
       <div className="relative">
         <div className="flex items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
-            <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+            <div className="rounded-xl p-2 bg-muted border border-border">
               <Truck className="h-4 w-4 text-sky-400" />
             </div>
             <div>
-              <h3 className="text-base font-black text-white">Shalom Logística</h3>
-              <p className="text-[11px] text-zinc-500">Envíos recientes y estado de entrega</p>
+              <h3 className="text-base font-black text-foreground">Shalom Logística</h3>
+              <p className="text-[11px] text-muted-foreground">Envíos recientes y estado de entrega</p>
             </div>
           </div>
           <Link
@@ -671,7 +671,7 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
         <div className="overflow-x-auto -mx-1 px-1">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-[10px] uppercase tracking-wider text-zinc-500 font-bold border-b border-white/5">
+              <tr className="text-left text-[10px] uppercase tracking-wider text-muted-foreground font-bold border-b border-border">
                 <th className="py-2 pr-3 font-bold">Orden</th>
                 <th className="py-2 pr-3 font-bold">Tracking</th>
                 <th className="py-2 pr-3 font-bold hidden sm:table-cell">Agencia</th>
@@ -686,19 +686,19 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
                 return (
                   <tr
                     key={row.orderId}
-                    className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                    className="border-b border-border hover:bg-muted transition-colors"
                   >
                     <td className="py-3 pr-3">
-                      <span className="font-mono text-xs text-zinc-300">{row.orderId}</span>
+                      <span className="font-mono text-xs text-muted-foreground">{row.orderId}</span>
                     </td>
                     <td className="py-3 pr-3">
                       {row.trackingCode ? (
                         <span className="font-mono text-xs text-amber-400">{row.trackingCode}</span>
                       ) : (
-                        <span className="text-xs text-zinc-600 italic">Sin generar</span>
+                        <span className="text-xs text-muted-foreground italic">Sin generar</span>
                       )}
                     </td>
-                    <td className="py-3 pr-3 hidden sm:table-cell text-xs text-zinc-400">
+                    <td className="py-3 pr-3 hidden sm:table-cell text-xs text-muted-foreground">
                       {row.agency}
                     </td>
                     <td className="py-3 pr-3">
@@ -712,7 +712,7 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
                         {cfg.label}
                       </span>
                     </td>
-                    <td className="py-3 pr-3 text-right font-bold text-zinc-100 tabular-nums">
+                    <td className="py-3 pr-3 text-right font-bold text-foreground tabular-nums">
                       {formatPEN(row.amount)}
                     </td>
                     <td className="py-3 pl-3 text-right">
@@ -721,14 +721,14 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
                           href={row.pdfLabelUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-300 hover:bg-white/10"
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-muted border border-border text-[10px] font-bold text-muted-foreground hover:bg-muted"
                         >
                           <Package className="h-3 w-3" /> Guía
                         </a>
                       ) : (
                         <Link
                           href={ROUTES.envios}
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-300 hover:bg-white/10"
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-muted border border-border text-[10px] font-bold text-muted-foreground hover:bg-muted"
                         >
                           <ExternalLink className="h-3 w-3" /> Seguir
                         </Link>
@@ -741,7 +741,7 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
           </table>
         </div>
 
-        <p className="mt-3 text-[11px] text-zinc-500 leading-relaxed">
+        <p className="mt-3 text-[11px] text-muted-foreground leading-relaxed">
           Las guías se generan automáticamente con Shalom al confirmar el pago. Imprímelas antes de acercarte
           al punto de dropoff más cercano. El cliente recibe el código de seguimiento por WhatsApp y push notification
           en tiempo real, y puede rastrear su pedido desde el link enviado.
@@ -759,7 +759,7 @@ const PAYMENT_STATUS_CONFIG: Record<string, { label: string; badge: string }> = 
   escrow_hold: { label: 'En escrow',  badge: 'bg-amber-500/10 border-amber-400/30 text-amber-400' },
   paid:        { label: 'Pagado',    badge: 'bg-sky-500/10 border-sky-400/30 text-sky-400' },
   refunded:    { label: 'Reembolsado', badge: 'bg-rose-500/10 border-rose-400/30 text-rose-400' },
-  pending:     { label: 'Pendiente',  badge: 'bg-zinc-500/10 border-zinc-400/30 text-zinc-300' },
+  pending:     { label: 'Pendiente',  badge: 'bg-muted border-border text-muted-foreground' },
 }
 
 const MOCK_ORDERS: RecentOrder[] = [
@@ -806,19 +806,19 @@ function RecentOrdersCard({
     <motion.div
       {...SECTION_MOTION}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.32 }}
-      className="relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-5 md:p-6 h-full"
+      className="relative overflow-hidden rounded-3xl bg-card/80 border border-border backdrop-blur-xl p-5 md:p-6 h-full"
     >
       <div className="absolute -top-12 -right-12 w-44 h-44 bg-lime-500/10 blur-3xl rounded-full pointer-events-none" />
 
       <div className="relative">
         <div className="flex items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
-            <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+            <div className="rounded-xl p-2 bg-muted border border-border">
               <ShoppingBag className="h-4 w-4 text-lime-400" />
             </div>
             <div>
-              <h3 className="text-base font-black text-white">Órdenes recientes</h3>
-              <p className="text-[11px] text-zinc-500">
+              <h3 className="text-base font-black text-foreground">Órdenes recientes</h3>
+              <p className="text-[11px] text-muted-foreground">
                 {isLoading ? 'Cargando órdenes…' : `${list.length} órdenes mostradas`}
               </p>
             </div>
@@ -838,7 +838,7 @@ function RecentOrdersCard({
             return (
               <div
                 key={o.id}
-                className="rounded-xl border border-white/5 bg-white/[0.03] hover:bg-white/5 transition-colors p-3"
+                className="rounded-xl border border-border bg-muted hover:bg-accent transition-colors p-3"
               >
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2 min-w-0">
@@ -854,29 +854,29 @@ function RecentOrdersCard({
                       {o.source === 'live_stream' ? 'En vivo' : 'Marketplace'}
                     </span>
                   </div>
-                  <span className="text-[10px] text-zinc-500 shrink-0">
+                  <span className="text-[10px] text-muted-foreground shrink-0">
                     {timeAgoEs(new Date(o.createdAt))}
                   </span>
                 </div>
                 <div className="grid grid-cols-4 gap-2 text-[11px]">
                   <div>
-                    <p className="text-zinc-500 uppercase tracking-wider text-[9px] font-bold">Total</p>
-                    <p className="text-white font-bold tabular-nums">{formatPEN(o.totalAmount)}</p>
+                    <p className="text-muted-foreground uppercase tracking-wider text-[9px] font-bold">Total</p>
+                    <p className="text-foreground font-bold tabular-nums">{formatPEN(o.totalAmount)}</p>
                   </div>
                   <div>
-                    <p className="text-zinc-500 uppercase tracking-wider text-[9px] font-bold">Comisión</p>
+                    <p className="text-muted-foreground uppercase tracking-wider text-[9px] font-bold">Comisión</p>
                     <p className="text-rose-400 font-bold tabular-nums">-{formatPEN(o.platformCommissionAmount)}</p>
                   </div>
                   <div>
-                    <p className="text-zinc-500 uppercase tracking-wider text-[9px] font-bold">Pasarela</p>
+                    <p className="text-muted-foreground uppercase tracking-wider text-[9px] font-bold">Pasarela</p>
                     <p className="text-rose-400 font-bold tabular-nums">-{formatPEN(o.gatewayFeeAmount)}</p>
                   </div>
                   <div>
-                    <p className="text-zinc-500 uppercase tracking-wider text-[9px] font-bold">Neto</p>
+                    <p className="text-muted-foreground uppercase tracking-wider text-[9px] font-bold">Neto</p>
                     <p className="text-lime-400 font-bold tabular-nums">{formatPEN(o.sellerNetAmount)}</p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
                   <span
                     className={cn(
                       'inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase tracking-wider',
@@ -885,7 +885,7 @@ function RecentOrdersCard({
                   >
                     {statusCfg.label}
                   </span>
-                  <span className="text-[10px] text-zinc-500 capitalize">
+                  <span className="text-[10px] text-muted-foreground capitalize">
                     {o.paymentMethod.replace('_', ' ')}
                   </span>
                 </div>
@@ -923,18 +923,18 @@ function ActivityFeed() {
     <motion.div
       {...SECTION_MOTION}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
-      className="relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-5 md:p-6 h-full"
+      className="relative overflow-hidden rounded-3xl bg-card/80 border border-border backdrop-blur-xl p-5 md:p-6 h-full"
     >
       <div className="absolute -top-12 -right-12 w-44 h-44 bg-fuchsia-500/10 blur-3xl rounded-full pointer-events-none" />
 
       <div className="relative">
         <div className="flex items-center gap-2 mb-4">
-          <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+          <div className="rounded-xl p-2 bg-muted border border-border">
             <Bell className="h-4 w-4 text-fuchsia-400" />
           </div>
           <div>
-            <h3 className="text-base font-black text-white">Actividad reciente</h3>
-            <p className="text-[11px] text-zinc-500">Tus últimas notificaciones de venta</p>
+            <h3 className="text-base font-black text-foreground">Actividad reciente</h3>
+            <p className="text-[11px] text-muted-foreground">Tus últimas notificaciones de venta</p>
           </div>
         </div>
 
@@ -945,16 +945,16 @@ function ActivityFeed() {
             return (
               <div
                 key={i}
-                className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors"
+                className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-muted transition-colors"
               >
-                <div className="rounded-lg p-1.5 bg-white/5 border border-white/10 shrink-0">
+                <div className="rounded-lg p-1.5 bg-muted border border-border shrink-0">
                   <Icon className={cn('h-4 w-4', cfg.text)} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-zinc-100 leading-snug">{item.title}</p>
-                  <p className="text-[11px] text-zinc-400 truncate">{item.desc}</p>
+                  <p className="text-xs font-bold text-foreground leading-snug">{item.title}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{item.desc}</p>
                 </div>
-                <span className="text-[10px] text-zinc-500 shrink-0 mt-1">{item.time}</span>
+                <span className="text-[10px] text-muted-foreground shrink-0 mt-1">{item.time}</span>
               </div>
             )
           })}
@@ -1023,7 +1023,7 @@ function CopyrightReportsCard({
     <motion.section
       {...SECTION_MOTION}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-      className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-rose-500/20 backdrop-blur-xl p-5 md:p-6"
+      className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-card/80 border border-rose-500/20 backdrop-blur-xl p-5 md:p-6"
     >
       <div className="absolute -top-12 -right-12 w-44 h-44 bg-rose-500/15 blur-3xl rounded-full pointer-events-none" />
       <div className="relative">
@@ -1032,8 +1032,8 @@ function CopyrightReportsCard({
             <ShieldAlert className="h-4 w-4 text-rose-400" />
           </div>
           <div>
-            <h3 className="text-base font-black text-white">Reportes de PI contra ti</h3>
-            <p className="text-[11px] text-zinc-500">
+            <h3 className="text-base font-black text-foreground">Reportes de PI contra ti</h3>
+            <p className="text-[11px] text-muted-foreground">
               {reports.length} reporte{reports.length !== 1 ? 's' : ''} de propiedad intellectual
             </p>
           </div>
@@ -1043,10 +1043,10 @@ function CopyrightReportsCard({
           {reports.map((r) => (
             <div
               key={r.id}
-              className="p-3 rounded-xl bg-white/5 border border-white/5"
+              className="p-3 rounded-xl bg-muted border border-border"
             >
               <div className="flex items-center justify-between mb-1">
-                <p className="text-sm font-bold text-zinc-100">Marca: {r.infringedBrand}</p>
+                <p className="text-sm font-bold text-foreground">Marca: {r.infringedBrand}</p>
                 <span
                   className={cn(
                     'inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider',
@@ -1054,20 +1054,20 @@ function CopyrightReportsCard({
                       ? 'bg-rose-500/10 border-rose-400/30 text-rose-400'
                       : r.status === 'investigating'
                         ? 'bg-amber-500/10 border-amber-400/30 text-amber-400'
-                        : 'bg-zinc-500/10 border-zinc-400/30 text-zinc-300',
+                        : 'bg-muted border-border text-muted-foreground',
                   )}
                 >
                   {r.status}
                 </span>
               </div>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 Reportado por {r.reporterEmail} · {timeAgoEs(new Date(r.createdAt))}
               </p>
             </div>
           ))}
         </div>
 
-        <p className="text-[11px] text-zinc-400 mt-3 leading-relaxed">
+        <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
           Si crees que es un error, contacta a{' '}
           <a
             href="mailto:legal@vendeya.pe"
@@ -1104,17 +1104,17 @@ function QuickActionsFooter() {
     <motion.section
       {...SECTION_MOTION}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.45 }}
-      className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-5 md:p-6"
+      className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-card/80 border border-border backdrop-blur-xl p-5 md:p-6"
     >
       <div className="absolute -top-12 -right-12 w-44 h-44 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
       <div className="relative">
         <div className="flex items-center gap-2 mb-4">
-          <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+          <div className="rounded-xl p-2 bg-muted border border-border">
             <Zap className="h-4 w-4 text-amber-400" />
           </div>
           <div>
-            <h3 className="text-base font-black text-white">Acciones rápidas</h3>
-            <p className="text-[11px] text-zinc-500">Atajos a las tareas más comunes</p>
+            <h3 className="text-base font-black text-foreground">Acciones rápidas</h3>
+            <p className="text-[11px] text-muted-foreground">Atajos a las tareas más comunes</p>
           </div>
         </div>
 
@@ -1126,18 +1126,18 @@ function QuickActionsFooter() {
               <Link
                 key={a.label}
                 href={a.href}
-                className="group flex flex-col items-center gap-2 p-3 rounded-2xl border border-white/5 bg-white/[0.03] hover:bg-white/5 hover:border-white/10 transition-all"
+                className="group flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-muted hover:bg-accent hover:border-border transition-all"
               >
-                <div className="rounded-xl p-2 bg-white/5 border border-white/10 group-hover:scale-110 transition-transform">
+                <div className="rounded-xl p-2 bg-muted border border-border group-hover:scale-110 transition-transform">
                   <Icon className={cn('h-5 w-5', cfg.text)} />
                 </div>
-                <span className="text-[11px] font-bold text-zinc-300 text-center">{a.label}</span>
+                <span className="text-[11px] font-bold text-muted-foreground text-center">{a.label}</span>
               </Link>
             )
           })}
         </div>
 
-        <div className="mt-4 pt-4 border-t border-white/5">
+        <div className="mt-4 pt-4 border-t border-border">
           <PushSubscribeButton className="w-full" />
         </div>
       </div>

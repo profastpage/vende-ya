@@ -36,7 +36,7 @@ export function PWAInstallPrompt() {
         exit={{ y: -100, opacity: 0 }}
         className="fixed top-0 left-0 right-0 z-50 m-3 rounded-xl bg-salsa-500 text-white p-3 shadow-lift flex items-center gap-3 max-w-md mx-auto"
       >
-        <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+        <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
           <Download className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0">

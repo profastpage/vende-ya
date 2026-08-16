@@ -180,20 +180,20 @@ export default function CheckoutBottomSheet({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-slate-900 border-t border-slate-800 rounded-t-3xl z-50 p-6 pb-8 text-white max-h-[90vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card border-t border-border rounded-t-3xl z-50 p-6 pb-8 text-foreground max-h-[90vh] overflow-y-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="checkout-title"
           >
             {/* Barra de arrastre */}
-            <div className="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-5" />
+            <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto mb-5" />
 
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-800 transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted transition-colors"
               aria-label="Cerrar"
             >
-              <X className="h-5 w-5 text-slate-400" />
+              <X className="h-5 w-5 text-muted-foreground" />
             </button>
 
             {/* Pantalla: no autenticado */}
@@ -207,7 +207,7 @@ export default function CheckoutBottomSheet({
                 <h3 className="text-2xl font-black text-amber-400 mb-2">
                   Inicia sesión para comprar
                 </h3>
-                <p className="text-sm text-slate-300 max-w-xs mx-auto mb-6">
+                <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
                   Para procesar tu pago de forma segura necesitamos verificar tu identidad.
                   {isDemoMode ? ' El modo demo no permite pagos reales.' : ''}
                 </p>
@@ -221,7 +221,7 @@ export default function CheckoutBottomSheet({
                 <button
                   type="button"
                   onClick={() => setOrderStatus('idle')}
-                  className="w-full mt-2 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-sm transition-all"
+                  className="w-full mt-2 bg-muted hover:bg-accent text-foreground font-bold py-3 rounded-xl text-sm transition-all"
                 >
                   Volver
                 </button>
@@ -233,55 +233,55 @@ export default function CheckoutBottomSheet({
                 <h3 id="checkout-title" className="text-xl font-bold mb-1">
                   ⚡ Checkout Express
                 </h3>
-                <p className="text-xs text-slate-400 mb-4">
+                <p className="text-xs text-muted-foreground mb-4">
                   Compra segura con protección Vende Ya · Modo A
                 </p>
 
                 {/* Resumen del producto + split Modo A */}
-                <div className="bg-slate-800 rounded-2xl p-4 mb-5 border border-slate-700">
+                <div className="bg-muted rounded-2xl p-4 mb-5 border border-border">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-slate-300 truncate max-w-[200px]">
+                    <span className="text-sm font-medium text-foreground truncate max-w-[200px]">
                       {productName}
                     </span>
                     <span className="text-lg font-black text-amber-400">
                       {formatPEN(price)}
                     </span>
                   </div>
-                  <div className="text-[10px] text-slate-400 flex justify-between mb-2">
+                  <div className="text-[10px] text-muted-foreground flex justify-between mb-2">
                     <span>
                       Tipo:{' '}
-                      <b className="text-slate-200 uppercase">
+                      <b className="text-foreground uppercase">
                         {source === 'live_stream' ? 'En vivo' : 'Marketplace'}
                       </b>
                     </span>
                     <span>
                       Comisión:{' '}
-                      <b className="text-slate-200">{split.platformCommissionRate}%</b>
+                      <b className="text-foreground">{split.platformCommissionRate}%</b>
                     </span>
                   </div>
-                  <div className="border-t border-slate-700 pt-2 grid grid-cols-3 gap-2 text-[10px]">
+                  <div className="border-t border-border pt-2 grid grid-cols-3 gap-2 text-[10px]">
                     <div>
-                      <div className="text-slate-500">Plataforma</div>
+                      <div className="text-muted-foreground">Plataforma</div>
                       <div className="text-amber-400 font-semibold">
                         -{formatPEN(split.platformCommissionAmount)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-slate-500">Pasarela + IGV</div>
+                      <div className="text-muted-foreground">Pasarela + IGV</div>
                       <div className="text-rose-400 font-semibold">
                         -{formatPEN(split.gatewayFeeWithIgv)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-slate-500">Neto vendedor</div>
+                      <div className="text-muted-foreground">Neto vendedor</div>
                       <div className="text-emerald-400 font-semibold">
                         {formatPEN(split.sellerNetAmount)}
                       </div>
                     </div>
                   </div>
                   {shipment && (
-                    <div className="mt-2 text-[10px] text-slate-400">
-                      Envío: <b className="text-slate-200">Shalom agencia → agencia</b>
+                    <div className="mt-2 text-[10px] text-muted-foreground">
+                      Envío: <b className="text-foreground">Shalom agencia → agencia</b>
                     </div>
                   )}
                 </div>
@@ -300,7 +300,7 @@ export default function CheckoutBottomSheet({
                 )}
 
                 {/* Métodos de pago */}
-                <h4 className="text-sm font-bold text-slate-300 mb-3">
+                <h4 className="text-sm font-bold text-foreground mb-3">
                   Selecciona tu método de pago:
                 </h4>
                 <div className="grid grid-cols-3 gap-3 mb-6">
@@ -315,7 +315,7 @@ export default function CheckoutBottomSheet({
                         className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all ${
                           isActive
                             ? info.activeClass
-                            : 'border-slate-800 bg-slate-800/50 hover:bg-slate-800'
+                            : 'border-border bg-muted hover:bg-accent'
                         }`}
                         aria-pressed={isActive}
                       >
@@ -376,12 +376,12 @@ export default function CheckoutBottomSheet({
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="bg-slate-800/80 rounded-2xl p-4 mb-6 space-y-3"
+                      className="bg-muted/80 rounded-2xl p-4 mb-6 space-y-3"
                     >
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-muted-foreground">
                         💳 Pago encriptado de un solo toque (Tarjeta Tokenizada vía Mercado Pago)
                       </p>
-                      <p className="text-[10px] text-slate-500">
+                      <p className="text-[10px] text-muted-foreground">
                         Al continuar, serás redirigido al checkout seguro de Mercado Pago.
                       </p>
                     </motion.div>
@@ -418,11 +418,11 @@ export default function CheckoutBottomSheet({
                 <h3 className="text-2xl font-black text-emerald-400 mb-2">
                   ¡Compra Exitosa!
                 </h3>
-                <p className="text-sm text-slate-300 max-w-xs mx-auto mb-4">
+                <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-4">
                   El dinero fue distribuido y el código de guía de Shalom se está generando.
                 </p>
                 {orderId && (
-                  <p className="text-xs text-slate-500 mb-4">
+                  <p className="text-xs text-muted-foreground mb-4">
                     Orden <span className="font-mono">{orderId}</span>
                   </p>
                 )}
@@ -444,15 +444,15 @@ export default function CheckoutBottomSheet({
                   </div>
                 )}
                 {trackingCode && (
-                  <div className="bg-slate-800 rounded-xl p-4 mb-6">
-                    <p className="text-xs text-slate-400 mb-1">Código de seguimiento Shalom</p>
+                  <div className="bg-muted rounded-xl p-4 mb-6">
+                    <p className="text-xs text-muted-foreground mb-1">Código de seguimiento Shalom</p>
                     <p className="font-mono text-amber-400 text-lg break-all">{trackingCode}</p>
                   </div>
                 )}
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-sm transition-all"
+                  className="w-full bg-muted hover:bg-accent text-foreground font-bold py-3 rounded-xl text-sm transition-all"
                 >
                   Volver al En Vivo
                 </button>
@@ -470,14 +470,14 @@ export default function CheckoutBottomSheet({
                 <h3 className="text-xl font-bold text-rose-500 mb-2">
                   Error en la Transacción
                 </h3>
-                <p className="text-xs text-slate-400 max-w-xs mx-auto mb-6">
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto mb-6">
                   {errorMessage ||
                     'Hubo un problema con la pasarela o la wallet del vendedor no está conectada.'}
                 </p>
                 <button
                   type="button"
                   onClick={() => setOrderStatus('idle')}
-                  className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-sm transition-all"
+                  className="w-full bg-muted hover:bg-accent text-foreground font-bold py-3 rounded-xl text-sm transition-all"
                 >
                   Reintentar Pago
                 </button>

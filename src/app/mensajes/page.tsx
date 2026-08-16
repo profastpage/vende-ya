@@ -41,7 +41,7 @@ export default function MessagesPage() {
       >
         <React.Suspense
           fallback={
-            <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-12 text-center text-zinc-500">
+            <div className="rounded-2xl bg-card/80 border border-border p-12 text-center text-muted-foreground">
               Cargando mensajes...
             </div>
           }
@@ -103,29 +103,29 @@ function MessagesInner() {
   }
 
   return (
-    <div className="relative rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm overflow-hidden">
+    <div className="relative rounded-2xl bg-card/80 border border-border backdrop-blur-sm overflow-hidden">
       <div className="grid md:grid-cols-3 h-[calc(100vh-12rem)] min-h-[520px]">
         {/* Conversation list */}
         <div
-          className={`md:col-span-1 flex flex-col border-r border-white/5 ${
+          className={`md:col-span-1 flex flex-col border-r border-border ${
             chatOpenMobile ? 'hidden md:flex' : 'flex'
           }`}
         >
-          <div className="p-3 border-b border-white/5">
+          <div className="p-3 border-b border-border">
             <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               <input
                 placeholder="Buscar conversación..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"
+                className="w-full h-10 pl-10 pr-4 rounded-xl bg-muted border border-border text-foreground text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"
               />
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto chat-scroll">
             {filteredConversations.length === 0 ? (
-              <div className="p-8 text-center text-zinc-500 text-sm">
+              <div className="p-8 text-center text-muted-foreground text-sm">
                 <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-40" />
                 Sin conversaciones para "{search}"
               </div>
@@ -138,12 +138,12 @@ function MessagesInner() {
                     onClick={() => openConversation(c.username)}
                     className={`w-full flex items-center gap-3 p-3 transition-colors text-left border-l-2 ${
                       isActive
-                        ? 'bg-white/5 border-l-amber-400'
-                        : 'border-l-transparent hover:bg-white/5'
+                        ? 'bg-muted border-l-amber-400'
+                        : 'border-l-transparent hover:bg-muted'
                     }`}
                   >
                     <div className="relative shrink-0">
-                      <div className="h-11 w-11 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center text-white font-black text-sm">
+                      <div className="h-11 w-11 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center text-foreground font-black text-sm">
                         {initials(c.displayName)}
                       </div>
                       {c.unread && (
@@ -152,17 +152,17 @@ function MessagesInner() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold text-white truncate flex items-center gap-1">
+                        <span className="text-sm font-bold text-foreground truncate flex items-center gap-1">
                           {c.displayName}
                           {c.isVerified && <BadgeCheck className="h-3 w-3 text-sky-400 shrink-0" />}
                         </span>
-                        <span className="text-[10px] text-zinc-500 shrink-0">
+                        <span className="text-[10px] text-muted-foreground shrink-0">
                           {timeAgoEs(new Date(c.lastTime))}
                         </span>
                       </div>
                       <p
                         className={`text-xs truncate mt-0.5 ${
-                          c.unread ? 'font-semibold text-zinc-200' : 'text-zinc-500'
+                          c.unread ? 'font-semibold text-foreground' : 'text-muted-foreground'
                         }`}
                       >
                         {c.lastMsg}
@@ -177,25 +177,25 @@ function MessagesInner() {
 
         {/* Active conversation */}
         <div
-          className={`md:col-span-2 flex flex-col bg-zinc-950/30 ${
+          className={`md:col-span-2 flex flex-col bg-background/30 ${
             chatOpenMobile ? 'flex' : 'hidden md:flex'
           }`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-3 border-b border-white/5">
+          <div className="flex items-center justify-between p-3 border-b border-border">
             <div className="flex items-center gap-2 min-w-0">
               <button
                 onClick={() => setChatOpenMobile(false)}
-                className="md:hidden p-1.5 -ml-1 rounded-lg hover:bg-white/5"
+                className="md:hidden p-1.5 -ml-1 rounded-lg hover:bg-muted"
                 aria-label="Volver"
               >
-                <ArrowLeft className="h-5 w-5 text-white" />
+                <ArrowLeft className="h-5 w-5 text-foreground" />
               </button>
-              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center text-white font-black text-xs shrink-0">
+              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center text-foreground font-black text-xs shrink-0">
                 {initials(activeUser.displayName)}
               </div>
               <div className="min-w-0">
-                <div className="text-sm font-bold text-white truncate flex items-center gap-1">
+                <div className="text-sm font-bold text-foreground truncate flex items-center gap-1">
                   {activeUser.displayName}
                   {activeUser.isVerified && <BadgeCheck className="h-3.5 w-3.5 text-sky-400 shrink-0" />}
                 </div>
@@ -206,14 +206,14 @@ function MessagesInner() {
               </div>
             </div>
             <div className="flex gap-1">
-              <button className="h-9 w-9 rounded-lg hover:bg-white/5 flex items-center justify-center" aria-label="Llamar">
-                <Phone className="h-4 w-4 text-zinc-400" />
+              <button className="h-9 w-9 rounded-lg hover:bg-muted flex items-center justify-center" aria-label="Llamar">
+                <Phone className="h-4 w-4 text-muted-foreground" />
               </button>
-              <button className="h-9 w-9 rounded-lg hover:bg-white/5 flex items-center justify-center" aria-label="Videollamar">
-                <Video className="h-4 w-4 text-zinc-400" />
+              <button className="h-9 w-9 rounded-lg hover:bg-muted flex items-center justify-center" aria-label="Videollamar">
+                <Video className="h-4 w-4 text-muted-foreground" />
               </button>
-              <button className="h-9 w-9 rounded-lg hover:bg-white/5 flex items-center justify-center" aria-label="Más">
-                <MoreVertical className="h-4 w-4 text-zinc-400" />
+              <button className="h-9 w-9 rounded-lg hover:bg-muted flex items-center justify-center" aria-label="Más">
+                <MoreVertical className="h-4 w-4 text-muted-foreground" />
               </button>
             </div>
           </div>
@@ -233,13 +233,13 @@ function MessagesInner() {
                     className={`max-w-[75%] px-3.5 py-2 rounded-2xl text-sm ${
                       m.fromMe
                         ? 'bg-gradient-to-r from-amber-400 to-fuchsia-500 text-zinc-950 font-semibold rounded-br-md'
-                        : 'bg-white/5 border border-white/10 text-white rounded-bl-md'
+                        : 'bg-muted border border-border text-foreground rounded-bl-md'
                     }`}
                   >
                     {m.text}
                     <div
                       className={`text-[10px] mt-1 ${
-                        m.fromMe ? 'text-zinc-950/60' : 'text-zinc-500'
+                        m.fromMe ? 'text-zinc-950/60' : 'text-muted-foreground'
                       }`}
                     >
                       {new Date(m.time).toLocaleTimeString('es-PE', {
@@ -255,20 +255,20 @@ function MessagesInner() {
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t border-white/5 flex items-center gap-2">
+          <div className="p-3 border-t border-border flex items-center gap-2">
             <button
-              className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center shrink-0"
+              className="h-10 w-10 rounded-xl bg-muted border border-border hover:bg-muted flex items-center justify-center shrink-0"
               aria-label="Adjuntar imagen"
               onClick={() => toast({ title: 'Adjuntar imagen', description: 'Próximamente' })}
             >
-              <ImageIcon className="h-4 w-4 text-zinc-400" />
+              <ImageIcon className="h-4 w-4 text-muted-foreground" />
             </button>
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && send()}
               placeholder="Escribe un mensaje..."
-              className="flex-1 h-10 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"
+              className="flex-1 h-10 px-4 rounded-xl bg-muted border border-border text-foreground text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"
             />
             <button
               onClick={send}
@@ -284,16 +284,16 @@ function MessagesInner() {
 
       {/* Empty state — only shown when no conversations (placeholder for future) */}
       {CONVERSATIONS.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/80 backdrop-blur-sm">
+        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <div className="text-center p-8">
-            <MessageSquare className="h-12 w-12 mx-auto mb-3 text-zinc-600" />
-            <p className="text-zinc-300 font-semibold">No hay conversaciones aún</p>
-            <p className="text-zinc-500 text-xs mt-1">
+            <MessageSquare className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+            <p className="text-muted-foreground font-semibold">No hay conversaciones aún</p>
+            <p className="text-muted-foreground text-xs mt-1">
               Cuando inicies una conversación con un vendedor o comprador, aparecerá aquí.
             </p>
             <Link
               href="/marketplace"
-              className="inline-flex mt-4 items-center gap-2 px-4 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-semibold"
+              className="inline-flex mt-4 items-center gap-2 px-4 h-10 rounded-xl bg-muted border border-border hover:bg-muted text-foreground text-xs font-semibold"
             >
               Explorar marketplace
             </Link>

@@ -71,7 +71,7 @@ function LiveBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
     <span
       className={`inline-flex items-center gap-1 rounded-full bg-rose-500/90 backdrop-blur-md border border-rose-300/30 ${
         size === 'sm' ? 'px-2 py-0.5 text-[9px]' : 'px-2.5 py-1 text-[10px]'
-      } font-black tracking-wider text-white`}
+      } font-black tracking-wider text-foreground`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-white" />
       EN VIVO
@@ -82,7 +82,7 @@ function LiveBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
 /** ViewersPill — solo texto bold + icono, sin fondo negro (mejor UX) */
 function ViewersPill({ viewers }: { viewers: number }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-white">
+    <span className="inline-flex items-center gap-1.5 text-foreground">
       <Eye className="h-3.5 w-3.5 text-amber-400" strokeWidth={2.5} />
       <span className="text-xs font-black tabular-nums drop-shadow-lg">
         {formatViewers(viewers)}
@@ -99,15 +99,15 @@ function SellerPill({ seller, initial }: { seller: Profile; initial: string }) {
         {initial}
       </div>
       <div className="flex flex-col leading-tight">
-        <span className="text-xs font-black tracking-tight flex items-center gap-1 text-white">
+        <span className="text-xs font-black tracking-tight flex items-center gap-1 text-foreground">
           {seller.displayName}
           {seller.isVerified && <BadgeCheck className="h-3 w-3 text-sky-400" />}
         </span>
-        <span className="text-[10px] text-zinc-300 flex items-center gap-1">
+        <span className="text-[10px] text-muted-foreground flex items-center gap-1">
           <Star className="h-2.5 w-2.5 text-amber-400 fill-amber-400" />
           <span className="font-bold text-amber-300">{seller.rating.toFixed(1)}</span>
-          <span className="text-zinc-500">·</span>
-          <span className="text-zinc-300">{seller.department}</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="text-muted-foreground">{seller.department}</span>
         </span>
       </div>
     </div>
@@ -124,7 +124,7 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
       className={`text-xs px-2.5 py-1.5 rounded-xl backdrop-blur-sm border ${
         msg.isBot
           ? 'bg-purple-500/15 border-purple-400/30 shadow-lg shadow-purple-500/10'
-          : 'bg-white/5 border-white/5'
+          : 'bg-muted border-border'
       }`}
     >
       <div className="flex items-center gap-1.5 flex-wrap">
@@ -136,7 +136,7 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
         )}
         {msg.isBot && <BadgeCheck className="h-3 w-3 text-purple-300" />}
       </div>
-      <p className="mt-0.5 text-zinc-100 leading-snug">{msg.text}</p>
+      <p className="mt-0.5 text-foreground leading-snug">{msg.text}</p>
     </motion.div>
   )
 }
@@ -153,15 +153,15 @@ function ChatInputBar({
   compact?: boolean
 }) {
   return (
-    <div className={`flex items-center gap-2 ${compact ? '' : 'px-3 py-2.5'} bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl`}>
-      <MessageCircle className="h-4 w-4 text-zinc-400 shrink-0" />
+    <div className={`flex items-center gap-2 ${compact ? '' : 'px-3 py-2.5'} bg-muted backdrop-blur-xl border border-border rounded-2xl`}>
+      <MessageCircle className="h-4 w-4 text-muted-foreground shrink-0" />
       <input
         type="text"
         value={chatInput}
         onChange={(e) => setChatInput(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && onSend()}
         placeholder="Escribe..."
-        className="flex-1 bg-transparent text-xs text-white placeholder:text-zinc-500 outline-none py-1.5"
+        className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none py-1.5"
       />
       <motion.button
         whileTap={{ scale: 0.92 }}
@@ -190,14 +190,14 @@ function CountdownCard({
       className={`relative overflow-hidden rounded-2xl border px-3 py-1.5 flex flex-col items-center min-w-[88px] ${
         lowTime
           ? 'bg-gradient-to-br from-rose-500/30 to-rose-700/30 border-rose-400/50'
-          : 'bg-white/5 border-white/10'
+          : 'bg-muted border-border'
       }`}
     >
       <span className={`text-[9px] font-black tracking-widest uppercase ${lowTime ? 'text-rose-300' : 'text-amber-400'}`}>
         <Clock className="inline h-2.5 w-2.5 mr-1" />
         Cierra en
       </span>
-      <span className={`font-mono font-black tabular-nums tracking-tight ${size === 'sm' ? 'text-base' : 'text-xl'} ${lowTime ? 'text-rose-200' : 'text-white'}`}>
+      <span className={`font-mono font-black tabular-nums tracking-tight ${size === 'sm' ? 'text-base' : 'text-xl'} ${lowTime ? 'text-rose-200' : 'text-foreground'}`}>
         {mm}:{ss}
       </span>
     </motion.div>
@@ -210,9 +210,9 @@ function BidPill({ amount, onBid }: { amount: number; onBid: (n: number) => void
       whileTap={{ scale: 0.92 }}
       whileHover={{ scale: 1.05, y: -2 }}
       onClick={() => onBid(amount)}
-      className="flex-1 rounded-full bg-white/5 hover:bg-amber-400/15 border border-white/10 hover:border-amber-400/40 px-3 py-2 text-xs font-black text-amber-300 transition-colors flex items-center justify-center gap-0.5"
+      className="flex-1 rounded-full bg-muted hover:bg-amber-400/15 border border-border hover:border-amber-400/40 px-3 py-2 text-xs font-black text-amber-300 transition-colors flex items-center justify-center gap-0.5"
     >
-      <span className="text-zinc-500">+</span>S/{amount}
+      <span className="text-muted-foreground">+</span>S/{amount}
     </motion.button>
   )
 }
@@ -228,7 +228,7 @@ function PujarButton({ increment, onBid, full = false }: { increment: number; on
     >
       <Gavel className="h-4 w-4" />
       Pujar ahora
-      <span className="ml-1 text-[10px] bg-zinc-950/30 px-1.5 py-0.5 rounded-md">+S/{increment}</span>
+      <span className="ml-1 text-[10px] bg-background/30 px-1.5 py-0.5 rounded-md">+S/{increment}</span>
     </motion.button>
   )
 }
@@ -245,11 +245,11 @@ function ComprarYaButton({
       whileTap={{ scale: 0.97 }}
       whileHover={{ borderColor: 'rgba(245,158,11,0.5)' }}
       onClick={onBuy}
-      className={`${full ? 'w-full' : ''} bg-transparent border border-white/15 hover:border-amber-400/40 text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-colors`}
+      className={`${full ? 'w-full' : ''} bg-transparent border border-white/15 hover:border-amber-400/40 text-foreground text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-colors`}
     >
       <ShoppingBag className="h-4 w-4 text-amber-400" />
-      <span className="text-zinc-300">Comprar ya</span>
-      <span className="text-white font-mono font-black">{formatPEN(buyNowPrice)}</span>
+      <span className="text-muted-foreground">Comprar ya</span>
+      <span className="text-foreground font-mono font-black">{formatPEN(buyNowPrice)}</span>
     </motion.button>
   )
 }
@@ -356,14 +356,14 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
    * DESKTOP LAYOUT — 3 columns (55% video / 25% auction / 20% chat)   *
    * ================================================================ */
   const DesktopLayout = (
-    <div className="hidden md:grid md:grid-cols-[55fr_25fr_20fr] h-[calc(100vh-4rem)] w-full gap-3 p-3 bg-black text-white">
+    <div className="hidden md:grid md:grid-cols-[55fr_25fr_20fr] h-[calc(100vh-4rem)] w-full gap-3 p-3 bg-black text-foreground">
       {/* ---------------- COL 1: VIDEO ---------------- */}
       <section className="relative min-w-0 flex flex-col">
         <div
           className="absolute -inset-6 -z-10 blur-3xl opacity-30 pointer-events-none"
           style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d946ef 45%, #f43f5e 100%)' }}
         />
-        <div className="relative flex-1 min-h-0 rounded-2xl overflow-hidden border border-white/5 bg-zinc-950">
+        <div className="relative flex-1 min-h-0 rounded-2xl overflow-hidden border border-border bg-background">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${thumbnail})` }}
@@ -376,7 +376,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => router.back()}
-                className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center hover:bg-muted transition-colors"
                 aria-label="Volver"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -423,9 +423,9 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 14 }}
               >
-                <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
+                <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-foreground'}`} />
               </motion.span>
-              <span className="text-[10px] font-black text-white tabular-nums drop-shadow">
+              <span className="text-[10px] font-black text-foreground tabular-nums drop-shadow">
                 {formatViewers(likes).replace(' espectadores', '')}
               </span>
             </motion.button>
@@ -437,20 +437,20 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
               aria-label="Reacciones"
             >
               <Flame className="h-6 w-6 text-amber-400 drop-shadow-lg" />
-              <span className="text-[10px] font-black text-white drop-shadow">Reacciones</span>
+              <span className="text-[10px] font-black text-foreground drop-shadow">Reacciones</span>
             </button>
 
             <button className="flex flex-col items-center gap-0.5">
-              <Share2 className="h-6 w-6 text-white drop-shadow-lg" />
-              <span className="text-[10px] font-black text-white drop-shadow">Compartir</span>
+              <Share2 className="h-6 w-6 text-foreground drop-shadow-lg" />
+              <span className="text-[10px] font-black text-foreground drop-shadow">Compartir</span>
             </button>
 
             <button
               onClick={() => setMobileTab('chat')}
               className="flex flex-col items-center gap-0.5"
             >
-              <MessageCircle className="h-6 w-6 text-white drop-shadow-lg" />
-              <span className="text-[10px] font-black text-white drop-shadow">Chat</span>
+              <MessageCircle className="h-6 w-6 text-foreground drop-shadow-lg" />
+              <span className="text-[10px] font-black text-foreground drop-shadow">Chat</span>
             </button>
           </div>
 
@@ -462,7 +462,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.85, y: 10 }}
                 transition={{ duration: 0.16 }}
-                className="absolute right-4 bottom-44 z-30 bg-zinc-950/95 backdrop-blur-xl border border-white/15 rounded-2xl p-2 shadow-2xl"
+                className="absolute right-4 bottom-44 z-30 bg-background/95 backdrop-blur-xl border border-border rounded-2xl p-2 shadow-2xl"
               >
                 <div className="flex items-center justify-between px-2 py-1 mb-1">
                   <span className="text-[10px] font-black uppercase tracking-wider text-amber-400">
@@ -470,7 +470,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                   </span>
                   <button
                     onClick={() => setShowEmojiPicker(false)}
-                    className="text-zinc-500 hover:text-white"
+                    className="text-muted-foreground hover:text-foreground"
                     aria-label="Cerrar"
                   >
                     <X className="h-3 w-3" />
@@ -483,7 +483,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                       whileTap={{ scale: 0.85 }}
                       whileHover={{ scale: 1.15, y: -2 }}
                       onClick={() => handleEmojiTap(e.char)}
-                      className="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-white/10 transition-colors text-xl"
+                      className="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors text-xl"
                       aria-label={e.label}
                       title={e.label}
                     >
@@ -492,7 +492,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                   ))}
                 </div>
                 {!hasParticipated && (
-                  <p className="mt-1 px-2 text-[9px] text-zinc-500 text-center leading-tight">
+                  <p className="mt-1 px-2 text-[9px] text-muted-foreground text-center leading-tight">
                     Puja o compra para desbloquear
                   </p>
                 )}
@@ -506,17 +506,17 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
                   <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
-                  <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 px-3 py-1.5 flex flex-col items-center min-w-[88px]">
-                    <span className="text-[9px] font-black tracking-widest uppercase text-zinc-400">
+                  <div className="rounded-2xl bg-muted backdrop-blur-xl border border-border px-3 py-1.5 flex flex-col items-center min-w-[88px]">
+                    <span className="text-[9px] font-black tracking-widest uppercase text-muted-foreground">
                       <Gavel className="inline h-2.5 w-2.5 mr-1" />Pujas
                     </span>
-                    <span className="text-xl font-black font-mono text-white tabular-nums">{bidCount}</span>
+                    <span className="text-xl font-black font-mono text-foreground tabular-nums">{bidCount}</span>
                   </div>
                 </div>
-                <h2 className="text-xl font-black text-white leading-tight line-clamp-2 drop-shadow-lg">
+                <h2 className="text-xl font-black text-foreground leading-tight line-clamp-2 drop-shadow-lg">
                   {stream.title}
                 </h2>
-                <p className="mt-1 text-xs text-zinc-300 line-clamp-1">
+                <p className="mt-1 text-xs text-muted-foreground line-clamp-1">
                   {product?.title} · Stock {product?.stock ?? 0} uds · Envío desde {seller.department}
                 </p>
               </div>
@@ -526,19 +526,19 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
       </section>
 
       {/* ---------------- COL 2: AUCTION PANEL ---------------- */}
-      <section className="relative min-w-0 flex flex-col bg-zinc-950 rounded-2xl border border-white/5 overflow-hidden">
+      <section className="relative min-w-0 flex flex-col bg-background rounded-2xl border border-border overflow-hidden">
         {/* Header */}
-        <div className="px-4 py-3 border-b border-white/5 bg-white/5">
+        <div className="px-4 py-3 border-b border-border bg-muted">
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-fuchsia-400">
               <Flame className="h-3.5 w-3.5" /> Subasta en vivo
             </span>
             <LiveBadge size="sm" />
           </div>
-          <h3 className="mt-1 text-base font-black text-white leading-tight line-clamp-2">
+          <h3 className="mt-1 text-base font-black text-foreground leading-tight line-clamp-2">
             {product?.title}
           </h3>
-          <p className="mt-1.5 text-[11px] text-zinc-400 leading-relaxed">
+          <p className="mt-1.5 text-[11px] text-muted-foreground leading-relaxed">
             Edición limitada del catálogo de {seller.displayName}. Cada puja incrementa el precio en S/{auction.bidIncrement}. La puja más alta al cerrar el cronómetro gana el producto. Envío inmediato a todo Perú con Shalom y Olva.
           </p>
         </div>
@@ -560,13 +560,13 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
               <p className="mt-1 text-4xl font-black text-amber-400 font-mono tabular-nums drop-shadow-lg">
                 {formatPEN(currentBid)}
               </p>
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-zinc-300">
-                <div className="h-5 w-5 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 border border-sky-300/40 flex items-center justify-center text-[9px] font-black text-white">
+              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <div className="h-5 w-5 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 border border-sky-300/40 flex items-center justify-center text-[9px] font-black text-foreground">
                   D
                 </div>
                 <span className="font-bold text-sky-400">Diego</span>
-                <span className="text-zinc-500">·</span>
-                <span className="text-zinc-400">hace 36s</span>
+                <span className="text-muted-foreground">·</span>
+                <span className="text-muted-foreground">hace 36s</span>
               </div>
             </div>
           </motion.div>
@@ -576,7 +576,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
 
           {/* Quick bid pills */}
           <div>
-            <p className="text-[10px] font-black tracking-widest uppercase text-zinc-500 mb-2">
+            <p className="text-[10px] font-black tracking-widest uppercase text-muted-foreground mb-2">
               Puja rápida
             </p>
             <div className="flex gap-2">
@@ -584,7 +584,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 <BidPill key={amt} amount={amt} onBid={handleQuickBid} />
               ))}
             </div>
-            <p className="mt-2 text-[10px] text-zinc-500 leading-relaxed">
+            <p className="mt-2 text-[10px] text-muted-foreground leading-relaxed">
               Toca un monto para subir tu puja al instante. Mientras más alta sea tu oferta, más probabilidades de ganar al cerrar el cronómetro. Tu puja es pública y se notifica a todos los espectadores en tiempo real.
             </p>
           </div>
@@ -596,52 +596,52 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
           <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
 
           {/* Product details */}
-          <div className="rounded-2xl bg-white/5 border border-white/5 p-3 space-y-2">
-            <p className="text-[10px] font-black tracking-widest uppercase text-zinc-400">
+          <div className="rounded-2xl bg-muted border border-border p-3 space-y-2">
+            <p className="text-[10px] font-black tracking-widest uppercase text-muted-foreground">
               Detalles del producto
             </p>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
-              <div className="flex items-center gap-1.5 text-zinc-300">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
                 <Package className="h-3.5 w-3.5 text-amber-400" /> Stock: {product?.stock ?? 0} uds
               </div>
-              <div className="flex items-center gap-1.5 text-zinc-300">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5 text-fuchsia-400" /> {product?.shippingFrom ?? seller.department}
               </div>
-              <div className="flex items-center gap-1.5 text-zinc-300">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5 text-lime-400" /> Envío {product?.shipsNationwide ? 'nacional' : 'local'}
               </div>
-              <div className="flex items-center gap-1.5 text-zinc-300">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
                 <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> {seller.rating.toFixed(1)} ({seller.ratingsCount})
               </div>
             </div>
-            <p className="pt-2 border-t border-white/5 text-[11px] text-zinc-400 leading-relaxed">
+            <p className="pt-2 border-t border-border text-[11px] text-muted-foreground leading-relaxed">
               {product?.description}
             </p>
           </div>
 
           {/* Payment methods */}
-          <div className="rounded-2xl bg-white/5 border border-white/5 p-3">
-            <p className="text-[10px] font-black tracking-widest uppercase text-zinc-400 mb-2">
+          <div className="rounded-2xl bg-muted border border-border p-3">
+            <p className="text-[10px] font-black tracking-widest uppercase text-muted-foreground mb-2">
               Métodos de pago aceptados
             </p>
             <div className="flex flex-wrap gap-1.5">
               {product?.paymentMethods.map((m) => (
                 <span
                   key={m}
-                  className="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-300 capitalize"
+                  className="px-2 py-1 rounded-md bg-muted border border-border text-[10px] font-bold text-muted-foreground capitalize"
                 >
                   {m === 'card' ? 'Tarjeta' : m === 'transfer' ? 'Transferencia' : m}
                 </span>
               ))}
             </div>
-            <p className="mt-2 text-[10px] text-zinc-500 leading-relaxed">
+            <p className="mt-2 text-[10px] text-muted-foreground leading-relaxed">
               Todos los pagos están protegidos por Vende Ya con liberación escalonada al confirmar el envío. Si el producto no llega, reembolso garantizado en menos de 48 horas hábiles.
             </p>
           </div>
 
           {/* Bid history */}
-          <div className="rounded-2xl bg-white/5 border border-white/5 p-3">
-            <p className="text-[10px] font-black tracking-widest uppercase text-zinc-400 mb-2">
+          <div className="rounded-2xl bg-muted border border-border p-3">
+            <p className="text-[10px] font-black tracking-widest uppercase text-muted-foreground mb-2">
               Historial de pujas
             </p>
             <div className="space-y-1.5">
@@ -649,13 +649,13 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 <div key={b.id} className="flex items-center justify-between text-[11px]">
                   <span className="font-bold text-sky-400">{b.bidder?.displayName}</span>
                   <span className="font-mono font-black text-amber-400">{formatPEN(b.amount)}</span>
-                  <span className="text-zinc-500">{timeAgoEs(b.createdAt)}</span>
+                  <span className="text-muted-foreground">{timeAgoEs(b.createdAt)}</span>
                 </div>
               ))}
-              <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-white/5">
-                <span className="font-bold text-zinc-400">Puja inicial</span>
-                <span className="font-mono text-zinc-500">{formatPEN(auction.startingPrice)}</span>
-                <span className="text-zinc-600">inicio</span>
+              <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-border">
+                <span className="font-bold text-muted-foreground">Puja inicial</span>
+                <span className="font-mono text-muted-foreground">{formatPEN(auction.startingPrice)}</span>
+                <span className="text-muted-foreground">inicio</span>
               </div>
             </div>
           </div>
@@ -663,18 +663,18 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
       </section>
 
       {/* ---------------- COL 3: LIVE CHAT ---------------- */}
-      <section className="relative min-w-0 flex flex-col bg-zinc-950 rounded-2xl border border-white/5 overflow-hidden">
+      <section className="relative min-w-0 flex flex-col bg-background rounded-2xl border border-border overflow-hidden">
         {/* Chat header */}
-        <div className="px-4 py-3 border-b border-white/5 bg-white/5">
+        <div className="px-4 py-3 border-b border-border bg-muted">
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-purple-400">
               <MessageCircle className="h-3.5 w-3.5" /> Chat en vivo
             </span>
-            <span className="inline-flex items-center gap-1 text-[10px] text-zinc-400">
+            <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
               <Users className="h-3 w-3 text-amber-400" /> {viewers} viendo
             </span>
           </div>
-          <p className="mt-1 text-[11px] text-zinc-400 leading-relaxed">
+          <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed">
             Conversemos en tiempo real. YaBot AI modera el chat y responde dudas sobre tallas, stock y envíos. Sé respetuoso con la comunidad de Vende Ya.
           </p>
         </div>
@@ -689,13 +689,13 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Input */}
-        <div className="shrink-0 px-3 py-3 border-t border-white/5 bg-zinc-950">
+        <div className="shrink-0 px-3 py-3 border-t border-border bg-background">
           <ChatInputBar
             chatInput={chatInput}
             setChatInput={setChatInput}
             onSend={sendChat}
           />
-          <p className="mt-1.5 text-[9px] text-zinc-600 text-center">
+          <p className="mt-1.5 text-[9px] text-muted-foreground text-center">
             Pulsa enter para enviar · YaBot AI responde automático
           </p>
         </div>
@@ -707,7 +707,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
    * MOBILE LAYOUT — TikTok-style full-screen vertical                *
    * ================================================================ */
   const MobileLayout = (
-    <div className="md:hidden fixed inset-0 z-50 bg-black text-white select-none overflow-hidden">
+    <div className="md:hidden fixed inset-0 z-50 bg-black text-foreground select-none overflow-hidden">
       {/* Video background */}
       <div className="absolute inset-0 z-0">
         <div
@@ -723,7 +723,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
         <div className="flex flex-col gap-2">
           <button
             onClick={() => router.back()}
-            className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center active:scale-95 transition-transform"
+            className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center active:scale-95 transition-transform"
             aria-label="Volver"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -771,9 +771,9 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
             animate={{ scale: 1, opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 400, damping: 14 }}
           >
-            <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
+            <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-foreground'}`} />
           </motion.span>
-          <span className="text-[10px] font-black text-white tabular-nums drop-shadow">
+          <span className="text-[10px] font-black text-foreground tabular-nums drop-shadow">
             {formatViewers(likes).replace(' espectadores', '')}
           </span>
         </motion.button>
@@ -785,7 +785,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
           aria-label="Reacciones"
         >
           <Flame className="h-7 w-7 text-amber-400 drop-shadow-lg" />
-          <span className="text-[10px] font-black text-white drop-shadow">Reacciona</span>
+          <span className="text-[10px] font-black text-foreground drop-shadow">Reacciona</span>
         </button>
 
         {/* Chat */}
@@ -793,14 +793,14 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
           onClick={() => setMobileTab('chat')}
           className="flex flex-col items-center gap-0.5"
         >
-          <MessageCircle className="h-7 w-7 text-white drop-shadow-lg" />
-          <span className="text-[10px] font-black text-white drop-shadow">Chat</span>
+          <MessageCircle className="h-7 w-7 text-foreground drop-shadow-lg" />
+          <span className="text-[10px] font-black text-foreground drop-shadow">Chat</span>
         </button>
 
         {/* Share */}
         <button className="flex flex-col items-center gap-0.5">
-          <Share2 className="h-7 w-7 text-white drop-shadow-lg" />
-          <span className="text-[10px] font-black text-white drop-shadow">Compartir</span>
+          <Share2 className="h-7 w-7 text-foreground drop-shadow-lg" />
+          <span className="text-[10px] font-black text-foreground drop-shadow">Compartir</span>
         </button>
       </div>
 
@@ -812,7 +812,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.18 }}
-            className="absolute right-3 bottom-72 z-30 bg-zinc-950/95 backdrop-blur-xl border border-white/15 rounded-2xl p-2 shadow-2xl"
+            className="absolute right-3 bottom-72 z-30 bg-background/95 backdrop-blur-xl border border-border rounded-2xl p-2 shadow-2xl"
           >
             <div className="flex items-center justify-between px-2 py-1 mb-1">
               <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1">
@@ -824,7 +824,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
               </span>
               <button
                 onClick={() => setShowEmojiPicker(false)}
-                className="text-zinc-500 hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
                 aria-label="Cerrar"
               >
                 <X className="h-3 w-3" />
@@ -837,7 +837,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                   whileTap={{ scale: 0.85 }}
                   whileHover={{ scale: 1.15, y: -2 }}
                   onClick={() => handleEmojiTap(e.char)}
-                  className="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-white/10 transition-colors text-xl"
+                  className="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors text-xl"
                   aria-label={e.label}
                   title={e.label}
                 >
@@ -846,7 +846,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
               ))}
             </div>
             {!hasParticipated && (
-              <p className="mt-1 px-2 text-[9px] text-zinc-500 text-center leading-tight">
+              <p className="mt-1 px-2 text-[9px] text-muted-foreground text-center leading-tight">
                 Puja o compra para desbloquear
               </p>
             )}
@@ -858,11 +858,11 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
       <div className="absolute bottom-0 inset-x-0 z-30">
         {/* Tab toggle — compacto */}
         <div className="px-3 pb-1">
-          <div className="inline-flex p-0.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10">
+          <div className="inline-flex p-0.5 rounded-full bg-black/60 backdrop-blur-xl border border-border">
             <button
               onClick={() => setMobileTab('bid')}
               className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                mobileTab === 'bid' ? 'bg-amber-400 text-zinc-950' : 'text-zinc-300'
+                mobileTab === 'bid' ? 'bg-amber-400 text-zinc-950' : 'text-muted-foreground'
               }`}
             >
               <Gavel className="inline h-3 w-3 mr-1" />Puja
@@ -870,7 +870,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
             <button
               onClick={() => setMobileTab('chat')}
               className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                mobileTab === 'chat' ? 'bg-purple-400 text-zinc-950' : 'text-zinc-300'
+                mobileTab === 'chat' ? 'bg-purple-400 text-zinc-950' : 'text-muted-foreground'
               }`}
             >
               <MessageCircle className="inline h-3 w-3 mr-1" />Chat
@@ -879,7 +879,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Panel body — padding reducido, radio menor, sin handle decorativo */}
-        <div className="bg-zinc-950/95 backdrop-blur-xl border-t border-white/10 rounded-t-[1.25rem] p-2.5 pt-2 pb-3 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
+        <div className="bg-background/95 backdrop-blur-xl border-t border-border rounded-t-[1.25rem] p-2.5 pt-2 pb-3 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
           <AnimatePresence mode="wait">
             {mobileTab === 'bid' ? (
               <motion.div
@@ -918,7 +918,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 </div>
 
                 {/* Stock mini-info */}
-                <p className="mt-1.5 text-[10px] text-zinc-500 leading-snug text-center">
+                <p className="mt-1.5 text-[10px] text-muted-foreground leading-snug text-center">
                   Stock: <span className="font-bold text-lime-400">{product?.stock ?? 0} uds</span> · {bidCount} pujas · {formatViewers(viewers)}
                 </p>
               </motion.div>

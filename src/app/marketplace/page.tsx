@@ -16,7 +16,7 @@ import type { Product, Profile } from '@/lib/vendeda/types'
 
 /* ------------------------------------------------------------------ */
 /* Dark Stream Hub — Marketplace "Ultra Inmersiva"                      */
-/* Pure dark (bg-zinc-950) · glassmorphism · neon accents · bento     */
+/* Pure dark (bg-background) · glassmorphism · neon accents · bento     */
 /* ------------------------------------------------------------------ */
 
 type FilterId = 'all' | 'live' | 'new' | 'offer' | 'top'
@@ -236,7 +236,7 @@ function ProductBentoCard({
             loading="lazy"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-zinc-700 text-xs font-bold">
+          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-xs font-bold">
             [ Imagen ]
           </div>
         )}
@@ -252,17 +252,17 @@ function ProductBentoCard({
             </span>
           )}
           {isOfferItem && (
-            <span className="px-1.5 py-0.5 rounded-md bg-fuchsia-500 text-white text-[9px] font-black tracking-wider uppercase shadow-lg shadow-fuchsia-500/30">
+            <span className="px-1.5 py-0.5 rounded-md bg-fuchsia-500 text-foreground text-[9px] font-black tracking-wider uppercase shadow-lg shadow-fuchsia-500/30">
               Oferta
             </span>
           )}
           {discountPct > 0 && (
-            <span className="px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[9px] font-black tracking-wider uppercase shadow-lg shadow-rose-500/30">
+            <span className="px-1.5 py-0.5 rounded-md bg-rose-500 text-foreground text-[9px] font-black tracking-wider uppercase shadow-lg shadow-rose-500/30">
               -{discountPct}%
             </span>
           )}
           {isLiveItem && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-rose-500/90 text-white text-[9px] font-black tracking-wider uppercase shadow-lg shadow-rose-500/30">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-rose-500/90 text-foreground text-[9px] font-black tracking-wider uppercase shadow-lg shadow-rose-500/30">
               <span className="h-1 w-1 rounded-full bg-white animate-pulse" />
               Live
             </span>
@@ -277,20 +277,20 @@ function ProductBentoCard({
             e.preventDefault()
             setLiked((v) => !v)
           }}
-          className="absolute top-2 right-2 z-10 h-7 w-7 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center transition-colors hover:bg-black/70"
+          className="absolute top-2 right-2 z-10 h-7 w-7 rounded-full bg-black/50 backdrop-blur-md border border-border flex items-center justify-center transition-colors hover:bg-black/70"
         >
           <Heart
             className={`h-3.5 w-3.5 transition-colors ${
-              liked ? 'fill-rose-500 text-rose-500' : 'text-zinc-300'
+              liked ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground'
             }`}
           />
         </button>
 
         {/* Viewer badge if live */}
         {isLiveItem && (
-          <div className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+          <div className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md border border-border">
             <Eye className="h-3 w-3 text-amber-400" />
-            <span className="text-[10px] font-bold text-white tabular-nums">
+            <span className="text-[10px] font-bold text-foreground tabular-nums">
               {formatViewers(
                 MOCK_STREAMS.find((s) => s.sellerId === seller.id && s.isLive)?.viewerCount ?? 0,
               ).replace(' espectadores', '')}
@@ -399,7 +399,7 @@ function AuctionMiniCard({
         </div>
         <Link
           href={ROUTES.auction(auction.id)}
-          className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-[10px] font-black flex items-center gap-1"
+          className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-600 text-foreground text-[10px] font-black flex items-center gap-1"
         >
           Pujar <ChevronRight className="h-3 w-3" />
         </Link>

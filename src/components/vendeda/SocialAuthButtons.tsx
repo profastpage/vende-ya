@@ -63,10 +63,10 @@ export function SocialAuthButtons({
       {dividerLabel && (
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/10" />
+            <div className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
-            <span className="bg-zinc-950 px-3 text-zinc-500">{dividerLabel}</span>
+            <span className="bg-background px-3 text-muted-foreground">{dividerLabel}</span>
           </div>
         </div>
       )}
@@ -127,7 +127,7 @@ function SocialButton({
       )}
     >
       {loading ? (
-        <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+        <span className="h-4 w-4 rounded-full border-2 border-current/30 border-t-current animate-spin" />
       ) : (
         <>
           <Icon className="h-[18px] w-[18px] shrink-0" />
@@ -152,8 +152,8 @@ const PROVIDER_VISUALS: Record<
 > = {
   google: {
     label: 'Google',
-    bgClass: 'bg-white text-zinc-900 border-zinc-200',
-    hoverClass: 'hover:bg-zinc-50 hover:border-zinc-300',
+    bgClass: 'bg-white text-foreground border-border',
+    hoverClass: 'hover:bg-muted/60 hover:border-border',
     Icon: GoogleIcon,
   },
   facebook: {
@@ -166,7 +166,7 @@ const PROVIDER_VISUALS: Record<
   apple: {
     label: 'Apple',
     bgClass: 'bg-black text-white border-white/15',
-    hoverClass: 'hover:bg-zinc-900 hover:border-white/25',
+    hoverClass: 'hover:bg-card hover:border-white/25',
     Icon: AppleIcon,
   },
 }

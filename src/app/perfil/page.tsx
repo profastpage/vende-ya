@@ -6,14 +6,17 @@ import {
   Edit, Heart, ShoppingBag, Star, Trophy, Verified, Settings, LogOut,
   ArrowLeft, ChevronRight, Bell, Lock, User as UserIcon, CreditCard,
   Truck, Shield, MessageSquare, ThumbsUp, Package, Gavel, Share2,
+  MapPin, Smartphone, Monitor, AlertTriangle, CheckCircle2, Clock,
+  Fingerprint, Globe, Mail, Phone,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { AuthGuard } from '@/components/vendeda/AuthGuard'
 import { useAuth } from '@/components/vendeda/AuthProvider'
+import { useProfile } from '@/hooks/use-profile'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { MOCK_PROFILES, MOCK_PRODUCTS, MOCK_TRENDING_AUCTIONS } from '@/lib/vendeda/mock-data'
+import { MOCK_PRODUCTS, MOCK_TRENDING_AUCTIONS } from '@/lib/vendeda/mock-data'
 import { formatPEN, initials, timeAgoEs } from '@/lib/vendeda/format'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { cn } from '@/lib/utils'
@@ -100,46 +103,72 @@ export default function ProfilePage() {
 }
 
 function ProfileContent() {
-  const { user: authUser, signOut } = useAuth()
-  const user = authUser
-    ? {
-        ...MOCK_PROFILES[5],
-        id: authUser.id,
-        displayName: authUser.displayName,
-        avatarUrl: authUser.avatarUrl ?? MOCK_PROFILES[5].avatarUrl,
-      }
-    : MOCK_PROFILES[5]
+  const { user: authUser, signOut, isDemoMode } = useAuth()
+  const { data: profile, loading } = useProfile()
+
+  // Use real profile data when available, fall back to auth user + demo mock
+  const displayName = profile?.user.displayName ?? authUser?.displayName ?? 'Usuario'
+  const username = profile?.profile?.username ?? displayName.toLowerCase().replace(/\s+/g, '.')
+  const avatarUrl = profile?.user.avatarUrl ?? authUser?.avatarUrl ?? null
+  const bio = profile?.profile?.bio ?? null
+  const isVerified = profile?.profile?.isVerified ?? false
+  const isLiveSeller = profile?.profile?.isLiveSeller ?? false
+  const isEmailVerified = profile?.user.isEmailVerified ?? false
+  const department = profile?.profile?.department ?? null
+  const rating = profile?.profile?.rating ?? 0
+  const ratingsCount = profile?.profile?.ratingsCount ?? 0
+  const salesCount = profile?.profile?.salesCount ?? 0
+  const followerCount = profile?.profile?.followerCount ?? 0
+  const totalRevenue = profile?.profile?.totalRevenue ?? 0
+  const kycStatus = profile?.kyc.status ?? 'unverified'
+  const isKycVerified = profile?.kyc.isVerified ?? false
+  const addresses = profile?.addresses ?? []
+  const paymentMethods = profile?.paymentMethods ?? []
+  const securityLog = profile?.securityLog ?? []
+  const sessions = profile?.sessions ?? []
+  const lastLogin = profile?.summary.lastLogin ?? null
+
   const myProducts = MOCK_PRODUCTS.slice(0, 2)
   const wonAuctions = MOCK_TRENDING_AUCTIONS.slice(0, 1)
 
   const stats = [
-    { label: 'Ventas', value: user.salesCount.toString(), icon: ShoppingBag, color: 'text-amber-400', bg: 'from-amber-400/15 to-amber-500/5' },
-    { label: 'Seguidores', value: user.followerCount.toLocaleString('es-PE'), icon: Heart, color: 'text-fuchsia-400', bg: 'from-fuchsia-400/15 to-fuchsia-500/5' },
-    { label: 'Rating', value: user.ratingsCount > 0 ? `${user.rating.toFixed(1)}★` : '—', icon: Trophy, color: 'text-lime-400', bg: 'from-lime-400/15 to-lime-500/5' },
-    { label: 'Subastas', value: wonAuctions.length.toString(), icon: Gavel, color: 'text-rose-400', bg: 'from-rose-400/15 to-rose-500/5' },
+    { label: 'Ventas', value: salesCount.toString(), icon: ShoppingBag, color: 'text-amber-400', bg: 'from-amber-400/15 to-amber-500/5' },
+    { label: 'Seguidores', value: followerCount.toLocaleString('es-PE'), icon: Heart, color: 'text-fuchsia-400', bg: 'from-fuchsia-400/15 to-fuchsia-500/5' },
+    { label: 'Rating', value: ratingsCount > 0 ? `${rating.toFixed(1)}★` : '—', icon: Trophy, color: 'text-lime-400', bg: 'from-lime-400/15 to-lime-500/5' },
+    { label: 'Ingresos', value: totalRevenue > 0 ? `S/${totalRevenue.toFixed(0)}` : 'S/0', icon: Gavel, color: 'text-rose-400', bg: 'from-rose-400/15 to-rose-500/5' },
   ]
 
+  const kycBadge = (() => {
+    switch (kycStatus) {
+      case 'approved': return { label: 'Identidad verificada', color: 'bg-lime-500/15 text-lime-300 border-lime-500/30', icon: CheckCircle2 }
+      case 'pending':
+      case 'in_review': return { label: 'Verificación en curso', color: 'bg-amber-500/15 text-amber-300 border-amber-500/30', icon: Clock }
+      case 'rejected': return { label: 'Verificación rechazada', color: 'bg-rose-500/15 text-rose-300 border-rose-500/30', icon: AlertTriangle }
+      default: return { label: 'Sin verificar', color: 'bg-muted text-muted-foreground border-border', icon: Fingerprint }
+    }
+  })()
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-24 md:pb-12">
+    <div className="min-h-screen bg-background text-foreground pb-24 md:pb-12">
       {/* Mobile compact header */}
-      <header className="md:hidden sticky top-0 z-30 bg-zinc-950/85 backdrop-blur-xl border-b border-white/5 pt-safe">
+      <header className="md:hidden sticky top-0 z-30 bg-background/85 backdrop-blur-xl border-b border-border pt-safe">
         <div className="flex items-center gap-3 px-4 h-14">
-          <Link href={ROUTES.dashboard} aria-label="Volver" className="p-2 -ml-2 text-zinc-400 hover:text-white">
+          <Link href={ROUTES.dashboard} aria-label="Volver" className="p-2 -ml-2 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="min-w-0">
-            <h1 className="text-base font-bold font-display truncate text-white">{PAGE_TITLE}</h1>
-            <p className="text-[10px] text-zinc-500 truncate">@{user.username}</p>
+            <h1 className="text-base font-bold font-display truncate text-foreground">{PAGE_TITLE}</h1>
+            <p className="text-[10px] text-muted-foreground truncate">@{username}</p>
           </div>
         </div>
       </header>
 
       {/* Desktop breadcrumb */}
-      <div className="hidden md:block border-b border-white/5">
-        <div className="max-w-4xl mx-auto px-6 py-3 flex items-center gap-1 text-sm text-zinc-500">
-          <Link href={ROUTES.home} className="hover:text-zinc-200">Inicio</Link>
+      <div className="hidden md:block border-b border-border">
+        <div className="max-w-4xl mx-auto px-6 py-3 flex items-center gap-1 text-sm text-muted-foreground">
+          <Link href={ROUTES.home} className="hover:text-foreground">Inicio</Link>
           <ChevronRight className="h-3 w-3 mx-1" />
-          <span className="text-white font-medium">{PAGE_TITLE}</span>
+          <span className="text-foreground font-medium">{PAGE_TITLE}</span>
         </div>
       </div>
 
@@ -149,10 +178,10 @@ function ProfileContent() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="relative overflow-hidden rounded-3xl border border-white/5 bg-zinc-900/80 backdrop-blur-sm"
+          className="relative overflow-hidden rounded-3xl border border-border bg-card/80 backdrop-blur-sm"
         >
           {/* Gradient banner */}
-          <div className="h-32 md:h-40 bg-gradient-to-br from-amber-500/20 via-fuchsia-900/30 to-zinc-950 relative">
+          <div className="h-32 md:h-40 bg-gradient-to-br from-amber-500/20 via-fuchsia-900/30 to-background relative">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(251,191,36,0.15),transparent_60%)]" />
             <div className="absolute top-0 right-0 w-64 h-64 bg-fuchsia-600/10 blur-3xl rounded-full" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-500/10 blur-3xl rounded-full" />
@@ -165,13 +194,13 @@ function ProfileContent() {
               <div className="relative shrink-0">
                 <div className="absolute -inset-1.5 rounded-full bg-gradient-to-br from-amber-400 via-fuchsia-500 to-purple-600 blur-sm opacity-80" />
                 <Avatar className="relative h-24 w-24 md:h-28 md:w-28 border-4 border-zinc-950 ring-1 ring-white/10">
-                  <AvatarImage src={user.avatarUrl ?? undefined} alt={user.displayName} />
-                  <AvatarFallback className="text-2xl font-bold bg-zinc-900 text-white">
-                    {initials(user.displayName)}
+                  <AvatarImage src={avatarUrl ?? undefined} alt={displayName} />
+                  <AvatarFallback className="text-2xl font-bold bg-card text-foreground">
+                    {initials(displayName)}
                   </AvatarFallback>
                 </Avatar>
-                {user.isVerified && (
-                  <div className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-sky-500 border-3 border-zinc-950 flex items-center justify-center">
+                {isVerified && (
+                  <div className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-sky-500 border-2 border-background flex items-center justify-center">
                     <Verified className="h-4 w-4 text-white" />
                   </div>
                 )}
@@ -180,27 +209,42 @@ function ProfileContent() {
               {/* Name + username */}
               <div className="flex-1 min-w-0 pt-2 md:pb-2">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-2xl md:text-3xl font-black font-display text-white">
-                    {user.displayName}
+                  <h1 className="text-2xl md:text-3xl font-black font-display text-foreground">
+                    {displayName}
                   </h1>
-                  {user.isVerified && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold border bg-sky-500/15 text-sky-300 border-sky-500/30">
+                  {isVerified && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold border bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30">
                       <Verified className="h-3 w-3" /> Verificado
                     </span>
                   )}
-                  {authUser?.isDemo && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold border bg-amber-400/15 text-amber-300 border-amber-400/30">
+                  {isDemoMode && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold border bg-amber-400/15 text-amber-700 dark:text-amber-300 border-amber-400/30">
                       Demo
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-zinc-400 mt-0.5">@{user.username}</p>
-                {user.department && (
-                  <p className="text-xs text-zinc-500 mt-1 flex items-center gap-1">
-                    <span className="h-1 w-1 rounded-full bg-zinc-600" />
-                    {user.department}, Perú
+                <p className="text-sm text-muted-foreground mt-0.5">@{username}</p>
+                {department && (
+                  <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                    <span className="h-1 w-1 rounded-full bg-muted-foreground" />
+                    {department}, Perú
                   </p>
                 )}
+                {/* KYC + email verification badges */}
+                <div className="flex items-center gap-2 flex-wrap mt-2">
+                  <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border', kycBadge.color)}>
+                    <kycBadge.icon className="h-3 w-3" /> {kycBadge.label}
+                  </span>
+                  {isEmailVerified ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border bg-lime-500/15 text-lime-700 dark:text-lime-300 border-lime-500/30">
+                      <Mail className="h-3 w-3" /> Email verificado
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30">
+                      <Mail className="h-3 w-3" /> Email sin verificar
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Edit button */}
@@ -208,7 +252,7 @@ function ProfileContent() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white gap-1.5"
+                  className="h-9 bg-muted border-border text-foreground hover:bg-muted hover:text-foreground gap-1.5"
                 >
                   <Edit className="h-4 w-4" /> Editar perfil
                 </Button>
@@ -216,30 +260,32 @@ function ProfileContent() {
             </div>
 
             {/* Bio */}
-            {user.bio && (
-              <p className="text-sm text-zinc-300 mt-4 leading-relaxed max-w-2xl">{user.bio}</p>
+            {bio && (
+              <p className="text-sm text-muted-foreground mt-4 leading-relaxed max-w-2xl">{bio}</p>
             )}
 
             {/* Tags */}
             <div className="flex items-center gap-2 flex-wrap mt-3">
-              {user.isLiveSeller && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-rose-500/10 text-rose-300 border-rose-500/30">
-                  <span className="h-1.5 w-1.5 rounded-full bg-rose-400 animate-pulse" />
+              {isLiveSeller && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-rose-500/10 text-rose-500 dark:text-rose-300 border-rose-500/30">
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
                   Vendedora en vivo
                 </span>
               )}
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-white/5 text-zinc-300 border-white/10">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-muted text-muted-foreground border-border">
                 <MessageSquare className="h-3 w-3" />
-                {user.ratingsCount} reseñas
+                {ratingsCount} reseñas
               </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-white/5 text-zinc-300 border-white/10">
-                <ThumbsUp className="h-3 w-3" />
-                98% positivas
-              </span>
+              {authUser?.email && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-muted text-muted-foreground border-border">
+                  <Mail className="h-3 w-3" />
+                  {authUser.email}
+                </span>
+              )}
             </div>
 
             {/* Stats row — 4 KPIs in bento mini cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/5">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 pt-6 border-t border-border">
               {stats.map((s, i) => (
                 <motion.div
                   key={s.label}
@@ -247,18 +293,18 @@ function ProfileContent() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.25, delay: 0.05 * i }}
                   className={cn(
-                    'relative overflow-hidden rounded-2xl border border-white/5 p-4',
+                    'relative overflow-hidden rounded-2xl border border-border p-4',
                     'bg-gradient-to-br',
                     s.bg
                   )}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <div className="h-9 w-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                    <div className="h-9 w-9 rounded-xl bg-muted border border-border flex items-center justify-center">
                       <s.icon className={cn('h-4 w-4', s.color)} />
                     </div>
                   </div>
-                  <div className="text-2xl font-black font-mono text-white tabular-nums">{s.value}</div>
-                  <div className="text-[11px] uppercase tracking-wider text-zinc-400 mt-0.5">{s.label}</div>
+                  <div className="text-2xl font-black font-mono text-foreground tabular-nums">{s.value}</div>
+                  <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">{s.label}</div>
                 </motion.div>
               ))}
             </div>
@@ -272,28 +318,28 @@ function ProfileContent() {
           transition={{ duration: 0.35, delay: 0.1 }}
         >
           <Tabs defaultValue="productos" className="space-y-4">
-            <TabsList className="bg-zinc-900/80 border border-white/5 p-1 h-auto rounded-2xl flex-wrap">
+            <TabsList className="bg-card/80 border border-border p-1 h-auto rounded-2xl flex-wrap">
               <TabsTrigger
                 value="productos"
-                className="data-[state=active]:bg-white/10 data-[state=active]:text-amber-300 text-zinc-400 px-4 py-2 rounded-xl text-sm font-medium"
+                className="data-[state=active]:bg-muted data-[state=active]:text-amber-300 text-muted-foreground px-4 py-2 rounded-xl text-sm font-medium"
               >
                 <Package className="h-4 w-4 mr-1.5" /> Mis productos
               </TabsTrigger>
               <TabsTrigger
                 value="subastas"
-                className="data-[state=active]:bg-white/10 data-[state=active]:text-amber-300 text-zinc-400 px-4 py-2 rounded-xl text-sm font-medium"
+                className="data-[state=active]:bg-muted data-[state=active]:text-amber-300 text-muted-foreground px-4 py-2 rounded-xl text-sm font-medium"
               >
                 <Gavel className="h-4 w-4 mr-1.5" /> Subastas
               </TabsTrigger>
               <TabsTrigger
                 value="reseñas"
-                className="data-[state=active]:bg-white/10 data-[state=active]:text-amber-300 text-zinc-400 px-4 py-2 rounded-xl text-sm font-medium"
+                className="data-[state=active]:bg-muted data-[state=active]:text-amber-300 text-muted-foreground px-4 py-2 rounded-xl text-sm font-medium"
               >
                 <Star className="h-4 w-4 mr-1.5" /> Reseñas
               </TabsTrigger>
               <TabsTrigger
                 value="config"
-                className="data-[state=active]:bg-white/10 data-[state=active]:text-amber-300 text-zinc-400 px-4 py-2 rounded-xl text-sm font-medium"
+                className="data-[state=active]:bg-muted data-[state=active]:text-amber-300 text-muted-foreground px-4 py-2 rounded-xl text-sm font-medium"
               >
                 <Settings className="h-4 w-4 mr-1.5" /> Configuración
               </TabsTrigger>
@@ -301,23 +347,23 @@ function ProfileContent() {
 
             {/* ── Mis productos ── */}
             <TabsContent value="productos">
-              <div className="rounded-2xl border border-white/5 bg-zinc-900/80 backdrop-blur-sm p-5">
+              <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-bold text-white">Mis productos publicados</h3>
-                    <p className="text-xs text-zinc-400 mt-0.5">
+                    <h3 className="font-bold text-foreground">Mis productos publicados</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       Gestiona tu inventario activo. Edita precios, fotos o desactiva productos que ya no quieras vender.
                     </p>
                   </div>
-                  <span className="text-xs font-medium text-zinc-400 bg-white/5 border border-white/10 px-2 py-1 rounded-md">
+                  <span className="text-xs font-medium text-muted-foreground bg-muted border border-border px-2 py-1 rounded-md">
                     {myProducts.length} activos
                   </span>
                 </div>
 
                 {myProducts.length === 0 ? (
                   <div className="text-center py-12">
-                    <Package className="h-12 w-12 mx-auto text-zinc-700 mb-3" />
-                    <p className="text-sm text-zinc-400 mb-4">Aún no vendes nada. ¡Publica tu primer producto!</p>
+                    <Package className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                    <p className="text-sm text-muted-foreground mb-4">Aún no vendes nada. ¡Publica tu primer producto!</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -325,9 +371,9 @@ function ProfileContent() {
                       <Link
                         key={p.id}
                         href={ROUTES.product(p.id)}
-                        className="group rounded-xl border border-white/5 bg-zinc-950/50 overflow-hidden hover:border-amber-400/30 hover:shadow-lg hover:shadow-amber-500/10 transition-all"
+                        className="group rounded-xl border border-border bg-background/50 overflow-hidden hover:border-amber-400/30 hover:shadow-lg hover:shadow-amber-500/10 transition-all"
                       >
-                        <div className="aspect-square bg-white/5 overflow-hidden">
+                        <div className="aspect-square bg-muted overflow-hidden">
                           {p.images[0] && (
                             <img
                               src={p.images[0]}
@@ -337,10 +383,10 @@ function ProfileContent() {
                           )}
                         </div>
                         <div className="p-3">
-                          <p className="text-xs font-medium text-white line-clamp-1 mb-1">{p.title}</p>
+                          <p className="text-xs font-medium text-foreground line-clamp-1 mb-1">{p.title}</p>
                           <div className="flex items-center justify-between">
                             <p className="text-sm font-bold text-amber-300 font-mono">{formatPEN(p.basePrice)}</p>
-                            <span className="text-[10px] text-zinc-500">Stock: {p.stock}</span>
+                            <span className="text-[10px] text-muted-foreground">Stock: {p.stock}</span>
                           </div>
                         </div>
                       </Link>
@@ -358,20 +404,20 @@ function ProfileContent() {
 
             {/* ── Subastas ── */}
             <TabsContent value="subastas">
-              <div className="rounded-2xl border border-white/5 bg-zinc-900/80 backdrop-blur-sm p-5">
+              <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5">
                 <div className="mb-4">
-                  <h3 className="font-bold text-white">Subastas ganadas</h3>
-                  <p className="text-xs text-zinc-400 mt-0.5">
+                  <h3 className="font-bold text-foreground">Subastas ganadas</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Historial de subastas en vivo que has ganado. Las pujas se cobran automáticamente al finalizar el cronómetro.
                   </p>
                 </div>
 
                 {wonAuctions.length === 0 ? (
                   <div className="text-center py-12">
-                    <Gavel className="h-12 w-12 mx-auto text-zinc-700 mb-3" />
-                    <p className="text-sm text-zinc-400">Aún no ganaste subastas. ¡Encuentra tu primera puja en la home!</p>
+                    <Gavel className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                    <p className="text-sm text-muted-foreground">Aún no ganaste subastas. ¡Encuentra tu primera puja en la home!</p>
                     <Link href={ROUTES.live}>
-                      <Button variant="outline" className="mt-4 bg-white/5 border-white/10 text-white hover:bg-white/10">
+                      <Button variant="outline" className="mt-4 bg-muted border-border text-foreground hover:bg-muted">
                         Ver en vivo ahora <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
                       </Button>
                     </Link>
@@ -382,16 +428,16 @@ function ProfileContent() {
                       <Link
                         key={a.id}
                         href={ROUTES.auction(a.id)}
-                        className="flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-zinc-950/50 hover:bg-white/5 hover:border-white/10 transition-colors"
+                        className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-muted hover:border-border transition-colors"
                       >
-                        <div className="h-12 w-12 rounded-lg overflow-hidden bg-white/5 shrink-0">
+                        <div className="h-12 w-12 rounded-lg overflow-hidden bg-muted shrink-0">
                           {a.product?.images[0] && (
                             <img src={a.product.images[0]} alt="" className="h-full w-full object-cover" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white truncate">{a.product?.title}</p>
-                          <p className="text-xs text-zinc-400">
+                          <p className="text-sm font-medium text-foreground truncate">{a.product?.title}</p>
+                          <p className="text-xs text-muted-foreground">
                             Ganaste con <span className="font-mono text-lime-300 font-semibold">{formatPEN(a.currentPrice)}</span>
                           </p>
                         </div>
@@ -407,48 +453,48 @@ function ProfileContent() {
 
             {/* ── Reseñas ── */}
             <TabsContent value="reseñas">
-              <div className="rounded-2xl border border-white/5 bg-zinc-900/80 backdrop-blur-sm p-5">
+              <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-bold text-white">Reseñas de compradores</h3>
-                    <p className="text-xs text-zinc-400 mt-0.5">
+                    <h3 className="font-bold text-foreground">Reseñas de compradores</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       Calificaciones y comentarios reales de compradores verificados.
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-black font-mono text-amber-300">
-                      {user.ratingsCount > 0 ? user.rating.toFixed(1) : '—'}
-                      {user.ratingsCount > 0 && <span className="text-sm">★</span>}
+                    <div className="text-2xl font-black font-mono text-amber-500 dark:text-amber-300">
+                      {ratingsCount > 0 ? rating.toFixed(1) : '—'}
+                      {ratingsCount > 0 && <span className="text-sm">★</span>}
                     </div>
-                    <div className="text-[10px] text-zinc-500 uppercase tracking-wider">
-                      {user.ratingsCount} calificaciones
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                      {ratingsCount} calificaciones
                     </div>
                   </div>
                 </div>
 
                 {MOCK_REVIEWS.length === 0 ? (
                   <div className="text-center py-12">
-                    <Star className="h-12 w-12 mx-auto text-zinc-700 mb-3" />
-                    <p className="text-sm text-zinc-400">Aún no tienes reseñas. ¡Vende tu primer producto!</p>
+                    <Star className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                    <p className="text-sm text-muted-foreground">Aún no tienes reseñas. ¡Vende tu primer producto!</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {MOCK_REVIEWS.map((r) => (
                       <div
                         key={r.id}
-                        className="p-4 rounded-xl border border-white/5 bg-zinc-950/50"
+                        className="p-4 rounded-xl border border-border bg-background/50"
                       >
                         <div className="flex items-start gap-3">
                           <Avatar className="h-9 w-9 ring-1 ring-white/10 shrink-0">
                             <AvatarImage src={r.avatar} alt={r.author} />
-                            <AvatarFallback className="text-xs bg-zinc-900 text-white">
+                            <AvatarFallback className="text-xs bg-card text-foreground">
                               {initials(r.author)}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2 mb-1">
-                              <p className="text-sm font-semibold text-white">{r.author}</p>
-                              <p className="text-xs text-zinc-500">{timeAgoEs(r.date)}</p>
+                              <p className="text-sm font-semibold text-foreground">{r.author}</p>
+                              <p className="text-xs text-muted-foreground">{timeAgoEs(r.date)}</p>
                             </div>
                             <div className="flex items-center gap-1 mb-1.5">
                               {Array.from({ length: 5 }).map((_, i) => (
@@ -456,13 +502,13 @@ function ProfileContent() {
                                   key={i}
                                   className={cn(
                                     'h-3 w-3',
-                                    i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-zinc-700'
+                                    i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground'
                                   )}
                                 />
                               ))}
                             </div>
-                            <p className="text-xs text-zinc-300 leading-relaxed mb-2">{r.comment}</p>
-                            <p className="text-[11px] text-zinc-500 flex items-center gap-1">
+                            <p className="text-xs text-muted-foreground leading-relaxed mb-2">{r.comment}</p>
+                            <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                               <Package className="h-3 w-3" /> {r.productTitle}
                             </p>
                           </div>
@@ -480,41 +526,230 @@ function ProfileContent() {
                 {SETTINGS_GROUPS.map((group) => (
                   <div
                     key={group.title}
-                    className="rounded-2xl border border-white/5 bg-zinc-900/80 backdrop-blur-sm p-5"
+                    className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5"
                   >
-                    <h3 className="font-bold text-white mb-3">{group.title}</h3>
+                    <h3 className="font-bold text-foreground mb-3">{group.title}</h3>
                     <div className="space-y-1">
                       {group.items.map((item) => (
                         <Link
                           key={item.label}
                           href={item.href}
-                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
+                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors group"
                         >
-                          <div className="h-9 w-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                          <div className="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center shrink-0">
                             <item.icon className={cn('h-4 w-4', item.color)} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-white">{item.label}</p>
-                            <p className="text-xs text-zinc-400 mt-0.5">{item.desc}</p>
+                            <p className="text-sm font-medium text-foreground">{item.label}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
                           </div>
-                          <ChevronRight className="h-4 w-4 text-zinc-600 group-hover:text-zinc-300 transition-colors shrink-0" />
+                          <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-muted-foreground transition-colors shrink-0" />
                         </Link>
                       ))}
                     </div>
                   </div>
                 ))}
 
+                {/* === Real data: Direcciones de envío === */}
+                <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-bold text-foreground flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-fuchsia-400" /> Direcciones de envío
+                    </h3>
+                    <span className="text-xs text-muted-foreground bg-muted border border-border px-2 py-1 rounded-md">
+                      {addresses.length}
+                    </span>
+                  </div>
+                  {addresses.length === 0 ? (
+                    <div className="text-center py-6">
+                      <MapPin className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground mb-3">Aún no tienes direcciones guardadas.</p>
+                      <Link href={ROUTES.configuracion}>
+                        <Button variant="outline" size="sm" className="bg-muted border-border text-foreground hover:bg-muted">
+                          <MapPin className="h-3 w-3 mr-1" /> Agregar dirección
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {addresses.map((addr) => (
+                        <div key={addr.id} className="p-3 rounded-xl border border-border bg-background/50">
+                          <div className="flex items-start justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-semibold text-foreground">{addr.label}</p>
+                              {addr.isDefault && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold border bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30">
+                                  Predeterminada
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-xs text-foreground">{addr.addressLine}</p>
+                          <p className="text-xs text-muted-foreground">{addr.district}, {addr.province}, {addr.department}</p>
+                          {addr.phone && (
+                            <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
+                              <Phone className="h-3 w-3" /> {addr.phone}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* === Real data: Métodos de pago === */}
+                <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-bold text-foreground flex items-center gap-2">
+                      <CreditCard className="h-4 w-4 text-lime-400" /> Métodos de pago
+                    </h3>
+                    <span className="text-xs text-muted-foreground bg-muted border border-border px-2 py-1 rounded-md">
+                      {paymentMethods.length}
+                    </span>
+                  </div>
+                  {paymentMethods.length === 0 ? (
+                    <div className="text-center py-6">
+                      <CreditCard className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground mb-3">No tienes métodos de pago vinculados.</p>
+                      <Link href={ROUTES.pagos}>
+                        <Button variant="outline" size="sm" className="bg-muted border-border text-foreground hover:bg-muted">
+                          <CreditCard className="h-3 w-3 mr-1" /> Vincular Yape/Plin
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {paymentMethods.map((pm) => (
+                        <div key={pm.id} className="p-3 rounded-xl border border-border bg-background/50 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={cn(
+                              'h-9 w-9 rounded-lg flex items-center justify-center border',
+                              pm.type === 'yape' && 'bg-purple-500/15 border-purple-500/30 text-purple-500 dark:text-purple-300',
+                              pm.type === 'plin' && 'bg-sky-500/15 border-sky-500/30 text-sky-500 dark:text-sky-300',
+                              pm.type === 'card' && 'bg-amber-500/15 border-amber-500/30 text-amber-500 dark:text-amber-300',
+                              pm.type === 'mercado_pago' && 'bg-sky-500/15 border-sky-500/30 text-sky-500 dark:text-sky-300',
+                              (pm.type === 'pagoefectivo' || pm.type === 'transfer') && 'bg-muted border-border text-muted-foreground',
+                            )}>
+                              {pm.type === 'card' ? <CreditCard className="h-4 w-4" /> : <Smartphone className="h-4 w-4" />}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-foreground">
+                                {pm.label ?? pm.type.toUpperCase()}
+                                {pm.isDefault && (
+                                  <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold border bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30">
+                                    Default
+                                  </span>
+                                )}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {pm.cardLast4 ? `•••• ${pm.cardLast4} · ${pm.cardBrand ?? ''}` : pm.phone ?? pm.type}
+                              </p>
+                            </div>
+                          </div>
+                          {pm.isVerified ? (
+                            <CheckCircle2 className="h-4 w-4 text-lime-500" />
+                          ) : (
+                            <Clock className="h-4 w-4 text-amber-500" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* === Real data: Seguridad — Sesiones activas === */}
+                <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5">
+                  <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-sky-400" /> Seguridad y sesiones
+                  </h3>
+                  {sessions.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-2">Sin datos de sesiones todavía.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {sessions.map((sess) => (
+                        <div key={sess.id} className="p-3 rounded-xl border border-border bg-background/50 flex items-center gap-3">
+                          <div className="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center shrink-0">
+                            {sess.deviceType === 'mobile' ? <Smartphone className="h-4 w-4 text-foreground" /> : <Monitor className="h-4 w-4 text-foreground" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground">
+                              {sess.browser ?? 'Navegador'} · {sess.os ?? 'OS'}
+                              {sess.isCurrent && (
+                                <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold border bg-lime-500/15 text-lime-700 dark:text-lime-300 border-lime-500/30">
+                                  Este dispositivo
+                                </span>
+                              )}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {sess.city ?? '—'} · {sess.country ?? '—'} · {timeAgoEs(sess.lastSeenAt)}
+                            </p>
+                          </div>
+                          {!sess.isCurrent && (
+                            <button className="text-xs text-rose-500 dark:text-rose-300 hover:underline">Cerrar</button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* === Real data: Bitácora de seguridad === */}
+                <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5">
+                  <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                    <Lock className="h-4 w-4 text-purple-400" /> Actividad reciente
+                  </h3>
+                  {securityLog.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-2">Sin eventos de seguridad registrados todavía.</p>
+                  ) : (
+                    <div className="space-y-1">
+                      {securityLog.map((evt) => (
+                        <div key={evt.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors">
+                          <div className={cn(
+                            'h-7 w-7 rounded-lg flex items-center justify-center shrink-0',
+                            evt.success ? 'bg-lime-500/15 text-lime-500 dark:text-lime-300' : 'bg-rose-500/15 text-rose-500 dark:text-rose-300'
+                          )}>
+                            {evt.eventType === 'login' || evt.eventType === 'oauth_login' ? <ArrowLeft className="h-3 w-3 rotate-180" /> :
+                             evt.eventType === 'logout' ? <LogOut className="h-3 w-3" /> :
+                             evt.eventType === 'signup' ? <UserIcon className="h-3 w-3" /> :
+                             <Lock className="h-3 w-3" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-foreground truncate">
+                              {evt.eventType.replace(/_/g, ' ')}
+                              {!evt.success && evt.failureReason ? ` · ${evt.failureReason}` : ''}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {evt.city ?? '—'} · {evt.country ?? '—'} · {timeAgoEs(evt.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {lastLogin && (
+                    <div className="mt-3 p-3 rounded-xl bg-muted border border-border">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Globe className="h-3 w-3" />
+                        Último inicio de sesión: <span className="font-medium text-foreground ml-1">
+                          {lastLogin.city ?? '—'}, {lastLogin.country ?? '—'}
+                        </span>
+                        <span className="ml-1">· {timeAgoEs(lastLogin.createdAt)}</span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 {/* Sign out + share profile */}
-                <div className="rounded-2xl border border-white/5 bg-zinc-900/80 backdrop-blur-sm p-5 space-y-2">
-                  <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
-                    <div className="h-9 w-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5 space-y-2">
+                  <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors text-left">
+                    <div className="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center shrink-0">
                       <Share2 className="h-4 w-4 text-sky-400" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-white">Compartir mi perfil</p>
-                      <p className="text-xs text-zinc-400 mt-0.5">Copia el enlace y compártelo en WhatsApp o Instagram</p>
+                      <p className="text-sm font-medium text-foreground">Compartir mi perfil</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Copia el enlace y compártelo en WhatsApp o Instagram</p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-zinc-600 shrink-0" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                   </button>
                   <button
                     onClick={async () => {
@@ -527,10 +762,10 @@ function ProfileContent() {
                       <LogOut className="h-4 w-4 text-rose-400" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-rose-300">Cerrar sesión</p>
-                      <p className="text-xs text-zinc-400 mt-0.5">Sale de tu cuenta en este dispositivo</p>
+                      <p className="text-sm font-medium text-rose-500 dark:text-rose-300">Cerrar sesión</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Sale de tu cuenta en este dispositivo</p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-zinc-600 group-hover:text-rose-300 transition-colors shrink-0" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-rose-500 dark:group-hover:text-rose-300 transition-colors shrink-0" />
                   </button>
                 </div>
               </div>

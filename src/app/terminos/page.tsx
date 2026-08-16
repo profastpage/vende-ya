@@ -77,20 +77,20 @@ const SECTIONS: TocItem[] = [
           Los porcentajes vigentes a partir del 17 de junio de 2026 son:
         </p>
         <ul className="space-y-2 mb-3">
-          <li className="flex gap-3 text-zinc-200">
+          <li className="flex gap-3 text-foreground">
             <span className="text-rose-400 font-black shrink-0 w-32">12%</span>
             <span>
-              <span className="font-bold text-white">Subastas y ventas en vivo.</span>{' '}
+              <span className="font-bold text-foreground">Subastas y ventas en vivo.</span>{' '}
               Aplica a todas las transacciones realizadas dentro de un stream en vivo,
               incluyendo pujas ganadoras, "Comprar ya" durante el en vivo, y reservas
               efectuadas por el chat en vivo. La comisión cubre moderation con IA,
               streaming, infraestructura de real-time y el fondo de protección al comprador.
             </span>
           </li>
-          <li className="flex gap-3 text-zinc-200">
+          <li className="flex gap-3 text-foreground">
             <span className="text-amber-400 font-black shrink-0 w-32">8%</span>
             <span>
-              <span className="font-bold text-white">Marketplace clásico.</span>{' '}
+              <span className="font-bold text-foreground">Marketplace clásico.</span>{' '}
               Aplica a productos publicados en el marketplace que se venden sin transmisión
               en vivo (compra directa con carrito o "Comprar ya" fuera de un stream).
               Incluye publicación, procesamiento de pago escrow y gestion de disputas.
@@ -98,13 +98,13 @@ const SECTIONS: TocItem[] = [
           </li>
         </ul>
         <p className="mb-2">
-          <span className="font-bold text-white">No hay cargo por:</span>{' '}
+          <span className="font-bold text-foreground">No hay cargo por:</span>{' '}
           publicar productos, pujar, ni por transacciones fallidas o reembolsadas.
           La comisión se calcula sobre el precio final del producto, sin incluir el costo
           de envío ni los impuestos (IGV) si aplican.
         </p>
         <p>
-          <span className="font-bold text-white">Vendedores Pro</span> (suscripción
+          <span className="font-bold text-foreground">Vendedores Pro</span> (suscripción
           S/. 29/mes) reciben 1 punto porcentual de descuento en cada tramo: 11% en vivo,
           7% marketplace. Las refacturas por ajustes se emiten dentro de los 5 días
           hábiles posteriores al cierre contable mensual.
@@ -156,7 +156,7 @@ const SECTIONS: TocItem[] = [
             'Acosar, insultar o amenazar a otros usuarios dentro o fuera de la app.',
             'Extraer datos de la plataforma mediante scraping, bots o automatizaciones.',
           ].map((rule, i) => (
-            <li key={i} className="flex gap-3 text-zinc-300">
+            <li key={i} className="flex gap-3 text-muted-foreground">
               <span className="text-amber-400 font-black shrink-0">{i + 1}.</span>
               <span>{rule}</span>
             </li>
@@ -251,7 +251,7 @@ export default function TermsPage() {
           animate="show"
           className="space-y-4 min-w-0"
         >
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
             Última actualización: 16 de agosto, 2026
           </div>
@@ -261,19 +261,19 @@ export default function TermsPage() {
               key={section.id}
               id={section.id}
               variants={staggerItem}
-              className="scroll-mt-24 rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-6 md:p-7"
+              className="scroll-mt-24 rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-6 md:p-7"
             >
-              <h2 className="text-xl md:text-2xl font-black text-white font-display mb-3 leading-tight">
+              <h2 className="text-xl md:text-2xl font-black text-foreground font-display mb-3 leading-tight">
                 {section.title}
               </h2>
-              <div className="text-sm md:text-[15px] text-zinc-300 leading-relaxed space-y-3">
+              <div className="text-sm md:text-[15px] text-muted-foreground leading-relaxed space-y-3">
                 {section.body}
               </div>
             </motion.section>
           ))}
 
-          <div className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-fuchsia-500/10 border border-white/10 p-6 text-center">
-            <p className="text-sm text-zinc-300">
+          <div className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-fuchsia-500/10 border border-border p-6 text-center">
+            <p className="text-sm text-muted-foreground">
               Para preguntas sobre estos Términos, escríbenos a{' '}
               <a
                 href="mailto:legal@vendeya.pe"
@@ -282,7 +282,7 @@ export default function TermsPage() {
                 legal@vendeya.pe
               </a>
             </p>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Atendemos consultas legales en un plazo máximo de 5 días hábiles.
             </p>
           </div>
@@ -290,8 +290,8 @@ export default function TermsPage() {
 
         {/* Sticky TOC (desktop only) */}
         <aside className="hidden lg:block">
-          <div className="sticky top-24 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5">
-            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-3">
+          <div className="sticky top-24 rounded-2xl bg-muted backdrop-blur-xl border border-border p-5">
+            <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-3">
               Contenido
             </p>
             <nav className="space-y-1">
@@ -299,9 +299,9 @@ export default function TermsPage() {
                 <a
                   key={section.id}
                   href={`#${section.id}`}
-                  className="group flex items-start gap-2 rounded-lg px-2 py-1.5 text-xs text-zinc-400 hover:text-amber-400 hover:bg-white/5 transition-colors"
+                  className="group flex items-start gap-2 rounded-lg px-2 py-1.5 text-xs text-muted-foreground hover:text-amber-400 hover:bg-muted transition-colors"
                 >
-                  <span className="text-zinc-600 font-mono text-[10px] mt-0.5">
+                  <span className="text-muted-foreground font-mono text-[10px] mt-0.5">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <span className="leading-snug">{section.title.replace(/^\d+\.\s*/, '')}</span>

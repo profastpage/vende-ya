@@ -86,7 +86,7 @@ export default function FAQPage() {
     >
       {/* Search */}
       <div className="relative mb-5">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <DarkInput
           placeholder="Busca una pregunta..."
           value={query}
@@ -107,7 +107,7 @@ export default function FAQPage() {
                 className={`px-3.5 h-9 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
                   active
                     ? 'bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950 border-amber-400/50 shadow-lg shadow-fuchsia-500/20'
-                    : 'bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10'
+                    : 'bg-muted border-border text-muted-foreground hover:bg-muted'
                 }`}
               >
                 {cat.cat}
@@ -129,16 +129,16 @@ export default function FAQPage() {
           .map((cat) =>
             cat.items.map((item, i) => (
               <motion.div key={`${cat.cat}-${i}`} variants={staggerItem}>
-                <details className="group relative rounded-xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm overflow-hidden transition-colors hover:border-white/10">
+                <details className="group relative rounded-xl bg-card/80 border border-border backdrop-blur-sm overflow-hidden transition-colors hover:border-border">
                   <summary className="cursor-pointer list-none p-5 flex items-center justify-between gap-3">
-                    <span className="text-sm md:text-base font-bold text-white pr-3 leading-snug">
+                    <span className="text-sm md:text-base font-bold text-foreground pr-3 leading-snug">
                       {item.q}
                     </span>
-                    <span className="h-7 w-7 shrink-0 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center transition-transform group-open:rotate-90">
+                    <span className="h-7 w-7 shrink-0 rounded-lg bg-muted border border-border flex items-center justify-center transition-transform group-open:rotate-90">
                       <ChevronRight className="h-4 w-4 text-amber-400" />
                     </span>
                   </summary>
-                  <div className="px-5 pb-5 -mt-1 text-sm text-zinc-400 leading-relaxed">
+                  <div className="px-5 pb-5 -mt-1 text-sm text-muted-foreground leading-relaxed">
                     {item.a}
                   </div>
                 </details>
@@ -147,13 +147,13 @@ export default function FAQPage() {
           )}
         {filteredFaqs.length === 0 && (
           <motion.div variants={staggerItem}>
-            <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-12 text-center">
-              <Search className="h-10 w-10 mx-auto mb-3 text-zinc-600" />
-              <p className="text-zinc-400 text-sm">
+            <div className="rounded-2xl bg-card/80 border border-border p-12 text-center">
+              <Search className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+              <p className="text-muted-foreground text-sm">
                 Sin resultados para{' '}
                 <span className="text-amber-400 font-bold">"{query}"</span>
               </p>
-              <p className="text-zinc-600 text-xs mt-1">
+              <p className="text-muted-foreground text-xs mt-1">
                 Prueba con otros términos o explora las categorías.
               </p>
             </div>
@@ -162,11 +162,11 @@ export default function FAQPage() {
       </motion.div>
 
       {/* Still need help? CTA */}
-      <div className="mt-8 rounded-2xl bg-gradient-to-br from-amber-500/10 via-zinc-900 to-fuchsia-500/10 border border-white/10 p-6 text-center">
-        <p className="text-sm text-zinc-300">
+      <div className="mt-8 rounded-2xl bg-gradient-to-br from-amber-500/10 via-card to-fuchsia-500/10 border border-border p-6 text-center">
+        <p className="text-sm text-muted-foreground">
           ¿No encuentras lo que buscas?
         </p>
-        <p className="text-xs text-zinc-500 mt-1 mb-4">
+        <p className="text-xs text-muted-foreground mt-1 mb-4">
           Nuestro equipo de soporte está disponible todos los días de 9am a 9pm.
         </p>
         <Link

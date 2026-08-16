@@ -120,7 +120,7 @@ export default function NotificationsPage() {
               className={`px-3.5 h-9 rounded-lg text-sm font-bold transition-all border ${
                 filter === 'all'
                   ? 'bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950 border-amber-400/50 shadow-lg shadow-fuchsia-500/20'
-                  : 'bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10'
+                  : 'bg-muted border-border text-muted-foreground hover:bg-muted'
               }`}
             >
               Todas
@@ -130,13 +130,13 @@ export default function NotificationsPage() {
               className={`px-3.5 h-9 rounded-lg text-sm font-bold transition-all border flex items-center gap-1.5 ${
                 filter === 'unread'
                   ? 'bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950 border-amber-400/50 shadow-lg shadow-fuchsia-500/20'
-                  : 'bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10'
+                  : 'bg-muted border-border text-muted-foreground hover:bg-muted'
               }`}
             >
               Sin leer
               {unreadCount > 0 && (
                 <span className={`inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[10px] font-black ${
-                  filter === 'unread' ? 'bg-zinc-950/30 text-zinc-950' : 'bg-amber-400 text-zinc-950'
+                  filter === 'unread' ? 'bg-background/30 text-zinc-950' : 'bg-amber-400 text-zinc-950'
                 }`}>
                   {unreadCount}
                 </span>
@@ -146,7 +146,7 @@ export default function NotificationsPage() {
           <button
             onClick={markAllAsRead}
             disabled={unreadCount === 0}
-            className="inline-flex items-center gap-1.5 px-3 h-9 rounded-lg text-xs font-semibold text-zinc-400 hover:text-amber-400 hover:bg-white/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 px-3 h-9 rounded-lg text-xs font-semibold text-muted-foreground hover:text-amber-400 hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <CheckCheck className="h-3.5 w-3.5" />
             Marcar todo leído
@@ -154,12 +154,12 @@ export default function NotificationsPage() {
         </div>
 
         {visible.length === 0 ? (
-          <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-12 text-center">
-            <BellOff className="h-12 w-12 mx-auto mb-3 text-zinc-600" />
-            <p className="text-zinc-300 font-semibold">
+          <div className="rounded-2xl bg-card/80 border border-border p-12 text-center">
+            <BellOff className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+            <p className="text-muted-foreground font-semibold">
               {filter === 'unread' ? 'Sin notificaciones nuevas' : 'No tienes notificaciones'}
             </p>
-            <p className="text-zinc-500 text-xs mt-1">
+            <p className="text-muted-foreground text-xs mt-1">
               Cuando ocurra algo importante (pujas, ventas, mensajes), lo verás aquí.
             </p>
           </div>
@@ -182,7 +182,7 @@ export default function NotificationsPage() {
                     className="block group"
                   >
                     <div
-                      className={`relative rounded-xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-4 transition-all hover:border-white/10 hover:bg-zinc-900 ${
+                      className={`relative rounded-xl bg-card/80 border border-border backdrop-blur-sm p-4 transition-all hover:border-border hover:bg-card ${
                         isUnread ? `border-l-4 ${n.accent}` : 'opacity-70 hover:opacity-100'
                       }`}
                     >
@@ -192,14 +192,14 @@ export default function NotificationsPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
-                            <p className="text-sm font-bold text-white leading-snug">
+                            <p className="text-sm font-bold text-foreground leading-snug">
                               {n.title}
                             </p>
-                            <span className="text-[10px] text-zinc-500 shrink-0 mt-0.5">
+                            <span className="text-[10px] text-muted-foreground shrink-0 mt-0.5">
                               {timeAgoEs(new Date(n.time))}
                             </span>
                           </div>
-                          <p className="text-sm text-zinc-400 mt-0.5">{n.body}</p>
+                          <p className="text-sm text-muted-foreground mt-0.5">{n.body}</p>
                         </div>
                         {isUnread && (
                           <span className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-fuchsia-500 shrink-0 mt-2 animate-pulse" />
@@ -214,9 +214,9 @@ export default function NotificationsPage() {
         )}
 
         {/* Bottom helper */}
-        <div className="mt-8 rounded-2xl bg-white/5 border border-white/10 p-5 text-center">
+        <div className="mt-8 rounded-2xl bg-muted border border-border p-5 text-center">
           <Bell className="h-5 w-5 mx-auto mb-2 text-amber-400" />
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-muted-foreground">
             Configura qué notificaciones recibir desde{' '}
             <Link href="/configuracion" className="text-amber-400 hover:text-amber-300 underline">
               Configuración

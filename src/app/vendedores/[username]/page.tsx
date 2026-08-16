@@ -133,7 +133,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
   ]
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Ambient background */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden>
         <div className="absolute -top-40 left-1/4 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl" />
@@ -142,7 +142,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
 
       <div className="relative max-w-5xl mx-auto px-4 md:px-6 py-4 md:py-8 pb-24 md:pb-16">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1 text-xs md:text-sm text-zinc-500 mb-6 overflow-hidden">
+        <nav className="flex items-center gap-1 text-xs md:text-sm text-muted-foreground mb-6 overflow-hidden">
           <Link href={ROUTES.home} className="hover:text-amber-400 transition-colors shrink-0">
             Inicio
           </Link>
@@ -154,7 +154,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                   {bc.label}
                 </Link>
               ) : (
-                <span className="text-white font-medium truncate">{bc.label}</span>
+                <span className="text-foreground font-medium truncate">{bc.label}</span>
               )}
             </React.Fragment>
           ))}
@@ -165,10 +165,10 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
-          className="relative rounded-2xl overflow-hidden border border-white/5"
+          className="relative rounded-2xl overflow-hidden border border-border"
         >
           {/* Gradient banner background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 via-fuchsia-900/30 to-zinc-950" />
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 via-fuchsia-900/30 to-background" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(245,158,11,0.15),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(217,70,239,0.15),transparent_50%)]" />
 
@@ -177,7 +177,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
               {/* Avatar with gradient ring */}
               <div className="relative shrink-0 -mb-2 md:mb-0">
                 <div className="h-24 w-24 md:h-28 md:w-28 rounded-full bg-gradient-to-br from-amber-400 via-fuchsia-500 to-purple-500 p-1 shadow-xl shadow-fuchsia-500/30">
-                  <div className="h-full w-full rounded-full bg-zinc-950 overflow-hidden flex items-center justify-center">
+                  <div className="h-full w-full rounded-full bg-background overflow-hidden flex items-center justify-center">
                     {seller.avatarUrl ? (
                       <img
                         src={seller.avatarUrl}
@@ -185,7 +185,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="text-3xl font-black text-white">
+                      <span className="text-3xl font-black text-foreground">
                         {initials(seller.displayName)}
                       </span>
                     )}
@@ -193,7 +193,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                 </div>
                 {seller.isVerified && (
                   <div className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-sky-500 border-2 border-zinc-950 flex items-center justify-center">
-                    <Verified className="h-4 w-4 text-white" />
+                    <Verified className="h-4 w-4 text-foreground" />
                   </div>
                 )}
               </div>
@@ -201,7 +201,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
               {/* Identity + actions */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-2xl md:text-3xl font-black font-display text-white">
+                  <h1 className="text-2xl md:text-3xl font-black font-display text-foreground">
                     {seller.displayName}
                   </h1>
                   {seller.isLiveSeller && (
@@ -210,23 +210,23 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                     </StatusBadge>
                   )}
                 </div>
-                <p className="text-sm text-zinc-400 mt-0.5">@{seller.username}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">@{seller.username}</p>
                 {seller.bio && (
-                  <p className="text-sm text-zinc-300 mt-2 max-w-lg leading-relaxed">{seller.bio}</p>
+                  <p className="text-sm text-muted-foreground mt-2 max-w-lg leading-relaxed">{seller.bio}</p>
                 )}
-                <div className="flex items-center gap-4 mt-3 text-xs text-zinc-400 flex-wrap">
+                <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground flex-wrap">
                   {seller.department && (
                     <span className="flex items-center gap-1">
                       <MapPin className="h-3.5 w-3.5 text-amber-400" /> {seller.department}
                     </span>
                   )}
                   <span className="flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5 text-zinc-500" /> Vende desde 2024
+                    <Calendar className="h-3.5 w-3.5 text-muted-foreground" /> Vende desde 2024
                   </span>
                   <span className="flex items-center gap-1">
                     <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-                    <span className="font-bold text-white">{seller.rating.toFixed(1)}</span>
-                    <span className="text-zinc-500">({seller.ratingsCount})</span>
+                    <span className="font-bold text-foreground">{seller.rating.toFixed(1)}</span>
+                    <span className="text-muted-foreground">({seller.ratingsCount})</span>
                   </span>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
               <div className="flex gap-2 shrink-0">
                 <GradientButton
                   onClick={handleFollow}
-                  className={`h-11 px-5 ${following ? '!from-zinc-700 !to-zinc-700 !text-zinc-300 !shadow-none' : ''}`}
+                  className={`h-11 px-5 ${following ? '!from-muted !to-muted !text-muted-foreground !shadow-none' : ''}`}
                 >
                   <Heart className={`h-4 w-4 ${following ? 'fill-current' : ''}`} />
                   {following ? 'Siguiendo' : 'Seguir'}
@@ -256,22 +256,22 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
             </div>
 
             {/* Stats row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 pt-6 border-t border-border">
               {stats.map((stat) => {
                 const Icon = stat.icon
                 return (
                   <div
                     key={stat.label}
-                    className="flex items-center gap-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-3"
+                    className="flex items-center gap-3 rounded-xl bg-muted border border-border backdrop-blur-sm p-3"
                   >
                     <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${stat.bg}`}>
                       <Icon className={`h-4 w-4 ${stat.color}`} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-lg font-black text-white tabular-nums leading-tight truncate">
+                      <p className="text-lg font-black text-foreground tabular-nums leading-tight truncate">
                         {stat.value}
                       </p>
-                      <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
                         {stat.label}
                       </p>
                     </div>
@@ -284,7 +284,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
 
         {/* Tabs */}
         <div className="mt-8">
-          <div className="flex items-center gap-1 border-b border-white/10 mb-6 overflow-x-auto">
+          <div className="flex items-center gap-1 border-b border-border mb-6 overflow-x-auto">
             {[
               { id: 'products' as TabId, label: `Productos (${sellerProducts.length})` },
               { id: 'auctions' as TabId, label: `Subastas activas (${activeAuctions.length})` },
@@ -295,7 +295,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`relative px-3 md:px-5 py-3 text-sm font-bold whitespace-nowrap transition-colors ${
-                  activeTab === tab.id ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+                  activeTab === tab.id ? 'text-foreground' : 'text-muted-foreground hover:text-muted-foreground'
                 }`}
               >
                 {tab.label}
@@ -329,9 +329,9 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                   <motion.div key={p.id} variants={staggerItem}>
                     <Link
                       href={ROUTES.product(p.id)}
-                      className="group block rounded-2xl bg-zinc-900/80 border border-white/5 overflow-hidden hover:border-amber-400/30 transition-colors h-full"
+                      className="group block rounded-2xl bg-card/80 border border-border overflow-hidden hover:border-amber-400/30 transition-colors h-full"
                     >
-                      <div className="aspect-square bg-zinc-800 overflow-hidden">
+                      <div className="aspect-square bg-card overflow-hidden">
                         {p.images[0] && (
                           <img
                             src={p.images[0]}
@@ -341,13 +341,13 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                         )}
                       </div>
                       <div className="p-3">
-                        <p className="text-xs font-medium text-white line-clamp-2 leading-tight min-h-[2rem]">
+                        <p className="text-xs font-medium text-foreground line-clamp-2 leading-tight min-h-[2rem]">
                           {p.title}
                         </p>
                         <p className="text-base font-black text-amber-400 mt-1.5 tabular-nums">
                           {formatPEN(p.basePrice)}
                         </p>
-                        <p className="text-[10px] text-zinc-500 mt-0.5">
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
                           Stock: {p.stock} · {p.shippingFrom ?? 'Lima'}
                         </p>
                       </div>
@@ -377,9 +377,9 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                   <motion.div key={a.id} variants={staggerItem}>
                     <Link
                       href={ROUTES.auction(a.id)}
-                      className="group block rounded-2xl bg-zinc-900/80 border border-white/5 overflow-hidden hover:border-amber-400/30 transition-colors h-full"
+                      className="group block rounded-2xl bg-card/80 border border-border overflow-hidden hover:border-amber-400/30 transition-colors h-full"
                     >
-                      <div className="aspect-square bg-zinc-800 relative overflow-hidden">
+                      <div className="aspect-square bg-card relative overflow-hidden">
                         {a.product?.images[0] && (
                           <img
                             src={a.product.images[0]}
@@ -387,11 +387,11 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                             className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                         {a.status === 'live' ? (
                           <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-md bg-rose-500/90 backdrop-blur-sm">
-                            <Radio className="h-3 w-3 text-white" />
-                            <span className="text-[10px] font-black text-white uppercase tracking-wider">
+                            <Radio className="h-3 w-3 text-foreground" />
+                            <span className="text-[10px] font-black text-foreground uppercase tracking-wider">
                               En vivo
                             </span>
                           </div>
@@ -401,17 +401,17 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                           </div>
                         )}
                         <div className="absolute bottom-2 left-2 right-2">
-                          <p className="text-[10px] text-zinc-400">Puja actual</p>
+                          <p className="text-[10px] text-muted-foreground">Puja actual</p>
                           <p className="text-base font-black text-amber-400 tabular-nums leading-none">
                             {formatPEN(a.currentPrice)}
                           </p>
                         </div>
                       </div>
                       <div className="p-3">
-                        <p className="text-xs font-medium text-white line-clamp-2 leading-tight min-h-[2rem]">
+                        <p className="text-xs font-medium text-foreground line-clamp-2 leading-tight min-h-[2rem]">
                           {a.product?.title}
                         </p>
-                        <p className="text-[10px] text-zinc-500 mt-1 flex items-center gap-1">
+                        <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
                           <Trophy className="h-2.5 w-2.5" /> {a.bidCount} pujas · {a.watcherCount} observadores
                         </p>
                       </div>
@@ -430,7 +430,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
               className="space-y-4"
             >
               {/* Summary */}
-              <div className="rounded-2xl bg-gradient-to-br from-amber-500/10 via-zinc-900/80 to-fuchsia-500/10 border border-white/5 p-6 flex flex-col md:flex-row items-center gap-6">
+              <div className="rounded-2xl bg-gradient-to-br from-amber-500/10 via-card/80 to-fuchsia-500/10 border border-border p-6 flex flex-col md:flex-row items-center gap-6">
                 <div className="text-center">
                   <p className="text-5xl font-black text-amber-400 tabular-nums leading-none">
                     {seller.rating.toFixed(1)}
@@ -442,27 +442,27 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                         className={`h-4 w-4 ${
                           n <= Math.round(seller.rating)
                             ? 'text-amber-400 fill-amber-400'
-                            : 'text-zinc-700'
+                            : 'text-muted-foreground'
                         }`}
                       />
                     ))}
                   </div>
-                  <p className="text-xs text-zinc-400 mt-1">{seller.ratingsCount} calificaciones</p>
+                  <p className="text-xs text-muted-foreground mt-1">{seller.ratingsCount} calificaciones</p>
                 </div>
                 <div className="flex-1 w-full space-y-1.5">
                   {[5, 4, 3, 2, 1].map((stars) => {
                     const pct = stars === 5 ? 75 : stars === 4 ? 18 : stars === 3 ? 5 : stars === 2 ? 1 : 1
                     return (
                       <div key={stars} className="flex items-center gap-2 text-xs">
-                        <span className="text-zinc-400 w-3">{stars}</span>
+                        <span className="text-muted-foreground w-3">{stars}</span>
                         <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
-                        <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-amber-400 to-fuchsia-500"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
-                        <span className="text-zinc-500 w-8 text-right tabular-nums">{pct}%</span>
+                        <span className="text-muted-foreground w-8 text-right tabular-nums">{pct}%</span>
                       </div>
                     )
                   })}
@@ -474,35 +474,35 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                 <motion.div
                   key={r.id}
                   variants={staggerItem}
-                  className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-5"
+                  className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-5"
                 >
                   <div className="flex items-start gap-3">
                     <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-400 via-fuchsia-500 to-purple-500 p-0.5 shrink-0">
-                      <div className="h-full w-full rounded-full bg-zinc-900 flex items-center justify-center">
-                        <span className="text-xs font-bold text-white">{initials(r.name)}</span>
+                      <div className="h-full w-full rounded-full bg-card flex items-center justify-center">
+                        <span className="text-xs font-bold text-foreground">{initials(r.name)}</span>
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-sm text-white">{r.name}</span>
+                        <span className="font-bold text-sm text-foreground">{r.name}</span>
                         <div className="flex items-center gap-0.5 ml-auto">
                           {[1, 2, 3, 4, 5].map((n) => (
                             <Star
                               key={n}
                               className={`h-3 w-3 ${
-                                n <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-zinc-700'
+                                n <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground'
                               }`}
                             />
                           ))}
                         </div>
                       </div>
-                      <p className="text-[11px] text-zinc-500 mt-0.5">{r.date}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{r.date}</p>
                       {r.productTitle && (
-                        <p className="text-[11px] text-zinc-400 mt-1.5 italic">
+                        <p className="text-[11px] text-muted-foreground mt-1.5 italic">
                           Sobre: <span className="text-amber-400">{r.productTitle}</span>
                         </p>
                       )}
-                      <p className="text-sm text-zinc-300 mt-2 leading-relaxed">{r.text}</p>
+                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{r.text}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -519,34 +519,34 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
               className="grid md:grid-cols-3 gap-4"
             >
               {/* Bio card */}
-              <div className="md:col-span-2 rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-6">
-                <h3 className="text-base font-black text-white mb-3 flex items-center gap-2">
+              <div className="md:col-span-2 rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-6">
+                <h3 className="text-base font-black text-foreground mb-3 flex items-center gap-2">
                   <Award className="h-4 w-4 text-amber-400" /> Sobre {seller.displayName}
                 </h3>
-                <p className="text-sm text-zinc-300 leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {seller.bio ?? 'Vendedor verificado del marketplace Vende Ya Perú.'}
                 </p>
-                <p className="text-sm text-zinc-400 leading-relaxed mt-3">
+                <p className="text-sm text-muted-foreground leading-relaxed mt-3">
                   Especialista en productos peruanos de calidad. Cada venta incluye boleta electrónica,
                   garantía de devolución y envíos a todo el país con las principales empresas de courier.
                   Pagos en Yape, Plin, PagoEfectivo y tarjetas.
                 </p>
 
-                <div className="mt-5 pt-5 border-t border-white/5 space-y-2.5 text-sm">
+                <div className="mt-5 pt-5 border-t border-border space-y-2.5 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-400 flex items-center gap-2">
+                    <span className="text-muted-foreground flex items-center gap-2">
                       <MapPin className="h-3.5 w-3.5 text-amber-400" /> Departamento
                     </span>
-                    <span className="font-bold text-white">{seller.department ?? 'Lima'}</span>
+                    <span className="font-bold text-foreground">{seller.department ?? 'Lima'}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-400 flex items-center gap-2">
+                    <span className="text-muted-foreground flex items-center gap-2">
                       <Calendar className="h-3.5 w-3.5 text-amber-400" /> Miembro desde
                     </span>
-                    <span className="font-bold text-white">2024</span>
+                    <span className="font-bold text-foreground">2024</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-400 flex items-center gap-2">
+                    <span className="text-muted-foreground flex items-center gap-2">
                       <Award className="h-3.5 w-3.5 text-amber-400" /> Estado verificación
                     </span>
                     {seller.isVerified ? (
@@ -554,11 +554,11 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                         <Verified className="h-3.5 w-3.5" /> Verificado
                       </span>
                     ) : (
-                      <span className="font-bold text-zinc-400">No verificado</span>
+                      <span className="font-bold text-muted-foreground">No verificado</span>
                     )}
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-400 flex items-center gap-2">
+                    <span className="text-muted-foreground flex items-center gap-2">
                       <Radio className="h-3.5 w-3.5 text-amber-400" /> Vendedor en vivo
                     </span>
                     {seller.isLiveSeller ? (
@@ -572,35 +572,35 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
 
               {/* Side stats */}
               <div className="space-y-4">
-                <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-5">
-                  <h3 className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold mb-3">
+                <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-5">
+                  <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-3">
                     Rendimiento
                   </h3>
                   <div className="space-y-3">
                     <div>
                       <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-zinc-400">Tasa de respuesta</span>
+                        <span className="text-muted-foreground">Tasa de respuesta</span>
                         <span className="font-bold text-lime-400">98%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-lime-400 to-amber-400" style={{ width: '98%' }} />
                       </div>
                     </div>
                     <div>
                       <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-zinc-400">Envíos a tiempo</span>
+                        <span className="text-muted-foreground">Envíos a tiempo</span>
                         <span className="font-bold text-sky-400">96%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-sky-400 to-fuchsia-500" style={{ width: '96%' }} />
                       </div>
                     </div>
                     <div>
                       <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-zinc-400">Satisfacción</span>
+                        <span className="text-muted-foreground">Satisfacción</span>
                         <span className="font-bold text-amber-400">{seller.rating.toFixed(1)}/5</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                         <div
                           className="h-full bg-gradient-to-r from-amber-400 to-fuchsia-500"
                           style={{ width: `${(seller.rating / 5) * 100}%` }}
@@ -610,15 +610,15 @@ export default function SellerProfilePage({ params }: { params: Promise<{ userna
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-5">
-                  <h3 className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold mb-3">
+                <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-5">
+                  <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-3">
                     Tiempo de envío
                   </h3>
                   <div className="flex items-center gap-2 text-amber-400">
                     <Clock className="h-5 w-5" />
                     <span className="text-2xl font-black">1-2 días</span>
                   </div>
-                  <p className="text-xs text-zinc-500 mt-1">Promedio en Lima Metropolitana</p>
+                  <p className="text-xs text-muted-foreground mt-1">Promedio en Lima Metropolitana</p>
                 </div>
 
                 <Link href={`${ROUTES.mensajes}?u=${seller.username}`}>
@@ -647,12 +647,12 @@ function EmptyState({
   description: string
 }) {
   return (
-    <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-12 text-center">
-      <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4">
+    <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-12 text-center">
+      <div className="h-14 w-14 rounded-2xl bg-muted border border-border flex items-center justify-center mx-auto mb-4">
         <Icon className={`h-7 w-7 ${color}`} />
       </div>
-      <p className="text-sm font-bold text-white mb-1">{title}</p>
-      <p className="text-xs text-zinc-500">{description}</p>
+      <p className="text-sm font-bold text-foreground mb-1">{title}</p>
+      <p className="text-xs text-muted-foreground">{description}</p>
     </div>
   )
 }

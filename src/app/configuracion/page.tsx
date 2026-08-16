@@ -37,8 +37,8 @@ function ToggleRow({
   return (
     <div className="flex items-center justify-between gap-4 py-2.5">
       <div className="min-w-0">
-        <p className="text-sm font-bold text-white">{label}</p>
-        <p className="text-xs text-zinc-500 mt-0.5">{desc}</p>
+        <p className="text-sm font-bold text-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
       </div>
       <DarkToggle checked={checked} onChange={onChange} aria-label={label} />
     </div>
@@ -58,15 +58,15 @@ function SectionCard({
     <motion.section
       id={id}
       variants={staggerItem}
-      className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-5 md:p-6"
+      className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-5 md:p-6"
     >
       <div className="flex items-center gap-2 mb-5">
-        <div className="h-9 w-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+        <div className="h-9 w-9 rounded-xl bg-muted border border-border flex items-center justify-center">
           <Icon className={`h-4 w-4 ${accent}`} />
         </div>
-        <h3 className="font-black text-white text-base">{title}</h3>
+        <h3 className="font-black text-foreground text-base">{title}</h3>
       </div>
-      <div className="space-y-3 divide-y divide-white/5">{children}</div>
+      <div className="space-y-3 divide-y divide-border">{children}</div>
     </motion.section>
   )
 }
@@ -112,12 +112,12 @@ export default function SettingsPage() {
           {/* Profile / Account */}
           <SectionCard id="cuenta" icon={User} title="Información personal" accent="text-amber-400">
             <div className="flex items-center gap-4 pb-4">
-              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center text-white font-black text-xl shrink-0">
+              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center text-foreground font-black text-xl shrink-0">
                 {initials(name)}
               </div>
               <div>
                 <GhostButton className="h-9 text-xs">Cambiar foto</GhostButton>
-                <p className="text-[10px] text-zinc-500 mt-1">JPG, PNG. Máx 2MB.</p>
+                <p className="text-[10px] text-muted-foreground mt-1">JPG, PNG. Máx 2MB.</p>
               </div>
             </div>
 
@@ -138,7 +138,7 @@ export default function SettingsPage() {
                   disabled
                   className="opacity-60"
                 />
-                <p className="text-[10px] text-zinc-500 mt-1">No se puede cambiar</p>
+                <p className="text-[10px] text-muted-foreground mt-1">No se puede cambiar</p>
               </div>
               <div className="md:col-span-2">
                 <DarkLabel htmlFor="bio">Bio</DarkLabel>
@@ -158,7 +158,7 @@ export default function SettingsPage() {
                   onChange={(e) => setDepartment(e.target.value)}
                 >
                   {PERU_DEPARTMENTS.map((d) => (
-                    <option key={d} value={d} className="bg-zinc-900">
+                    <option key={d} value={d} className="bg-card">
                       {d}
                     </option>
                   ))}
@@ -217,18 +217,18 @@ export default function SettingsPage() {
             />
             <div className="flex items-center justify-between gap-4 pt-4">
               <div className="min-w-0">
-                <p className="text-sm font-bold text-white">Cambiar contraseña</p>
-                <p className="text-xs text-zinc-500 mt-0.5">Último cambio hace 3 meses</p>
+                <p className="text-sm font-bold text-foreground">Cambiar contraseña</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Último cambio hace 3 meses</p>
               </div>
               <GhostButton className="h-9 text-xs">Cambiar</GhostButton>
             </div>
             <div className="flex items-center justify-between gap-4 pt-4">
               <div className="min-w-0">
-                <p className="text-sm font-bold text-white flex items-center gap-1.5">
+                <p className="text-sm font-bold text-foreground flex items-center gap-1.5">
                   <ShieldCheck className="h-3.5 w-3.5 text-lime-400" />
                   Verificar identidad
                 </p>
-                <p className="text-xs text-zinc-500 mt-0.5">Sube tu DNI para obtener el badge ✓</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Sube tu DNI para obtener el badge ✓</p>
               </div>
               <GhostButton className="h-9 text-xs">Verificar</GhostButton>
             </div>
@@ -240,15 +240,15 @@ export default function SettingsPage() {
               <div>
                 <DarkLabel>Idioma</DarkLabel>
                 <DarkSelect defaultValue="es">
-                  <option value="es" className="bg-zinc-900">Español (Perú)</option>
-                  <option value="en" className="bg-zinc-900">English (US)</option>
+                  <option value="es" className="bg-card">Español (Perú)</option>
+                  <option value="en" className="bg-card">English (US)</option>
                 </DarkSelect>
               </div>
               <div>
                 <DarkLabel>Moneda</DarkLabel>
                 <DarkSelect defaultValue="PEN">
-                  <option value="PEN" className="bg-zinc-900">S/. PEN (Sol peruano)</option>
-                  <option value="USD" className="bg-zinc-900">$ USD (Dólar)</option>
+                  <option value="PEN" className="bg-card">S/. PEN (Sol peruano)</option>
+                  <option value="USD" className="bg-card">$ USD (Dólar)</option>
                 </DarkSelect>
               </div>
             </div>
@@ -277,7 +277,7 @@ export default function SettingsPage() {
               </div>
               <h3 className="font-black text-rose-400 text-base">Zona peligrosa</h3>
             </div>
-            <p className="text-xs text-zinc-400 mb-4 leading-relaxed">
+            <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
               Al eliminar tu cuenta, se borrarán permanentemente todos tus productos,
               subastas, mensajes, calificaciones y datos personales. Esta acción{' '}
               <strong className="text-rose-300">no se puede deshacer</strong> después de 30 días.
@@ -303,7 +303,7 @@ export default function SettingsPage() {
                     description: 'Te contactaremos para exportar tus datos.',
                   })
                 }
-                className="inline-flex items-center justify-center gap-2 px-4 h-11 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-300 font-semibold text-sm transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-4 h-11 rounded-xl bg-muted border border-border hover:bg-muted text-muted-foreground font-semibold text-sm transition-colors"
               >
                 Exportar mis datos
               </button>

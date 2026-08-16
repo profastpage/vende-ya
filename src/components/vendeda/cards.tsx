@@ -196,7 +196,7 @@ export function LiveStreamCard({ stream, className }: { stream: LiveStream; clas
             </p>
             {seller && (
               <div className="flex items-center gap-1.5">
-                <Avatar className="h-5 w-5 border border-white/20">
+                <Avatar className="h-5 w-5 border border-border">
                   <AvatarImage src={seller.avatarUrl ?? undefined} alt={seller.displayName} />
                   <AvatarFallback className="text-[9px]">{initials(seller.displayName)}</AvatarFallback>
                 </Avatar>

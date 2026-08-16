@@ -30,7 +30,7 @@ import { cn } from '@/lib/utils'
 // Dark premium input class — shared with login
 // ---------------------------------------------------------------------
 const INPUT_CLASS =
-  'w-full h-12 rounded-xl bg-white/5 border border-white/10 px-4 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus-visible:border-amber-400/60 focus-visible:ring-2 focus-visible:ring-amber-400/30 transition-colors disabled:opacity-60'
+  'w-full h-12 rounded-xl bg-muted border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-amber-400/60 focus-visible:ring-2 focus-visible:ring-amber-400/30 transition-colors disabled:opacity-60'
 
 // ---------------------------------------------------------------------
 // Left brand panel — feature blurbs (module-level so React doesn't
@@ -193,14 +193,14 @@ export default function RegistroPage() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-7xl flex-col md:flex-row">
         {/* =================================================== */}
         {/* LEFT — Brand panel (desktop only)                   */}
         {/* =================================================== */}
         <aside
           aria-hidden="true"
-          className="relative hidden md:flex md:w-[46%] lg:w-[52%] flex-col justify-between overflow-hidden bg-gradient-to-br from-amber-500/20 via-fuchsia-900/30 to-zinc-950 p-12"
+          className="relative hidden md:flex md:w-[46%] lg:w-[52%] flex-col justify-between overflow-hidden bg-gradient-to-br from-amber-500/20 via-fuchsia-900/30 to-background p-12"
         >
           {/* Glow blobs */}
           <div className="pointer-events-none absolute -top-24 -right-16 h-96 w-96 rounded-full bg-amber-500/20 blur-3xl" />
@@ -222,7 +222,7 @@ export default function RegistroPage() {
                 <div className="font-black text-2xl font-display tracking-tight bg-gradient-to-r from-amber-200 via-white to-fuchsia-200 bg-clip-text text-transparent">
                   {APP_NAME}
                 </div>
-                <div className="text-[11px] text-zinc-400 -mt-0.5">Subastas en vivo del Perú</div>
+                <div className="text-[11px] text-muted-foreground -mt-0.5">Subastas en vivo del Perú</div>
               </div>
             </Link>
           </div>
@@ -236,7 +236,7 @@ export default function RegistroPage() {
                 Empieza a vender hoy.
               </span>
             </h2>
-            <p className="text-zinc-300/90 text-lg leading-relaxed max-w-md">
+            <p className="text-muted-foreground/90 text-lg leading-relaxed max-w-md">
               Únete a la comunidad de vendedores y compradores en vivo más grande del Perú. Sin
               mensualidades, sin comisiones ocultas — solo pagas el 5% cuando vendes.
             </p>
@@ -255,7 +255,7 @@ export default function RegistroPage() {
                   </div>
                   <div className="space-y-1">
                     <div className={cn('font-bold text-sm', f.accent)}>{f.title}</div>
-                    <p className="text-sm text-zinc-400 leading-relaxed max-w-sm">{f.body}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">{f.body}</p>
                   </div>
                 </li>
               ))}
@@ -263,7 +263,7 @@ export default function RegistroPage() {
           </div>
 
           {/* Footer */}
-          <div className="relative flex items-center justify-between text-xs text-zinc-500">
+          <div className="relative flex items-center justify-between text-xs text-muted-foreground">
             <span>© 2026 Vende Ya · Hecho en Perú 🇵🇪</span>
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-lime-400" />
@@ -282,7 +282,7 @@ export default function RegistroPage() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-md"
           >
-            <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl shadow-black/40">
+            <div className="rounded-3xl border border-border bg-card backdrop-blur-xl p-8 shadow-2xl shadow-black/40">
               {/* Mobile-only logo — imagen oficial /logo.png */}
               <Link href={ROUTES.home} className="mb-6 flex items-center gap-2.5 md:hidden">
                 <Image
@@ -293,13 +293,13 @@ export default function RegistroPage() {
                   priority
                   className="rounded-xl object-contain"
                 />
-                <span className="font-black text-lg font-display text-white">{APP_NAME}</span>
+                <span className="font-black text-lg font-display text-foreground">{APP_NAME}</span>
               </Link>
 
               {/* Title */}
               <div className="mb-6 space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-3xl font-black font-display tracking-tight text-white">
+                  <h1 className="text-3xl font-black font-display tracking-tight text-foreground">
                     Crea tu cuenta
                   </h1>
                   {isDemoMode && (
@@ -308,7 +308,7 @@ export default function RegistroPage() {
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-zinc-400">
+                <p className="text-sm text-muted-foreground">
                   Empieza a pujar y vender en vivo en menos de 5 minutos.
                 </p>
               </div>
@@ -316,7 +316,7 @@ export default function RegistroPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Display name */}
                 <Field htmlFor="name" label="Nombre completo">
-                  <User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
                     id="name"
                     required
@@ -330,7 +330,7 @@ export default function RegistroPage() {
 
                 {/* Username */}
                 <Field htmlFor="username" label="Usuario" hint="Se usará en tu URL pública: vendeya.pe/vendedores/@rosa.quispe">
-                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-500">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">
                     @
                   </span>
                   <input
@@ -348,7 +348,7 @@ export default function RegistroPage() {
 
                 {/* Email */}
                 <Field htmlFor="email" label="Correo electrónico">
-                  <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
                     id="email"
                     type="email"
@@ -371,7 +371,7 @@ export default function RegistroPage() {
                       : undefined
                   }
                 >
-                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-500">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">
                     +51
                   </span>
                   <input
@@ -385,12 +385,12 @@ export default function RegistroPage() {
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
                     className={cn(INPUT_CLASS, 'pl-12 pr-10')}
                   />
-                  <Phone className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <Phone className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 </Field>
 
                 {/* Password */}
                 <Field htmlFor="password" label="Contraseña">
-                  <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -405,7 +405,7 @@ export default function RegistroPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -421,12 +421,12 @@ export default function RegistroPage() {
                           key={i}
                           className={cn(
                             'flex-1 rounded-full transition-colors',
-                            i < strength ? strengthColor : 'bg-white/10'
+                            i < strength ? strengthColor : 'bg-border'
                           )}
                         />
                       ))}
                     </div>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-muted-foreground">
                       Fortaleza:{' '}
                       <span className={cn('font-semibold', strengthTextColor)}>
                         {strengthLabel}
@@ -445,7 +445,7 @@ export default function RegistroPage() {
                       : undefined
                   }
                 >
-                  <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
                     id="confirmPassword"
                     type={showPassword ? 'text' : 'password'}
@@ -468,14 +468,14 @@ export default function RegistroPage() {
                 {/* Terms */}
                 <label
                   htmlFor="terms"
-                  className="flex items-start gap-2.5 text-xs text-zinc-400 leading-relaxed cursor-pointer select-none pt-1"
+                  className="flex items-start gap-2.5 text-xs text-muted-foreground leading-relaxed cursor-pointer select-none pt-1"
                 >
                   <input
                     id="terms"
                     type="checkbox"
                     checked={acceptTerms}
                     onChange={(e) => setAcceptTerms(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/5 accent-amber-400 focus:ring-2 focus:ring-amber-400/40"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-border bg-muted accent-amber-400 focus:ring-2 focus:ring-amber-400/40"
                   />
                   <span>
                     Acepto los{' '}
@@ -528,16 +528,16 @@ export default function RegistroPage() {
               {/* Divider */}
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/10" />
+                  <div className="w-full border-t border-border" />
                 </div>
                 <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
-                  <span className="bg-zinc-950 px-3 text-zinc-500">¿Ya tienes cuenta?</span>
+                  <span className="bg-card px-3 text-muted-foreground">¿Ya tienes cuenta?</span>
                 </div>
               </div>
 
               <Link
                 href={ROUTES.login}
-                className="block w-full h-11 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white text-sm font-semibold transition-colors flex items-center justify-center"
+                className="block w-full h-11 rounded-xl bg-muted border border-border hover:bg-accent hover:border-border text-foreground text-sm font-semibold transition-colors flex items-center justify-center"
               >
                 Iniciar sesión
               </Link>
@@ -554,12 +554,12 @@ export default function RegistroPage() {
 // =====================================================================
 function SuccessScreen({ email }: { email: string }) {
   return (
-    <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
+    <main className="min-h-screen bg-background text-foreground flex items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl shadow-black/40 text-center space-y-6"
+        className="w-full max-w-md rounded-3xl border border-border bg-card backdrop-blur-xl p-8 shadow-2xl shadow-black/40 text-center space-y-6"
       >
         {/* Animated check */}
         <motion.div
@@ -586,12 +586,12 @@ function SuccessScreen({ email }: { email: string }) {
           <h1 className="text-2xl font-black font-display tracking-tight text-lime-400">
             Te enviamos un correo de confirmación
           </h1>
-          <p className="text-zinc-300 leading-relaxed">
+          <p className="text-muted-foreground leading-relaxed">
             Revisa tu bandeja de entrada en{' '}
-            <span className="font-semibold text-white">{email}</span> y haz clic en el enlace para
+            <span className="font-semibold text-foreground">{email}</span> y haz clic en el enlace para
             activar tu cuenta. Solo así podrás iniciar sesión y empezar a pujar en vivo.
           </p>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-muted-foreground">
             ¿No recibiste el correo? Revisa tu carpeta de spam o espera unos minutos. A veces
             tarda hasta 5 minutos en llegar.
           </p>
@@ -612,7 +612,7 @@ function SuccessScreen({ email }: { email: string }) {
           </Link>
           <Link
             href={ROUTES.home}
-            className="w-full h-11 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white text-sm font-semibold transition-colors flex items-center justify-center"
+            className="w-full h-11 rounded-xl bg-muted border border-border hover:bg-accent hover:border-border text-foreground text-sm font-semibold transition-colors flex items-center justify-center"
           >
             Volver al inicio
           </Link>
@@ -641,7 +641,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="text-sm font-semibold text-zinc-200">
+      <label htmlFor={htmlFor} className="text-sm font-semibold text-foreground">
         {label}
       </label>
       <div className="relative">{children}</div>
@@ -650,7 +650,7 @@ function Field({
           {error}
         </p>
       )}
-      {hint && !error && <p className="text-xs text-zinc-500">{hint}</p>}
+      {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   )
 }

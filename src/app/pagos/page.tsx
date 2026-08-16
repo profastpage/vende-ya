@@ -64,7 +64,7 @@ export default function PaymentsPage() {
                 key={kpi.label}
                 variants={staggerItem}
                 whileHover={{ y: -2 }}
-                className="relative overflow-hidden rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-4"
+                className="relative overflow-hidden rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-4"
               >
                 <div
                   className={`absolute -top-10 -right-10 h-28 w-28 rounded-full ${kpi.gradient} opacity-20 blur-3xl`}
@@ -72,17 +72,17 @@ export default function PaymentsPage() {
                 />
                 <div className="relative flex items-start justify-between">
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
                       {kpi.label}
                     </p>
-                    <p className="mt-1 text-xl md:text-2xl font-black text-white tabular-nums">
+                    <p className="mt-1 text-xl md:text-2xl font-black text-foreground tabular-nums">
                       {kpi.value}
                     </p>
                     {'delta' in kpi && kpi.delta && (
                       <p className={`mt-1 text-[11px] font-bold ${kpi.accent}`}>{kpi.delta}</p>
                     )}
                   </div>
-                  <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+                  <div className="rounded-xl p-2 bg-muted border border-border">
                     <Icon className={`h-5 w-5 ${kpi.accent}`} />
                   </div>
                 </div>
@@ -92,9 +92,9 @@ export default function PaymentsPage() {
         </motion.div>
 
         {/* Payment methods */}
-        <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-5 mb-4">
+        <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-5 mb-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-black text-white text-base">Tus métodos de pago</h3>
+            <h3 className="font-black text-foreground text-base">Tus métodos de pago</h3>
             <GhostButton onClick={() => setShowAdd((v) => !v)} className="h-9 text-xs px-3">
               <Plus className="h-3.5 w-3.5" />
               {showAdd ? 'Cerrar' : 'Agregar'}
@@ -108,17 +108,17 @@ export default function PaymentsPage() {
               return (
                 <div
                   key={m.id}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-muted border border-border"
                 >
                   <div
-                    className="h-10 w-10 rounded-lg flex items-center justify-center text-white shrink-0"
+                    className="h-10 w-10 rounded-lg flex items-center justify-center text-foreground shrink-0"
                     style={{ backgroundColor: pm?.color ?? '#64748B' }}
                   >
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-white">{m.label}</span>
+                      <span className="text-sm font-bold text-foreground">{m.label}</span>
                       {m.verified && (
                         <StatusBadge variant="lime">
                           <Check className="h-2.5 w-2.5" /> Verificado
@@ -126,7 +126,7 @@ export default function PaymentsPage() {
                       )}
                       {m.default && <StatusBadge variant="amber">Default</StatusBadge>}
                     </div>
-                    <p className="text-xs text-zinc-500 mt-0.5">{m.number}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{m.number}</p>
                   </div>
                   <button
                     onClick={() =>
@@ -136,7 +136,7 @@ export default function PaymentsPage() {
                         variant: 'destructive',
                       })
                     }
-                    className="h-9 w-9 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 flex items-center justify-center transition-colors"
+                    className="h-9 w-9 rounded-lg text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 flex items-center justify-center transition-colors"
                     aria-label="Eliminar método"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -151,9 +151,9 @@ export default function PaymentsPage() {
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="mt-4 pt-4 border-t border-white/10"
+              className="mt-4 pt-4 border-t border-border"
             >
-              <h4 className="font-bold text-white text-sm mb-3">Agregar método de pago</h4>
+              <h4 className="font-bold text-foreground text-sm mb-3">Agregar método de pago</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {['yape', 'plin', 'card', 'pagoefectivo'].map((id) => {
                   const pm = PAYMENT_METHODS[id as keyof typeof PAYMENT_METHODS]
@@ -166,15 +166,15 @@ export default function PaymentsPage() {
                           description: 'Formulario en desarrollo',
                         })
                       }
-                      className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border-2 border-white/10 hover:border-amber-400/50 hover:bg-amber-400/5 transition-all"
+                      className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted border-2 border-border hover:border-amber-400/50 hover:bg-amber-400/5 transition-all"
                     >
                       <div
-                        className="h-9 w-9 rounded-lg flex items-center justify-center text-white text-xs font-black"
+                        className="h-9 w-9 rounded-lg flex items-center justify-center text-foreground text-xs font-black"
                         style={{ backgroundColor: pm?.color }}
                       >
                         {pm?.label.charAt(0)}
                       </div>
-                      <span className="text-xs text-zinc-300">{pm?.label}</span>
+                      <span className="text-xs text-muted-foreground">{pm?.label}</span>
                     </button>
                   )
                 })}
@@ -184,16 +184,16 @@ export default function PaymentsPage() {
         </div>
 
         {/* Transactions history */}
-        <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm overflow-hidden">
-          <div className="p-5 border-b border-white/5">
-            <h3 className="font-black text-white text-base">Transacciones recientes</h3>
-            <p className="text-xs text-zinc-500 mt-0.5">
+        <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm overflow-hidden">
+          <div className="p-5 border-b border-border">
+            <h3 className="font-black text-foreground text-base">Transacciones recientes</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
               Historial de tus últimos pagos. Haz clic en una transacción para ver el detalle.
             </p>
           </div>
 
           {/* Table header (desktop) */}
-          <div className="hidden md:grid grid-cols-[8rem_1fr_7rem_8rem_7rem] gap-3 px-5 py-2 text-[10px] uppercase tracking-wider text-zinc-500 font-bold border-b border-white/5">
+          <div className="hidden md:grid grid-cols-[8rem_1fr_7rem_8rem_7rem] gap-3 px-5 py-2 text-[10px] uppercase tracking-wider text-muted-foreground font-bold border-b border-border">
             <span>Pedido</span>
             <span>Producto</span>
             <span>Método</span>
@@ -205,7 +205,7 @@ export default function PaymentsPage() {
             variants={staggerContainer}
             initial="hidden"
             animate="show"
-            className="divide-y divide-white/5"
+            className="divide-y divide-border"
           >
             {TRANSACTIONS.map((t) => {
               const pm = PAYMENT_METHODS[t.method as keyof typeof PAYMENT_METHODS]
@@ -214,21 +214,21 @@ export default function PaymentsPage() {
                 <motion.div
                   key={t.id}
                   variants={staggerItem}
-                  className="grid grid-cols-2 md:grid-cols-[8rem_1fr_7rem_8rem_7rem] gap-3 px-5 py-3 items-center hover:bg-white/5 transition-colors"
+                  className="grid grid-cols-2 md:grid-cols-[8rem_1fr_7rem_8rem_7rem] gap-3 px-5 py-3 items-center hover:bg-muted transition-colors"
                 >
                   <span className="text-xs font-mono text-amber-400">{t.orderId}</span>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{t.desc}</p>
-                    <p className="text-[10px] text-zinc-500 md:hidden">{pm?.label} · {t.date}</p>
+                    <p className="text-sm font-semibold text-foreground truncate">{t.desc}</p>
+                    <p className="text-[10px] text-muted-foreground md:hidden">{pm?.label} · {t.date}</p>
                   </div>
                   <div className="hidden md:flex items-center gap-2">
                     <div
-                      className="h-6 w-6 rounded flex items-center justify-center text-white text-[10px] font-black"
+                      className="h-6 w-6 rounded flex items-center justify-center text-foreground text-[10px] font-black"
                       style={{ backgroundColor: pm?.color }}
                     >
                       {pm?.label.charAt(0)}
                     </div>
-                    <span className="text-xs text-zinc-400">{pm?.label}</span>
+                    <span className="text-xs text-muted-foreground">{pm?.label}</span>
                   </div>
                   <div>
                     {isVerified ? (
@@ -242,17 +242,17 @@ export default function PaymentsPage() {
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-white tabular-nums">
+                    <p className="text-sm font-black text-foreground tabular-nums">
                       {formatPEN(t.amount)}
                     </p>
-                    <p className="text-[10px] text-zinc-500 hidden md:block">{t.date}</p>
+                    <p className="text-[10px] text-muted-foreground hidden md:block">{t.date}</p>
                   </div>
                 </motion.div>
               )
             })}
           </motion.div>
 
-          <div className="p-4 border-t border-white/5 text-center">
+          <div className="p-4 border-t border-border text-center">
             <button className="text-xs text-amber-400 hover:text-amber-300 font-semibold">
               Ver todas las transacciones →
             </button>

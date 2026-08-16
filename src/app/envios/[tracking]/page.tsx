@@ -118,7 +118,7 @@ export default function TrackingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Ambient background */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden>
         <div className="absolute -top-40 left-1/4 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl" />
@@ -127,7 +127,7 @@ export default function TrackingPage() {
 
       <div className="relative max-w-4xl mx-auto px-4 md:px-6 py-4 md:py-8 pb-24 md:pb-16">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1 text-xs md:text-sm text-zinc-500 mb-6 overflow-hidden">
+        <nav className="flex items-center gap-1 text-xs md:text-sm text-muted-foreground mb-6 overflow-hidden">
           <Link href={ROUTES.home} className="hover:text-amber-400 transition-colors shrink-0">
             Inicio
           </Link>
@@ -139,14 +139,14 @@ export default function TrackingPage() {
                   {bc.label}
                 </Link>
               ) : (
-                <span className="text-white font-medium truncate font-mono">{bc.label}</span>
+                <span className="text-foreground font-medium truncate font-mono">{bc.label}</span>
               )}
             </React.Fragment>
           ))}
         </nav>
 
         {isLoading ? (
-          <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-12 flex items-center justify-center">
+          <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-12 flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
           </div>
         ) : error ? (
@@ -154,7 +154,7 @@ export default function TrackingPage() {
             <div className="flex items-center gap-3 text-rose-300">
               <AlertCircle className="h-5 w-5 shrink-0" />
               <div>
-                <p className="font-black text-white">No se pudo cargar el envío</p>
+                <p className="font-black text-foreground">No se pudo cargar el envío</p>
                 <p className="text-sm text-rose-300 mt-0.5">{error}</p>
               </div>
             </div>
@@ -209,26 +209,26 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="relative rounded-2xl overflow-hidden border border-white/5"
+        className="relative rounded-2xl overflow-hidden border border-border"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/15 via-zinc-950 to-sky-500/15" />
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/15 via-background to-sky-500/15" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(245,158,11,0.2),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(14,165,233,0.15),transparent_50%)]" />
         <div className="relative p-6 md:p-8">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold flex items-center gap-1.5">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold flex items-center gap-1.5">
                 <Package className="h-3.5 w-3.5 text-amber-400" /> Código de seguimiento {carrier.label}
               </p>
               <div className="flex items-center gap-3 mt-2 flex-wrap">
-                <p className="font-mono text-2xl md:text-3xl font-black text-white break-all leading-tight">
+                <p className="font-mono text-2xl md:text-3xl font-black text-foreground break-all leading-tight">
                   {shipment.trackingCode ?? '—'}
                 </p>
                 {shipment.trackingCode && (
                   <button
                     onClick={handleCopyTracking}
                     aria-label="Copiar código"
-                    className="h-9 w-9 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center text-zinc-300 hover:text-amber-400 transition-colors shrink-0"
+                    className="h-9 w-9 rounded-lg bg-muted border border-border hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-amber-400 transition-colors shrink-0"
                   >
                     <Copy className="h-4 w-4" />
                   </button>
@@ -238,7 +238,7 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
                 <StatusBadge variant={statusBadge.variant}>
                   {statusBadge.label}
                 </StatusBadge>
-                <span className="text-xs text-zinc-400 flex items-center gap-1">
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" /> Actualizado {updatedAt.toLocaleString('es-PE', {
                     day: '2-digit',
                     month: 'short',
@@ -250,16 +250,16 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
             </div>
 
             {/* Carrier badge */}
-            <div className="flex items-center gap-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-3 shrink-0">
+            <div className="flex items-center gap-3 rounded-xl bg-muted border border-border backdrop-blur-sm p-3 shrink-0">
               <div
-                className="h-10 w-10 rounded-lg flex items-center justify-center text-white text-sm font-black shrink-0"
+                className="h-10 w-10 rounded-lg flex items-center justify-center text-foreground text-sm font-black shrink-0"
                 style={{ backgroundColor: carrier.color }}
               >
                 {carrier.label.charAt(0)}
               </div>
               <div>
-                <p className="text-xs font-bold text-white">{carrier.label}</p>
-                <p className="text-[10px] text-zinc-500">{carrier.estDays}</p>
+                <p className="text-xs font-bold text-foreground">{carrier.label}</p>
+                <p className="text-[10px] text-muted-foreground">{carrier.estDays}</p>
               </div>
             </div>
           </div>
@@ -278,8 +278,8 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
       </motion.div>
 
       {/* Status timeline */}
-      <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-6">
-        <h3 className="font-black text-white mb-5 flex items-center gap-2">
+      <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-6">
+        <h3 className="font-black text-foreground mb-5 flex items-center gap-2">
           <Navigation className="h-4 w-4 text-amber-400" /> Estado del envío
         </h3>
 
@@ -300,7 +300,7 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
                     <div
                       className={cn(
                         'absolute top-5 left-1/2 w-full h-0.5 -translate-y-0.5',
-                        isFuture || isProblem ? 'bg-white/10' : 'bg-gradient-to-r from-amber-400 to-fuchsia-500'
+                        isFuture || isProblem ? 'bg-muted' : 'bg-gradient-to-r from-amber-400 to-fuchsia-500'
                       )}
                       aria-hidden
                     />
@@ -309,7 +309,7 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
                     className={cn(
                       'relative z-10 h-10 w-10 rounded-full flex items-center justify-center border-2 transition-all',
                       isFuture
-                        ? 'bg-zinc-900 border-white/10 text-zinc-600'
+                        ? 'bg-card border-border text-muted-foreground'
                         : `${DOT_BG[color]} ${isCurrent ? `ring-4 ${DOT_GLOW[color]}` : ''}`,
                       isProblem && 'ring-4 ring-rose-400/20'
                     )}
@@ -319,7 +319,7 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
                   <span
                     className={cn(
                       'mt-2 text-xs font-bold text-center max-w-[6rem] leading-tight',
-                      isFuture ? 'text-zinc-600' : 'text-white'
+                      isFuture ? 'text-muted-foreground' : 'text-foreground'
                     )}
                   >
                     {step.label}
@@ -357,7 +357,7 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
                   className={cn(
                     'h-9 w-9 rounded-full flex items-center justify-center border-2 transition-all shrink-0',
                     isFuture
-                      ? 'bg-zinc-900 border-white/10 text-zinc-600'
+                      ? 'bg-card border-border text-muted-foreground'
                       : `${DOT_BG[color]} ${isCurrent ? `ring-4 ${DOT_GLOW[color]}` : ''}`,
                     isProblem && 'ring-4 ring-rose-400/20'
                   )}
@@ -365,7 +365,7 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
                   <Icon className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={cn('text-sm font-bold', isFuture ? 'text-zinc-600' : 'text-white')}>
+                  <p className={cn('text-sm font-bold', isFuture ? 'text-muted-foreground' : 'text-foreground')}>
                     {step.label}
                   </p>
                   {isCurrent && (
@@ -388,14 +388,14 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
 
       {/* Shipment details + QR */}
       <div className="grid md:grid-cols-3 gap-4">
-        <div className="md:col-span-2 rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-6">
-          <h3 className="font-black text-white mb-4 flex items-center gap-2">
+        <div className="md:col-span-2 rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-6">
+          <h3 className="font-black text-foreground mb-4 flex items-center gap-2">
             <Truck className="h-4 w-4 text-amber-400" /> Detalles del envío
           </h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Carrier</p>
-              <p className="font-bold text-white mt-0.5 flex items-center gap-2">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Carrier</p>
+              <p className="font-bold text-foreground mt-0.5 flex items-center gap-2">
                 <span
                   className="inline-block h-2.5 w-2.5 rounded-full"
                   style={{ backgroundColor: carrier.color }}
@@ -404,39 +404,39 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
               </p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Costo de envío</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Costo de envío</p>
               <p className="font-bold text-amber-400 mt-0.5 tabular-nums">
                 {formatPEN(shipment.shippingCost)}
               </p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Origen</p>
-              <p className="font-bold text-white mt-0.5 flex items-center gap-1">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Origen</p>
+              <p className="font-bold text-foreground mt-0.5 flex items-center gap-1">
                 <MapPin className="h-3 w-3 text-amber-400" /> {agencyLabel(shipment.originAgencyId)}
               </p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Destino</p>
-              <p className="font-bold text-white mt-0.5 flex items-center gap-1">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Destino</p>
+              <p className="font-bold text-foreground mt-0.5 flex items-center gap-1">
                 <MapPin className="h-3 w-3 text-sky-400" /> {agencyLabel(shipment.destinationAgencyId)}
               </p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Pedido creado</p>
-              <p className="font-bold text-white mt-0.5">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Pedido creado</p>
+              <p className="font-bold text-foreground mt-0.5">
                 {createdAt.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
               </p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Entrega estimada</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Entrega estimada</p>
               <p className={`font-bold mt-0.5 ${delivered ? 'text-lime-400' : 'text-amber-400'}`}>
                 {delivered
                   ? `Entregado · ${updatedAt.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}`
                   : etaDate.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
               </p>
             </div>
-            <div className="col-span-2 mt-2 pt-4 border-t border-white/5">
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Orden de compra</p>
+            <div className="col-span-2 mt-2 pt-4 border-t border-border">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Orden de compra</p>
               <p className="font-mono text-xs text-amber-400 mt-0.5">#{shipment.order.id.slice(0, 8)}</p>
             </div>
           </div>
@@ -451,8 +451,8 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
         </div>
 
         {/* QR placeholder */}
-        <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-6 flex flex-col items-center justify-center">
-          <h3 className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold mb-4 self-start flex items-center gap-1.5">
+        <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-6 flex flex-col items-center justify-center">
+          <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-4 self-start flex items-center gap-1.5">
             <QrCode className="h-3.5 w-3.5 text-amber-400" /> Código QR
           </h3>
           {/* QR placeholder */}
@@ -462,22 +462,22 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
                 // Pseudo-random QR pattern based on tracking code.
                 const seed = (shipment.trackingCode ?? 'vendeya').charCodeAt(i % (shipment.trackingCode?.length ?? 7)) ?? 65
                 const on = (seed * (i + 1)) % 3 === 0
-                return <div key={i} className={on ? 'bg-zinc-950' : 'bg-white'} />
+                return <div key={i} className={on ? 'bg-background' : 'bg-white'} />
               })}
             </div>
           </div>
-          <p className="text-xs text-zinc-400 mt-4 text-center">
+          <p className="text-xs text-muted-foreground mt-4 text-center">
             Escanea para rastrear en tiempo real
           </p>
-          <p className="text-[10px] text-zinc-600 mt-1 font-mono break-all text-center">
+          <p className="text-[10px] text-muted-foreground mt-1 font-mono break-all text-center">
             {shipment.trackingCode ?? '—'}
           </p>
         </div>
       </div>
 
       {/* Map placeholder */}
-      <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm overflow-hidden">
-        <div className="relative aspect-[2/1] md:aspect-[3/1] bg-zinc-950">
+      <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm overflow-hidden">
+        <div className="relative aspect-[2/1] md:aspect-[3/1] bg-background">
           {/* Fake map grid */}
           <div
             className="absolute inset-0 opacity-30"
@@ -538,26 +538,26 @@ function ShipmentView({ shipment }: { shipment: ShipmentData['shipment'] }) {
             </div>
           )}
           {/* "Mapa en vivo" overlay */}
-          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md border border-white/10">
+          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md border border-border">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75 animate-ping" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-lime-500" />
             </span>
             <Map className="h-3 w-3 text-lime-400" />
-            <span className="text-[10px] font-black text-white uppercase tracking-wider">Mapa en vivo</span>
+            <span className="text-[10px] font-black text-foreground uppercase tracking-wider">Mapa en vivo</span>
           </div>
         </div>
       </div>
 
       {/* Estado de pago */}
-      <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-6">
-        <h3 className="font-black text-white mb-4 flex items-center gap-2">
+      <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-6">
+        <h3 className="font-black text-foreground mb-4 flex items-center gap-2">
           <Package className="h-4 w-4 text-amber-400" /> Estado del pago
         </h3>
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Monto total</p>
-            <p className="text-2xl font-black text-white tabular-nums">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Monto total</p>
+            <p className="text-2xl font-black text-foreground tabular-nums">
               {formatPEN(shipment.order.totalAmount)}
             </p>
           </div>

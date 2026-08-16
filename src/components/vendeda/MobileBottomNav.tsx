@@ -1,19 +1,17 @@
 'use client'
 
 /**
- * MobileBottomNav — Barra inferior móvil (5 items simétricos, sin FAB protruding)
+ * MobileBottomNav — Barra inferior móvil (4 items simétricos, sin FAB protruding)
  * =====================================================================
- * v3 — Reparto milimétrico y simétrico del ancho del dispositivo:
- *   [Inicio]   [En vivo]   [Vender]   [Perfil]   [Tema]
+ * v4 — El ThemeToggle se mudó al header superior (MobileTopActions.tsx).
+ *   [Inicio]   [En vivo]   [Vender]   [Perfil]
  *
  * Diseño:
- *   - Todos los ítems al mismo nivel (ninguno sobresale).
- *   - Cuando una subpage está activa, ese ítem tiene relieve NEÓN:
- *     glow shadow + color amber + fondo sutil + indicador superior.
- *   - El botón "Vender" usa degradado amber→fuchsia cuando está activo,
- *     pero respeta la misma altura que los demás (NO protruye).
+ *   - 4 ítems simétricos (grid-cols-4) en lugar de 5.
+ *   - Cuando una subpage está activa, ese ítem tiene relieve NEÓN.
+ *   - El botón "Vender" NO protruye (mismo h-9 w-9 que los demás).
  *   - h-16 (64px) + pb-safe para iPhone con notch.
- *   - max-w-md mx-auto — centrado en pantallas grandes (reparto simétrico).
+ *   - max-w-md mx-auto — centrado en pantallas grandes.
  *   - Tokens semánticos (light/dark).
  * =====================================================================
  */
@@ -24,9 +22,8 @@ import { Home, Radio, Plus, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { t } from '@/lib/vendeda/i18n'
 import { ROUTES } from '@/lib/vendeda/routes'
-import ThemeToggle from './ThemeToggle'
 
-type Tab = 'feed' | 'live' | 'create' | 'profile' | 'theme'
+type Tab = 'feed' | 'live' | 'create' | 'profile'
 
 export function MobileBottomNav() {
   const pathname = usePathname()
@@ -50,7 +47,7 @@ export function MobileBottomNav() {
       role="navigation"
       aria-label="Navegación principal"
     >
-      <div className="mx-auto w-full max-w-md grid grid-cols-5 h-16">
+      <div className="mx-auto w-full max-w-md grid grid-cols-4 h-16">
         {items.map(({ id, icon: Icon, label, href }) => {
           const active = isActive(href)
           return (
@@ -109,15 +106,6 @@ export function MobileBottomNav() {
           )
         })}
 
-        {/* === Tema (ThemeToggle) — 5to slot simétrico === */}
-        <div className="relative flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 pointer-events-auto">
-          <div className="h-9 w-9 flex items-center justify-center">
-            <ThemeToggle />
-          </div>
-          <span className="text-[10px] font-semibold truncate w-full text-center text-muted-foreground">
-            Tema
-          </span>
-        </div>
       </div>
     </nav>
   )

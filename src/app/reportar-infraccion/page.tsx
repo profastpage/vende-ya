@@ -93,17 +93,17 @@ export default function ReportarInfraccionPage() {
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl bg-gradient-to-br from-rose-500/10 via-zinc-900 to-amber-500/10 border border-rose-500/30 p-5 mb-6"
+        className="rounded-2xl bg-gradient-to-br from-rose-500/10 via-card to-amber-500/10 border border-rose-500/30 p-5 mb-6"
       >
         <div className="flex items-start gap-3">
           <div className="h-9 w-9 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center shrink-0">
             <AlertTriangle className="h-4 w-4 text-rose-400" />
           </div>
           <div>
-            <p className="font-black text-white text-sm mb-2 flex items-center gap-1.5">
+            <p className="font-black text-foreground text-sm mb-2 flex items-center gap-1.5">
               Antes de reportar
             </p>
-            <ul className="space-y-1.5 text-xs text-zinc-300">
+            <ul className="space-y-1.5 text-xs text-muted-foreground">
               {[
                 'Solo reporta si eres el titular de la marca o su representante legal autorizado.',
                 'Incluye evidencia clara (URL del producto, capturas, registro de marca en INDECOPI).',
@@ -125,15 +125,15 @@ export default function ReportarInfraccionPage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm overflow-hidden"
+          className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm overflow-hidden"
         >
           {/* Header */}
-          <div className="p-5 border-b border-white/5">
+          <div className="p-5 border-b border-border">
             <div className="flex items-center gap-2 mb-1">
               <FileText className="h-4 w-4 text-amber-400" />
-              <h3 className="font-black text-white text-base">Detalles del reporte</h3>
+              <h3 className="font-black text-foreground text-base">Detalles del reporte</h3>
             </div>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-muted-foreground">
               Completa el formulario con la mayor cantidad de detalle posible. Los campos marcados con * son obligatorios.
             </p>
           </div>
@@ -150,7 +150,7 @@ export default function ReportarInfraccionPage() {
                 onChange={(e) => setForm({ ...form, reporterEmail: e.target.value })}
                 placeholder="abogado@marca.com.pe"
               />
-              <p className="text-[10px] text-zinc-500 mt-1.5">
+              <p className="text-[10px] text-muted-foreground mt-1.5">
                 Te contactaremos por este correo para validar tu identidad y notificarte el resultado.
               </p>
             </div>
@@ -164,7 +164,7 @@ export default function ReportarInfraccionPage() {
                 onChange={(e) => setForm({ ...form, targetOrderOrStreamId: e.target.value })}
                 placeholder="https://vendeya.pe/productos/xxx"
               />
-              <p className="text-[10px] text-zinc-500 mt-1.5">
+              <p className="text-[10px] text-muted-foreground mt-1.5">
                 Copia la URL completa del producto, subasta o stream que contiene la infracción.
               </p>
             </div>
@@ -200,9 +200,9 @@ export default function ReportarInfraccionPage() {
                 value={form.reason}
                 onChange={(e) => setForm({ ...form, reason: e.target.value as typeof form.reason })}
               >
-                <option value="" className="bg-zinc-900">— Selecciona un motivo —</option>
+                <option value="" className="bg-card">— Selecciona un motivo —</option>
                 {REASONS.map((r) => (
-                  <option key={r.value} value={r.value} className="bg-zinc-900">
+                  <option key={r.value} value={r.value} className="bg-card">
                     {r.label}
                   </option>
                 ))}
@@ -232,7 +232,7 @@ export default function ReportarInfraccionPage() {
                   onChange={(e) => setForm({ ...form, evidenceUrl: e.target.value })}
                   placeholder="https://drive.google.com/..."
                 />
-                <p className="text-[10px] text-zinc-500 mt-1.5">
+                <p className="text-[10px] text-muted-foreground mt-1.5">
                   Link a capturas, registro SUNAT, contrato de representación, etc.
                 </p>
               </div>
@@ -240,16 +240,16 @@ export default function ReportarInfraccionPage() {
                 <DarkLabel>Adjuntar evidencia</DarkLabel>
                 <label
                   htmlFor="evidence-file"
-                  className="flex items-center gap-3 cursor-pointer rounded-xl bg-white/5 border-2 border-dashed border-white/10 hover:border-amber-400/50 hover:bg-amber-400/5 transition-all p-3"
+                  className="flex items-center gap-3 cursor-pointer rounded-xl bg-muted border-2 border-dashed border-border hover:border-amber-400/50 hover:bg-amber-400/5 transition-all p-3"
                 >
                   <div className="h-10 w-10 rounded-lg bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
                     <Upload className="h-4 w-4 text-amber-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">
+                    <p className="text-sm font-semibold text-foreground truncate">
                       {fileName ?? 'Subir archivo'}
                     </p>
-                    <p className="text-[10px] text-zinc-500">
+                    <p className="text-[10px] text-muted-foreground">
                       {fileName ?? 'JPG, PNG, PDF. Máx 10MB.'}
                     </p>
                   </div>
@@ -274,7 +274,7 @@ export default function ReportarInfraccionPage() {
             </div>
 
             {/* Legal declaration */}
-            <div className="rounded-xl bg-zinc-950/60 border border-white/5 p-4">
+            <div className="rounded-xl bg-background/60 border border-border p-4">
               <p className="text-[10px] uppercase tracking-wider text-amber-400 font-bold mb-2">
                 Declaración bajo juramento
               </p>
@@ -286,14 +286,14 @@ export default function ReportarInfraccionPage() {
 2. La información proporcionada es veraz y tengo pruebas de la infracción.
 3. Acepto que Vende Ya actúe de buena fe para retirar el contenido reportado.
 4. Entiendo que falsos reportes pueden resultar en acciones legales contra mí.`}
-                className="w-full bg-transparent text-xs text-zinc-400 leading-relaxed resize-none border-0 focus-visible:outline-none"
+                className="w-full bg-transparent text-xs text-muted-foreground leading-relaxed resize-none border-0 focus-visible:outline-none"
                 rows={6}
               />
             </div>
           </div>
 
           {/* Footer */}
-          <div className="p-5 border-t border-white/5 flex flex-col-reverse md:flex-row justify-between items-center gap-3">
+          <div className="p-5 border-t border-border flex flex-col-reverse md:flex-row justify-between items-center gap-3">
             <GhostButton type="button" onClick={() => router.back()} className="w-full md:w-auto">
               <ArrowLeft className="h-4 w-4" />
               Cancelar
@@ -307,8 +307,8 @@ export default function ReportarInfraccionPage() {
       </form>
 
       {/* Footer note */}
-      <div className="mt-6 rounded-2xl bg-white/5 border border-white/10 p-5">
-        <p className="text-xs text-zinc-400 leading-relaxed">
+      <div className="mt-6 rounded-2xl bg-muted border border-border p-5">
+        <p className="text-xs text-muted-foreground leading-relaxed">
           Vende Ya actúa como intermediario neutro bajo el principio Safe Harbor de la
           Ley N° 29571 (Código de Protección y Defensa del Consumidor). Para disputas
           complejas o requerimientos judiciales, contacta a{' '}
@@ -321,8 +321,8 @@ export default function ReportarInfraccionPage() {
           .
         </p>
         <div className="mt-3 flex items-center gap-2">
-          <ExternalLink className="h-3 w-3 text-zinc-500" />
-          <Link href="/terminos" className="text-xs text-zinc-500 hover:text-amber-400">
+          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+          <Link href="/terminos" className="text-xs text-muted-foreground hover:text-amber-400">
             Ver términos y condiciones completos
           </Link>
         </div>

@@ -99,27 +99,27 @@ function LiveRailCard({ stream }: { stream: typeof MOCK_STREAMS[number] }) {
         {/* LIVE badge */}
         <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-full bg-rose-500/90 backdrop-blur-md border border-rose-300/30">
           <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-          <span className="text-[10px] font-bold text-white tracking-wide">LIVE</span>
+          <span className="text-[10px] font-bold text-foreground tracking-wide">LIVE</span>
         </div>
 
         {/* Viewers */}
-        <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+        <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full bg-black/60 backdrop-blur-md border border-border">
           <Eye className="h-3 w-3 text-amber-400" />
-          <span className="text-[10px] font-bold text-white tabular-nums">
+          <span className="text-[10px] font-bold text-foreground tabular-nums">
             {formatViewers(stream.viewerCount)}
           </span>
         </div>
 
         {/* Bottom info */}
         <div className="absolute inset-x-0 bottom-0 p-3">
-          <p className="text-xs font-bold text-white line-clamp-2 leading-tight">
+          <p className="text-xs font-bold text-foreground line-clamp-2 leading-tight">
             {stream.title}
           </p>
           <div className="mt-1.5 flex items-center gap-1.5">
-            <div className="h-5 w-5 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center text-[9px] font-bold text-white">
+            <div className="h-5 w-5 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center text-[9px] font-bold text-foreground">
               {stream.seller?.displayName?.[0] ?? 'V'}
             </div>
-            <span className="text-[10px] text-zinc-300 truncate">
+            <span className="text-[10px] text-muted-foreground truncate">
               {stream.seller?.displayName}
             </span>
             {stream.seller?.isVerified && (
@@ -162,15 +162,15 @@ function ProductBentoCard({ product, index }: { product: typeof MOCK_PRODUCTS[nu
             </span>
           )}
           {isOffer && (
-            <span className="px-2 py-0.5 rounded-md bg-fuchsia-500 text-white text-[9px] font-black tracking-wider">
+            <span className="px-2 py-0.5 rounded-md bg-fuchsia-500 text-foreground text-[9px] font-black tracking-wider">
               OFERTA
             </span>
           )}
         </div>
 
         {/* Like button */}
-        <button className="absolute top-2 right-2 h-7 w-7 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center group/like">
-          <Heart className="h-3.5 w-3.5 text-zinc-300 group-hover/like:text-rose-400 transition-colors" />
+        <button className="absolute top-2 right-2 h-7 w-7 rounded-full bg-black/50 backdrop-blur-md border border-border flex items-center justify-center group/like">
+          <Heart className="h-3.5 w-3.5 text-muted-foreground group-hover/like:text-rose-400 transition-colors" />
         </button>
       </Link>
 
@@ -255,7 +255,7 @@ function AuctionBentoCard({ auction }: { auction: typeof MOCK_TRENDING_AUCTIONS[
         </div>
         <Link
           href={ROUTES.live}
-          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-[11px] font-bold flex items-center gap-1"
+          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-600 text-foreground text-[11px] font-bold flex items-center gap-1"
         >
           Pujar <ArrowRight className="h-3 w-3" />
         </Link>
@@ -325,20 +325,20 @@ export default function Home() {
               <div className="flex items-center gap-2 mb-3">
                 <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/90 backdrop-blur-md border border-rose-300/30">
                   <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                  <span className="text-[11px] font-bold text-white tracking-wider">EN VIVO AHORA</span>
+                  <span className="text-[11px] font-bold text-foreground tracking-wider">EN VIVO AHORA</span>
                 </span>
                 <span className="px-2 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-bold tracking-wider">
                   <Flame className="inline h-3 w-3 mr-1" />TRENDING
                 </span>
               </div>
 
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black font-display tracking-tight text-white leading-tight drop-shadow-2xl">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black font-display tracking-tight text-foreground leading-tight drop-shadow-2xl">
                 {MOCK_AUCTION.product?.title}
               </h1>
 
-              <p className="mt-3 text-sm md:text-base text-zinc-300 max-w-xl">
+              <p className="mt-3 text-sm md:text-base text-muted-foreground max-w-xl">
                 Subasta en vivo con{' '}
-                <span className="font-bold text-white">
+                <span className="font-bold text-foreground">
                   {MOCK_AUCTION.seller?.displayName}
                 </span>{' '}
                 · {formatViewers(MOCK_AUCTION.stream?.viewerCount ?? 0)} espectadores · Paga con{' '}
@@ -347,20 +347,20 @@ export default function Home() {
               </p>
 
               {/* Seller chip */}
-              <div className="mt-5 flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 w-fit">
-                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center text-sm font-black text-white">
+              <div className="mt-5 flex items-center gap-2 px-3 py-2 rounded-2xl bg-muted backdrop-blur-xl border border-border w-fit">
+                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center text-sm font-black text-foreground">
                   {MOCK_AUCTION.seller?.displayName?.[0] ?? 'V'}
                 </div>
                 <div>
                   <div className="flex items-center gap-1">
-                    <span className="text-sm font-bold text-white">
+                    <span className="text-sm font-bold text-foreground">
                       {MOCK_AUCTION.seller?.displayName}
                     </span>
                     {MOCK_AUCTION.seller?.isVerified && (
                       <BadgeCheck className="h-4 w-4 text-sky-400" />
                     )}
                   </div>
-                  <p className="text-[10px] text-zinc-400">Vendedor verificado · Lima, PE</p>
+                  <p className="text-[10px] text-muted-foreground">Vendedor verificado · Lima, PE</p>
                 </div>
               </div>
 
@@ -372,7 +372,7 @@ export default function Home() {
                   </button>
                 </Link>
                 <Link href={ROUTES.marketplace}>
-                  <button className="px-5 py-3 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 text-white font-bold text-sm flex items-center gap-2 hover:bg-white/10 transition-colors">
+                  <button className="px-5 py-3 rounded-xl bg-muted backdrop-blur-xl border border-border text-foreground font-bold text-sm flex items-center gap-2 hover:bg-muted transition-colors">
                     <ShoppingBag className="h-4 w-4" /> Explorar marketplace
                   </button>
                 </Link>

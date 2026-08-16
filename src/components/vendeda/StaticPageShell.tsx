@@ -16,7 +16,7 @@ import { ROUTES } from '@/lib/vendeda/routes'
  * which now live at the layout level (see src/app/layout.tsx).
  *
  * Visual language mirrors the Ultra Inmersiva homepage:
- *   - bg-zinc-950 pure dark surface
+ *   - bg-background pure dark surface
  *   - amber-400 -> fuchsia-600 gradient accents
  *   - white/5 + white/10 borders
  *   - backdrop-blur-xl on overlays
@@ -48,22 +48,22 @@ export function StaticPageShell({
   pageHeader,
 }: StaticPageShellProps) {
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-950 text-white">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       {/* Mobile compact header */}
-      <header className="md:hidden sticky top-0 z-30 bg-zinc-950/95 backdrop-blur-xl border-b border-white/5 pt-safe">
+      <header className="md:hidden sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border pt-safe">
         <div className="flex items-center justify-between px-3 h-14">
           <div className="flex items-center gap-2 min-w-0">
             {showBack && (
               <Link href={backHref} aria-label="Volver" className="p-2 -ml-2">
-                <ArrowLeft className="h-5 w-5 text-white" />
+                <ArrowLeft className="h-5 w-5 text-foreground" />
               </Link>
             )}
             <div className="min-w-0">
-              <h1 className="text-base font-bold font-display truncate text-white">
+              <h1 className="text-base font-bold font-display truncate text-foreground">
                 {title ?? APP_NAME}
               </h1>
               {breadcrumbs && breadcrumbs.length > 0 && (
-                <div className="text-[10px] text-zinc-500 truncate">
+                <div className="text-[10px] text-muted-foreground truncate">
                   {breadcrumbs.map((bc, i) => (
                     <React.Fragment key={i}>
                       {i > 0 && <ChevronRight className="inline h-2 w-2 mx-0.5" />}
@@ -95,8 +95,8 @@ export function StaticPageShell({
 
       {/* Desktop breadcrumb bar */}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <div className="hidden md:block border-b border-white/5 bg-zinc-950">
-          <div className={`mx-auto ${maxWidth} px-6 py-3 flex items-center gap-1 text-sm text-zinc-500`}>
+        <div className="hidden md:block border-b border-border bg-background">
+          <div className={`mx-auto ${maxWidth} px-6 py-3 flex items-center gap-1 text-sm text-muted-foreground`}>
             <Link href={ROUTES.home} className="hover:text-amber-400 transition-colors">
               Inicio
             </Link>
@@ -108,7 +108,7 @@ export function StaticPageShell({
                     {bc.label}
                   </Link>
                 ) : (
-                  <span className="text-white font-medium">{bc.label}</span>
+                  <span className="text-foreground font-medium">{bc.label}</span>
                 )}
               </React.Fragment>
             ))}
@@ -154,7 +154,7 @@ export function PageHeader({
       />
       {Icon && (
         <div className="relative mb-4 inline-flex">
-          <div className="h-14 w-14 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-lg shadow-amber-500/10">
+          <div className="h-14 w-14 rounded-2xl bg-muted backdrop-blur-xl border border-border flex items-center justify-center shadow-lg shadow-amber-500/10">
             <Icon className={`h-7 w-7 ${iconAccent}`} />
           </div>
         </div>
@@ -165,7 +165,7 @@ export function PageHeader({
         </span>
       </h1>
       {subtitle && (
-        <p className="relative mt-4 text-zinc-400 text-sm md:text-lg leading-relaxed">
+        <p className="relative mt-4 text-muted-foreground text-sm md:text-lg leading-relaxed">
           {subtitle}
         </p>
       )}
@@ -177,7 +177,7 @@ export function PageHeader({
 /* Reusable atoms — dark premium variants of common UI patterns        */
 /* ------------------------------------------------------------------ */
 
-/** Dark premium card: bg-zinc-900/80, white/5 border, backdrop blur. */
+/** Dark premium card: bg-card/80, white/5 border, backdrop blur. */
 export function DarkCard({
   className = '',
   children,
@@ -186,7 +186,7 @@ export function DarkCard({
 }: React.HTMLAttributes<HTMLDivElement> & { as?: React.ElementType }) {
   return (
     <Tag
-      className={`relative rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm ${className}`}
+      className={`relative rounded-2xl bg-card border border-border backdrop-blur-sm ${className}`}
       {...rest}
     >
       {children}
@@ -194,7 +194,7 @@ export function DarkCard({
   )
 }
 
-/** Glassmorphism card: bg-white/5 + backdrop-blur-xl + border-white/10. */
+/** Glassmorphism card: bg-muted + backdrop-blur-xl + border-border. */
 export function GlassCard({
   className = '',
   children,
@@ -202,7 +202,7 @@ export function GlassCard({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`relative rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 ${className}`}
+      className={`relative rounded-2xl bg-muted backdrop-blur-xl border border-border ${className}`}
       {...rest}
     >
       {children}
@@ -240,8 +240,8 @@ export function GhostButton({
   return (
     <button
       className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 h-11
-                  bg-white/5 border border-white/10 hover:bg-white/10
-                  text-white font-semibold transition-colors
+                  bg-muted border border-border hover:bg-accent
+                  text-foreground font-semibold transition-colors
                   disabled:opacity-50 disabled:cursor-not-allowed
                   ${className}`}
       {...rest}
@@ -259,8 +259,8 @@ export function DarkInput({
   return (
     <input
       className={`w-full h-11 px-4 rounded-xl
-                  bg-white/5 border border-white/10 text-white
-                  placeholder:text-zinc-500
+                  bg-muted border border-border text-foreground
+                  placeholder:text-muted-foreground
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50
                   focus-visible:border-amber-400/50
                   transition-colors ${className}`}
@@ -277,8 +277,8 @@ export function DarkTextarea({
   return (
     <textarea
       className={`w-full px-4 py-3 rounded-xl
-                  bg-white/5 border border-white/10 text-white
-                  placeholder:text-zinc-500
+                  bg-muted border border-border text-foreground
+                  placeholder:text-muted-foreground
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50
                   focus-visible:border-amber-400/50
                   transition-colors resize-y ${className}`}
@@ -296,7 +296,7 @@ export function DarkSelect({
   return (
     <select
       className={`w-full h-11 px-4 rounded-xl appearance-none
-                  bg-white/5 border border-white/10 text-white
+                  bg-muted border border-border text-foreground
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50
                   focus-visible:border-amber-400/50
                   transition-colors ${className}`}
@@ -315,7 +315,7 @@ export function DarkLabel({
 }: React.LabelHTMLAttributes<HTMLLabelElement>) {
   return (
     <label
-      className={`block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 ${className}`}
+      className={`block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 ${className}`}
       {...rest}
     >
       {children}
@@ -330,7 +330,7 @@ const BADGE_VARIANTS = {
   rose:   'bg-rose-500/15 text-rose-400 border-rose-500/30',
   sky:    'bg-sky-500/15 text-sky-400 border-sky-500/30',
   fuchsia:'bg-fuchsia-500/15 text-fuchsia-400 border-fuchsia-500/30',
-  zinc:   'bg-white/5 text-zinc-400 border-white/10',
+  zinc:   'bg-muted text-muted-foreground border-border',
 } as const
 
 export type BadgeVariant = keyof typeof BADGE_VARIANTS
@@ -373,11 +373,11 @@ export function DarkToggle({
       className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors
                   ${checked
                     ? 'bg-gradient-to-r from-amber-400 to-fuchsia-500 border-amber-400/50'
-                    : 'bg-white/5 border-white/10'
+                    : 'bg-muted border-border'
                   }`}
     >
       <span
-        className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-white shadow-md transition-all
+        className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-card shadow-md transition-all
                     ${checked ? 'left-[1.375rem]' : 'left-0.5'}`}
       />
     </button>

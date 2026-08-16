@@ -547,7 +547,7 @@ export function LiveBiddingContainer({
       {auction.seller && (
         <div className="absolute bottom-3 left-3 z-20">
           <div className="flex items-center gap-2 glass rounded-full pl-1.5 pr-3 py-1.5">
-            <Avatar className="h-7 w-7 border-2 border-white/30">
+            <Avatar className="h-7 w-7 border-2 border-border">
               <AvatarImage src={auction.seller.avatarUrl ?? undefined} alt={auction.seller.displayName} />
               <AvatarFallback className="text-xs">{initials(auction.seller.displayName)}</AvatarFallback>
             </Avatar>

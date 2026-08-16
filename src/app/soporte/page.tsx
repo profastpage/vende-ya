@@ -115,18 +115,18 @@ export default function SupportPage() {
               key={ch.title}
               variants={staggerItem}
               whileHover={{ y: -3 }}
-              className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${ch.gradient} bg-zinc-900/80 border border-white/10 backdrop-blur-sm p-6 text-center`}
+              className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${ch.gradient} bg-card/80 border border-border backdrop-blur-sm p-6 text-center`}
             >
               <div
                 className={`absolute -top-10 -right-10 h-32 w-32 rounded-full ${ch.glow} blur-3xl`}
                 aria-hidden
               />
               <div className="relative">
-                <div className="h-14 w-14 mx-auto mb-3 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center">
+                <div className="h-14 w-14 mx-auto mb-3 rounded-2xl bg-muted backdrop-blur-xl border border-border flex items-center justify-center">
                   <Icon className={`h-7 w-7 ${ch.accent}`} />
                 </div>
-                <h3 className="font-black text-white text-base">{ch.title}</h3>
-                <p className="text-xs text-zinc-500 mt-0.5">{ch.desc}</p>
+                <h3 className="font-black text-foreground text-base">{ch.title}</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">{ch.desc}</p>
                 <p className={`text-sm font-bold mt-2 ${ch.accent}`}>{ch.detail}</p>
                 <GhostButton
                   className="mt-4 w-full h-10 text-xs"
@@ -148,9 +148,9 @@ export default function SupportPage() {
       {/* FAQ teaser + Contact form (2 columns on desktop) */}
       <div className="grid lg:grid-cols-[1fr_1.2fr] gap-4">
         {/* FAQ teaser */}
-        <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-6">
+        <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-black text-white text-base">Preguntas frecuentes</h3>
+            <h3 className="font-black text-foreground text-base">Preguntas frecuentes</h3>
             <Link
               href={ROUTES.faq}
               className="text-xs text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-0.5"
@@ -160,21 +160,21 @@ export default function SupportPage() {
           </div>
           <div className="space-y-2">
             {FAQ_LINKS.map((item, i) => (
-              <details key={i} className="group rounded-lg bg-white/5 border border-white/5 hover:border-white/10 transition-colors">
-                <summary className="cursor-pointer list-none p-3 text-sm font-semibold text-white flex items-center justify-between gap-2">
+              <details key={i} className="group rounded-lg bg-muted border border-border hover:border-amber-400/40 transition-colors">
+                <summary className="cursor-pointer list-none p-3 text-sm font-semibold text-foreground flex items-center justify-between gap-2">
                   {item.q}
                   <ChevronRight className="h-3.5 w-3.5 shrink-0 text-amber-400 transition-transform group-open:rotate-90" />
                 </summary>
-                <p className="px-3 pb-3 text-xs text-zinc-400 leading-relaxed">{item.a}</p>
+                <p className="px-3 pb-3 text-xs text-muted-foreground leading-relaxed">{item.a}</p>
               </details>
             ))}
           </div>
         </div>
 
         {/* Contact form */}
-        <div className="rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm p-6">
-          <h3 className="font-black text-white text-base mb-1">Envíanos un mensaje</h3>
-          <p className="text-xs text-zinc-500 mb-5">
+        <div className="rounded-2xl bg-card/80 border border-border backdrop-blur-sm p-6">
+          <h3 className="font-black text-foreground text-base mb-1">Envíanos un mensaje</h3>
+          <p className="text-xs text-muted-foreground mb-5">
             Completa el formulario y te responderemos por correo en menos de 24 horas hábiles.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -226,7 +226,7 @@ export default function SupportPage() {
               <Send className="h-4 w-4" />
               {sending ? 'Enviando...' : 'Enviar mensaje'}
             </GradientButton>
-            <p className="text-xs text-zinc-500 text-center flex items-center justify-center gap-1.5">
+            <p className="text-xs text-muted-foreground text-center flex items-center justify-center gap-1.5">
               <Clock className="h-3 w-3" /> Tiempo de respuesta promedio: 4 horas hábiles
             </p>
           </form>

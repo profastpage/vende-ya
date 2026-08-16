@@ -25,7 +25,7 @@ export function DesktopTopNav() {
 
   return (
     <header
-      className="hidden md:flex sticky top-0 z-40 h-16 items-center gap-4 px-6 bg-zinc-950/85 backdrop-blur-xl border-b border-white/5"
+      className="hidden md:flex sticky top-0 z-40 h-16 items-center gap-4 px-6 bg-background/85 backdrop-blur-xl border-b border-border"
       role="banner"
     >
       {/* Logo — imagen oficial /logo.png */}
@@ -39,8 +39,8 @@ export function DesktopTopNav() {
           className="rounded-lg shadow-lg shadow-fuchsia-500/30 object-contain"
         />
         <div className="leading-none">
-          <div className="font-bold text-lg font-display tracking-tight text-white">{APP_NAME}</div>
-          <div className="text-[10px] text-zinc-500 -mt-0.5">Subastas en vivo</div>
+          <div className="font-bold text-lg font-display tracking-tight text-foreground">{APP_NAME}</div>
+          <div className="text-[10px] text-muted-foreground -mt-0.5">Subastas en vivo</div>
         </div>
       </Link>
 
@@ -55,8 +55,8 @@ export function DesktopTopNav() {
               className={cn(
                 'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
                 active
-                  ? 'bg-white/10 text-amber-400 border border-white/10'
-                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-accent text-amber-500 border border-border'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               )}
             >
               {link.label}
@@ -71,12 +71,12 @@ export function DesktopTopNav() {
         className="flex-1 max-w-xl relative"
         role="search"
       >
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           name="q"
           placeholder="Buscar productos, vendedores, marcas..."
-          className="pl-10 h-10 bg-white/5 border border-white/10 text-white placeholder:text-zinc-500 focus-visible:ring-1 focus-visible:ring-amber-400/50"
+          className="pl-10 h-10 bg-muted border border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-amber-400/50"
           aria-label="Buscar"
         />
       </form>
@@ -94,12 +94,12 @@ export function DesktopTopNav() {
       {/* Actions */}
       <div className="flex items-center gap-1">
         <Link href={ROUTES.mensajes}>
-          <Button variant="ghost" size="icon" aria-label="Mensajes" className="text-zinc-400 hover:text-white hover:bg-white/5">
+          <Button variant="ghost" size="icon" aria-label="Mensajes" className="text-muted-foreground hover:text-foreground hover:bg-muted">
             <MessageCircle className="h-5 w-5" />
           </Button>
         </Link>
         <Link href={ROUTES.notificaciones} className="relative">
-          <Button variant="ghost" size="icon" aria-label="Notificaciones" className="text-zinc-400 hover:text-white hover:bg-white/5">
+          <Button variant="ghost" size="icon" aria-label="Notificaciones" className="text-muted-foreground hover:text-foreground hover:bg-muted">
             <Bell className="h-5 w-5" />
             <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-amber-400" />
           </Button>
@@ -110,12 +110,12 @@ export function DesktopTopNav() {
           </Button>
         </Link>
         <Link href={ROUTES.dashboard}>
-          <button className="flex items-center gap-1.5 pl-2 pr-3 h-10 rounded-lg hover:bg-white/5 transition-colors">
+          <button className="flex items-center gap-1.5 pl-2 pr-3 h-10 rounded-lg hover:bg-muted transition-colors">
             <Avatar className="h-7 w-7 ring-2 ring-amber-400/30">
               <AvatarImage src="https://i.pravatar.cc/150?img=8" alt="Tu perfil" />
               <AvatarFallback>TÚ</AvatarFallback>
             </Avatar>
-            <ChevronDown className="h-3 w-3 text-zinc-500" />
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </button>
         </Link>
       </div>
