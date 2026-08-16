@@ -2,19 +2,31 @@
  * Vende Ya — Service Worker
  * =====================================================================
  * Strategy:
- *  - App shell (HTML, JS, CSS): stale-while-revalidate
- *  - Static assets (fonts, images, icons): cache-first
+ *  - Navigation (HTML): network-first (always latest HTML so chunk URLs
+ *    match the current deployment). Fallback to cached '/' only offline.
+ *  - Next.js chunks (_next/static/*, *.js, *.css, fonts, images): cache-first.
+ *    These are content-addressed (hash in filename) so cached versions are
+ *    always safe to reuse IF the HTML referencing them is also current.
  *  - API routes: network-first (always fresh, fallback to cache)
  *  - Offline fallback: serve cached home page
  *
+ * WHY NETWORK-FIRST FOR HTML (was stale-while-revalidate):
+ * The previous stale-while-revalidate strategy served the CACHED HTML
+ * immediately, then fetched new HTML in the background. Problem: the cached
+ * HTML referenced chunk URLs like /_next/static/chunks/abc123.js that had
+ * been DELETED from the server by a newer Vercel deployment. Result:
+ * 404 on the chunk → 'Application error: a client-side exception has
+ * occurred' → blank page. Network-first for navigation ensures the HTML
+ * always matches the currently-deployed chunks.
+ *
  * Lifecycle:
- *  - install: pre-cache app shell
- *  - activate: clean old caches
+ *  - install: skipWaiting (no pre-cache — see bug above)
+ *  - activate: clean old caches + clients.claim
  *  - fetch: route through strategy
  *  - message: skipWaiting on update
  * =====================================================================
  */
-const SW_VERSION = 'vendeya-v1'
+const SW_VERSION = 'vendeya-v2-2026-08-17-network-first-nav'
 const APP_SHELL = [
   '/',
   '/en-vivo',
@@ -28,18 +40,12 @@ const APP_SHELL = [
 ]
 
 // =====================================================================
-// INSTALL — pre-cache app shell
+// INSTALL — skip pre-cache (it caused stale HTML → 404 chunks bug).
+// Navigation will fetch fresh HTML on first visit; static chunks are
+// cached lazily as they're requested.
 // =====================================================================
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(SW_VERSION).then((cache) => {
-      console.log('[SW] Caching app shell')
-      return cache.addAll(APP_SHELL).catch((err) => {
-        // Don't fail install if a single resource can't be cached
-        console.warn('[SW] Some app shell resources failed to cache:', err)
-      })
-    })
-  )
+  event.waitUntil(Promise.resolve())
   self.skipWaiting()
 })
 
@@ -85,9 +91,10 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Navigation (HTML) — stale-while-revalidate, fallback to cached '/'
+  // Navigation (HTML) — network-first to ensure HTML matches current
+  // deployment's chunk URLs. Falls back to cached '/' only when offline.
   if (request.mode === 'navigate') {
-    event.respondWith(staleWhileRevalidate(request, '/'))
+    event.respondWith(networkFirstWithFallback(request, '/'))
     return
   }
 
@@ -186,31 +193,25 @@ async function cacheFirst(request) {
   }
 }
 
-async function staleWhileRevalidate(request, fallbackUrl) {
-  const cache = await caches.open(SW_VERSION)
-  const cached = await cache.match(request)
-
-  const fetchPromise = fetch(request)
-    .then((response) => {
-      if (response && response.ok) {
-        cache.put(request, response.clone())
-      }
-      return response
-    })
-    .catch(() => null)
-
-  // Return cached immediately if available, otherwise wait for network
-  if (cached) {
-    void fetchPromise // revalidate in background
-    return cached
+async function networkFirstWithFallback(request, fallbackUrl) {
+  // Always hit the network first for HTML navigations. This guarantees
+  // the served HTML references chunks that actually exist in the current
+  // Vercel deployment. Falls back to cached '/' only when the network
+  // is unreachable (offline).
+  try {
+    const response = await fetch(request)
+    if (response && response.ok) {
+      const cache = await caches.open(SW_VERSION)
+      cache.put(request, response.clone())
+    }
+    return response
+  } catch {
+    const cache = await caches.open(SW_VERSION)
+    const cached = await cache.match(request)
+    if (cached) return cached
+    const fallback = await cache.match(fallbackUrl || '/')
+    return fallback || Response.error()
   }
-
-  const networkResponse = await fetchPromise
-  if (networkResponse) return networkResponse
-
-  // Last resort: serve cached fallback (home page) for offline navigation
-  const fallback = await cache.match(fallbackUrl || '/')
-  return fallback || Response.error()
 }
 
 async function networkFirst(request) {
