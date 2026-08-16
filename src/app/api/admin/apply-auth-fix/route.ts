@@ -30,26 +30,40 @@ export const dynamic = 'force-dynamic'
  * =====================================================================
  */
 export async function POST(req: NextRequest) {
-  // Authorization check — token simple para evitar ejecución pública
+  // Authorization check — accepts either:
+  //   1. APPLY_AUTH_FIX_SECRET env var (preferred, set in Vercel)
+  //   2. Supabase SERVICE_ROLE_KEY as Authorization Bearer or x-admin-secret
+  //      (useful for first-time setup when APPLY_AUTH_FIX_SECRET isn't configured yet)
   const expectedSecret = process.env.APPLY_AUTH_FIX_SECRET
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const body = await req.json().catch(() => ({}))
-  const providedSecret = body?.secret ?? req.headers.get('x-admin-secret')
+  const providedSecret = body?.secret ?? req.headers.get('x-admin-secret') ?? ''
+  const authHeader = req.headers.get('authorization') ?? ''
+  const bearerToken = authHeader.startsWith('Bearer ')
+    ? authHeader.slice(7).trim()
+    : ''
 
-  if (expectedSecret) {
-    if (providedSecret !== expectedSecret) {
+  const authViaSecret =
+    expectedSecret && providedSecret && providedSecret === expectedSecret
+  const authViaServiceRole =
+    serviceRoleKey &&
+    (providedSecret === serviceRoleKey || bearerToken === serviceRoleKey)
+
+  if (!authViaSecret && !authViaServiceRole) {
+    if (expectedSecret) {
       return NextResponse.json(
         { error: 'Unauthorized: secret inválido.' },
         { status: 401 }
       )
     }
-  } else if (process.env.NODE_ENV === 'production') {
-    // En producción sin secret configurado, bloqueamos por seguridad
     return NextResponse.json(
       {
         error:
-          'APPLY_AUTH_FIX_SECRET no configurado en Vercel. Configúralo antes de ejecutar este endpoint.',
+          'No autorizado. Pasa el SUPABASE_SERVICE_ROLE_KEY en el header ' +
+          '`Authorization: Bearer xxx` o en el body `{ "secret": "xxx" }`, ' +
+          'o configura `APPLY_AUTH_FIX_SECRET` en Vercel.',
       },
-      { status: 500 }
+      { status: 401 }
     )
   }
 
