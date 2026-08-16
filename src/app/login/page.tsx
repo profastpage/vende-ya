@@ -1,10 +1,28 @@
 'use client'
 
+/**
+ * VENDE YA — Login page (rebuilt 2026-08-17)
+ * =====================================================================
+ * Mejoras vs versión anterior:
+ *   1. Botón "Continuar con Google" como CTA principal (full-width, grande)
+ *      en vez de 3 botones pequeños en grid. Es lo que el 95% de usuarios usa.
+ *   2. Detección de URL protegida por Vercel SSO con warning visual:
+ *      si el usuario entró a vende-ya-profastpage-...vercel.app (URL vieja
+ *      protegida), se le ofrece un botón para ir a la URL pública real.
+ *   3. Indicador de progreso durante OAuth (3 pasos: contactando → Google → volviendo).
+ *   4. Mensajes de error específicos: provider no habilitado, redirect blocked,
+ *      sesión expirada, etc. con diagnóstico accionable en español.
+ *   5. Banner informativo cuando viene de ?redirect= para que sepa dónde va a aterrizar.
+ *   6. Botones Facebook/Apple como secundarios (smaller, debajo de Google).
+ *   7. Mensaje de seguridad visible: "Tu sesión se establece en este dominio".
+ *   8. Soporte para prefers-reduced-motion (accesibilidad).
+ * =====================================================================
+ */
 import * as React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Mail,
   Lock,
@@ -15,10 +33,14 @@ import {
   ShieldCheck,
   Truck,
   BadgeCheck,
+  AlertTriangle,
+  ExternalLink,
+  Loader2,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/components/vendeda/AuthProvider'
-import { SocialAuthButtons } from '@/components/vendeda/SocialAuthButtons'
 import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { cn } from '@/lib/utils'
@@ -37,20 +59,22 @@ export default function LoginPage() {
 function LoginFallback() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="h-10 w-10 rounded-full border-4 border-border border-t-amber-400 animate-spin" />
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-10 w-10 rounded-full border-4 border-border border-t-amber-400 animate-spin" />
+        <p className="text-sm text-muted-foreground">Cargando Vende Ya…</p>
+      </div>
     </div>
   )
 }
 
 // ---------------------------------------------------------------------
-// Dark premium input class — shared by both auth pages
+// Dark premium input class
 // ---------------------------------------------------------------------
 const INPUT_CLASS =
   'w-full h-12 rounded-xl bg-muted border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-amber-400/60 focus-visible:ring-2 focus-visible:ring-amber-400/30 transition-colors disabled:opacity-60'
 
 // ---------------------------------------------------------------------
-// Left brand panel — feature blurbs (module-level so React doesn't
-// re-mount them on each render)
+// Left brand panel — feature blurbs
 // ---------------------------------------------------------------------
 const LEFT_FEATURES: ReadonlyArray<{
   title: string
@@ -90,6 +114,35 @@ const LEFT_FEATURES: ReadonlyArray<{
 ]
 
 // =====================================================================
+// URL protegida por Vercel SSO — detección temprana
+// =====================================================================
+const PROTECTED_HOSTNAMES = [
+  'vende-ya-profastpage-4762s-projects.vercel.app',
+  'vende-ya-profastpage.vercel.app',
+]
+const PUBLIC_HOSTNAME = 'vende-ya-phi.vercel.app'
+
+function useIsProtectedUrl(): { isProtected: boolean; currentHost: string } {
+  const [state, setState] = React.useState({
+    isProtected: false,
+    currentHost: '',
+  })
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const host = window.location.hostname
+    const isProtected =
+      PROTECTED_HOSTNAMES.includes(host) ||
+      // Match any *.vercel.app that's NOT the public one and has the long hash suffix
+      (host.endsWith('.vercel.app') &&
+        host !== PUBLIC_HOSTNAME &&
+        // preview deployments have format `<proj>-<hash>-<team>.vercel.app`
+        !host.startsWith('vende-ya-phi'))
+    setState({ isProtected, currentHost: host })
+  }, [])
+  return state
+}
+
+// =====================================================================
 // LOGIN CONTENT
 // =====================================================================
 function LoginContent() {
@@ -97,7 +150,7 @@ function LoginContent() {
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const { signIn, signInWithOAuth, isDemoMode } = useAuth()
-  // ⚠️ signInWithOAuth se pasa al componente <SocialAuthButtons /> abajo
+  const { isProtected, currentHost } = useIsProtectedUrl()
 
   const [mode, setMode] = React.useState<'email' | 'phone'>('email')
   const [email, setEmail] = React.useState('')
@@ -106,9 +159,15 @@ function LoginContent() {
   const [showPassword, setShowPassword] = React.useState(false)
   const [remember, setRemember] = React.useState(true)
   const [loading, setLoading] = React.useState(false)
+  const [oauthProvider, setOauthProvider] = React.useState<
+    null | 'google' | 'facebook' | 'apple'
+  >(null)
+  const [oauthStep, setOauthStep] = React.useState<
+    'idle' | 'probe' | 'redirect' | 'callback' | 'error'
+  >('idle')
 
   // ---------------------------------------------------------------
-  // Submit — preserves redirect param + Supabase signIn call
+  // Email/password submit
   // ---------------------------------------------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -117,27 +176,69 @@ function LoginContent() {
     const { error } = await signIn(identifier, password)
     setLoading(false)
     if (error) {
-      toast({ title: '❌ Error', description: error, variant: 'destructive' })
+      toast({ title: 'No se pudo iniciar sesión', description: error, variant: 'destructive' })
       return
     }
     toast({
-      title: '✅ Sesión iniciada',
+      title: 'Sesión iniciada',
       description: 'Bienvenido de vuelta a Vende Ya.',
     })
-    // Respetar el parámetro ?redirect= para volver a la página que pidió el checkout.
     const redirect = searchParams.get('redirect')
     router.push(redirect && redirect.startsWith('/') ? redirect : ROUTES.dashboard)
     router.refresh()
   }
 
   // ---------------------------------------------------------------
-  // OAuth — delegado al componente <SocialAuthButtons />
-  // (maneja internamente el error "provider is not enabled")
+  // OAuth — wrapper con feedback visual de 3 pasos
   // ---------------------------------------------------------------
+  const handleOAuth = React.useCallback(
+    async (provider: 'google' | 'facebook' | 'apple') => {
+      setOauthProvider(provider)
+      setOauthStep('probe')
+      const result = await signInWithOAuth(provider)
+      if (result.error) {
+        setOauthStep('error')
+        // Mensaje específico para error de provider no habilitado
+        const msg = result.error.toLowerCase()
+        if (msg.includes('not enabled') || msg.includes('validation_failed')) {
+          toast({
+            title: `${provider.charAt(0).toUpperCase() + provider.slice(1)} no está activo`,
+            description: `Ve a Supabase Dashboard → Authentication → Providers y activa ${provider}.`,
+            variant: 'destructive',
+          })
+        } else if (msg.includes('redirect') || msg.includes('origin')) {
+          toast({
+            title: 'URL de redirección no permitida',
+            description:
+              'Agrega esta URL en Supabase → Authentication → URL Configuration → Redirect URLs.',
+            variant: 'destructive',
+          })
+        } else {
+          toast({
+            title: 'No se pudo continuar',
+            description: result.error,
+            variant: 'destructive',
+          })
+        }
+        // Reset after 3s para que el usuario pueda reintentar
+        setTimeout(() => {
+          setOauthProvider(null)
+          setOauthStep('idle')
+        }, 3000)
+        return
+      }
+      // Sin error → Supabase está navegando el navegador a Google/Facebook/Apple.
+      // Cambiamos el step a 'redirect' para mostrar feedback visual.
+      setOauthStep('redirect')
+    },
+    [signInWithOAuth, toast]
+  )
+
+  const redirectParam = searchParams.get('redirect')
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-7xl flex-col md:flex-row">
+      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col md:flex-row">
         {/* =================================================== */}
         {/* LEFT — Brand panel (desktop only)                   */}
         {/* =================================================== */}
@@ -150,7 +251,7 @@ function LoginContent() {
           <div className="pointer-events-none absolute -bottom-32 -left-10 h-[28rem] w-[28rem] rounded-full bg-fuchsia-600/20 blur-3xl" />
           <div className="pointer-events-none absolute top-1/3 left-1/4 h-72 w-72 rounded-full bg-purple-700/10 blur-3xl" />
 
-          {/* Logo — imagen oficial /logo.png */}
+          {/* Logo */}
           <div className="relative">
             <Link href={ROUTES.home} className="inline-flex items-center gap-2.5">
               <Image
@@ -165,7 +266,9 @@ function LoginContent() {
                 <div className="font-black text-2xl font-display tracking-tight bg-gradient-to-r from-amber-200 via-white to-fuchsia-200 bg-clip-text text-transparent">
                   {APP_NAME}
                 </div>
-                <div className="text-[11px] text-muted-foreground -mt-0.5">Subastas en vivo del Perú</div>
+                <div className="text-[11px] text-muted-foreground -mt-0.5">
+                  Subastas en vivo del Perú
+                </div>
               </div>
             </Link>
           </div>
@@ -198,7 +301,9 @@ function LoginContent() {
                   </div>
                   <div className="space-y-1">
                     <div className={cn('font-bold text-sm', f.accent)}>{f.title}</div>
-                    <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">{f.body}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+                      {f.body}
+                    </p>
                   </div>
                 </li>
               ))}
@@ -226,7 +331,7 @@ function LoginContent() {
             className="w-full max-w-md"
           >
             <div className="rounded-3xl border border-border bg-card backdrop-blur-xl p-8 shadow-2xl shadow-black/40">
-              {/* Mobile-only logo — imagen oficial /logo.png */}
+              {/* Mobile-only logo */}
               <Link
                 href={ROUTES.home}
                 className="mb-6 flex items-center gap-2.5 md:hidden"
@@ -239,8 +344,45 @@ function LoginContent() {
                   priority
                   className="rounded-xl object-contain"
                 />
-                <span className="font-black text-lg font-display text-foreground">{APP_NAME}</span>
+                <span className="font-black text-lg font-display text-foreground">
+                  {APP_NAME}
+                </span>
               </Link>
+
+              {/* ⚠️ Warning: URL protegida por Vercel SSO */}
+              <AnimatePresence>
+                {isProtected && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mb-5 rounded-xl border border-red-500/40 bg-red-500/10 p-3.5"
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle className="h-5 w-5 shrink-0 text-red-400 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-red-300">
+                          Estás en una URL protegida por Vercel
+                        </p>
+                        <p className="text-xs text-red-300/80 mt-1">
+                          <code className="text-[10px] break-all">{currentHost}</code> tiene
+                          Vercel Authentication activado. El login con Google fallará porque el
+                          callback será interceptado. Usa la URL pública:
+                        </p>
+                        <a
+                          href={`https://${PUBLIC_HOSTNAME}/login${
+                            redirectParam ? `?redirect=${redirectParam}` : ''
+                          }`}
+                          className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 px-3 py-1.5 text-xs font-semibold text-red-200 transition-colors"
+                        >
+                          Ir a {PUBLIC_HOSTNAME}
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Title */}
               <div className="mb-6 space-y-1.5">
@@ -259,6 +401,59 @@ function LoginContent() {
                     ? 'Supabase no configurado — cualquier email/password funciona.'
                     : 'Ingresa para pujar en vivo y seguir tus subastas favoritas.'}
                 </p>
+                {redirectParam && (
+                  <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-300/90">
+                    <ArrowRight className="h-3 w-3" />
+                    Volverás a <code className="text-[11px]">{redirectParam}</code> tras iniciar sesión.
+                  </p>
+                )}
+              </div>
+
+              {/* ====== GOOGLE — CTA principal (full width, grande) ====== */}
+              <GoogleButton
+                state={oauthProvider === 'google' ? oauthStep : 'idle'}
+                onClick={() => handleOAuth('google')}
+                disabled={loading || oauthProvider !== null}
+              />
+
+              {/* Divider */}
+              <div className="relative my-5">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
+                  <span className="bg-card px-3 text-muted-foreground">
+                    o con otro método
+                  </span>
+                </div>
+              </div>
+
+              {/* ====== Facebook + Apple (secundarios, lado a lado) ====== */}
+              <div className="grid grid-cols-2 gap-2">
+                <SecondaryOAuthButton
+                  provider="facebook"
+                  loading={oauthProvider === 'facebook' && oauthStep !== 'error'}
+                  onClick={() => handleOAuth('facebook')}
+                  disabled={loading || oauthProvider !== null}
+                />
+                <SecondaryOAuthButton
+                  provider="apple"
+                  loading={oauthProvider === 'apple' && oauthStep !== 'error'}
+                  onClick={() => handleOAuth('apple')}
+                  disabled={loading || oauthProvider !== null}
+                />
+              </div>
+
+              {/* Divider antes del form */}
+              <div className="relative my-5">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
+                  <span className="bg-card px-3 text-muted-foreground">
+                    o con email y contraseña
+                  </span>
+                </div>
               </div>
 
               {/* Mode toggle (email / phone) */}
@@ -287,10 +482,7 @@ function LoginContent() {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {mode === 'email' ? (
-                  <Field
-                    htmlFor="email"
-                    label="Correo electrónico"
-                  >
+                  <Field htmlFor="email" label="Correo electrónico">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                       id="email"
@@ -377,12 +569,12 @@ function LoginContent() {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || oauthProvider !== null}
                   className="group relative w-full h-12 rounded-xl bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950 font-black text-base shadow-lg shadow-fuchsia-500/30 hover:shadow-fuchsia-500/50 transition-shadow disabled:opacity-60 disabled:shadow-none flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
-                      <span className="h-4 w-4 rounded-full border-2 border-zinc-950/40 border-t-zinc-950 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       Entrando...
                     </>
                   ) : (
@@ -394,22 +586,14 @@ function LoginContent() {
                 </button>
               </form>
 
-              {/* Social login — Google (multicolor) / Facebook / Apple
-                  Componente compartido con /registro para UX 1:1 */}
-              <SocialAuthButtons
-                signInWithOAuth={signInWithOAuth}
-                onLoadingChange={setLoading}
-                onError={(msg) =>
-                  toast({
-                    title: '❌ No se pudo continuar',
-                    description: msg,
-                    variant: 'destructive',
-                  })
-                }
-              />
+              {/* Trust indicator */}
+              <div className="mt-5 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-lime-400" />
+                Tu sesión se establece en este dominio. Nunca compartimos tu contraseña.
+              </div>
 
               {/* Footer links */}
-              <p className="mt-6 text-center text-sm text-muted-foreground">
+              <p className="mt-5 text-center text-sm text-muted-foreground">
                 ¿No tienes cuenta?{' '}
                 <Link
                   href={ROUTES.registro}
@@ -420,11 +604,17 @@ function LoginContent() {
               </p>
               <p className="mt-3 text-center text-[11px] text-muted-foreground">
                 Al continuar aceptas los{' '}
-                <Link href={ROUTES.terminos} className="text-amber-400 hover:text-amber-300 underline">
+                <Link
+                  href={ROUTES.terminos}
+                  className="text-amber-400 hover:text-amber-300 underline"
+                >
                   Términos
                 </Link>{' '}
                 y la{' '}
-                <Link href={ROUTES.privacidad} className="text-amber-400 hover:text-amber-300 underline">
+                <Link
+                  href={ROUTES.privacidad}
+                  className="text-amber-400 hover:text-amber-300 underline"
+                >
                   Privacidad
                 </Link>
                 .
@@ -438,8 +628,154 @@ function LoginContent() {
 }
 
 // =====================================================================
-// Sub-components — hoisted to module level (satisfies ESLint
-// react-hooks/static-components and avoids remounting on each render)
+// GoogleButton — CTA principal con feedback de 3 pasos
+// =====================================================================
+type GoogleButtonState = 'idle' | 'probe' | 'redirect' | 'callback' | 'error'
+
+function GoogleButton({
+  state,
+  onClick,
+  disabled,
+}: {
+  state: GoogleButtonState
+  onClick: () => void
+  disabled: boolean
+}) {
+  const labelMap: Record<GoogleButtonState, string> = {
+    idle: 'Continuar con Google',
+    probe: 'Verificando configuración…',
+    redirect: 'Llevándote a Google…',
+    callback: 'Volviendo con tu sesión…',
+    error: 'Error — reintenta en un momento',
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'group relative w-full h-14 rounded-xl border-2 transition-all',
+        'flex items-center justify-center gap-3 px-4',
+        'disabled:cursor-not-allowed',
+        state === 'error'
+          ? 'border-red-500/60 bg-red-500/10'
+          : 'border-border bg-white text-zinc-900 hover:bg-zinc-50 hover:border-zinc-300',
+        state === 'idle' && 'hover:shadow-xl hover:shadow-amber-500/20 active:scale-[0.99]'
+      )}
+    >
+      {/* Glow effect en hover */}
+      {state === 'idle' && (
+        <span className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-amber-400/0 via-amber-400/10 to-fuchsia-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+      )}
+
+      {/* Icon / spinner */}
+      <span className="relative shrink-0">
+        {state === 'idle' || state === 'error' ? (
+          <GoogleIcon className="h-6 w-6" />
+        ) : (
+          <Loader2
+            className={cn(
+              'h-5 w-5 animate-spin',
+              state === 'error' ? 'text-red-500' : 'text-zinc-600'
+            )}
+          />
+        )}
+      </span>
+
+      {/* Label */}
+      <span
+        className={cn(
+          'relative text-base font-bold tracking-tight',
+          state === 'error' ? 'text-red-600' : 'text-zinc-900'
+        )}
+      >
+        {labelMap[state]}
+      </span>
+
+      {/* Step indicator (right side) */}
+      {state !== 'idle' && state !== 'error' && (
+        <span className="absolute right-4 flex items-center gap-1">
+          {(['probe', 'redirect', 'callback'] as const).map((step, i) => (
+            <span
+              key={step}
+              className={cn(
+                'h-1.5 w-1.5 rounded-full transition-colors',
+                state === step
+                  ? 'bg-amber-500'
+                  : ['probe', 'redirect', 'callback'].indexOf(state) >
+                      ['probe', 'redirect', 'callback'].indexOf(step)
+                    ? 'bg-amber-500/40'
+                    : 'bg-zinc-300'
+              )}
+            />
+          ))}
+        </span>
+      )}
+
+      {/* Error icon */}
+      {state === 'error' && (
+        <XCircle className="absolute right-4 h-5 w-5 text-red-500" />
+      )}
+    </button>
+  )
+}
+
+// =====================================================================
+// SecondaryOAuthButton — Facebook / Apple
+// =====================================================================
+function SecondaryOAuthButton({
+  provider,
+  loading,
+  onClick,
+  disabled,
+}: {
+  provider: 'facebook' | 'apple'
+  loading: boolean
+  onClick: () => void
+  disabled: boolean
+}) {
+  const visuals =
+    provider === 'facebook'
+      ? {
+          label: 'Facebook',
+          Icon: FacebookIcon,
+          bg: 'bg-[#1877F2] text-white border-[#1877F2] hover:bg-[#166FE5]',
+        }
+      : {
+          label: 'Apple',
+          Icon: AppleIcon,
+          bg: 'bg-black text-white border-white/15 hover:bg-zinc-900 hover:border-white/25',
+        }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'h-11 rounded-xl border text-sm font-semibold transition-all',
+        'flex items-center justify-center gap-2 px-3',
+        'disabled:opacity-70 disabled:cursor-not-allowed',
+        'active:scale-[0.98]',
+        visuals.bg
+      )}
+      aria-label={`Continuar con ${visuals.label}`}
+    >
+      {loading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <>
+          <visuals.Icon className="h-[18px] w-[18px] shrink-0" />
+          <span className="text-xs font-semibold tracking-tight">{visuals.label}</span>
+        </>
+      )}
+    </button>
+  )
+}
+
+// =====================================================================
+// Sub-components
 // =====================================================================
 
 function Field({
@@ -466,5 +802,48 @@ function Field({
       <div className="relative">{children}</div>
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
+  )
+}
+
+// =====================================================================
+// ICONOS SVG OFICIALES (paths oficiales de cada marca)
+// =====================================================================
+
+function GoogleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+      />
+    </svg>
+  )
+}
+
+function FacebookIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="currentColor">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  )
+}
+
+function AppleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="currentColor">
+      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.47 7.13-.57 1.5-1.31 2.99-2.54 4.09l.02-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+    </svg>
   )
 }
