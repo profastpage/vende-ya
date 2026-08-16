@@ -28,7 +28,7 @@ export default function ThemeToggle() {
   if (!mounted) {
     return (
       <div
-        className="h-7 w-7 rounded-lg bg-muted animate-pulse"
+        className="h-9 w-9 rounded-lg bg-muted animate-pulse"
         aria-hidden
       />
     )
@@ -41,7 +41,7 @@ export default function ThemeToggle() {
       type="button"
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       className={cn(
-        'h-7 w-7 rounded-lg flex items-center justify-center transition-all active:scale-90',
+        'h-9 w-9 rounded-lg flex items-center justify-center transition-all active:scale-90',
         'border border-border',
         'bg-muted hover:bg-accent',
         'text-foreground',
@@ -50,9 +50,9 @@ export default function ThemeToggle() {
       title={isDark ? 'Modo claro' : 'Modo oscuro'}
     >
       {isDark ? (
-        <Sun className="h-4 w-4" strokeWidth={2.5} />
+        <Sun className="h-[18px] w-[18px]" strokeWidth={2.5} />
       ) : (
-        <Moon className="h-4 w-4" strokeWidth={2.5} />
+        <Moon className="h-[18px] w-[18px]" strokeWidth={2.5} />
       )}
     </button>
   )

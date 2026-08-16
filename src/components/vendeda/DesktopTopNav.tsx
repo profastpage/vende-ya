@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { cn } from '@/lib/utils'
+import ThemeToggle from './ThemeToggle'
 
 export function DesktopTopNav() {
   const pathname = usePathname()
@@ -93,6 +94,8 @@ export function DesktopTopNav() {
 
       {/* Actions */}
       <div className="flex items-center gap-1">
+        {/* Theme toggle — visible en desktop (PC) al lado de las acciones */}
+        <ThemeToggle />
         <Link href={ROUTES.mensajes}>
           <Button variant="ghost" size="icon" aria-label="Mensajes" className="text-muted-foreground hover:text-foreground hover:bg-muted">
             <MessageCircle className="h-5 w-5" />

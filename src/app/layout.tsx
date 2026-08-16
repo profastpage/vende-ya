@@ -92,19 +92,15 @@ export default function RootLayout({
   return (
     <html lang="es-PE" suppressHydrationWarning>
       <head>
-        {/* Flaticon Uicons (free, CC BY 4.0) */}
-        <link
-          rel="stylesheet"
-          href="https://cdn-uicons.flaticon.com/3.0.2/uicons-regular-rounded/css/uicons-regular-rounded.css"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdn-uicons.flaticon.com/3.0.2/uicons-solid-rounded/css/uicons-solid-rounded.css"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdn-uicons.flaticon.com/3.0.2/uicons-brands/css/uicons-brands.css"
-        />
+        {/*
+         * Flaticon Uicons CDN REMOVED — the cdn-uicons.flaticon.com 3.0.2
+         * URLs return 404 (CDN moved/deprecated), breaking the page with
+         * ERR_ABORTED 404 errors. The Flaticon component still exists in
+         * src/components/vendeda/Flaticon.tsx but is not used by any
+         * actual UI — all real icons use lucide-react which is bundled.
+         * If Flaticon icons are needed in the future, self-host the
+         * uicons CSS + woff2 files under /public/fonts/uicons/.
+         */}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${display.variable} antialiased bg-background text-foreground`}
