@@ -300,81 +300,68 @@ export async function POST(req: NextRequest) {
   // 7. Garantizar RLS policies en profiles (defensa en profundidad)
   //    Aunque el trigger use SECURITY DEFINER (bypass RLS), damos permisos
   //    para que el propio usuario pueda leer/actualizar su perfil.
+  //    Nota: pgbouncer (pooler Supabase) no soporta múltiples statements
+  //    en una sola llamada prepared statement, así que los separamos.
   // ============================================================
-  try {
-    await db.$executeRawUnsafe(`
-      ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-
-      DROP POLICY IF EXISTS "profiles_self_select" ON public.profiles;
-      CREATE POLICY "profiles_self_select"
-        ON public.profiles FOR SELECT
-        TO authenticated
-        USING (auth.uid() = auth_id);
-
-      DROP POLICY IF EXISTS "profiles_self_insert" ON public.profiles;
-      CREATE POLICY "profiles_self_insert"
-        ON public.profiles FOR INSERT
-        TO authenticated
-        WITH CHECK (auth.uid() = auth_id);
-
-      DROP POLICY IF EXISTS "profiles_self_update" ON public.profiles;
-      CREATE POLICY "profiles_self_update"
-        ON public.profiles FOR UPDATE
-        TO authenticated
-        USING (auth.uid() = auth_id)
-        WITH CHECK (auth.uid() = auth_id);
-
-      -- Permitir SELECT público (perfiles visibles en marketplace, streams, etc.)
-      DROP POLICY IF EXISTS "profiles_public_read" ON public.profiles;
-      CREATE POLICY "profiles_public_read"
-        ON public.profiles FOR SELECT
-        TO anon, authenticated
-        USING (true);
-    `)
-    results.push({ step: 'setup_rls', status: 'ok' })
-  } catch (e: any) {
-    results.push({
-      step: 'setup_rls',
-      status: 'error',
-      detail: e?.message ?? String(e),
-    })
+  const rlsStatements = [
+    `ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY`,
+    `DROP POLICY IF EXISTS "profiles_self_select" ON public.profiles`,
+    `CREATE POLICY "profiles_self_select" ON public.profiles FOR SELECT TO authenticated USING (auth.uid() = auth_id)`,
+    `DROP POLICY IF EXISTS "profiles_self_insert" ON public.profiles`,
+    `CREATE POLICY "profiles_self_insert" ON public.profiles FOR INSERT TO authenticated WITH CHECK (auth.uid() = auth_id)`,
+    `DROP POLICY IF EXISTS "profiles_self_update" ON public.profiles`,
+    `CREATE POLICY "profiles_self_update" ON public.profiles FOR UPDATE TO authenticated USING (auth.uid() = auth_id) WITH CHECK (auth.uid() = auth_id)`,
+    `DROP POLICY IF EXISTS "profiles_public_read" ON public.profiles`,
+    `CREATE POLICY "profiles_public_read" ON public.profiles FOR SELECT TO anon, authenticated USING (true)`,
+  ]
+  let rlsOk = true
+  const rlsErrors: string[] = []
+  for (const stmt of rlsStatements) {
+    try {
+      await db.$executeRawUnsafe(stmt)
+    } catch (e: any) {
+      rlsOk = false
+      rlsErrors.push(`${stmt.slice(0, 60)}...: ${e?.message ?? String(e)}`)
+    }
   }
+  results.push({
+    step: 'setup_rls',
+    status: rlsOk ? 'ok' : 'error',
+    detail: rlsOk ? undefined : rlsErrors.join(' | '),
+  })
 
   // ============================================================
   // 8. Garantizar tabla seller_wallets (no siempre existe)
+  //    Separamos statements por compatibilidad con pgbouncer.
   // ============================================================
-  try {
-    await db.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS public.seller_wallets (
-        id uuid references auth.users not null primary key,
-        gateway_seller_id text,
-        is_verified boolean default false not null,
-        status text check (status in ('active', 'suspended', 'banned')) default 'active' not null,
-        store_name text,
-        store_slug text,
-        updated_at timestamp with time zone default timezone('utc'::text, now()) not null
-      );
-      ALTER TABLE public.seller_wallets ENABLE ROW LEVEL SECURITY;
-      DROP POLICY IF EXISTS "wallets_self_select" ON public.seller_wallets;
-      CREATE POLICY "wallets_self_select"
-        ON public.seller_wallets FOR SELECT
-        TO authenticated
-        USING (auth.uid() = id);
-      DROP POLICY IF EXISTS "wallets_self_update" ON public.seller_wallets;
-      CREATE POLICY "wallets_self_update"
-        ON public.seller_wallets FOR UPDATE
-        TO authenticated
-        USING (auth.uid() = id)
-        WITH CHECK (auth.uid() = id);
-    `)
-    results.push({ step: 'ensure_seller_wallets', status: 'ok' })
-  } catch (e: any) {
-    results.push({
-      step: 'ensure_seller_wallets',
-      status: 'error',
-      detail: e?.message ?? String(e),
-    })
+  const walletStatements = [
+    `CREATE TABLE IF NOT EXISTS public.seller_wallets (id uuid references auth.users not null primary key, gateway_seller_id text, is_verified boolean default false not null, status text check (status in ('active', 'suspended', 'banned')) default 'active' not null, store_name text, store_slug text, updated_at timestamp with time zone default timezone('utc'::text, now()) not null)`,
+    `ALTER TABLE public.seller_wallets ENABLE ROW LEVEL SECURITY`,
+    `DROP POLICY IF EXISTS "wallets_self_select" ON public.seller_wallets`,
+    `CREATE POLICY "wallets_self_select" ON public.seller_wallets FOR SELECT TO authenticated USING (auth.uid() = id)`,
+    `DROP POLICY IF EXISTS "wallets_self_update" ON public.seller_wallets`,
+    `CREATE POLICY "wallets_self_update" ON public.seller_wallets FOR UPDATE TO authenticated USING (auth.uid() = id) WITH CHECK (auth.uid() = id)`,
+  ]
+  let walletOk = true
+  const walletErrors: string[] = []
+  for (const stmt of walletStatements) {
+    try {
+      await db.$executeRawUnsafe(stmt)
+    } catch (e: any) {
+      // ignore "policy already exists" or "table already exists" errors
+      const msg = e?.message ?? String(e)
+      if (msg.includes('already exists') || msg.includes('already_enabled')) {
+        continue
+      }
+      walletOk = false
+      walletErrors.push(`${stmt.slice(0, 60)}...: ${msg}`)
+    }
   }
+  results.push({
+    step: 'ensure_seller_wallets',
+    status: walletOk ? 'ok' : 'error',
+    detail: walletOk ? undefined : walletErrors.join(' | '),
+  })
 
   // ============================================================
   // 9. Verificación final: contar triggers y políticas
