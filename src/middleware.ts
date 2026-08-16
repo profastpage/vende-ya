@@ -73,7 +73,14 @@ export async function middleware(request: NextRequest) {
         })
       },
     },
-    auth: { persistSession: false, autoRefreshToken: false },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      // 🔑 PKCE flow — debe matchear con el client del browser (supabase.ts).
+      // Sin esto, el server-side no puede validar correctamente los códigos
+      // PKCE que el browser generó.
+      flowType: 'pkce',
+    },
   })
 
   try {

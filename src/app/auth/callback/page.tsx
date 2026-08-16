@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * /auth/callback — OAuth callback handler on our own domain
+ * /auth/callback — OAuth callback handler on our own domain (PKCE flow)
  * =====================================================================
  * WHY THIS EXISTS
  * ---------------
@@ -11,34 +11,26 @@
  * Supabase exchanges the code for a session, then redirects the browser
  * to the `redirect_to` URL we provided in the original /authorize call.
  *
- * BUG THIS FIXES
- * --------------
- * If `redirect_to` is NOT in the Supabase "Redirect URLs" whitelist
- * (Supabase Studio → Authentication → URL Configuration), Supabase
- * silently falls back to the Site URL configured in the same page. If
- * that Site URL is a Vercel preview deployment URL like
- * `vende-ya-profastpage-4762s-projects.vercel.app`, the user ends up
- * there with NO session hash in the URL — Vercel Deployment Protection
- * intercepts the request, and the user sees "You Need Access" instead
- * of being logged in.
+ * PKCE FLOW (current)
+ * -------------------
+ * With `flowType: 'pkce'` in the Supabase client config, Supabase returns
+ * a `?code=...` in the URL (NOT in the hash fragment). The client JS must
+ * call `supabase.auth.exchangeCodeForSession(window.location.href)` to
+ * exchange that code for a session.
  *
- * THE FIX
- * -------
- * We send `redirect_to = https://vende-ya-phi.vercel.app/auth/callback`
- * (this page). This URL is on OUR domain. When the user lands here, the
- * Supabase JS client's `detectSessionInUrl: true` parses the
- * `#access_token=...&refresh_token=...` hash, stores the session in
- * localStorage, and fires onAuthStateChange('SIGNED_IN', session).
+ * ADVANTAGES over the implicit flow:
+ *   - No `#access_token=...` in the URL → more secure
+ *   - The `redirect_to` URL is ALWAYS respected (no Site URL fallback
+ *     that could send the user to a Vercel-protected URL)
+ *   - No CORS issues with manifest.webmanifest etc.
  *
- * We then immediately redirect to /dashboard on the SAME origin, where
- * the middleware sees a valid session and lets the user in.
- *
- * IMPORTANT: this page must NOT require a session (it's the page that
- * ESTABLISHES the session). It's in the middleware's PUBLIC_PATHS list.
+ * CRITICAL: this page must call `exchangeCodeForSession()` BEFORE
+ * checking `user`. Without that call, no session is established.
  * =====================================================================
  */
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
+import { getSupabaseSafe } from '@/lib/vendeda/supabase'
 import { useAuth } from '@/components/vendeda/AuthProvider'
 import { ROUTES } from '@/lib/vendeda/routes'
 
@@ -46,24 +38,59 @@ export default function AuthCallbackPage() {
   const router = useRouter()
   const { user, loading } = useAuth()
   const [error, setError] = React.useState<string | null>(null)
+  const [exchanging, setExchanging] = React.useState(false)
   const [timedOut, setTimedOut] = React.useState(false)
 
-  // Wait for the auth state to settle, then redirect.
+  // Step 1: Exchange the PKCE code for a session (only once on mount).
   React.useEffect(() => {
-    // If supabase-js detected the session from the URL hash, `user`
-    // becomes non-null. The AuthProvider's onAuthStateChange already
-    // called /api/auth/ensure-profile for us. Just navigate.
-    if (!loading) {
+    const supabase = getSupabaseSafe()
+    if (!supabase || exchanging) return
+
+    // Only attempt exchange if there's a ?code= in the URL (PKCE flow).
+    const url = window.location.href
+    if (!url.includes('code=')) return
+
+    setExchanging(true)
+    supabase.auth
+      .exchangeCodeForSession(url)
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('[auth/callback] PKCE exchange failed:', error)
+          setError(
+            'No se pudo completar el inicio de sesión: ' +
+              (error.message ?? 'error desconocido')
+          )
+          setTimeout(() => router.replace(ROUTES.login), 2500)
+          return
+        }
+        // Session was established. The onAuthStateChange listener in
+        // AuthProvider will fire SIGNED_IN and call /api/auth/ensure-profile.
+        // The effect below will see `user` become non-null and redirect.
+        if (data?.session?.user) {
+          // Already have user — trigger redirect in the next effect.
+        }
+      })
+      .catch((e) => {
+        console.error('[auth/callback] PKCE exchange threw:', e)
+        setError('Error inesperado al procesar el inicio de sesión.')
+        setTimeout(() => router.replace(ROUTES.login), 2500)
+      })
+      .finally(() => setExchanging(false))
+  }, [router, exchanging])
+
+  // Step 2: Wait for the auth state to settle, then redirect.
+  React.useEffect(() => {
+    if (!loading && !exchanging) {
       if (user) {
         router.replace(ROUTES.dashboard)
-      } else {
-        // No session detected — likely the URL hash was missing or
+      } else if (!error) {
+        // No session detected — likely the URL was missing ?code= or
         // already consumed. Send the user back to /login with a hint.
         setError('No se detectó una sesión válida. Vuelve a intentar.')
         setTimeout(() => router.replace(ROUTES.login), 2000)
       }
     }
-  }, [loading, user, router])
+  }, [loading, user, router, error, exchanging])
 
   // Safety net: if neither user nor error after 8s, force redirect to /login
   React.useEffect(() => {

@@ -51,6 +51,8 @@ export async function createServerClient() {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
+      // 🔑 PKCE flow — debe matchear con el browser client (supabase.ts).
+      flowType: 'pkce',
     },
   })
 }

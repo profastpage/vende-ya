@@ -31,6 +31,19 @@ export function getSupabase(): SupabaseClient {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      // 🔑 PKCE flow: en este modo, Supabase NO redirige al usuario a una
+      // URL final tras el callback. En su lugar, devuelve un `code` en la
+      // URL que el cliente JS intercambia por una sesión vía
+      // `exchangeCodeForSession()`. Esto significa:
+      //
+      //   1. NO hay redirect final desde Supabase → no hay Site URL fallback
+      //      que mande al usuario a una URL protegida por Vercel SSO.
+      //   2. La URL `redirect_to` SÍ se respeta siempre (no se valida contra
+      //      whitelist para el redirect final, solo para validar el origen).
+      //   3. Más seguro contra ataques de interceptación de token.
+      //
+      // Requiere que `/auth/callback` llame `supabase.auth.exchangeCodeForSession(window.location.href)`.
+      flowType: 'pkce',
     },
   })
   return _client
