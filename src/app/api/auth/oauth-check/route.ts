@@ -25,9 +25,13 @@ export async function GET(req: NextRequest) {
   // pública) sobre req.nextUrl.origin para que el callback OAuth SIEMPRE
   // caiga en la URL pública, evitando Vercel Deployment Protection en
   // deployments preview protegidos.
+  // 🔑 CALLBACK EN NUESTRO DOMINIO: usamos /auth/callback (no /dashboard)
+  // porque necesitamos que el hash #access_token=... sea parseado por
+  // supabase-js detectSessionInUrl ANTES de pasar por el middleware de
+  // auth en /dashboard.
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin
   const redirectTo =
-    searchParams.get('redirect_to') ?? `${appUrl}/dashboard`
+    searchParams.get('redirect_to') ?? `${appUrl}/auth/callback`
 
   if (!provider || !['google', 'facebook', 'apple'].includes(provider)) {
     return NextResponse.json(

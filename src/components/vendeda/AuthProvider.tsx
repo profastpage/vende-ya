@@ -198,16 +198,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // producción pública) en vez de window.location.origin. Esto evita que
       // Vercel Deployment Protection intercepte el callback OAuth cuando el
       // usuario arranca el flujo desde un deployment preview protegido
-      // (URLs tipo `<project>-<team>-<hash>.vercel.app`). El flujo:
-      //   1. User en URL protegida → clic "Sign in with Google"
-      //   2. Supabase → Google OAuth
-      //   3. Google → Supabase callback
-      //   4. Supabase → https://vende-ya-phi.vercel.app/dashboard (público)
-      // El usuario termina logueado en producción, no en el preview.
+      // (URLs tipo `<project>-<team>-<hash>.vercel.app`).
+      //
+      // 🔑 CALLBACK EN NUESTRO DOMINIO: usamos /auth/callback como destino,
+      // NO /dashboard directamente. Esto es crítico porque Supabase JS
+      // tiene `detectSessionInUrl: true` y necesita parsear el hash
+      // #access_token=...&refresh_token=... para establecer la sesión. Si
+      // mandamos directo a /dashboard, el middleware ve que no hay sesión
+      // (las cookies todavía no se han seteado) y redirige a /login,
+      // perdiéndose el hash. /auth/callback es una página pública que
+      // espera a que se establezca la sesión y LUEGO redirige a /dashboard.
       const appUrl =
         process.env.NEXT_PUBLIC_APP_URL ||
         (typeof window !== 'undefined' ? window.location.origin : '')
-      const redirectTo = appUrl + '/dashboard'
+      const redirectTo = appUrl + '/auth/callback'
       const probeUrl =
         `/api/auth/oauth-check?provider=${encodeURIComponent(provider)}` +
         `&redirect_to=${encodeURIComponent(redirectTo)}`

@@ -18,6 +18,7 @@ const PUBLIC_PATHS = [
   '/',
   '/login',
   '/registro',
+  '/auth/callback', // OAuth callback handler on our domain (establishes session)
   '/marketplace',
   '/en-vivo',
   '/subastas',
