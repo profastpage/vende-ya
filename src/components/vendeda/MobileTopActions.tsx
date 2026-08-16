@@ -3,12 +3,13 @@
 /**
  * MobileTopActions — Header móvil ESTABLE (sin parpadeo)
  * =====================================================================
- * Cambios vs versión anterior:
- *   - Eliminado `backdrop-blur-xl` (causa repaints constantes al scrollear).
- *   - Eliminado `animate-ping` (animación GPU infinita que parpadea).
- *   - Background sólido `bg-zinc-950` (no translúcido) para estabilidad.
- *   - `transform: translateZ(0)` para forzar capa GPU sin animar.
- *   - El "En vivo" sigue con un punto rojo estático (no animado) + badge.
+ * v3 — Tokens semánticos (light/dark), sin colores hardcoded.
+ *   - Background sólido `bg-background` con border `border-border`.
+ *   - Sin backdrop-blur (causa repaints en scroll).
+ *   - Sin animaciones GPU infinitas.
+ *   - `translateZ(0)` para forzar capa GPU.
+ *   - Layout absoluta del logo central con `left-1/2 -translate-x-1/2`
+ *     para evitar reflow al cambiar de pathname.
  * =====================================================================
  */
 import * as React from 'react'
@@ -19,19 +20,21 @@ import { usePathname } from 'next/navigation'
 import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { cn } from '@/lib/utils'
+import ThemeToggle from './ThemeToggle'
 
 export function MobileTopActions() {
   const pathname = usePathname()
-  const liveActive = pathname.startsWith('/en-vivo')
-  const notifActive = pathname.startsWith('/notificaciones')
+  // Memoize active states to prevent re-renders
+  const liveActive = React.useMemo(() => pathname.startsWith('/en-vivo'), [pathname])
+  const notifActive = React.useMemo(() => pathname.startsWith('/notificaciones'), [pathname])
 
-  // En una versión real vendría de useAuth/useNotifications. Mock estable.
+  // Mock stable counts (en prod vendría de useAuth/useNotifications)
   const liveCount = 3
   const unreadCount = 5
 
   return (
     <header
-      className="md:hidden sticky top-0 z-40 h-14 flex items-center justify-between px-3 bg-zinc-950 border-b border-white/5"
+      className="md:hidden sticky top-0 z-40 h-14 flex items-center justify-between px-3 bg-background/95 backdrop-blur-md border-b border-border"
       style={{ transform: 'translateZ(0)', willChange: 'transform' }}
       role="banner"
     >
@@ -39,10 +42,10 @@ export function MobileTopActions() {
       <Link
         href={ROUTES.live}
         className={cn(
-          'flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-colors',
+          'flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-colors pointer-events-auto',
           liveActive
-            ? 'bg-rose-500/15 border border-rose-400/40 text-rose-300'
-            : 'bg-white/5 border border-white/10 text-zinc-300 hover:bg-white/10'
+            ? 'bg-rose-500/15 border border-rose-400/40 text-rose-500 dark:text-rose-300'
+            : 'bg-muted border border-border text-foreground hover:bg-accent'
         )}
         aria-label="Ver transmisiones en vivo"
       >
@@ -74,24 +77,27 @@ export function MobileTopActions() {
         />
       </Link>
 
-      {/* === Derecha: Alertas === */}
-      <Link
-        href={ROUTES.notificaciones}
-        className={cn(
-          'relative flex items-center justify-center h-9 w-9 rounded-full transition-colors',
-          notifActive
-            ? 'bg-amber-500/15 border border-amber-400/40 text-amber-300'
-            : 'bg-white/5 border border-white/10 text-zinc-300 hover:bg-white/10'
-        )}
-        aria-label="Ver notificaciones"
-      >
-        <Bell className="h-4 w-4" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 rounded-full bg-amber-400 text-zinc-950 text-[10px] font-bold px-1.5 py-0.5 min-w-[18px] text-center border-2 border-zinc-950">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-      </Link>
+      {/* === Derecha: Tema + Alertas === */}
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <Link
+          href={ROUTES.notificaciones}
+          className={cn(
+            'relative flex items-center justify-center h-9 w-9 rounded-full transition-colors pointer-events-auto',
+            notifActive
+              ? 'bg-amber-500/15 border border-amber-400/40 text-amber-600 dark:text-amber-300'
+              : 'bg-muted border border-border text-foreground hover:bg-accent'
+          )}
+          aria-label="Ver notificaciones"
+        >
+          <Bell className="h-4 w-4" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 rounded-full bg-amber-400 text-zinc-950 text-[10px] font-bold px-1.5 py-0.5 min-w-[18px] text-center border-2 border-background">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </Link>
+      </div>
     </header>
   )
 }

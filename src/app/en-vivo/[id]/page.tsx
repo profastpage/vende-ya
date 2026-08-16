@@ -224,7 +224,7 @@ function PujarButton({ increment, onBid, full = false }: { increment: number; on
       animate={{ boxShadow: ['0 0 20px rgba(245,158,11,0.4)', '0 0 32px rgba(217,70,239,0.5)', '0 0 20px rgba(245,158,11,0.4)'] }}
       transition={{ duration: 2.4, repeat: Infinity }}
       onClick={() => onBid(increment)}
-      className={`${full ? 'w-full' : 'flex-1'} relative overflow-hidden bg-gradient-to-r from-amber-400 via-amber-500 to-fuchsia-500 text-zinc-950 font-black uppercase tracking-wider text-sm py-3 rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-amber-500/30`}
+      className={`${full ? 'w-full' : 'flex-1'} relative overflow-hidden bg-gradient-to-r from-amber-400 via-amber-500 to-fuchsia-500 text-zinc-950 font-black uppercase tracking-wider text-sm py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-amber-500/30`}
     >
       <Gavel className="h-4 w-4" />
       Pujar ahora
@@ -245,7 +245,7 @@ function ComprarYaButton({
       whileTap={{ scale: 0.97 }}
       whileHover={{ borderColor: 'rgba(245,158,11,0.5)' }}
       onClick={onBuy}
-      className={`${full ? 'w-full' : ''} bg-transparent border border-white/15 hover:border-amber-400/40 text-white text-xs font-bold py-3 px-4 rounded-2xl flex items-center justify-center gap-1.5 transition-colors`}
+      className={`${full ? 'w-full' : ''} bg-transparent border border-white/15 hover:border-amber-400/40 text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-colors`}
     >
       <ShoppingBag className="h-4 w-4 text-amber-400" />
       <span className="text-zinc-300">Comprar ya</span>
@@ -854,10 +854,10 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
         )}
       </AnimatePresence>
 
-      {/* Bottom console — más compacto (antes pb-6, ahora pb-3 + panel menor) */}
+      {/* Bottom console — más compacto (panel menor, padding optimizado) */}
       <div className="absolute bottom-0 inset-x-0 z-30">
         {/* Tab toggle — compacto */}
-        <div className="px-3 pb-1.5">
+        <div className="px-3 pb-1">
           <div className="inline-flex p-0.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10">
             <button
               onClick={() => setMobileTab('bid')}
@@ -878,10 +878,8 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
           </div>
         </div>
 
-        {/* Panel body — padding reducido */}
-        <div className="bg-zinc-950/95 backdrop-blur-xl border-t border-white/10 rounded-t-[2rem] p-3 pt-3 pb-4 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
-          <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mb-2" />
-
+        {/* Panel body — padding reducido, radio menor, sin handle decorativo */}
+        <div className="bg-zinc-950/95 backdrop-blur-xl border-t border-white/10 rounded-t-[1.25rem] p-2.5 pt-2 pb-3 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
           <AnimatePresence mode="wait">
             {mobileTab === 'bid' ? (
               <motion.div
@@ -892,12 +890,12 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 transition={{ duration: 0.18 }}
               >
                 {/* Leader price compact */}
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1.5">
                   <div>
                     <span className="text-[9px] font-black tracking-widest uppercase text-amber-400">
                       <Crown className="inline h-2.5 w-2.5 mr-1" />Puja líder
                     </span>
-                    <p className="text-xl font-black text-amber-400 font-mono tabular-nums leading-none mt-0.5">
+                    <p className="text-lg font-black text-amber-400 font-mono tabular-nums leading-none mt-0.5">
                       {formatPEN(currentBid)}
                     </p>
                   </div>
@@ -905,22 +903,22 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 </div>
 
                 {/* Quick bid pills */}
-                <div className="flex gap-2 mb-2">
+                <div className="flex gap-1.5 mb-1.5">
                   {QUICK_BIDS.map((amt) => (
                     <BidPill key={amt} amount={amt} onBid={handleQuickBid} />
                   ))}
                 </div>
 
-                {/* Primary CTA — más compacto */}
+                {/* Primary CTA — más compacto (py-2.5 vs py-3) */}
                 <PujarButton increment={auction.bidIncrement || 2} onBid={handleQuickBid} full />
 
                 {/* Secondary CTA */}
-                <div className="mt-2">
+                <div className="mt-1.5">
                   <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
                 </div>
 
                 {/* Stock mini-info */}
-                <p className="mt-2 text-[10px] text-zinc-500 leading-relaxed text-center">
+                <p className="mt-1.5 text-[10px] text-zinc-500 leading-snug text-center">
                   Stock: <span className="font-bold text-lime-400">{product?.stock ?? 0} uds</span> · {bidCount} pujas · {formatViewers(viewers)}
                 </p>
               </motion.div>
@@ -932,7 +930,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 exit={{ opacity: 0, x: 10 }}
                 transition={{ duration: 0.18 }}
               >
-                <div className="max-h-44 overflow-y-auto no-scrollbar space-y-1.5 mb-3">
+                <div className="max-h-44 overflow-y-auto no-scrollbar space-y-1.5 mb-2">
                   <AnimatePresence initial={false}>
                     {chat.map((msg) => (
                       <ChatMessageBubble key={msg.id} msg={msg} />

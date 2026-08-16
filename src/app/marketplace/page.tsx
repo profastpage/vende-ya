@@ -102,7 +102,7 @@ function HeroKpiBanner({
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 md:p-6"
+      className="relative overflow-hidden rounded-3xl bg-card border border-border p-5 md:p-6"
       aria-label="Resumen del marketplace en vivo"
     >
       {/* Ambient gradient glow */}
@@ -111,19 +111,19 @@ function HeroKpiBanner({
 
       <div className="relative flex flex-col md:flex-row md:items-center gap-4 md:gap-0">
         {/* Heading block */}
-        <div className="md:pr-6 md:mr-6 md:border-r md:border-white/10 md:max-w-[34%]">
+        <div className="md:pr-6 md:mr-6 md:border-r md:border-border md:max-w-[34%]">
           <div className="flex items-center gap-2 mb-2">
             <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/15 border border-rose-500/30">
               <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
-              <span className="text-[10px] font-black text-rose-300 tracking-wider uppercase">
+              <span className="text-[10px] font-black text-rose-500 dark:text-rose-300 tracking-wider uppercase">
                 Dark Stream Hub
               </span>
             </span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-black font-display text-white leading-tight tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-black font-display text-foreground leading-tight tracking-tight">
             Marketplace en vivo
           </h1>
-          <p className="mt-1.5 text-xs text-zinc-400 leading-relaxed">
+          <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
             Compra en subastas en tiempo real, descubre productos de
             vendedores verificados y paga con Yape o Plin en segundos.
             Cada venta es protegida con escrow automático.
@@ -139,7 +139,7 @@ function HeroKpiBanner({
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 + i * 0.08, duration: 0.4 }}
               className={`relative flex flex-col gap-1.5 px-3 md:px-4 ${
-                i < stats.length - 1 ? 'md:border-r md:border-white/10' : ''
+                i < stats.length - 1 ? 'md:border-r md:border-border' : ''
               }`}
             >
               <div
@@ -147,17 +147,17 @@ function HeroKpiBanner({
                 style={{ background: s.glow }}
               />
               <div className="relative flex items-center gap-2">
-                <div className="h-7 w-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                <div className="h-7 w-7 rounded-lg bg-muted border border-border flex items-center justify-center">
                   <s.icon className={`h-3.5 w-3.5 ${s.accent}`} />
                 </div>
-                <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
                   {s.label}
                 </span>
               </div>
-              <p className="relative text-xl md:text-2xl font-black text-white tabular-nums leading-none mt-0.5">
+              <p className="relative text-xl md:text-2xl font-black text-foreground tabular-nums leading-none mt-0.5">
                 {s.value}
               </p>
-              <p className="relative text-[10px] text-zinc-400 leading-tight truncate">
+              <p className="relative text-[10px] text-muted-foreground leading-tight truncate">
                 {s.sub}
               </p>
             </motion.div>
@@ -181,12 +181,12 @@ function FilterChip({
   onClick: () => void
 }) {
   const base =
-    'shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold border transition-all'
+    'shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold border transition-colors pointer-events-auto'
   const activeCls =
     accent === 'live'
-      ? 'bg-rose-500/20 border-rose-500/40 text-rose-300'
+      ? 'bg-rose-500/20 border-rose-500/40 text-rose-500 dark:text-rose-300'
       : 'bg-amber-400 text-zinc-950 border-amber-400 shadow-lg shadow-amber-500/20'
-  const inactive = 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-white'
+  const inactive = 'bg-muted border-border text-muted-foreground hover:bg-accent hover:text-foreground'
   return (
     <button onClick={onClick} className={`${base} ${active ? activeCls : inactive}`}>
       <Icon className="h-3.5 w-3.5" />
@@ -220,12 +220,12 @@ function ProductBentoCard({
     <motion.div
       variants={itemVariants}
       whileHover={{ y: -4 }}
-      className="group relative bg-zinc-900/80 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-sm hover:border-white/10 transition-colors"
+      className="group relative bg-card border border-border rounded-2xl overflow-hidden backdrop-blur-sm hover:border-foreground/10 transition-colors"
     >
       {/* Image */}
       <Link
         href={ROUTES.product(product.id)}
-        className="block relative aspect-square overflow-hidden bg-zinc-950"
+        className="block relative aspect-square overflow-hidden bg-muted"
         aria-label={product.title}
       >
         {product.images?.[0] ? (
@@ -242,7 +242,7 @@ function ProductBentoCard({
         )}
 
         {/* Gradient overlay for badge legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 via-transparent to-zinc-950/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
 
         {/* Floating badges (top-left) */}
         <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
@@ -299,34 +299,34 @@ function ProductBentoCard({
         )}
       </Link>
 
-      {/* Body — estilo Facebook Marketplace: limpio y directo */}
+        {/* Body — estilo Facebook Marketplace: limpio y directo */}
       <div className="p-2.5 md:p-3 space-y-1">
         {/* Precio — principal, lo primero que ve el usuario */}
         <div className="flex items-baseline gap-1.5">
-          <span className="text-base font-black text-amber-400 tabular-nums">
+          <span className="text-base font-black text-amber-500 dark:text-amber-400 tabular-nums">
             {formatPEN(product.basePrice)}
           </span>
           {originalPrice && (
-            <span className="text-[10px] text-zinc-500 line-through tabular-nums">
+            <span className="text-[10px] text-muted-foreground line-through tabular-nums">
               {formatPEN(originalPrice)}
             </span>
           )}
         </div>
 
         {/* Título */}
-        <h3 className="text-xs font-semibold text-white line-clamp-2 leading-snug min-h-[2.4em]">
+        <h3 className="text-xs font-semibold text-foreground line-clamp-2 leading-snug min-h-[2.4em]">
           {product.title}
         </h3>
 
         {/* Vendedor + ubicación — una sola línea */}
         <Link
           href={ROUTES.seller(seller.username)}
-          className="flex items-center gap-1 pt-1 min-w-0 text-[10px] text-zinc-400 hover:text-amber-400 transition-colors"
+          className="flex items-center gap-1 pt-1 min-w-0 text-[10px] text-muted-foreground hover:text-amber-500 dark:hover:text-amber-400 transition-colors pointer-events-auto"
         >
-          {seller.isVerified && <BadgeCheck className="h-3 w-3 text-sky-400 shrink-0" />}
+          {seller.isVerified && <BadgeCheck className="h-3 w-3 text-sky-500 dark:text-sky-400 shrink-0" />}
           <span className="truncate font-medium">{seller.displayName}</span>
-          <span className="text-zinc-600">·</span>
-          <span className="truncate text-zinc-500">{seller.department}</span>
+          <span className="text-muted-foreground/60">·</span>
+          <span className="truncate text-muted-foreground/80">{seller.department}</span>
         </Link>
       </div>
     </motion.div>
@@ -362,7 +362,7 @@ function AuctionMiniCard({
         href={ROUTES.auction(auction.id)}
         className="relative flex items-start gap-2.5"
       >
-        <div className="h-14 w-14 rounded-xl overflow-hidden bg-zinc-800 shrink-0">
+        <div className="h-14 w-14 rounded-xl overflow-hidden bg-muted shrink-0">
           {auction.product?.images?.[0] && (
             <img
               src={auction.product.images[0]}
@@ -374,17 +374,17 @@ function AuctionMiniCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 mb-0.5">
-            <Flame className="h-3 w-3 text-fuchsia-400" />
-            <span className="text-[10px] font-black uppercase tracking-wider text-fuchsia-400">
+            <Flame className="h-3 w-3 text-fuchsia-500 dark:text-fuchsia-400" />
+            <span className="text-[10px] font-black uppercase tracking-wider text-fuchsia-500 dark:text-fuchsia-400">
               Subasta en vivo
             </span>
           </div>
-          <p className="text-xs font-bold text-white line-clamp-2 leading-snug">
+          <p className="text-xs font-bold text-foreground line-clamp-2 leading-snug">
             {auction.product?.title ?? 'Subasta en vivo'}
           </p>
           <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-[10px] text-zinc-400">Puja</span>
-            <span className="text-sm font-black text-amber-400 tabular-nums">
+            <span className="text-[10px] text-muted-foreground">Puja</span>
+            <span className="text-sm font-black text-amber-500 dark:text-amber-400 tabular-nums">
               {formatPEN(auction.currentPrice)}
             </span>
           </div>
@@ -405,7 +405,7 @@ function AuctionMiniCard({
         </Link>
       </div>
       {index === 0 && (
-        <span className="absolute top-2 right-2 text-[9px] font-black tracking-wider uppercase text-amber-300/80">
+        <span className="absolute top-2 right-2 text-[9px] font-black tracking-wider uppercase text-amber-500 dark:text-amber-300/80">
           🔥 Top
         </span>
       )}
@@ -493,7 +493,7 @@ export default function MarketplacePage() {
   const showClearButton = hasQuery
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100 dark">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-24 md:pb-12">
         {/* ============================================================= */}
         {/* HERO KPI BANNER                                                */}
@@ -509,7 +509,7 @@ export default function MarketplacePage() {
         {/* ============================================================= */}
         <section className="mt-5 md:mt-6" aria-label="Filtros y búsqueda">
           {/* Sticky search on mobile */}
-          <div className="md:hidden sticky top-0 z-20 -mx-4 px-4 pt-3 pb-2 bg-zinc-950/95 backdrop-blur-xl">
+          <div className="md:hidden sticky top-0 z-20 -mx-4 px-4 pt-3 pb-2 bg-background/95 backdrop-blur-xl">
             <SearchInput
               query={query}
               setQuery={setQuery}
@@ -544,16 +544,16 @@ export default function MarketplacePage() {
         {/* RESULTS COUNT                                                 */}
         {/* ============================================================= */}
         <div className="mt-4 mb-3 flex items-center justify-between">
-          <p className="text-xs text-zinc-500">
-            <span className="font-bold text-white">{productsWithMeta.length}</span>{' '}
+          <p className="text-xs text-muted-foreground">
+            <span className="font-bold text-foreground">{productsWithMeta.length}</span>{' '}
             resultado{productsWithMeta.length !== 1 ? 's' : ''}
             {filter !== 'all' && (
-              <span className="text-zinc-600"> · filtro: {FILTERS.find((f) => f.id === filter)?.label}</span>
+              <span className="text-muted-foreground/60"> · filtro: {FILTERS.find((f) => f.id === filter)?.label}</span>
             )}
-            {hasQuery && <span className="text-zinc-600"> · “{query.trim()}”</span>}
+            {hasQuery && <span className="text-muted-foreground/60"> · “{query.trim()}”</span>}
           </p>
           {productsWithMeta.length > 0 && (
-            <p className="hidden md:block text-[10px] text-zinc-600 uppercase tracking-wider font-bold">
+            <p className="hidden md:block text-[10px] text-muted-foreground/60 uppercase tracking-wider font-bold">
               {filter === 'top' ? 'Precio ↓' : 'Relevancia'}
             </p>
           )}
@@ -593,16 +593,16 @@ export default function MarketplacePage() {
                 <span className="flex items-center justify-center h-6 w-6 rounded-full bg-rose-500/15 border border-rose-500/30">
                   <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
                 </span>
-                <h2 className="text-lg md:text-xl font-black text-white font-display">
+                <h2 className="text-lg md:text-xl font-black text-foreground font-display">
                   Subastas en vivo
                 </h2>
-                <span className="text-xs text-zinc-500">
+                <span className="text-xs text-muted-foreground">
                   {MOCK_TRENDING_AUCTIONS.length} activas
                 </span>
               </div>
               <Link
                 href={ROUTES.live}
-                className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1"
+                className="text-xs font-bold text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 flex items-center gap-1 pointer-events-auto"
               >
                 Ver todo <ChevronRight className="h-3.5 w-3.5" />
               </Link>
@@ -624,15 +624,15 @@ export default function MarketplacePage() {
         {/* ============================================================= */}
         {/* TRUST STRIPE                                                  */}
         {/* ============================================================= */}
-        <section className="mt-10 md:mt-12 rounded-2xl border border-white/5 bg-zinc-900/40 p-5 md:p-6">
+        <section className="mt-10 md:mt-12 rounded-2xl border border-border bg-card p-5 md:p-6">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             <div className="flex items-center gap-2">
-              <BadgeCheck className="h-5 w-5 text-sky-400" />
-              <h3 className="text-base font-black text-white font-display">
+              <BadgeCheck className="h-5 w-5 text-sky-500 dark:text-sky-400" />
+              <h3 className="text-base font-black text-foreground font-display">
                 Compra con confianza
               </h3>
             </div>
-            <p className="text-xs text-zinc-400 flex-1 leading-relaxed">
+            <p className="text-xs text-muted-foreground flex-1 leading-relaxed">
               Todos los pagos están protegidos con escrow automático. El dinero
               solo se libera al vendedor cuando confirmas la recepción del
               producto. En caso de disputa, nuestro equipo de soporte peruano
@@ -642,7 +642,7 @@ export default function MarketplacePage() {
               {['Yape', 'Plin', 'PagoEfectivo', 'Tarjeta'].map((m) => (
                 <span
                   key={m}
-                  className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[11px] font-bold text-zinc-300"
+                  className="px-2.5 py-1 rounded-md bg-muted border border-border text-[11px] font-bold text-foreground"
                 >
                   {m}
                 </span>
@@ -667,14 +667,14 @@ function SearchInput({
 }) {
   return (
     <div className="relative">
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none" />
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Buscar productos, marcas, vendedores…"
         aria-label="Buscar en el marketplace"
-        className="w-full h-11 pl-11 pr-10 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400/40 transition-all"
+        className="w-full h-11 pl-11 pr-10 rounded-full bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400/40 transition-colors"
       />
       <AnimatePresence>
         {showClearButton && (
@@ -685,9 +685,9 @@ function SearchInput({
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10"
+            className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-muted border border-border flex items-center justify-center hover:bg-accent pointer-events-auto"
           >
-            <X className="h-3 w-3 text-zinc-400" />
+            <X className="h-3 w-3 text-muted-foreground" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -703,19 +703,19 @@ function EmptyState({ query, onClear }: { query: string; onClear: () => void }) 
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-white/5 bg-zinc-900/40 p-10 text-center"
+      className="rounded-2xl border border-border bg-card p-10 text-center"
     >
-      <div className="mx-auto h-12 w-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-3">
-        <Search className="h-5 w-5 text-zinc-500" />
+      <div className="mx-auto h-12 w-12 rounded-full bg-muted border border-border flex items-center justify-center mb-3">
+        <Search className="h-5 w-5 text-muted-foreground" />
       </div>
-      <p className="text-sm font-bold text-white">Sin resultados</p>
-      <p className="mt-1 text-xs text-zinc-500 max-w-sm mx-auto">
+      <p className="text-sm font-bold text-foreground">Sin resultados</p>
+      <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
         No encontramos productos para “{query.trim()}”. Prueba con otro término
         o reinicia los filtros para ver todo el marketplace.
       </p>
       <button
         onClick={onClear}
-        className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-400 text-zinc-950 text-xs font-bold hover:bg-amber-300 transition-colors"
+        className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-400 text-zinc-950 text-xs font-bold hover:bg-amber-300 transition-colors pointer-events-auto"
       >
         <X className="h-3.5 w-3.5" /> Limpiar filtros
       </button>

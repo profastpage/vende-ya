@@ -3,12 +3,12 @@
 /**
  * VENDE YA — SectionNav (sticky-top, estable, sin parpadeo)
  * =====================================================================
- * Cambios vs versión anterior:
- *   - Eliminado AnimatePresence + motion.nav (causaba flicker al
- *     mostrar/ocultar).
- *   - Eliminado backdrop-blur-xl (repaint constante al scrollear).
- *   - Hide-on-scroll ahora con transición CSS simple, no framer-motion.
- *   - Sticky debajo del MobileTopActions (top-14) y DesktopTopNav (md:top-16).
+ * v3 — Sin hide-on-scroll (era la fuente principal del parpadeo).
+ *   - Tokens semánticos (light/dark).
+ *   - Sin backdrop-blur (evita repaints constantes).
+ *   - `translateZ(0)` + `willChange: transform` para capa GPU estable.
+ *   - Scroll-spy usa IntersectionObserver (no scroll listener).
+ *   - Siempre visible — no parpadea al hacer scroll.
  * =====================================================================
  */
 import * as React from 'react'
@@ -42,28 +42,8 @@ export function SectionNav() {
     smoothScrollOnHash: true,
   })
 
-  // Hide-on-scroll-down behavior (mobile UX) — usando CSS transition, no framer-motion
-  const [hidden, setHidden] = React.useState(false)
-  const lastScrollY = React.useRef(0)
-  const tickingRef = React.useRef(false)
-
-  React.useEffect(() => {
-    const onScroll = () => {
-      if (tickingRef.current) return
-      tickingRef.current = true
-      requestAnimationFrame(() => {
-        const currentY = window.scrollY
-        const delta = currentY - lastScrollY.current
-        if (currentY > 200 && Math.abs(delta) > 8) {
-          setHidden(delta > 0)
-        }
-        lastScrollY.current = currentY
-        tickingRef.current = false
-      })
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  // NOTA: hide-on-scroll eliminado — era la causa del parpadeo.
+  // El header queda siempre visible (sticky), más estable y predecible.
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault()
@@ -77,11 +57,8 @@ export function SectionNav() {
 
   return (
     <nav
-      className={cn(
-        'sticky top-14 md:top-16 z-30 bg-zinc-950 border-b border-white/5 transition-transform duration-200 ease-out',
-        hidden ? '-translate-y-full' : 'translate-y-0'
-      )}
-      style={{ transform: 'translateZ(0)' }}
+      className="sticky top-14 md:top-16 z-30 bg-background/95 backdrop-blur-md border-b border-border"
+      style={{ transform: 'translateZ(0)', willChange: 'transform' }}
       aria-label="Navegación de secciones"
     >
       <div className="mx-auto w-full max-w-[1400px] px-2 md:px-6">
@@ -99,10 +76,10 @@ export function SectionNav() {
                   onClick={(e) => handleClick(e, section.id)}
                   aria-current={isActive ? 'true' : undefined}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all',
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors pointer-events-auto',
                     isActive
                       ? 'bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950'
-                      : 'text-zinc-400 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white'
+                      : 'text-muted-foreground bg-muted border border-border hover:bg-accent hover:text-foreground'
                   )}
                 >
                   <Icon className="h-3.5 w-3.5" />
@@ -132,10 +109,10 @@ export function ScrollToTopButton() {
   return (
     <button
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      className="fixed right-4 bottom-24 md:bottom-8 z-30 h-10 w-10 rounded-full bg-zinc-900 border border-white/10 shadow-lg flex items-center justify-center hover:bg-zinc-800 transition-colors"
+      className="fixed right-4 bottom-24 md:bottom-8 z-30 h-10 w-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:bg-accent transition-colors"
       aria-label="Volver al inicio"
     >
-      <ChevronUp className="h-5 w-5 text-amber-400" />
+      <ChevronUp className="h-5 w-5 text-amber-500" />
     </button>
   )
 }

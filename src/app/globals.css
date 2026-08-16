@@ -135,23 +135,26 @@
   /* Ink — Tambo (warm near-black) */
   --tambo: oklch(0.235 0.012 60);
 
-  /* Surfaces (light) */
-  --background: oklch(0.985 0.005 70);   /* warm off-white, not pure #fff */
-  --foreground: var(--tambo);
-  --card: oklch(1 0 0);
-  --card-foreground: var(--tambo);
-  --popover: oklch(1 0 0);
-  --popover-foreground: var(--tambo);
+  /* ============================================================
+     SURFACES — Modo Claro (Light Mode) — tokens semánticos
+     Sigue el master prompt: blanco puro + slate ultra-claro
+     ============================================================ */
+  --background: #FFFFFF;            /* Blanco Puro */
+  --foreground: #0F172A;            /* Slate Oscuro (text principal) */
+  --card: #F8FAFC;                  /* Gris Ultra-Claro (slate-50) */
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
 
-  --muted: oklch(0.965 0.005 70);
-  --muted-foreground: oklch(0.510 0.015 60);
+  --muted: #F8FAFC;                /* slate-50 */
+  --muted-foreground: #64748B;      /* slate-500 */
 
-  --accent: var(--salsa-50);
-  --accent-foreground: var(--salsa-700);
+  --accent: #F8FAFC;
+  --accent-foreground: #0F172A;
 
   --destructive: oklch(0.580 0.245 27);
-  --border: oklch(0.915 0.005 70);
-  --input: oklch(0.915 0.005 70);
+  --border: #E2E8F0;               /* slate-200 */
+  --input: #E2E8F0;
 
   /* Chart palette — warm + cool harmony, no indigo/blue */
   --chart-1: var(--salsa-500);
@@ -160,39 +163,43 @@
   --chart-4: oklch(0.620 0.220 295);  /* plin */
   --chart-5: oklch(0.650 0.180 25);   /* terracotta */
 
-  --sidebar: oklch(0.990 0.005 70);
-  --sidebar-foreground: var(--tambo);
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0F172A;
   --sidebar-primary: var(--salsa-500);
   --sidebar-primary-foreground: var(--salsa-50);
-  --sidebar-accent: var(--salsa-50);
-  --sidebar-accent-foreground: var(--salsa-700);
-  --sidebar-border: oklch(0.915 0.005 70);
+  --sidebar-accent: #F8FAFC;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: #E2E8F0;
   --sidebar-ring: var(--salsa-400);
 }
 
 .dark {
-  --background: oklch(0.165 0.008 60);
-  --foreground: oklch(0.975 0.005 70);
-  --card: oklch(0.215 0.010 60);
-  --card-foreground: oklch(0.975 0.005 70);
-  --popover: oklch(0.215 0.010 60);
-  --popover-foreground: oklch(0.975 0.005 70);
+  /* ============================================================
+     SURFACES — Modo Oscuro (Dark Mode) — tokens semánticos
+     Sigue el master prompt: negro absoluto + slate-950 / slate-800
+     ============================================================ */
+  --background: #000000;            /* Negro Absoluto */
+  --foreground: #F8FAFC;            /* Blanco suave (slate-50) */
+  --card: #020617;                  /* slate-950 — Gris Siniestro */
+  --card-foreground: #F8FAFC;
+  --popover: #020617;
+  --popover-foreground: #F8FAFC;
 
-  --muted: oklch(0.265 0.010 60);
-  --muted-foreground: oklch(0.700 0.015 60);
+  --muted: #020617;
+  --muted-foreground: #94A3B8;      /* slate-400 */
 
-  --accent: var(--salsa-900);
-  --accent-foreground: var(--salsa-200);
+  --accent: #020617;
+  --accent-foreground: #F8FAFC;
 
   --destructive: oklch(0.700 0.190 22);
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 12%);
+  --border: #1E293B;                /* slate-800 — Gris Carbón */
+  --input: #1E293B;
 
-  --sidebar: oklch(0.215 0.010 60);
-  --sidebar-foreground: oklch(0.975 0.005 70);
-  --sidebar-accent: oklch(0.265 0.010 60);
-  --sidebar-accent-foreground: var(--salsa-200);
-  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar: #020617;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-accent: #020617;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: #1E293B;
 }
 
 @layer base {

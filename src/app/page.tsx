@@ -38,10 +38,10 @@ function HeroStatPill({
   accent: string
 }) {
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10">
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/80 backdrop-blur-md border border-border">
       <Icon className={`h-3.5 w-3.5 ${accent}`} />
-      <span className="text-[11px] text-zinc-400 font-medium">{label}</span>
-      <span className="text-xs font-bold text-white tabular-nums">{value}</span>
+      <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
+      <span className="text-xs font-bold text-foreground tabular-nums">{value}</span>
     </div>
   )
 }
@@ -59,7 +59,7 @@ function BentoKpi({
   return (
     <motion.div
       whileHover={{ y: -2, scale: 1.01 }}
-      className="relative overflow-hidden rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-xl p-4 md:p-5"
+      className="relative overflow-hidden rounded-2xl bg-card border border-border backdrop-blur-xl p-4 md:p-5"
     >
       {/* glow */}
       <div
@@ -68,13 +68,13 @@ function BentoKpi({
       />
       <div className="relative flex items-start justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">{label}</p>
-          <p className="mt-1 text-2xl md:text-3xl font-black text-white tabular-nums">{value}</p>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{label}</p>
+          <p className="mt-1 text-2xl md:text-3xl font-black text-foreground tabular-nums">{value}</p>
           {delta && (
             <p className={`mt-1 text-[11px] font-bold ${accent}`}>{delta}</p>
           )}
         </div>
-        <div className="rounded-xl p-2 bg-white/5 border border-white/10">
+        <div className="rounded-xl p-2 bg-muted border border-border">
           <Icon className={`h-5 w-5 ${accent}`} />
         </div>
       </div>
@@ -87,7 +87,7 @@ function LiveRailCard({ stream }: { stream: typeof MOCK_STREAMS[number] }) {
     <Link href={`/en-vivo/${stream.id}`} className="group block">
       <motion.div
         whileHover={{ y: -4 }}
-        className="relative overflow-hidden rounded-2xl bg-zinc-900 aspect-[3/4] border border-white/5"
+        className="relative overflow-hidden rounded-2xl bg-card aspect-[3/4] border border-border"
       >
         {/* Thumbnail */}
         <div
@@ -141,10 +141,10 @@ function ProductBentoCard({ product, index }: { product: typeof MOCK_PRODUCTS[nu
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className="group relative overflow-hidden rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm"
+      className="group relative overflow-hidden rounded-2xl bg-card border border-border backdrop-blur-sm"
     >
       {/* Image */}
-      <Link href={ROUTES.marketplace} className="block relative aspect-square overflow-hidden bg-zinc-950">
+      <Link href={ROUTES.marketplace} className="block relative aspect-square overflow-hidden bg-muted">
         {product.images?.[0] && (
           <img
             src={product.images[0]}
@@ -152,7 +152,7 @@ function ProductBentoCard({ product, index }: { product: typeof MOCK_PRODUCTS[nu
             className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
 
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
@@ -174,21 +174,21 @@ function ProductBentoCard({ product, index }: { product: typeof MOCK_PRODUCTS[nu
         </button>
       </Link>
 
-      {/* Body */}
+      {/* Body — p-3 compacto, fuentes proporcionales */}
       <div className="p-3">
-        <p className="text-xs font-semibold text-white line-clamp-2 leading-tight min-h-[2rem]">
+        <p className="text-xs font-semibold text-foreground line-clamp-2 leading-tight min-h-[2rem]">
           {product.title}
         </p>
         <div className="mt-1 flex items-center justify-between">
-          <span className="text-sm font-black text-amber-400 tabular-nums">
+          <span className="text-sm font-black text-amber-500 dark:text-amber-400 tabular-nums">
             {formatPEN(product.basePrice ?? 0)}
           </span>
-          <span className="text-[10px] text-zinc-500">
+          <span className="text-[10px] text-muted-foreground">
             Stock: {product.stock ?? 0}
           </span>
         </div>
         {/* Stock pressure bar */}
-        <div className="mt-1.5 h-1 w-full rounded-full bg-zinc-800 overflow-hidden">
+        <div className="mt-1.5 h-1 w-full rounded-full bg-muted-foreground/20 overflow-hidden">
           <div
             className={`h-full ${stockColor} transition-all duration-500`}
             style={{ width: `${stockPercent}%` }}
@@ -220,7 +220,7 @@ function AuctionBentoCard({ auction }: { auction: typeof MOCK_TRENDING_AUCTIONS[
       <div className="absolute -top-8 -right-8 h-24 w-24 rounded-full bg-fuchsia-500/30 blur-3xl" />
 
       <div className="relative flex items-start gap-3">
-        <div className="h-16 w-16 rounded-xl overflow-hidden bg-zinc-800 shrink-0">
+        <div className="h-16 w-16 rounded-xl overflow-hidden bg-muted shrink-0">
           {auction.product?.images?.[0] && (
             <img
               src={auction.product.images[0]}
@@ -231,17 +231,17 @@ function AuctionBentoCard({ auction }: { auction: typeof MOCK_TRENDING_AUCTIONS[
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 mb-1">
-            <Gavel className="h-3 w-3 text-fuchsia-400" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-fuchsia-400">
+            <Gavel className="h-3 w-3 text-fuchsia-500 dark:text-fuchsia-400" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-fuchsia-500 dark:text-fuchsia-400">
               Subasta en vivo
             </span>
           </div>
-          <p className="text-xs font-bold text-white line-clamp-1">
+          <p className="text-xs font-bold text-foreground line-clamp-1">
             {auction.product?.title}
           </p>
           <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-[10px] text-zinc-400">Puja actual</span>
-            <span className="text-base font-black text-amber-400 tabular-nums">
+            <span className="text-[10px] text-muted-foreground">Puja actual</span>
+            <span className="text-base font-black text-amber-500 dark:text-amber-400 tabular-nums">
               {formatPEN(auction.currentPrice)}
             </span>
           </div>
@@ -269,13 +269,14 @@ export default function Home() {
   const liveStreams = MOCK_STREAMS.filter((s) => s.isLive)
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100 dark">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       {/* SectionNav: sticky-top, debajo del header móvil/desktop.
           Debe estar ANTES del main para que el sticky funcione en todo el scroll. */}
       <SectionNav />
 
       {/* pb-28: espacio seguro inferior para que el contenido pase por detrás
-          del MobileBottomNav fijo (h-16 + safe-area) sin colisionar ni cortarse */}
+          del MobileBottomNav fijo (h-16 + safe-area) sin colisionar ni cortarse.
+          space-y-8: separación uniforme entre secciones (anti-apilado). */}
       <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 md:px-6 pt-4 pb-28 md:pb-12">
 
         {/* ============================================================= */}
@@ -287,7 +288,7 @@ export default function Home() {
           className="mb-6 md:mb-10 scroll-mt-32 md:scroll-mt-20"
         >
           {/* Hero background image */}
-          <div className="relative overflow-hidden rounded-3xl border border-white/5">
+          <div className="relative overflow-hidden rounded-3xl border border-border">
             {/* BG image */}
             {MOCK_AUCTION.product?.images?.[0] && (
               <div
@@ -295,8 +296,8 @@ export default function Home() {
                 style={{ backgroundImage: `url(${MOCK_AUCTION.product.images[0]})` }}
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-br from-zinc-950/95 via-zinc-950/70 to-fuchsia-950/60" />
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-zinc-950/40" />
+            <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-black/70 to-fuchsia-950/60 dark:from-black dark:via-black/70 dark:to-fuchsia-950/60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
 
             {/* Floating stats */}
             <div className="absolute top-3 md:top-5 right-3 md:right-5 flex flex-wrap gap-2 justify-end">
@@ -424,13 +425,13 @@ export default function Home() {
         <section id="sellers" className="mb-8 md:mb-10 scroll-mt-32 md:scroll-mt-20">
           <div className="flex items-end justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Crown className="h-5 w-5 text-amber-400" />
-              <h2 className="text-lg md:text-xl font-black text-white font-display">
+              <Crown className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+              <h2 className="text-lg md:text-xl font-black text-foreground font-display">
                 Vendedores en tendencia
               </h2>
             </div>
             <Link href={`${ROUTES.marketplace}?filter=sellers`}>
-              <button className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1">
+              <button className="text-xs font-bold text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 flex items-center gap-1">
                 Ver todos <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </Link>
@@ -440,11 +441,11 @@ export default function Home() {
               <motion.div
                 key={p.id}
                 whileHover={{ y: -2 }}
-                className="shrink-0 flex flex-col items-center gap-2 p-3 rounded-2xl bg-zinc-900/80 border border-white/5 backdrop-blur-sm min-w-[100px]"
+                className="shrink-0 flex flex-col items-center gap-2 p-3 rounded-2xl bg-card border border-border backdrop-blur-sm min-w-[100px]"
               >
                 <div className="relative">
                   <div className="h-14 w-14 rounded-full bg-gradient-to-br from-amber-400 via-rose-500 to-fuchsia-600 p-0.5">
-                    <div className="h-full w-full rounded-full bg-zinc-950 flex items-center justify-center text-xl font-black text-white">
+                    <div className="h-full w-full rounded-full bg-background flex items-center justify-center text-xl font-black text-foreground">
                       {p.displayName?.[0] ?? 'V'}
                     </div>
                   </div>
@@ -454,12 +455,12 @@ export default function Home() {
                     </div>
                   )}
                   {p.isVerified && (
-                    <BadgeCheck className="absolute -bottom-1 -right-1 h-5 w-5 text-sky-400 bg-zinc-950 rounded-full" />
+                    <BadgeCheck className="absolute -bottom-1 -right-1 h-5 w-5 text-sky-400 bg-background rounded-full" />
                   )}
                 </div>
                 <div className="text-center">
-                  <p className="text-xs font-bold text-white truncate max-w-[90px]">{p.displayName}</p>
-                  <p className="text-[10px] text-zinc-500">@{p.username ?? p.id}</p>
+                  <p className="text-xs font-bold text-foreground truncate max-w-[90px]">{p.displayName}</p>
+                  <p className="text-[10px] text-muted-foreground">@{p.username ?? p.id}</p>
                 </div>
               </motion.div>
             ))}
@@ -475,15 +476,15 @@ export default function Home() {
               <span className="flex items-center justify-center h-6 w-6 rounded-full bg-rose-500/15 border border-rose-500/30">
                 <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
               </span>
-              <h2 className="text-lg md:text-xl font-black text-white font-display">
+              <h2 className="text-lg md:text-xl font-black text-foreground font-display">
                 En vivo ahora
               </h2>
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-muted-foreground">
                 {liveStreams.length} transmisiones
               </span>
             </div>
             <Link href={ROUTES.live}>
-              <button className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1">
+              <button className="text-xs font-bold text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 flex items-center gap-1">
                 Ver todo <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </Link>
@@ -501,8 +502,8 @@ export default function Home() {
         <section id="auctions" className="mb-8 md:mb-10 scroll-mt-32 md:scroll-mt-20">
           <div className="flex items-end justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Gavel className="h-5 w-5 text-fuchsia-400" />
-              <h2 className="text-lg md:text-xl font-black text-white font-display">
+              <Gavel className="h-5 w-5 text-fuchsia-500 dark:text-fuchsia-400" />
+              <h2 className="text-lg md:text-xl font-black text-foreground font-display">
                 Subastas activas
               </h2>
               <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30">
@@ -511,7 +512,7 @@ export default function Home() {
               </span>
             </div>
             <Link href={ROUTES.live}>
-              <button className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1">
+              <button className="text-xs font-bold text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 flex items-center gap-1">
                 Ver todo <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </Link>
@@ -529,19 +530,19 @@ export default function Home() {
         <section id="products" className="mb-8 md:mb-10 scroll-mt-32 md:scroll-mt-20">
           <div className="flex items-end justify-between mb-3">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="h-5 w-5 text-amber-400" />
-              <h2 className="text-lg md:text-xl font-black text-white font-display">
+              <ShoppingBag className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+              <h2 className="text-lg md:text-xl font-black text-foreground font-display">
                 Productos del marketplace
               </h2>
             </div>
             <Link href={ROUTES.marketplace}>
-              <button className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1">
+              <button className="text-xs font-bold text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 flex items-center gap-1">
                 Ver todo <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {MOCK_PRODUCTS.slice(0, 6).map((p, i) => (
+            {MOCK_PRODUCTS.slice(0, 4).map((p, i) => (
               <ProductBentoCard key={p.id} product={p} index={i} />
             ))}
           </div>
@@ -550,18 +551,18 @@ export default function Home() {
         {/* ============================================================= */}
         {/* PAYMENTS STRIP                                                 */}
         {/* ============================================================= */}
-        <section className="mb-8 md:mb-10 rounded-3xl border border-white/5 overflow-hidden">
-          <div className="relative p-6 md:p-8 bg-gradient-to-br from-fuchsia-950/40 via-zinc-900 to-amber-950/30">
+        <section className="mb-8 md:mb-10 rounded-3xl border border-border overflow-hidden">
+          <div className="relative p-6 md:p-8 bg-gradient-to-br from-fuchsia-950/40 via-card to-amber-950/30">
             <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-fuchsia-500/20 blur-3xl" />
             <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-amber-500/20 blur-3xl" />
             <div className="relative">
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-5 w-5 text-amber-400" />
-                <h3 className="text-lg md:text-xl font-black text-white">
+                <Sparkles className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+                <h3 className="text-lg md:text-xl font-black text-foreground">
                   Paga en segundos, 24/7
                 </h3>
               </div>
-              <p className="text-sm text-zinc-400 mb-4 max-w-xl">
+              <p className="text-sm text-muted-foreground mb-4 max-w-xl">
                 Integrado con Mercado Pago. Subastas con escrow automático y logística Shalom a todo Perú.
               </p>
               <div className="flex flex-wrap gap-2">
@@ -594,44 +595,44 @@ export default function Home() {
         <section
           id="architecture"
           aria-label="Arquitectura del MVP"
-          className="hidden md:block mt-12 rounded-2xl border border-white/5 bg-zinc-900/40 p-6 scroll-mt-20"
+          className="hidden md:block mt-12 rounded-2xl border border-border bg-card p-6 scroll-mt-20"
         >
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="h-5 w-5 text-amber-400" />
-            <h2 className="text-lg font-black text-white font-display">
+            <Sparkles className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+            <h2 className="text-lg font-black text-foreground font-display">
               MVP Core Bootstrap — Architecture
             </h2>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-            <div className="rounded-xl p-3 bg-white/5 border border-white/5">
-              <div className="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+            <div className="rounded-xl p-3 bg-muted border border-border">
+              <div className="font-bold text-amber-500 dark:text-amber-400 mb-1 flex items-center gap-1.5">
                 <Zap className="h-3 w-3" /> Frontend
               </div>
-              <p className="text-zinc-400">
+              <p className="text-muted-foreground">
                 Next.js 16 App Router · TypeScript · Tailwind CSS 4 · shadcn/ui · Framer Motion. Mobile-first, safe-area aware.
               </p>
             </div>
-            <div className="rounded-xl p-3 bg-white/5 border border-white/5">
-              <div className="font-bold text-fuchsia-400 mb-1 flex items-center gap-1.5">
+            <div className="rounded-xl p-3 bg-muted border border-border">
+              <div className="font-bold text-fuchsia-500 dark:text-fuchsia-400 mb-1 flex items-center gap-1.5">
                 <Radio className="h-3 w-3" /> Real-time
               </div>
-              <p className="text-zinc-400">
+              <p className="text-muted-foreground">
                 Socket.io mini-service (port 3003) for bids + chat. In prod: Supabase Realtime replication.
               </p>
             </div>
-            <div className="rounded-xl p-3 bg-white/5 border border-white/5">
-              <div className="font-bold text-lime-400 mb-1 flex items-center gap-1.5">
+            <div className="rounded-xl p-3 bg-muted border border-border">
+              <div className="font-bold text-lime-500 dark:text-lime-400 mb-1 flex items-center gap-1.5">
                 <Package className="h-3 w-3" /> Database
               </div>
-              <p className="text-zinc-400">
-                Supabase PostgreSQL with RLS on every user-generated table. <code className="text-amber-400">place_bid()</code> RPC prevents race conditions.
+              <p className="text-muted-foreground">
+                Supabase PostgreSQL with RLS on every user-generated table. <code className="text-amber-500 dark:text-amber-400">place_bid()</code> RPC prevents race conditions.
               </p>
             </div>
-            <div className="rounded-xl p-3 bg-white/5 border border-white/5">
-              <div className="font-bold text-sky-400 mb-1 flex items-center gap-1.5">
+            <div className="rounded-xl p-3 bg-muted border border-border">
+              <div className="font-bold text-sky-500 dark:text-sky-400 mb-1 flex items-center gap-1.5">
                 <Sparkles className="h-3 w-3" /> AI Edge
               </div>
-              <p className="text-zinc-400">
+              <p className="text-muted-foreground">
                 DeepSeek-V4 (moderation) + Qwen-2.5-72B (sales assistant) via z-ai-web-dev-sdk. Rule-based prefilter at zero token cost.
               </p>
             </div>
@@ -646,9 +647,9 @@ export default function Home() {
       {/* Footer */}
       <footer
         id="footer"
-        className="hidden md:block mt-auto border-t border-white/5 bg-zinc-950 scroll-mt-20"
+        className="hidden md:block mt-auto border-t border-border bg-background scroll-mt-20"
       >
-        <div className="max-w-[1400px] mx-auto px-6 py-6 flex items-center justify-between text-xs text-zinc-500">
+        <div className="max-w-[1400px] mx-auto px-6 py-6 flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <Image
               src="/logo.png"
@@ -661,10 +662,10 @@ export default function Home() {
             <span>© 2026 Vende Ya · Hecho en Perú 🇵🇪</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href={ROUTES.terminos} className="hover:text-amber-400 transition-colors">Términos</Link>
-            <Link href={ROUTES.privacidad} className="hover:text-amber-400 transition-colors">Privacidad</Link>
-            <Link href={ROUTES.soporte} className="hover:text-amber-400 transition-colors">Soporte</Link>
-            <Link href={ROUTES.envios} className="hover:text-amber-400 transition-colors">Olva tracking</Link>
+            <Link href={ROUTES.terminos} className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors">Términos</Link>
+            <Link href={ROUTES.privacidad} className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors">Privacidad</Link>
+            <Link href={ROUTES.soporte} className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors">Soporte</Link>
+            <Link href={ROUTES.envios} className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors">Olva tracking</Link>
           </div>
         </div>
       </footer>
