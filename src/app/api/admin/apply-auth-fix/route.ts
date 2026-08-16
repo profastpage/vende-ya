@@ -268,6 +268,56 @@ export async function POST(req: NextRequest) {
   }
 
   // ============================================================
+  // 5b. FIX CRÍTICO — arreglar handle_new_user_profile_extras()
+  //     Existe otro trigger on_auth_user_created_extras que ejecuta
+  //     handle_new_user_profile_extras(), la cual hace INSERTs a
+  //     user_notification_prefs y user_kyc SIN manejo de errores.
+  //     Si esas tablas tienen algún problema, revienta toda la
+  //     transacción de auth.users → "Database error creating new user".
+  //     Lo reescribimos con EXCEPTION WHEN OTHERS THEN para que sea
+  //     a prueba de fallos.
+  // ============================================================
+  try {
+    await db.$executeRawUnsafe(`
+      CREATE OR REPLACE FUNCTION public.handle_new_user_profile_extras()
+      RETURNS trigger
+      LANGUAGE plpgsql
+      SECURITY DEFINER
+      SET search_path = public
+      AS $$
+      BEGIN
+        BEGIN
+          INSERT INTO public.user_notification_prefs (user_id)
+          VALUES (NEW.id)
+          ON CONFLICT (user_id) DO NOTHING;
+        EXCEPTION
+          WHEN OTHERS THEN
+            RAISE WARNING 'handle_new_user_profile_extras: user_notification_prefs insert failed: %', SQLERRM;
+        END;
+
+        BEGIN
+          INSERT INTO public.user_kyc (user_id, status)
+          VALUES (NEW.id, 'unverified')
+          ON CONFLICT (user_id) DO NOTHING;
+        EXCEPTION
+          WHEN OTHERS THEN
+            RAISE WARNING 'handle_new_user_profile_extras: user_kyc insert failed: %', SQLERRM;
+        END;
+
+        RETURN NEW;
+      END;
+      $$;
+    `)
+    results.push({ step: 'fix_extras_trigger', status: 'ok' })
+  } catch (e: any) {
+    results.push({
+      step: 'fix_extras_trigger',
+      status: 'error',
+      detail: e?.message ?? String(e),
+    })
+  }
+
+  // ============================================================
   // 6. Crear trigger on_auth_user_created
   // ============================================================
   try {
