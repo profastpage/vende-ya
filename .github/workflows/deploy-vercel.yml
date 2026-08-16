@@ -37,6 +37,21 @@ jobs:
       - name: 🧬 Generate Prisma Client
         run: bunx prisma generate
 
+      - name: 🛠️ Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: 🩺 Diagnose (fail fast if secrets are missing)
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::error::VERCEL_TOKEN secret is not set. Configure repo secrets: Settings → Secrets and variables → Actions → New repository secret."
+            exit 1
+          fi
+          if [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "::error::VERCEL_ORG_ID or VERCEL_PROJECT_ID secret is not set. Run 'vercel link' locally to populate .vercel/project.json, then copy the org/project IDs into repo secrets."
+            exit 1
+          fi
+          echo "All Vercel secrets present. Org: $VERCEL_ORG_ID | Project: $VERCEL_PROJECT_ID"
+
       - name: 🔌 Pull Vercel env (production)
         run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
         continue-on-error: true
