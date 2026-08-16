@@ -76,10 +76,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Subscribe to auth changes (token refresh included)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          (_event, session) => {
+          async (event, session) => {
             if (!mounted) return
             setUser(session?.user ? supabaseUserToAuthUser(session.user) : null)
             setAccessToken(session?.access_token ?? null)
+
+            // Tras sign-in (incluye OAuth con Google/Facebook/Apple), garantizar
+            // que el perfil y seller_wallet existan en la BD. Defensa en
+            // profundidad contra el error "Database error saving new user".
+            if (
+              session?.user &&
+              (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')
+            ) {
+              try {
+                await fetch('/api/auth/ensure-profile', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${session.access_token}`,
+                  },
+                  credentials: 'include',
+                })
+              } catch {
+                // No bloquear al usuario si el endpoint falla — el trigger
+                // debería haber hecho el trabajo primero.
+              }
+            }
           }
         )
 

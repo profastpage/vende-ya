@@ -299,8 +299,8 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-black/70 to-fuchsia-950/60 dark:from-black dark:via-black/70 dark:to-fuchsia-950/60" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
 
-            {/* Floating stats */}
-            <div className="absolute top-3 md:top-5 right-3 md:right-5 flex flex-wrap gap-2 justify-end">
+            {/* Floating stats — solo desktop. En móvil se omite para evitar badges aplastados. */}
+            <div className="hidden md:flex absolute top-5 right-5 flex-wrap gap-2 justify-end">
               <HeroStatPill
                 icon={Eye}
                 label="Espectadores"
@@ -321,14 +321,21 @@ export default function Home() {
               />
             </div>
 
+            {/* Precio actual destacado — solo móvil, reemplaza las 3 pills */}
+            <div className="md:hidden absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-fuchsia-600/95 backdrop-blur-md border border-fuchsia-300/40 shadow-lg shadow-fuchsia-500/40">
+              <Gavel className="h-3.5 w-3.5 text-white" />
+              <span className="text-xs font-black text-white tabular-nums">{formatPEN(MOCK_AUCTION.currentPrice)}</span>
+            </div>
+
             <div className="relative px-5 md:px-10 py-10 md:py-16 max-w-3xl">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/90 backdrop-blur-md border border-rose-300/30">
+              <div className="flex items-center gap-1.5 md:gap-2 mb-3">
+                <span className="flex items-center gap-1.5 px-2 md:px-2.5 py-1 rounded-full bg-rose-500/90 backdrop-blur-md border border-rose-300/30">
                   <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                  <span className="text-[11px] font-bold text-foreground tracking-wider">EN VIVO AHORA</span>
+                  <span className="text-[10px] md:text-[11px] font-bold text-foreground tracking-wider">EN VIVO</span>
                 </span>
-                <span className="px-2 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-bold tracking-wider">
-                  <Flame className="inline h-3 w-3 mr-1" />TRENDING
+                <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-bold tracking-wider">
+                  <Flame className="h-3 w-3" />
+                  <span>HOT</span>
                 </span>
               </div>
 
@@ -365,14 +372,14 @@ export default function Home() {
               </div>
 
               {/* CTAs */}
-              <div className="mt-6 flex flex-wrap items-center gap-3">
-                <Link href={`/en-vivo/${MOCK_AUCTION.stream?.id ?? 's1'}`}>
-                  <button className="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950 font-black text-sm flex items-center gap-2 shadow-lg shadow-fuchsia-500/30 hover:shadow-fuchsia-500/50 transition-shadow">
+              <div className="mt-6 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
+                <Link href={`/en-vivo/${MOCK_AUCTION.stream?.id ?? 's1'}`} className="flex-1 sm:flex-none">
+                  <button className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-fuchsia-600 text-zinc-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-fuchsia-500/30 hover:shadow-fuchsia-500/50 transition-shadow">
                     <Play className="h-4 w-4 fill-current" /> Unirse a la subasta
                   </button>
                 </Link>
-                <Link href={ROUTES.marketplace}>
-                  <button className="px-5 py-3 rounded-xl bg-muted backdrop-blur-xl border border-border text-foreground font-bold text-sm flex items-center gap-2 hover:bg-muted transition-colors">
+                <Link href={ROUTES.marketplace} className="flex-1 sm:flex-none">
+                  <button className="w-full sm:w-auto px-5 py-3 rounded-xl bg-muted backdrop-blur-xl border border-border text-foreground font-bold text-sm flex items-center justify-center gap-2 hover:bg-muted transition-colors">
                     <ShoppingBag className="h-4 w-4" /> Explorar marketplace
                   </button>
                 </Link>
