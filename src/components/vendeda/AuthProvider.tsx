@@ -193,7 +193,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // devolvemos el body crudo para que humanizeOAuthError() lo traduzca.
       // Si responde 302 / OK, dejamos que el cliente JS de Supabase navegue
       // normalmente (signInWithOAuth sin skipBrowserRedirect).
-      const redirectTo = window.location.origin + '/dashboard'
+      //
+      // 🔑 REDIRECT CANÓNICO: SIEMPRE apuntar a NEXT_PUBLIC_APP_URL (URL de
+      // producción pública) en vez de window.location.origin. Esto evita que
+      // Vercel Deployment Protection intercepte el callback OAuth cuando el
+      // usuario arranca el flujo desde un deployment preview protegido
+      // (URLs tipo `<project>-<team>-<hash>.vercel.app`). El flujo:
+      //   1. User en URL protegida → clic "Sign in with Google"
+      //   2. Supabase → Google OAuth
+      //   3. Google → Supabase callback
+      //   4. Supabase → https://vende-ya-phi.vercel.app/dashboard (público)
+      // El usuario termina logueado en producción, no en el preview.
+      const appUrl =
+        process.env.NEXT_PUBLIC_APP_URL ||
+        (typeof window !== 'undefined' ? window.location.origin : '')
+      const redirectTo = appUrl + '/dashboard'
       const probeUrl =
         `/api/auth/oauth-check?provider=${encodeURIComponent(provider)}` +
         `&redirect_to=${encodeURIComponent(redirectTo)}`

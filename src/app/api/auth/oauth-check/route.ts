@@ -21,8 +21,13 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const provider = searchParams.get('provider')
+  // 🔑 REDIRECT CANÓNICO: preferir NEXT_PUBLIC_APP_URL (URL de producción
+  // pública) sobre req.nextUrl.origin para que el callback OAuth SIEMPRE
+  // caiga en la URL pública, evitando Vercel Deployment Protection en
+  // deployments preview protegidos.
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin
   const redirectTo =
-    searchParams.get('redirect_to') ?? `${req.nextUrl.origin}/dashboard`
+    searchParams.get('redirect_to') ?? `${appUrl}/dashboard`
 
   if (!provider || !['google', 'facebook', 'apple'].includes(provider)) {
     return NextResponse.json(
