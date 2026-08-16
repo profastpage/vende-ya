@@ -9,20 +9,33 @@
  *  - Antes del mount se muestra un placeholder estático del mismo tamaño
  *    para evitar layout shift (CLS).
  *  - Tokens semánticos: soporta `light` y `dark` automáticamente.
+ *
+ *  NOTE sobre el lint rule `react-hooks/set-state-in-effect`:
+ *  La regla prohíbe `setState` directo dentro del cuerpo de un effect
+ *  porque puede causar cascading renders. El patrón `setMounted(true)` en
+ *  un effect vacío es el IDIOMA CANÓNICO documentado por next-themes
+ *  (https://github.com/pacocoursey/next-themes#avoid-hydration-mismatch),
+ *  pero como React 19+ lo marca, lo evitamos usando `useSyncExternalStore`
+ *  para detectar el mount sin disparar un re-render síncrono desde el effect.
  * =====================================================================
  */
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 import { useTheme } from 'next-themes'
 import { Sun, Moon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+// Empty store that returns `false` on server and `true` on client after mount.
+// This avoids the `setState in effect` pattern while still detecting hydration.
+const emptySubscribe = () => () => {}
+const getSnapshot = () => true // Always true on client after hydration
+const getServerSnapshot = () => false // Always false during SSR
+
 export default function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  // `mounted` becomes true ONLY on the client, after hydration.
+  // useSyncExternalStore doesn't trigger a cascading render — it's
+  // the React-blessed pattern for "is this client-side yet?".
+  const mounted = useSyncExternalStore(emptySubscribe, getSnapshot, getServerSnapshot)
 
   // Placeholder estático (mismo tamaño que el botón real) — evita CLS
   if (!mounted) {

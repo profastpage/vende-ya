@@ -674,12 +674,8 @@ function GoogleButton({
         {state === 'idle' || state === 'error' ? (
           <GoogleIcon className="h-6 w-6" />
         ) : (
-          <Loader2
-            className={cn(
-              'h-5 w-5 animate-spin',
-              state === 'error' ? 'text-red-500' : 'text-zinc-600'
-            )}
-          />
+          // state is 'probe' | 'redirect' | 'callback' here — always loading
+          <Loader2 className="h-5 w-5 animate-spin text-zinc-600" />
         )}
       </span>
 
