@@ -18,7 +18,9 @@ import { useAuth } from './AuthProvider'
 
 export function DesktopTopNav() {
   const pathname = usePathname()
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
+  const [open, setOpen] = React.useState(false)
+  const dropdownRef = React.useRef<HTMLDivElement>(null)
 
   const navLinks = [
     { href: ROUTES.home, label: 'Inicio' },
@@ -26,6 +28,16 @@ export function DesktopTopNav() {
     { href: ROUTES.marketplace, label: 'Marketplace' },
     { href: ROUTES.dashboard, label: 'Mi dashboard' },
   ]
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   return (
     <header
@@ -115,8 +127,14 @@ export function DesktopTopNav() {
             <Plus className="h-4 w-4" /> Vender
           </Button>
         </Link>
-        <Link href={ROUTES.dashboard}>
-          <button className="flex items-center gap-1.5 pl-2 pr-3 h-10 rounded-lg hover:bg-muted transition-colors" title={user?.displayName || "Tu perfil"}>
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setOpen(!open)}
+            className="flex items-center gap-1.5 pl-2 pr-3 h-10 rounded-lg hover:bg-muted transition-colors focus:outline-none"
+            aria-expanded={open}
+            aria-haspopup="true"
+            title={user?.displayName || "Tu perfil"}
+          >
             <Avatar className="h-7 w-7 ring-2 ring-amber-400/30">
               {user?.avatarUrl ? (
                 <AvatarImage src={user.avatarUrl} alt={user.displayName} />
@@ -125,9 +143,56 @@ export function DesktopTopNav() {
               )}
               <AvatarFallback>{user?.displayName ? user.displayName.slice(0, 2).toUpperCase() : 'TÚ'}</AvatarFallback>
             </Avatar>
-            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+            <ChevronDown className={cn("h-3 w-3 text-muted-foreground transition-transform", open && "rotate-180")} />
           </button>
-        </Link>
+
+          {open && (
+            <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-border bg-card p-1.5 shadow-xl ring-1 ring-black/5 focus:outline-none z-50 animate-in fade-in slide-in-from-top-1 duration-100">
+              <div className="px-3 py-2 border-b border-border mb-1.5">
+                <p className="text-xs font-bold text-foreground truncate">{user?.displayName || 'Usuario'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{user?.email || 'sin correo'}</p>
+              </div>
+              <Link
+                href={ROUTES.perfil}
+                onClick={() => setOpen(false)}
+                className="flex w-full items-center px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+              >
+                Mi Perfil / Mis Datos
+              </Link>
+              <Link
+                href={ROUTES.dashboard}
+                onClick={() => setOpen(false)}
+                className="flex w-full items-center px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+              >
+                Mi Dashboard
+              </Link>
+              <Link
+                href="/subastas"
+                onClick={() => setOpen(false)}
+                className="flex w-full items-center px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+              >
+                Historial de Subastas
+              </Link>
+              <Link
+                href={ROUTES.configuracion}
+                onClick={() => setOpen(false)}
+                className="flex w-full items-center px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+              >
+                Configuración de Cuenta
+              </Link>
+              <div className="my-1 border-t border-border" />
+              <button
+                onClick={() => {
+                  setOpen(false)
+                  signOut()
+                }}
+                className="flex w-full items-center px-3 py-2 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-colors text-left"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   )
