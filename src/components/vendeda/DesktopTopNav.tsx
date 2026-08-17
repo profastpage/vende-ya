@@ -39,9 +39,16 @@ export function DesktopTopNav() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const isSocialView = pathname === '/'
+
   return (
     <header
-      className="hidden md:flex sticky top-0 z-40 h-16 items-center gap-4 px-6 bg-white border-b border-gray-200 text-gray-900"
+      className={cn(
+        "hidden md:flex fixed top-0 inset-x-0 z-40 h-16 items-center gap-4 px-6 transition-colors duration-300",
+        isSocialView 
+          ? "bg-transparent text-white border-b border-white/10 backdrop-blur-sm" 
+          : "bg-white border-b border-gray-200 text-gray-900"
+      )}
       role="banner"
     >
       {/* Logo — imagen oficial /logo.png */}
@@ -55,8 +62,8 @@ export function DesktopTopNav() {
           className="rounded-lg shadow-lg shadow-fuchsia-500/30 object-contain"
         />
         <div className="leading-none">
-          <div className="font-bold text-lg font-display tracking-tight text-gray-900">{APP_NAME}</div>
-          <div className="text-[10px] text-gray-500 -mt-0.5">Subastas en vivo</div>
+          <div className={cn("font-bold text-lg font-display tracking-tight", isSocialView ? "text-white" : "text-gray-900")}>{APP_NAME}</div>
+          <div className={cn("text-[10px] -mt-0.5", isSocialView ? "text-gray-300" : "text-gray-500")}>Subastas en vivo</div>
         </div>
       </Link>
 

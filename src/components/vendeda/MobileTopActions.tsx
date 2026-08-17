@@ -32,9 +32,17 @@ export function MobileTopActions() {
   const liveCount = 3
   const unreadCount = 5
 
+  // Detect if we are in social/feed view (dark mode)
+  const isSocialView = pathname === '/'
+
   return (
     <header
-      className="md:hidden sticky top-0 z-40 h-14 flex items-center justify-between px-3 bg-background/95 backdrop-blur-md border-b border-border"
+      className={cn(
+        "md:hidden fixed top-0 inset-x-0 z-40 h-14 flex items-center justify-between px-3 transition-colors duration-300",
+        isSocialView 
+          ? "bg-transparent border-b border-white/10 backdrop-blur-sm" 
+          : "bg-white border-b border-gray-200"
+      )}
       style={{ transform: 'translateZ(0)', willChange: 'transform' }}
       role="banner"
     >
@@ -44,21 +52,18 @@ export function MobileTopActions() {
         className={cn(
           'flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-colors pointer-events-auto',
           liveActive
-            ? 'bg-rose-500/15 border border-rose-400/40 text-rose-500 dark:text-rose-300'
-            : 'bg-muted border border-border text-foreground hover:bg-accent'
+            ? 'bg-[#FE2C55]/20 border border-[#FE2C55]/40 text-[#FE2C55]'
+            : isSocialView 
+              ? 'bg-black/30 border border-white/20 text-white hover:bg-black/50' 
+              : 'bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200'
         )}
         aria-label="Ver transmisiones en vivo"
       >
         <span className="relative flex h-2 w-2">
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-[#FE2C55] animate-pulse" />
         </span>
         <Radio className="h-4 w-4" />
         <span className="text-xs font-bold">En vivo</span>
-        {liveCount > 0 && (
-          <span className="ml-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 min-w-[18px] text-center">
-            {liveCount}
-          </span>
-        )}
       </Link>
 
       {/* === Centro: Logo === */}

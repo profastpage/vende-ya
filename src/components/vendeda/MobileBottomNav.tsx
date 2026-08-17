@@ -1,38 +1,19 @@
 'use client'
 
-/**
- * MobileBottomNav — Barra inferior móvil (4 items simétricos, sin FAB protruding)
- * =====================================================================
- * v4 — El ThemeToggle se mudó al header superior (MobileTopActions.tsx).
- *   [Inicio]   [En vivo]   [Vender]   [Perfil]
- *
- * Diseño:
- *   - 4 ítems simétricos (grid-cols-4) en lugar de 5.
- *   - Cuando una subpage está activa, ese ítem tiene relieve NEÓN.
- *   - El botón "Vender" NO protruye (mismo h-9 w-9 que los demás).
- *   - h-16 (64px) + pb-safe para iPhone con notch.
- *   - max-w-md mx-auto — centrado en pantallas grandes.
- *   - Tokens semánticos (light/dark).
- * =====================================================================
- */
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Radio, Plus, User } from 'lucide-react'
+import { Home, ShoppingBag, Plus, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { t } from '@/lib/vendeda/i18n'
-import { ROUTES } from '@/lib/vendeda/routes'
-
-type Tab = 'feed' | 'live' | 'create' | 'profile'
 
 export function MobileBottomNav() {
   const pathname = usePathname()
 
-  const items: { id: Tab; icon: React.ElementType; label: string; href: string }[] = [
-    { id: 'feed',    icon: Home,    label: t('nav.feed'),   href: ROUTES.home },
-    { id: 'live',    icon: Radio,   label: 'En vivo',       href: ROUTES.live },
-    { id: 'create',  icon: Plus,    label: t('nav.create'), href: ROUTES.vender },
-    { id: 'profile', icon: User,    label: t('nav.profile'),href: ROUTES.perfil },
+  const items = [
+    { id: 'feed',        icon: Home,         label: 'Inicio',       href: '/' },
+    { id: 'marketplace', icon: ShoppingBag,  label: 'Marketplace',  href: '/marketplace' },
+    { id: 'vender',      icon: Plus,         label: 'Vender',       href: '/vender' },
+    { id: 'perfil',      icon: User,         label: 'Perfil',       href: '/perfil' },
   ]
 
   const isActive = (href: string): boolean => {
@@ -40,72 +21,56 @@ export function MobileBottomNav() {
     return pathname.startsWith(href)
   }
 
+  // Detect if we are in social/feed view (dark mode)
+  const isSocialView = pathname === '/'
+
   return (
     <nav
-      className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-md border-t border-border pb-safe"
+      className={cn(
+        "md:hidden fixed bottom-0 inset-x-0 z-50 border-t pb-safe transition-colors",
+        isSocialView ? "bg-black/80 backdrop-blur-md border-white/10" : "bg-white/95 backdrop-blur-md border-gray-200"
+      )}
       style={{ transform: 'translateZ(0)', willChange: 'transform' }}
-      role="navigation"
-      aria-label="Navegación principal"
     >
-      <div className="mx-auto w-full max-w-md grid grid-cols-4 h-16">
+      <div className="mx-auto w-full max-w-md flex items-center justify-around h-16 px-2">
         {items.map(({ id, icon: Icon, label, href }) => {
           const active = isActive(href)
+          const isCenter = id === 'vender'
+          
           return (
             <Link
               key={id}
               href={href}
-              className={cn(
-                'relative flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-transform',
-                'flex-1 min-w-0 pointer-events-auto'
-              )}
-              aria-label={label}
-              aria-current={active ? 'page' : undefined}
+              className="relative flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform flex-1"
             >
-              {/* Indicador superior con relieve neón cuando está activo */}
-              {active && (
-                <span
-                  className="absolute top-0 h-[3px] w-8 rounded-full bg-gradient-to-r from-amber-400 to-fuchsia-600"
-                  style={{
-                    boxShadow:
-                      '0 0 12px rgba(245,158,11,0.7), 0 0 24px rgba(217,70,239,0.5)',
-                  }}
-                  aria-hidden
-                />
-              )}
               <div
                 className={cn(
                   'flex items-center justify-center transition-all',
-                  active && id === 'create'
-                    ? 'h-9 w-9 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-600 text-zinc-950'
-                    : active
-                      ? 'h-9 w-9 rounded-full bg-amber-400/15 border border-amber-400/40 text-amber-500 dark:text-amber-400'
-                      : 'h-9 w-9 rounded-full text-muted-foreground'
+                  isCenter 
+                    ? 'h-10 w-10 rounded-full bg-[#FE2C55] text-white shadow-lg' 
+                    : 'h-8 w-8',
+                  !isCenter && active 
+                    ? isSocialView ? 'text-white' : 'text-gray-900' 
+                    : !isCenter ? 'text-gray-400' : ''
                 )}
-                style={
-                  active
-                    ? {
-                        boxShadow:
-                          id === 'create'
-                            ? '0 0 16px rgba(245,158,11,0.55), 0 0 32px rgba(217,70,239,0.4)'
-                            : '0 0 12px rgba(245,158,11,0.5)',
-                      }
-                    : undefined
-                }
               >
-                <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
+                <Icon className="h-5 w-5" strokeWidth={active || isCenter ? 2.5 : 2} />
               </div>
-              <span
-                className={cn(
-                  'text-[10px] font-semibold truncate w-full text-center',
-                  active ? 'text-amber-500 dark:text-amber-400' : 'text-muted-foreground'
-                )}
-              >
-                {label}
-              </span>
+              {!isCenter && (
+                <span
+                  className={cn(
+                    'text-[10px] font-semibold truncate text-center',
+                    active 
+                      ? isSocialView ? 'text-white' : 'text-gray-900' 
+                      : 'text-gray-400'
+                  )}
+                >
+                  {label}
+                </span>
+              )}
             </Link>
           )
         })}
-
       </div>
     </nav>
   )
