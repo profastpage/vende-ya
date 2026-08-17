@@ -18,14 +18,15 @@
  * call `supabase.auth.exchangeCodeForSession(window.location.href)` to
  * exchange that code for a session.
  *
- * ADVANTAGES over the implicit flow:
- *   - No `#access_token=...` in the URL → more secure
- *   - The `redirect_to` URL is ALWAYS respected (no Site URL fallback
- *     that could send the user to a Vercel-protected URL)
- *   - No CORS issues with manifest.webmanifest etc.
+ * CRITICAL: With @supabase/ssr (cookie-based storage), the code_verifier
+ * is stored in a COOKIE (not localStorage). This survives Chrome's bounce
+ * tracking mitigation which would otherwise wipe localStorage for
+ * supabase.co and cause `AuthPKCECodeVerifierMissingError`.
  *
- * CRITICAL: this page must call `exchangeCodeForSession()` BEFORE
- * checking `user`. Without that call, no session is established.
+ * The `createBrowserClient` from @supabase/ssr with `detectSessionInUrl:
+ * true` should auto-exchange the code on mount. As a safety net, this
+ * page also calls `exchangeCodeForSession` explicitly if a `?code=`
+ * is present and the session isn't established yet.
  * =====================================================================
  */
 import * as React from 'react'
@@ -46,7 +47,6 @@ export default function AuthCallbackPage() {
     const supabase = getSupabaseSafe()
     if (!supabase || exchanging) return
 
-    // Only attempt exchange if there's a ?code= in the URL (PKCE flow).
     const url = window.location.href
     if (!url.includes('code=')) return
 
@@ -56,16 +56,25 @@ export default function AuthCallbackPage() {
       .then(({ data, error }) => {
         if (error) {
           console.error('[auth/callback] PKCE exchange failed:', error)
-          setError(
-            'No se pudo completar el inicio de sesión: ' +
-              (error.message ?? 'error desconocido')
-          )
-          setTimeout(() => router.replace(ROUTES.login), 2500)
+          const errMsg = error.message ?? 'error desconocido'
+          // Mensaje específico para el error de code verifier missing
+          if (errMsg.includes('code_verifier') || errMsg.includes('not found in storage')) {
+            setError(
+              'Tu navegador bloqueó el almacenamiento de la sesión (Chrome ' +
+              'bounce tracking mitigation). Por favor, desactiva bloqueo de ' +
+              'cookies de terceros en este sitio o prueba en modo incógnito. ' +
+              'Te redirigiremos al login...'
+            )
+          } else {
+            setError(
+              'No se pudo completar el inicio de sesión: ' + errMsg
+            )
+          }
+          setTimeout(() => router.replace(ROUTES.login), 3500)
           return
         }
         // Session was established. The onAuthStateChange listener in
         // AuthProvider will fire SIGNED_IN and call /api/auth/ensure-profile.
-        // The effect below will see `user` become non-null and redirect.
         if (data?.session?.user) {
           // Already have user — trigger redirect in the next effect.
         }
