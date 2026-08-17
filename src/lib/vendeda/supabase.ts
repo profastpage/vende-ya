@@ -60,7 +60,7 @@ export function getSupabase(): SupabaseClient {
       name: 'sb-auth-token',
       // SameSite=Lax so cookies are sent on top-level navigation back
       // from Google → our /auth/callback.
-      sameSite: 'Lax',
+      sameSite: 'lax',
       // secure: true is implied by @supabase/ssr on https URLs.
       // Path covers all routes including /auth/callback.
       path: '/',
