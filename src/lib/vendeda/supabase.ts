@@ -55,18 +55,6 @@ export function getSupabase(): SupabaseClient {
       // Detect ?code=... in URL on /auth/callback automatically.
       detectSessionInUrl: true,
     },
-    // Use cookies globally — this is what makes PKCE verifier survive.
-    cookieOptions: {
-      name: 'sb-auth-token',
-      // SameSite=Lax so cookies are sent on top-level navigation back
-      // from Google → our /auth/callback.
-      sameSite: 'lax',
-      // secure: true is implied by @supabase/ssr on https URLs.
-      // Path covers all routes including /auth/callback.
-      path: '/',
-      // 7 days — matches Supabase default refresh token lifetime.
-      maxAge: 60 * 60 * 24 * 7,
-    },
   })
   return _client
 }
