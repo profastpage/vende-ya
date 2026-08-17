@@ -8,7 +8,7 @@ export default function Home() {
     thumbnailUrl: stream.thumbnailUrl || 'https://via.placeholder.com/1080x1920',
     seller: {
       displayName: stream.seller?.displayName || 'Usuario',
-      avatarUrl: stream.seller?.avatarUrl,
+      avatarUrl: stream.seller?.avatarUrl || undefined,
     },
     description: stream.title,
     likes: Math.floor(Math.random() * 10000) + 100,
