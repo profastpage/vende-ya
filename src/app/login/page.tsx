@@ -80,36 +80,32 @@ const LEFT_FEATURES: ReadonlyArray<{
   title: string
   body: string
   icon: React.ComponentType<{ className?: string }>
-  accent: string
-  ring: string
-  glow: string
+  iconBg: string
+  iconColor: string
 }> = [
   {
     title: 'Yape y Plin en vivo',
     body:
       'Cobra y paga en tiempo real durante la subasta. Cada transacción se aprueba en menos de 3 segundos con la API oficial de Yape y Plin, sin salir del vivo y sin comisiones ocultas para el comprador.',
     icon: Smartphone,
-    accent: 'text-amber-400',
-    ring: 'bg-amber-500/10 border-amber-500/30',
-    glow: 'shadow-amber-500/30',
+    iconBg: 'bg-orange-100',
+    iconColor: 'text-orange-600',
   },
   {
     title: 'Envíos Shalom a todo el Perú',
     body:
       'Despachamos el mismo día con Shalom, Marvisur y Olva. Lima Metropolitana llega en 24 horas y provincias en 48 horas, con tracking en tiempo real visible dentro del app desde el momento en que ganas la subasta.',
     icon: Truck,
-    accent: 'text-fuchsia-400',
-    ring: 'bg-fuchsia-500/10 border-fuchsia-500/30',
-    glow: 'shadow-fuchsia-500/30',
+    iconBg: 'bg-purple-100',
+    iconColor: 'text-purple-600',
   },
   {
     title: 'Vendedores verificados',
     body:
       'Verificamos la identidad, RUC y antecedentes de cada vendedor antes de permitirle transmitir. Además, el dinero queda en custodia hasta que confirmes la recepción del producto — si algo falla, lo recuperas íntegro.',
     icon: BadgeCheck,
-    accent: 'text-lime-400',
-    ring: 'bg-lime-500/10 border-lime-500/30',
-    glow: 'shadow-lime-500/30',
+    iconBg: 'bg-emerald-100',
+    iconColor: 'text-emerald-600',
   },
 ]
 
@@ -289,13 +285,8 @@ function LoginContent() {
         {/* =================================================== */}
         <aside
           aria-hidden="true"
-          className="relative hidden md:flex md:w-[46%] lg:w-[52%] flex-col justify-between overflow-hidden bg-gradient-to-br from-amber-500/20 via-fuchsia-900/30 to-background p-12"
+          className="relative hidden md:flex md:w-[46%] lg:w-[52%] flex-col justify-between overflow-hidden bg-[#F9F5F0] p-12 text-gray-900 border-r border-gray-100"
         >
-          {/* Glow blobs */}
-          <div className="pointer-events-none absolute -top-24 -right-16 h-96 w-96 rounded-full bg-amber-500/20 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-32 -left-10 h-[28rem] w-[28rem] rounded-full bg-fuchsia-600/20 blur-3xl" />
-          <div className="pointer-events-none absolute top-1/3 left-1/4 h-72 w-72 rounded-full bg-purple-700/10 blur-3xl" />
-
           {/* Logo */}
           <div className="relative">
             <Link href={ROUTES.home} className="inline-flex items-center gap-2.5">
@@ -305,13 +296,13 @@ function LoginContent() {
                 width={56}
                 height={56}
                 priority
-                className="rounded-2xl shadow-lg shadow-fuchsia-500/40 object-contain"
+                className="rounded-2xl shadow-md object-contain"
               />
               <div className="leading-none">
-                <div className="font-black text-2xl font-display tracking-tight bg-gradient-to-r from-amber-200 via-white to-fuchsia-200 bg-clip-text text-transparent">
+                <div className="font-black text-2xl font-display tracking-tight text-gray-950">
                   {APP_NAME}
                 </div>
-                <div className="text-[11px] text-muted-foreground -mt-0.5">
+                <div className="text-[11px] text-gray-500 -mt-0.5 font-medium">
                   Subastas en vivo del Perú
                 </div>
               </div>
@@ -320,33 +311,31 @@ function LoginContent() {
 
           {/* Hero copy + features */}
           <div className="relative space-y-7">
-            <h2 className="text-4xl lg:text-5xl font-black font-display leading-[1.05] tracking-tight">
+            <h1 className="text-4xl lg:text-5xl font-black font-display leading-[1.05] tracking-tight text-gray-950">
               Subasta en vivo.
               <br />
-              <span className="bg-gradient-to-r from-amber-300 via-amber-200 to-fuchsia-300 bg-clip-text text-transparent">
-                Compra ya. Vende ya.
-              </span>
-            </h2>
-            <p className="text-muted-foreground/90 text-lg leading-relaxed max-w-md">
+              <span className="text-purple-700">Compra ya.</span> Vende ya.
+            </h1>
+            <p className="text-gray-600 font-medium text-lg leading-relaxed max-w-md">
               El marketplace social del Perú. Pujas en tiempo real, pagas con Yape, Plin o
               PagoEfectivo, y recibes tus productos en 24 horas con envíos Shalom.
             </p>
 
-            <ul className="space-y-5 pt-2">
+            <ul className="space-y-6 pt-2">
               {LEFT_FEATURES.map((f) => (
-                <li key={f.title} className="flex items-start gap-3.5">
+                <li key={f.title} className="flex items-start gap-4">
                   <div
                     className={cn(
-                      'shrink-0 h-10 w-10 rounded-xl border flex items-center justify-center shadow-lg',
-                      f.ring,
-                      f.glow
+                      'shrink-0 h-10 w-10 rounded-xl flex items-center justify-center font-bold',
+                      f.iconBg,
+                      f.iconColor
                     )}
                   >
-                    <f.icon className={cn('h-5 w-5', f.accent)} />
+                    <f.icon className="h-5 w-5" />
                   </div>
                   <div className="space-y-1">
-                    <div className={cn('font-bold text-sm', f.accent)}>{f.title}</div>
-                    <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+                    <div className="font-bold text-base text-gray-900">{f.title}</div>
+                    <p className="text-sm text-gray-600 leading-relaxed max-w-sm">
                       {f.body}
                     </p>
                   </div>
@@ -356,10 +345,10 @@ function LoginContent() {
           </div>
 
           {/* Footer */}
-          <div className="relative flex items-center justify-between text-xs text-muted-foreground">
+          <div className="relative flex items-center justify-between text-xs text-gray-500 font-medium">
             <span>© 2026 Vende Ya · Hecho en Perú 🇵🇪</span>
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-lime-400" />
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
               Pago protegido
             </span>
           </div>
