@@ -187,66 +187,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithOAuth = React.useCallback(async (provider: 'google' | 'facebook' | 'apple') => {
     if (supabase) {
-      // ⚠️ Antes de navegar el navegador a la URL de authorize, hacemos un
-      // probe server-side a través de /api/auth/oauth-check (mismo origen,
-      // sin CORS). Si Supabase responde 400 con `error_code: validation_failed`,
-      // devolvemos el body crudo para que humanizeOAuthError() lo traduzca.
-      // Si responde 302 / OK, dejamos que el cliente JS de Supabase navegue
-      // normalmente (signInWithOAuth sin skipBrowserRedirect).
+      // ════════════════════════════════════════════════════════════════
+      // PROBE (server-side, mismo origen)
+      // ════════════════════════════════════════════════════════════════
+      // Antes de navegar el navegador, hacemos un probe server-side a
+      // través de /api/auth/oauth-check (mismo origen, sin CORS). Si
+      // Supabase responde 400 con `error_code: validation_failed`, devolvemos
+      // el body crudo para que humanizeOAuthError() lo traduzca. Si responde
+      // 302 / OK, dejamos que el cliente JS de Supabase construya la URL.
       //
-      // 🔑 RESOLUCIÓN DE REDIRECT URL — orden de prioridad:
+      // ════════════════════════════════════════════════════════════════
+      // CRITICAL: REWRITE redirect_to CLIENT-SIDE
+      // ════════════════════════════════════════════════════════════════
+      // Incluso después de migrar a PKCE, Supabase puede reescribir el
+      // `redirect_to` que enviamos si el origen NO está en el allowlist
+      // (Site URL Configuration → Redirect URLs). En ese caso, cae al
+      // Site URL por defecto — que en nuestro caso es el deployment VIEJO
+      // y protegido por Vercel SSO (`vende-ya-profastpage-...vercel.app`).
       //
-      //   1. Si NEXT_PUBLIC_APP_URL coincide con window.location.origin → usarlo.
-      //   2. Si NEXT_PUBLIC_APP_URL está seteada pero DIFIERE del origin actual
-      //      Y el usuario está en una URL pública HTTPS (no localhost, no
-      //      preview hash) → usar `window.location.origin`. Esto es CRÍTICO
-      //      para evitar el bug del "SSO loop de Vercel" cuando la env var
-      //      aún apunta a un deployment viejo y protegido (p.ej.
-      //      `vende-ya-profastpage-4762s-projects.vercel.app`).
-      //   3. Si el usuario está en localhost (dev) → usar NEXT_PUBLIC_APP_URL
-      //      (producción) si está seteada, si no, window.location.origin.
-      //   4. Si NEXT_PUBLIC_APP_URL no está seteada → usar window.location.origin.
+      // Solución definitiva del lado del cliente:
+      //   1. Pedimos a Supabase la URL de authorize con
+      //      `skipBrowserRedirect: true` → obtenemos la URL sin navegar.
+      //   2. Parseamos la URL, reemplazamos el `redirect_to` query param
+      //      para que apunte a `window.location.origin + '/auth/callback'`.
+      //   3. Navegamos manualmente con `window.location.href = ...`.
       //
-      // 🔑 CALLBACK EN NUESTRO DOMINIO: usamos /auth/callback como destino,
-      // NO /dashboard directamente. Esto es crítico porque Supabase JS
-      // tiene `detectSessionInUrl: true` y necesita parsear el hash
-      // #access_token=...&refresh_token=... para establecer la sesión. Si
-      // mandamos directo a /dashboard, el middleware ve que no hay sesión
-      // (las cookies todavía no se han seteado) y redirige a /login,
-      // perdiéndose el hash. /auth/callback es una página pública que
-      // espera a que se establezca la sesión y LUEGO redirige a /dashboard.
-      const envAppUrl = process.env.NEXT_PUBLIC_APP_URL || ''
+      // Esto garantiza que el callback SIEMPRE caiga en el dominio actual
+      // donde el usuario YA está, evitando el loop de Vercel SSO sin
+      // importar cómo esté configurado Supabase Dashboard.
+      // ════════════════════════════════════════════════════════════════
+
       const currentOrigin =
         typeof window !== 'undefined' ? window.location.origin : ''
+      const envAppUrl = process.env.NEXT_PUBLIC_APP_URL || ''
 
+      // Elegir el mejor origin para el redirect:
+      //   - Si el usuario YA está en una URL pública HTTPS (producción o
+      //     preview pública), usamos window.location.origin (siempre
+      //     alcanzable porque el usuario ya está aquí).
+      //   - Si está en localhost, usamos envAppUrl si está seteada.
+      //   - Si no hay envAppUrl, usamos currentOrigin como fallback.
       const isPublicHttps = (url: string) =>
         url.startsWith('https://') &&
-        !url.includes('localhost') &&
-        // Filtra deployments preview con hash largo tipo `<proj>-<hash>.vercel.app`
-        !/-[a-z0-9]{20,}\./i.test(url)
+        !url.includes('localhost')
 
-      let appUrl: string
-      if (!envAppUrl) {
-        appUrl = currentOrigin
-      } else if (envAppUrl === currentOrigin) {
-        appUrl = currentOrigin
-      } else if (currentOrigin && isPublicHttps(currentOrigin)) {
-        // 🚨 La env var apunta a OTRO dominio (probablemente un deployment
-        // viejo y protegido). Usar el origin actual, que es 100% alcanzable
-        // porque el usuario ya está aquí.
-        console.warn(
-          `[auth] ⚠️ NEXT_PUBLIC_APP_URL (${envAppUrl}) no coincide con ` +
-          `el origin actual (${currentOrigin}). Usando el origin actual ` +
-          `para evitar el loop de SSO de Vercel. Actualiza la env var en ` +
-          `Vercel → Settings → Environment Variables.`
-        )
-        appUrl = currentOrigin
+      let effectiveOrigin: string
+      if (currentOrigin && isPublicHttps(currentOrigin)) {
+        effectiveOrigin = currentOrigin
+      } else if (envAppUrl && isPublicHttps(envAppUrl)) {
+        effectiveOrigin = envAppUrl
       } else {
-        // Usuario en localhost o preview hash → confiar en la env var.
-        appUrl = envAppUrl
+        effectiveOrigin = currentOrigin || envAppUrl
       }
 
-      const redirectTo = appUrl + '/auth/callback'
+      const redirectTo = effectiveOrigin + '/auth/callback'
       const probeUrl =
         `/api/auth/oauth-check?provider=${encodeURIComponent(provider)}` +
         `&redirect_to=${encodeURIComponent(redirectTo)}`
@@ -258,8 +252,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (json.ok === false) {
           // Provider no habilitado o error de configuración.
-          // Devolvemos el body crudo (probablemente JSON serializado de Supabase)
-          // para que humanizeOAuthError() lo traduzca al español.
+          // Devolvemos el body crudo para que humanizeOAuthError() lo traduzca.
           return { error: json.body ?? `HTTP ${json.status ?? 500}` }
         }
       } catch {
@@ -267,12 +260,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // navegar normalmente — el navegador mostrará el error de Supabase.
       }
 
-      // El provider está habilitado → navegación normal.
-      const { error } = await supabase.auth.signInWithOAuth({
+      // ════════════════════════════════════════════════════════════════
+      // BUILD + REWRITE OAuth URL (skipBrowserRedirect: true)
+      // ════════════════════════════════════════════════════════════════
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo },
+        options: {
+          redirectTo,
+          skipBrowserRedirect: true, // 🔑 No navegar automáticamente
+        },
       })
-      return { error: error?.message ?? null }
+
+      if (error) {
+        return { error: error.message ?? 'Error desconocido en OAuth' }
+      }
+
+      if (!data?.url) {
+        return { error: 'Supabase no devolvió una URL de OAuth.' }
+      }
+
+      // Parsear la URL devuelta por Supabase y forzar el redirect_to
+      // al origin actual. Esto neutraliza cualquier reescritura que
+      // Supabase haya hecho por no estar en el allowlist.
+      try {
+        const oauthUrl = new URL(data.url)
+        const originalRedirect = oauthUrl.searchParams.get('redirect_to')
+        const desiredRedirect = effectiveOrigin + '/auth/callback'
+
+        if (originalRedirect !== desiredRedirect) {
+          console.warn(
+            `[auth] ⚠️ Reescribiendo redirect_to de Supabase:\n` +
+              `   Original: ${originalRedirect}\n` +
+              `   Nuevo:    ${desiredRedirect}\n` +
+              `   (Esto evita el loop de Vercel SSO en URLs viejas protegidas.)`
+          )
+          oauthUrl.searchParams.set('redirect_to', desiredRedirect)
+        }
+
+        // Navegar manualmente
+        if (typeof window !== 'undefined') {
+          console.info(
+            `[auth] Navegando a OAuth: ${oauthUrl.origin}${oauthUrl.pathname} ` +
+              `?provider=${oauthUrl.searchParams.get('provider')} ` +
+              `&redirect_to=${oauthUrl.searchParams.get('redirect_to')}`
+          )
+          window.location.href = oauthUrl.toString()
+        }
+        return { error: null }
+      } catch (e) {
+        // Fallback: si el parseo falla, navegar directamente
+        console.error('[auth] Error reescribiendo OAuth URL:', e)
+        if (typeof window !== 'undefined') {
+          window.location.href = data.url
+        }
+        return { error: null }
+      }
     }
     return { error: 'OAuth no disponible en modo demo' }
   }, [supabase])

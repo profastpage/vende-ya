@@ -142,6 +142,24 @@ function useIsProtectedUrl(): { isProtected: boolean; currentHost: string } {
   return state
 }
 
+/**
+ * Hook que detecta el origin actual del navegador. Sirve para mostrar
+ * al usuario a qué URL será redirigido tras el OAuth. Esto le da
+ * transparencia sobre el flujo y le ayuda a diagnosticar si la URL
+ * es la correcta o si está atrapado en un dominio protegido.
+ */
+function useEffectiveOrigin(): { origin: string; isPublic: boolean } {
+  const [state, setState] = React.useState({ origin: '', isPublic: false })
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const origin = window.location.origin
+    const isPublic =
+      origin.startsWith('https://') && !origin.includes('localhost')
+    setState({ origin, isPublic })
+  }, [])
+  return state
+}
+
 // =====================================================================
 // LOGIN CONTENT
 // =====================================================================
@@ -151,6 +169,7 @@ function LoginContent() {
   const { toast } = useToast()
   const { signIn, signInWithOAuth, isDemoMode } = useAuth()
   const { isProtected, currentHost } = useIsProtectedUrl()
+  const { origin: effectiveOrigin, isPublic: originIsPublic } = useEffectiveOrigin()
 
   const [mode, setMode] = React.useState<'email' | 'phone'>('email')
   const [email, setEmail] = React.useState('')
@@ -195,8 +214,34 @@ function LoginContent() {
     async (provider: 'google' | 'facebook' | 'apple') => {
       setOauthProvider(provider)
       setOauthStep('probe')
+
+      // Safety net: si después de 5s seguimos en esta página sin error,
+      // asumimos que la navegación OAuth fue bloqueada (probablemente
+      // por Vercel SSO Protection). Mostramos el error con diagnóstico.
+      const navTimeout = setTimeout(() => {
+        setOauthStep('error')
+        toast({
+          title: 'Navegación bloqueada',
+          description:
+            'Pasaron 5s sin redirección. Probablemente estás en una URL ' +
+            'protegida por Vercel SSO. Usa el botón superior "Ir a URL pública" ' +
+            'o abre vende-ya-phi.vercel.app manualmente.',
+          variant: 'destructive',
+        })
+        setTimeout(() => {
+          setOauthProvider(null)
+          setOauthStep('idle')
+        }, 3000)
+      }, 5000)
+
       const result = await signInWithOAuth(provider)
+      // NO limpiar el timeout aquí: la navegación puede no ocurrir
+      // (p.ej. si el navegador bloquea window.location.href o si estamos
+      // en un dominio protegido). El timeout se limpiará solo si el
+      // navegador realmente navega (la página se descarga).
+
       if (result.error) {
+        clearTimeout(navTimeout)
         setOauthStep('error')
         // Mensaje específico para error de provider no habilitado
         const msg = result.error.toLowerCase()
@@ -410,11 +455,36 @@ function LoginContent() {
               </div>
 
               {/* ====== GOOGLE — CTA principal (full width, grande) ====== */}
-              <GoogleButton
-                state={oauthProvider === 'google' ? oauthStep : 'idle'}
-                onClick={() => handleOAuth('google')}
-                disabled={loading || oauthProvider !== null}
-              />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                    <ShieldCheck className="h-3 w-3" />
+                    Recomendado
+                  </span>
+                  {effectiveOrigin && (
+                    <span
+                      className={cn(
+                        'font-mono text-[10px] truncate max-w-[220px]',
+                        originIsPublic ? 'text-muted-foreground/70' : 'text-amber-400/80'
+                      )}
+                      title="URL de callback OAuth que se usará"
+                    >
+                      → {effectiveOrigin.replace(/^https?:\/\//, '')}/auth/callback
+                    </span>
+                  )}
+                </div>
+                <GoogleButton
+                  state={oauthProvider === 'google' ? oauthStep : 'idle'}
+                  onClick={() => handleOAuth('google')}
+                  disabled={loading || oauthProvider !== null}
+                />
+                {isProtected && (
+                  <p className="text-[11px] text-red-300/80 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    El callback fallará en esta URL protegida. Usa la URL pública arriba.
+                  </p>
+                )}
+              </div>
 
               {/* Divider */}
               <div className="relative my-5">
