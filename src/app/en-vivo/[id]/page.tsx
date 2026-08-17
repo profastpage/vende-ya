@@ -356,14 +356,11 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
    * DESKTOP LAYOUT — 3 columns (55% video / 25% auction / 20% chat)   *
    * ================================================================ */
   const DesktopLayout = (
-    <div className="hidden md:grid md:grid-cols-[55fr_25fr_20fr] h-[calc(100vh-4rem)] w-full gap-3 p-3 bg-black text-foreground">
-      {/* ---------------- COL 1: VIDEO ---------------- */}
-      <section className="relative min-w-0 flex flex-col">
-        <div
-          className="absolute -inset-6 -z-10 blur-3xl opacity-30 pointer-events-none"
-          style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d946ef 45%, #f43f5e 100%)' }}
-        />
-        <div className="relative flex-1 min-h-0 rounded-2xl overflow-hidden border border-border bg-background">
+    <div className="hidden md:flex gap-6 max-w-7xl mx-auto p-4 bg-black text-foreground min-h-[calc(100vh-4rem)]">
+      {/* COLUMNA IZQUIERDA: Área Principal (Video, Producto y Puja) */}
+      <main className="flex-1 space-y-6 flex flex-col min-w-0">
+        {/* Video Player */}
+        <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-zinc-800">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${thumbnail})` }}
@@ -389,7 +386,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
             </div>
           </div>
 
-          {/* Floating emojis layer (overlay sobre el video) */}
+          {/* Floating emojis layer */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
             <AnimatePresence>
               {floatingEmojis.map((e) => (
@@ -409,8 +406,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
           </div>
 
           {/* Floating actions right side */}
-          <div className="absolute right-4 bottom-28 z-20 flex flex-col gap-3">
-            {/* Like — solo icono + count, sin círculo negro */}
+          <div className="absolute right-4 bottom-14 z-20 flex flex-col gap-3">
             <motion.button
               key={`like-desktop-${burstKey}`}
               whileTap={{ scale: 1.5 }}
@@ -430,7 +426,6 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
               </span>
             </motion.button>
 
-            {/* Emoji reactions button */}
             <button
               onClick={() => setShowEmojiPicker((v) => !v)}
               className="flex flex-col items-center gap-0.5"
@@ -444,14 +439,6 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
               <Share2 className="h-6 w-6 text-foreground drop-shadow-lg" />
               <span className="text-[10px] font-black text-foreground drop-shadow">Compartir</span>
             </button>
-
-            <button
-              onClick={() => setMobileTab('chat')}
-              className="flex flex-col items-center gap-0.5"
-            >
-              <MessageCircle className="h-6 w-6 text-foreground drop-shadow-lg" />
-              <span className="text-[10px] font-black text-foreground drop-shadow">Chat</span>
-            </button>
           </div>
 
           {/* Emoji picker popover (desktop) */}
@@ -462,7 +449,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.85, y: 10 }}
                 transition={{ duration: 0.16 }}
-                className="absolute right-4 bottom-44 z-30 bg-background/95 backdrop-blur-xl border border-border rounded-2xl p-2 shadow-2xl"
+                className="absolute right-4 bottom-28 z-30 bg-background/95 backdrop-blur-xl border border-border rounded-2xl p-2 shadow-2xl"
               >
                 <div className="flex items-center justify-between px-2 py-1 mb-1">
                   <span className="text-[10px] font-black uppercase tracking-wider text-amber-400">
@@ -499,84 +486,46 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Stream title + product caption */}
-          <div className="absolute inset-x-0 bottom-0 p-5 z-10">
-            <div className="flex items-end justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
-                  <div className="rounded-2xl bg-muted backdrop-blur-xl border border-border px-3 py-1.5 flex flex-col items-center min-w-[88px]">
-                    <span className="text-[9px] font-black tracking-widest uppercase text-muted-foreground">
-                      <Gavel className="inline h-2.5 w-2.5 mr-1" />Pujas
-                    </span>
-                    <span className="text-xl font-black font-mono text-foreground tabular-nums">{bidCount}</span>
-                  </div>
-                </div>
-                <h2 className="text-xl font-black text-foreground leading-tight line-clamp-2 drop-shadow-lg">
-                  {stream.title}
-                </h2>
-                <p className="mt-1 text-xs text-muted-foreground line-clamp-1">
-                  {product?.title} · Stock {product?.stock ?? 0} uds · Envío desde {seller.department}
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
-      </section>
 
-      {/* ---------------- COL 2: AUCTION PANEL ---------------- */}
-      <section className="relative min-w-0 flex flex-col bg-background rounded-2xl border border-border overflow-hidden">
-        {/* Header */}
-        <div className="px-4 py-3 border-b border-border bg-muted">
-          <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-fuchsia-400">
-              <Flame className="h-3.5 w-3.5" /> Subasta en vivo
-            </span>
-            <LiveBadge size="sm" />
-          </div>
-          <h3 className="mt-1 text-base font-black text-foreground leading-tight line-clamp-2">
-            {product?.title}
-          </h3>
-          <p className="mt-1.5 text-[11px] text-muted-foreground leading-relaxed">
-            Edición limitada del catálogo de {seller.displayName}. Cada puja incrementa el precio en S/{auction.bidIncrement}. La puja más alta al cerrar el cronómetro gana el producto. Envío inmediato a todo Perú con Shalom y Olva.
+        {/* Product description & vendor info (Borderless design) */}
+        <div className="px-2">
+          <h1 className="text-2xl font-black text-white">{product?.title || stream.title}</h1>
+          <p className="text-gray-400 text-sm mt-1">
+            Por <span className="font-bold text-white">{seller.displayName}</span> • Envío desde <span className="font-bold text-white">{seller.department}</span> • Envío instantáneo con Yape/Plin
+          </p>
+          <p className="text-gray-500 text-xs leading-relaxed mt-2.5 max-w-2xl">
+            {product?.description}
           </p>
         </div>
 
-        {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 no-scrollbar">
-          {/* Leader price card */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-2xl p-4 border border-amber-400/20"
-            style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(34,19,94,0.5) 60%, rgba(9,9,11,0.9) 100%)' }}
-          >
-            <div className="absolute -top-6 -right-6 h-20 w-20 rounded-full bg-amber-400/40 blur-3xl" />
-            <div className="relative">
-              <span className="text-[10px] font-black tracking-widest uppercase text-amber-300 flex items-center gap-1">
-                <Crown className="h-3 w-3" /> Puja líder
+        {/* Unified Bidding Box Container */}
+        <div className="bg-purple-950/20 border border-purple-500/20 rounded-2xl p-6 space-y-5">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <span className="text-[10px] font-black tracking-widest uppercase text-purple-300 flex items-center gap-1">
+                <Crown className="h-3.5 w-3.5" /> Puja líder actual
               </span>
-              <p className="mt-1 text-4xl font-black text-amber-400 font-mono tabular-nums drop-shadow-lg">
+              <p className="text-4xl font-black text-amber-400 font-mono tabular-nums mt-1">
                 {formatPEN(currentBid)}
               </p>
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <div className="h-5 w-5 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 border border-sky-300/40 flex items-center justify-center text-[9px] font-black text-foreground">
-                  D
-                </div>
-                <span className="font-bold text-sky-400">Diego</span>
-                <span className="text-muted-foreground">·</span>
-                <span className="text-muted-foreground">hace 36s</span>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Por <span className="font-bold text-sky-400">Diego</span> · hace 36s
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <CountdownCard mm={mm} ss={ss} lowTime={lowTime} />
+              <div className="rounded-2xl bg-zinc-900 border border-zinc-800 px-3 py-1.5 flex flex-col items-center min-w-[88px]">
+                <span className="text-[9px] font-black tracking-widest uppercase text-muted-foreground">
+                  <Gavel className="inline h-2.5 w-2.5 mr-1" />Pujas
+                </span>
+                <span className="text-xl font-black font-mono text-foreground tabular-nums">{bidCount}</span>
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Countdown */}
-          <CountdownCard mm={mm} ss={ss} lowTime={lowTime} />
-
-          {/* Quick bid pills */}
           <div>
-            <p className="text-[10px] font-black tracking-widest uppercase text-muted-foreground mb-2">
+            <p className="text-[10px] font-black tracking-widest uppercase text-zinc-400 mb-2">
               Puja rápida
             </p>
             <div className="flex gap-2">
@@ -584,103 +533,28 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 <BidPill key={amt} amount={amt} onBid={handleQuickBid} />
               ))}
             </div>
-            <p className="mt-2 text-[10px] text-muted-foreground leading-relaxed">
-              Toca un monto para subir tu puja al instante. Mientras más alta sea tu oferta, más probabilidades de ganar al cerrar el cronómetro. Tu puja es pública y se notifica a todos los espectadores en tiempo real.
-            </p>
           </div>
 
-          {/* Primary CTA */}
-          <PujarButton increment={auction.bidIncrement || 2} onBid={handleQuickBid} full />
-
-          {/* Secondary CTA */}
-          <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
-
-          {/* Product details */}
-          <div className="rounded-2xl bg-muted border border-border p-3 space-y-2">
-            <p className="text-[10px] font-black tracking-widest uppercase text-muted-foreground">
-              Detalles del producto
-            </p>
-            <div className="grid grid-cols-2 gap-2 text-[11px]">
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <Package className="h-3.5 w-3.5 text-amber-400" /> Stock: {product?.stock ?? 0} uds
-              </div>
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 text-fuchsia-400" /> {product?.shippingFrom ?? seller.department}
-              </div>
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <ShieldCheck className="h-3.5 w-3.5 text-lime-400" /> Envío {product?.shipsNationwide ? 'nacional' : 'local'}
-              </div>
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> {seller.rating.toFixed(1)} ({seller.ratingsCount})
-              </div>
-            </div>
-            <p className="pt-2 border-t border-border text-[11px] text-muted-foreground leading-relaxed">
-              {product?.description}
-            </p>
-          </div>
-
-          {/* Payment methods */}
-          <div className="rounded-2xl bg-muted border border-border p-3">
-            <p className="text-[10px] font-black tracking-widest uppercase text-muted-foreground mb-2">
-              Métodos de pago aceptados
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {product?.paymentMethods.map((m) => (
-                <span
-                  key={m}
-                  className="px-2 py-1 rounded-md bg-muted border border-border text-[10px] font-bold text-muted-foreground capitalize"
-                >
-                  {m === 'card' ? 'Tarjeta' : m === 'transfer' ? 'Transferencia' : m}
-                </span>
-              ))}
-            </div>
-            <p className="mt-2 text-[10px] text-muted-foreground leading-relaxed">
-              Todos los pagos están protegidos por Vende Ya con liberación escalonada al confirmar el envío. Si el producto no llega, reembolso garantizado en menos de 48 horas hábiles.
-            </p>
-          </div>
-
-          {/* Bid history */}
-          <div className="rounded-2xl bg-muted border border-border p-3">
-            <p className="text-[10px] font-black tracking-widest uppercase text-muted-foreground mb-2">
-              Historial de pujas
-            </p>
-            <div className="space-y-1.5">
-              {MOCK_BIDS.slice().reverse().map((b) => (
-                <div key={b.id} className="flex items-center justify-between text-[11px]">
-                  <span className="font-bold text-sky-400">{b.bidder?.displayName}</span>
-                  <span className="font-mono font-black text-amber-400">{formatPEN(b.amount)}</span>
-                  <span className="text-muted-foreground">{timeAgoEs(b.createdAt)}</span>
-                </div>
-              ))}
-              <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-border">
-                <span className="font-bold text-muted-foreground">Puja inicial</span>
-                <span className="font-mono text-muted-foreground">{formatPEN(auction.startingPrice)}</span>
-                <span className="text-muted-foreground">inicio</span>
-              </div>
-            </div>
+          <div className="flex gap-3">
+            <PujarButton increment={auction.bidIncrement || 2} onBid={handleQuickBid} />
+            <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} />
           </div>
         </div>
-      </section>
+      </main>
 
-      {/* ---------------- COL 3: LIVE CHAT ---------------- */}
-      <section className="relative min-w-0 flex flex-col bg-background rounded-2xl border border-border overflow-hidden">
-        {/* Chat header */}
-        <div className="px-4 py-3 border-b border-border bg-muted">
-          <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-purple-400">
-              <MessageCircle className="h-3.5 w-3.5" /> Chat en vivo
-            </span>
-            <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-              <Users className="h-3 w-3 text-amber-400" /> {viewers} viendo
-            </span>
-          </div>
-          <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed">
-            Conversemos en tiempo real. YaBot AI modera el chat y responde dudas sobre tallas, stock y envíos. Sé respetuoso con la comunidad de Vende Ya.
-          </p>
+      {/* COLUMNA DERECHA: Sidebar Único (Chat en vivo e Historial integrados) */}
+      <aside className="w-80 bg-zinc-950/40 border border-zinc-800 rounded-2xl flex flex-col overflow-hidden shrink-0">
+        {/* Chat en vivo */}
+        <div className="p-4 border-b border-zinc-800 font-black text-white flex items-center justify-between">
+          <span className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-purple-400">
+            <MessageCircle className="h-4 w-4" /> Chat en vivo
+          </span>
+          <span className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
+            <Users className="h-3 w-3 text-amber-400" /> {viewers}
+          </span>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 no-scrollbar">
+        <div className="flex-1 p-3 overflow-y-auto no-scrollbar space-y-2 max-h-[300px]">
           <AnimatePresence initial={false}>
             {chat.map((msg) => (
               <ChatMessageBubble key={msg.id} msg={msg} />
@@ -688,18 +562,38 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
           </AnimatePresence>
         </div>
 
-        {/* Input */}
-        <div className="shrink-0 px-3 py-3 border-t border-border bg-background">
+        {/* Historial de pujas unificado */}
+        <div className="p-4 border-t border-zinc-800 border-b border-zinc-800 bg-black/20">
+          <p className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 flex items-center justify-between">
+            <span>Historial de pujas</span>
+            <span className="text-zinc-500 tabular-nums">{bids.length}</span>
+          </p>
+          <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1 no-scrollbar">
+            {MOCK_BIDS.slice().reverse().map((b) => (
+              <div key={b.id} className="flex items-center justify-between text-xs">
+                <span className="font-bold text-sky-400">{b.bidder?.displayName}</span>
+                <span className="font-mono font-black text-amber-400">{formatPEN(b.amount)}</span>
+                <span className="text-[10px] text-zinc-500">{timeAgoEs(b.createdAt)}</span>
+              </div>
+            ))}
+            <div className="flex items-center justify-between text-xs pt-1.5 border-t border-zinc-800/40">
+              <span className="font-bold text-zinc-500">Puja inicial</span>
+              <span className="font-mono text-zinc-500">{formatPEN(auction.startingPrice)}</span>
+              <span className="text-[10px] text-zinc-500">inicio</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Input para chatear */}
+        <div className="p-3 bg-zinc-950/60">
           <ChatInputBar
             chatInput={chatInput}
             setChatInput={setChatInput}
             onSend={sendChat}
+            compact
           />
-          <p className="mt-1.5 text-[9px] text-muted-foreground text-center">
-            Pulsa enter para enviar · YaBot AI responde automático
-          </p>
         </div>
-      </section>
+      </aside>
     </div>
   )
 
