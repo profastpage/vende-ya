@@ -566,7 +566,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
         <div className="p-4 border-t border-zinc-800 border-b border-zinc-800 bg-black/20">
           <p className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 flex items-center justify-between">
             <span>Historial de pujas</span>
-            <span className="text-zinc-500 tabular-nums">{bids.length}</span>
+            <span className="text-zinc-500 tabular-nums">{MOCK_BIDS.length}</span>
           </p>
           <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1 no-scrollbar">
             {MOCK_BIDS.slice().reverse().map((b) => (
