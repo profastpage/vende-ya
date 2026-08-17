@@ -14,8 +14,11 @@ import { ROUTES } from '@/lib/vendeda/routes'
 import { cn } from '@/lib/utils'
 import ThemeToggle from './ThemeToggle'
 
+import { useAuth } from './AuthProvider'
+
 export function DesktopTopNav() {
   const pathname = usePathname()
+  const { user } = useAuth()
 
   const navLinks = [
     { href: ROUTES.home, label: 'Inicio' },
@@ -113,10 +116,14 @@ export function DesktopTopNav() {
           </Button>
         </Link>
         <Link href={ROUTES.dashboard}>
-          <button className="flex items-center gap-1.5 pl-2 pr-3 h-10 rounded-lg hover:bg-muted transition-colors">
+          <button className="flex items-center gap-1.5 pl-2 pr-3 h-10 rounded-lg hover:bg-muted transition-colors" title={user?.displayName || "Tu perfil"}>
             <Avatar className="h-7 w-7 ring-2 ring-amber-400/30">
-              <AvatarImage src="https://i.pravatar.cc/150?img=8" alt="Tu perfil" />
-              <AvatarFallback>TÚ</AvatarFallback>
+              {user?.avatarUrl ? (
+                <AvatarImage src={user.avatarUrl} alt={user.displayName} />
+              ) : (
+                <AvatarImage src="https://i.pravatar.cc/150?img=8" alt="Tu perfil" />
+              )}
+              <AvatarFallback>{user?.displayName ? user.displayName.slice(0, 2).toUpperCase() : 'TÚ'}</AvatarFallback>
             </Avatar>
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </button>

@@ -1151,6 +1151,7 @@ function QuickActionsFooter() {
 /* every 30s, gracefully handles errors when wallet isn't registered.  */
 /* ================================================================== */
 function useSellerDashboard(sellerId: string) {
+  const { authedFetch } = useAuth()
   const [data, setData] = React.useState<SellerDashboardData | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
@@ -1159,7 +1160,7 @@ function useSellerDashboard(sellerId: string) {
     let active = true
     const fetchData = async () => {
       try {
-        const res = await fetch(
+        const res = await authedFetch(
           `/api/seller/dashboard?sellerId=${encodeURIComponent(sellerId)}`,
         )
         if (!res.ok) {
@@ -1185,7 +1186,7 @@ function useSellerDashboard(sellerId: string) {
       active = false
       clearInterval(interval)
     }
-  }, [sellerId])
+  }, [sellerId, authedFetch])
 
   return { data, error, isLoading }
 }
