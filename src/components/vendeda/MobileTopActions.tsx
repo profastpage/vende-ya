@@ -35,13 +35,33 @@ export function MobileTopActions() {
   // Detect if we are in social/feed view (dark mode)
   const isSocialView = pathname === '/'
 
+  const [isVisible, setIsVisible] = React.useState(true)
+  const lastScrollY = React.useRef(0)
+
+  React.useEffect(() => {
+    if (isSocialView) return // No scroll hide on social view
+    
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+        setIsVisible(false) // Scrolling down
+      } else {
+        setIsVisible(true)  // Scrolling up
+      }
+      lastScrollY.current = currentScrollY
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [isSocialView])
+
   return (
     <header
       className={cn(
-        "md:hidden fixed top-0 inset-x-0 z-40 h-14 flex items-center justify-between px-3 transition-colors duration-300",
+        "md:hidden fixed top-0 inset-x-0 z-40 h-14 flex items-center justify-between px-3 transition-all duration-300",
         isSocialView 
-          ? "bg-transparent border-b border-white/10 backdrop-blur-sm" 
-          : "bg-white border-b border-gray-200"
+          ? "bg-transparent border-b border-white/10 backdrop-blur-sm translate-y-0" 
+          : cn("bg-white border-b border-gray-200", isVisible ? "translate-y-0" : "-translate-y-full")
       )}
       style={{ transform: 'translateZ(0)', willChange: 'transform' }}
       role="banner"
