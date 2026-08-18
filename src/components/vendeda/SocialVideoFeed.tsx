@@ -4,6 +4,7 @@ import React from 'react'
 import { Heart, MessageCircle, Share2, Plus, ShoppingBag } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { formatPEN } from '@/lib/vendeda/format'
+import { cn } from '@/lib/utils'
 
 export type SocialFeedItem = {
   id: string;
@@ -28,27 +29,27 @@ interface SocialVideoFeedProps {
 }
 
 export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
-  // Mobile-first dark immersive container
+  // Mobile-first immersive container, now adapting to light/dark themes
   return (
-    <div className="flex w-full h-[100dvh] bg-black text-white overflow-hidden pt-0 md:pt-16">
+    <div className="flex w-full h-[100dvh] bg-background text-foreground overflow-hidden pt-0 md:pt-16">
       {/* Left Sidebar - Desktop Only */}
-      <aside className="hidden md:flex flex-col w-[250px] border-r border-white/10 p-4 shrink-0 overflow-y-auto">
+      <aside className="hidden md:flex flex-col w-[250px] border-r border-border p-4 shrink-0 overflow-y-auto">
         <nav className="flex flex-col gap-2">
-          <a href="/" className="flex items-center gap-4 p-3 rounded-lg hover:bg-white/10 text-[#FE2C55] font-bold">
+          <a href="/" className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted text-[#FE2C55] font-bold">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             Para ti
           </a>
-          <a href="/siguiendo" className="flex items-center gap-4 p-3 rounded-lg hover:bg-white/10 font-semibold text-white/90">
+          <a href="/siguiendo" className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted font-semibold text-foreground/90">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
             Siguiendo
           </a>
-          <a href="/marketplace" className="flex items-center gap-4 p-3 rounded-lg hover:bg-white/10 font-semibold text-white/90">
+          <a href="/marketplace" className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted font-semibold text-foreground/90">
             <ShoppingBag className="w-6 h-6" />
             Explorar Marketplace
           </a>
         </nav>
-        <div className="mt-6 pt-6 border-t border-white/10">
-          <p className="text-white/50 text-xs px-3">Inicia sesión para seguir a creadores, dar me gusta a videos y ver comentarios.</p>
+        <div className="mt-6 pt-6 border-t border-border">
+          <p className="text-muted-foreground text-xs px-3">Inicia sesión para seguir a creadores, dar me gusta a videos y ver comentarios.</p>
           <button className="mt-4 w-full py-2.5 border border-[#FE2C55] text-[#FE2C55] font-bold rounded-lg hover:bg-[#FE2C55]/10">
             Iniciar sesión
           </button>
@@ -139,40 +140,40 @@ function InteractionButtons({ item, isLiked, setIsLiked, isMobile }: { item: Soc
     <>
       {/* Avatar */}
       <div className="relative">
-        <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden bg-zinc-800">
+        <div className={cn("w-12 h-12 rounded-full border-2 overflow-hidden", isMobile ? "border-white bg-zinc-800" : "border-background bg-muted")}>
           {item.seller.avatarUrl ? (
             <img src={item.seller.avatarUrl} alt={item.seller.displayName} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-white font-bold">{item.seller.displayName[0]}</div>
+            <div className={cn("w-full h-full flex items-center justify-center font-bold", isMobile ? "text-white" : "text-foreground")}>{item.seller.displayName[0]}</div>
           )}
         </div>
-        <button className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#FE2C55] rounded-full p-0.5 border-2 border-black">
+        <button className={cn("absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#FE2C55] rounded-full p-0.5 border-2", isMobile ? "border-black" : "border-background")}>
           <Plus className="w-3 h-3 text-white" />
         </button>
       </div>
 
       {/* Like */}
       <button className="flex flex-col items-center gap-1 group" onClick={() => setIsLiked(!isLiked)}>
-        <div className={`p-2 rounded-full ${isMobile ? 'bg-black/20 backdrop-blur-sm' : 'bg-white/10 hover:bg-white/20'} group-active:scale-90 transition-all`}>
-          <Heart className={`w-6 h-6 md:w-7 md:h-7 ${isLiked ? 'fill-[#FE2C55] text-[#FE2C55]' : 'text-white'}`} />
+        <div className={`p-2 rounded-full ${isMobile ? 'bg-black/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
+          <Heart className={`w-6 h-6 md:w-7 md:h-7 ${isLiked ? 'fill-[#FE2C55] text-[#FE2C55]' : isMobile ? 'text-white' : 'text-foreground'}`} />
         </div>
-        <span className="text-white/90 text-xs font-semibold drop-shadow-md">{item.likes + (isLiked ? 1 : 0)}</span>
+        <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{item.likes + (isLiked ? 1 : 0)}</span>
       </button>
 
       {/* Comments */}
       <button className="flex flex-col items-center gap-1 group">
-        <div className={`p-2 rounded-full ${isMobile ? 'bg-black/20 backdrop-blur-sm' : 'bg-white/10 hover:bg-white/20'} group-active:scale-90 transition-all`}>
-          <MessageCircle className="w-6 h-6 md:w-7 md:h-7 text-white" />
+        <div className={`p-2 rounded-full ${isMobile ? 'bg-black/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
+          <MessageCircle className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-white' : 'text-foreground'}`} />
         </div>
-        <span className="text-white/90 text-xs font-semibold drop-shadow-md">{item.comments}</span>
+        <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{item.comments}</span>
       </button>
 
       {/* Share */}
       <button className="flex flex-col items-center gap-1 group">
-        <div className={`p-2 rounded-full ${isMobile ? 'bg-black/20 backdrop-blur-sm' : 'bg-white/10 hover:bg-white/20'} group-active:scale-90 transition-all`}>
-          <Share2 className="w-6 h-6 md:w-7 md:h-7 text-white" />
+        <div className={`p-2 rounded-full ${isMobile ? 'bg-black/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
+          <Share2 className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-white' : 'text-foreground'}`} />
         </div>
-        <span className="text-white/90 text-xs font-semibold drop-shadow-md">{item.shares}</span>
+        <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{item.shares}</span>
       </button>
     </>
   )

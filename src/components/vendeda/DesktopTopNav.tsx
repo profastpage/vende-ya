@@ -39,12 +39,12 @@ export function DesktopTopNav() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const isSocialView = pathname === '/'
   const [isVisible, setIsVisible] = React.useState(true)
   const lastScrollY = React.useRef(0)
 
   React.useEffect(() => {
-    if (isSocialView) return // No scroll hide on social view
+    // Only auto-hide on Marketplace (when not on '/')
+    if (pathname === '/') return 
     
     const handleScroll = () => {
       const currentScrollY = window.scrollY
@@ -58,15 +58,13 @@ export function DesktopTopNav() {
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [isSocialView])
+  }, [pathname])
 
   return (
     <header
       className={cn(
-        "hidden md:flex fixed top-0 inset-x-0 z-40 h-16 items-center gap-4 px-6 transition-all duration-300",
-        isSocialView 
-          ? "bg-transparent text-white border-b border-white/10 backdrop-blur-sm translate-y-0" 
-          : cn("bg-white border-b border-gray-200 text-gray-900", isVisible ? "translate-y-0" : "-translate-y-full")
+        "hidden md:flex fixed top-0 inset-x-0 z-40 h-16 items-center gap-4 px-6 transition-all duration-300 bg-background border-b border-border text-foreground",
+        isVisible ? "translate-y-0" : "-translate-y-full"
       )}
       role="banner"
     >
@@ -81,8 +79,8 @@ export function DesktopTopNav() {
           className="rounded-lg shadow-lg shadow-fuchsia-500/30 object-contain"
         />
         <div className="leading-none">
-          <div className={cn("font-bold text-lg font-display tracking-tight", isSocialView ? "text-white" : "text-gray-900")}>{APP_NAME}</div>
-          <div className={cn("text-[10px] -mt-0.5", isSocialView ? "text-gray-300" : "text-gray-500")}>Subastas en vivo</div>
+          <div className="font-bold text-lg font-display tracking-tight text-foreground">{APP_NAME}</div>
+          <div className="text-[10px] -mt-0.5 text-muted-foreground">Subastas en vivo</div>
         </div>
       </Link>
 
