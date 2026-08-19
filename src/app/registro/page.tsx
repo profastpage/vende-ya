@@ -543,7 +543,7 @@ export default function RegistroPage() {
 // =====================================================================
 function SuccessScreen({ email }: { email: string }) {
   return (
-    <main className="min-h-screen bg-background text-foreground flex items-center justify-center p-6">
+    <div className="flex h-full w-full items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -607,7 +607,7 @@ function SuccessScreen({ email }: { email: string }) {
           </Link>
         </motion.div>
       </motion.div>
-    
+    </div>
   )
 }
 
