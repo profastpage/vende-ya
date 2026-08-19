@@ -61,7 +61,7 @@ export function MobileTopActions() {
         "md:hidden fixed top-0 inset-x-0 z-40 h-14 flex items-center justify-between px-3 transition-all duration-300",
         isSocialView 
           ? "bg-transparent border-b border-white/10 backdrop-blur-sm translate-y-0" 
-          : cn("bg-white border-b border-gray-200", isVisible ? "translate-y-0" : "-translate-y-full")
+          : cn("bg-background border-b border-border", isVisible ? "translate-y-0" : "-translate-y-full")
       )}
       style={{ transform: 'translateZ(0)', willChange: 'transform' }}
       role="banner"
@@ -75,7 +75,7 @@ export function MobileTopActions() {
             ? 'bg-[#FE2C55]/20 border border-[#FE2C55]/40 text-[#FE2C55]'
             : isSocialView 
               ? 'bg-black/30 border border-white/20 text-white hover:bg-black/50' 
-              : 'bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200'
+              : 'bg-accent border border-border text-foreground hover:bg-gray-200'
         )}
         aria-label="Ver transmisiones en vivo"
       >

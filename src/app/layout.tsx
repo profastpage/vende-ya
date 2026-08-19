@@ -103,7 +103,7 @@ export default function RootLayout({
          */}
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${display.variable} antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} ${display.variable} antialiased bg-background text-foreground min-h-screen flex flex-col`}
       >
         <ThemeProvider
           attribute="class"
@@ -114,7 +114,9 @@ export default function RootLayout({
           <AuthProvider>
             <DesktopTopNav />
             <MobileTopActions />
-            {children}
+            <main className="flex-1 w-full pt-14 md:pt-16 pb-16 md:pb-0 bg-background text-foreground">
+              {children}
+            </main>
             <MobileBottomNav />
             <Toaster />
             <SonnerToaster position="top-center" richColors />

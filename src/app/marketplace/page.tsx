@@ -19,10 +19,10 @@ export default function MarketplacePage() {
   }))
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-card">
       <div className="pt-20">
         <div className="px-4 md:px-6 mb-4">
-          <h1 className="text-2xl font-black text-gray-900">Descubre productos</h1>
+          <h1 className="text-2xl font-black text-foreground">Descubre productos</h1>
         </div>
         <MarketplaceGrid 
           products={products}

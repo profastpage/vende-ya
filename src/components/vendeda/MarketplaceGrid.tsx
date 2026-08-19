@@ -30,7 +30,7 @@ export function MarketplaceGrid({ products, categories }: MarketplaceGridProps) 
     : products.filter(p => p.category === activeCategory)
 
   return (
-    <div className="w-full bg-white min-h-screen pb-24 pt-4 px-4 md:px-6">
+    <div className="w-full bg-card min-h-screen pb-24 pt-4 px-4 md:px-6">
       
       {/* Pill Tabs Navigation */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 md:mx-0 md:px-0">
@@ -89,7 +89,7 @@ function ProductCard({ product }: { product: MarketplaceProduct }) {
             e.stopPropagation()
             setIsLiked(!isLiked)
           }}
-          className="absolute top-2 right-2 p-2 rounded-full bg-white/70 backdrop-blur-md shadow-sm border border-white hover:bg-white transition-colors"
+          className="absolute top-2 right-2 p-2 rounded-full bg-card/70 backdrop-blur-md shadow-sm border border-white hover:bg-card transition-colors"
         >
           <Heart className={`w-4 h-4 ${isLiked ? 'fill-[#FE2C55] text-[#FE2C55]' : 'text-zinc-600'}`} />
         </button>
@@ -97,7 +97,7 @@ function ProductCard({ product }: { product: MarketplaceProduct }) {
         {/* Dynamic Labels */}
         <div className="absolute bottom-2 left-2 flex flex-col gap-1">
           {product.isFreeShipping && (
-            <span className="bg-white/90 backdrop-blur-md text-zinc-900 px-2 py-0.5 rounded-md text-[10px] font-bold shadow-sm">
+            <span className="bg-card/90 backdrop-blur-md text-zinc-900 px-2 py-0.5 rounded-md text-[10px] font-bold shadow-sm">
               Envío Gratis
             </span>
           )}

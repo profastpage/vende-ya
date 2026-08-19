@@ -189,14 +189,14 @@ export default function RegistroPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-7xl flex-col md:flex-row">
         {/* =================================================== */}
         {/* LEFT — Brand panel (desktop only)                   */}
         {/* =================================================== */}
         <aside
           aria-hidden="true"
-          className="relative hidden md:flex md:w-[46%] lg:w-[52%] flex-col justify-between overflow-hidden bg-[#F9F5F0] p-12 text-gray-900 border-r border-gray-100"
+          className="relative hidden md:flex md:w-[46%] lg:w-[52%] flex-col justify-between overflow-hidden bg-muted p-12 text-foreground border-r border-border"
         >
           {/* Logo — imagen oficial /logo.png */}
           <div className="relative">
@@ -210,22 +210,22 @@ export default function RegistroPage() {
                 className="rounded-2xl shadow-md object-contain"
               />
               <div className="leading-none">
-                <div className="font-black text-2xl font-display tracking-tight text-gray-950">
+                <div className="font-black text-2xl font-display tracking-tight text-foreground">
                   {APP_NAME}
                 </div>
-                <div className="text-[11px] text-gray-500 -mt-0.5 font-medium">Subastas en vivo del Perú</div>
+                <div className="text-[11px] text-muted-foreground -mt-0.5 font-medium">Subastas en vivo del Perú</div>
               </div>
             </Link>
           </div>
 
           {/* Hero copy + features */}
           <div className="relative space-y-7">
-            <h1 className="text-4xl lg:text-5xl font-black font-display leading-[1.05] tracking-tight text-gray-950">
+            <h1 className="text-4xl lg:text-5xl font-black font-display leading-[1.05] tracking-tight text-foreground">
               Crea tu cuenta.
               <br />
               <span className="text-purple-700">Empieza a vender hoy.</span>
             </h1>
-            <p className="text-gray-600 font-medium text-lg leading-relaxed max-w-md">
+            <p className="text-muted-foreground font-medium text-lg leading-relaxed max-w-md">
               Únete a la comunidad de vendedores y compradores en vivo más grande del Perú. Sin
               mensualidades, sin comisiones ocultas — solo pagas el 5% cuando vendes.
             </p>
@@ -243,8 +243,8 @@ export default function RegistroPage() {
                     <f.icon className="h-5 w-5" />
                   </div>
                   <div className="space-y-1">
-                    <div className="font-bold text-base text-gray-900">{f.title}</div>
-                    <p className="text-sm text-gray-600 leading-relaxed max-w-sm">{f.body}</p>
+                    <div className="font-bold text-base text-foreground">{f.title}</div>
+                    <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">{f.body}</p>
                   </div>
                 </li>
               ))}
@@ -252,7 +252,7 @@ export default function RegistroPage() {
           </div>
 
           {/* Footer */}
-          <div className="relative flex items-center justify-between text-xs text-gray-500 font-medium">
+          <div className="relative flex items-center justify-between text-xs text-muted-foreground font-medium">
             <span>© 2026 Vende Ya · Hecho en Perú 🇵🇪</span>
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
@@ -534,7 +534,7 @@ export default function RegistroPage() {
           </motion.div>
         </section>
       </div>
-    </main>
+    
   )
 }
 
@@ -607,7 +607,7 @@ function SuccessScreen({ email }: { email: string }) {
           </Link>
         </motion.div>
       </motion.div>
-    </main>
+    
   )
 }
 

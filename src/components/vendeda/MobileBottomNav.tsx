@@ -28,7 +28,7 @@ export function MobileBottomNav() {
     <nav
       className={cn(
         "md:hidden fixed bottom-0 inset-x-0 z-50 border-t pb-safe transition-colors",
-        isSocialView ? "bg-black/80 backdrop-blur-md border-white/10" : "bg-white/95 backdrop-blur-md border-gray-200"
+        isSocialView ? "bg-black/80 backdrop-blur-md border-white/10" : "bg-background/95 backdrop-blur-md border-border"
       )}
       style={{ transform: 'translateZ(0)', willChange: 'transform' }}
     >
@@ -50,7 +50,7 @@ export function MobileBottomNav() {
                     ? 'h-10 w-10 rounded-full bg-[#FE2C55] text-white shadow-lg' 
                     : 'h-8 w-8',
                   !isCenter && active 
-                    ? isSocialView ? 'text-white' : 'text-gray-900' 
+                    ? isSocialView ? 'text-white' : 'text-foreground' 
                     : !isCenter ? 'text-gray-400' : ''
                 )}
               >
@@ -61,7 +61,7 @@ export function MobileBottomNav() {
                   className={cn(
                     'text-[10px] font-semibold truncate text-center',
                     active 
-                      ? isSocialView ? 'text-white' : 'text-gray-900' 
+                      ? isSocialView ? 'text-white' : 'text-foreground' 
                       : 'text-gray-400'
                   )}
                 >

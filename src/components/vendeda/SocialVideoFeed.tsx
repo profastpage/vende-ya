@@ -31,7 +31,7 @@ interface SocialVideoFeedProps {
 export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
   // Mobile-first immersive container, now adapting to light/dark themes
   return (
-    <div className="flex w-full h-[100dvh] bg-background text-foreground overflow-hidden pt-0 md:pt-16">
+    <div className="flex w-full h-[100dvh] bg-background text-foreground overflow-hidden">
       {/* Left Sidebar - Desktop Only */}
       <aside className="hidden md:flex flex-col w-[250px] border-r border-border p-4 shrink-0 overflow-y-auto">
         <nav className="flex flex-col gap-2">

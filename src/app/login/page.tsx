@@ -278,14 +278,13 @@ function LoginContent() {
   const redirectParam = searchParams.get('redirect')
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col md:flex-row">
+    <div className="mx-auto flex h-full w-full max-w-7xl flex-col md:flex-row">
         {/* =================================================== */}
         {/* LEFT — Brand panel (desktop only)                   */}
         {/* =================================================== */}
         <aside
           aria-hidden="true"
-          className="relative hidden md:flex md:w-[46%] lg:w-[52%] flex-col justify-between overflow-hidden bg-[#F9F5F0] p-12 text-gray-900 border-r border-gray-100"
+          className="relative hidden md:flex md:w-[46%] lg:w-[52%] flex-col justify-between overflow-hidden bg-muted p-12 text-foreground border-r border-border"
         >
           {/* Logo */}
           <div className="relative">
@@ -299,10 +298,10 @@ function LoginContent() {
                 className="rounded-2xl shadow-md object-contain"
               />
               <div className="leading-none">
-                <div className="font-black text-2xl font-display tracking-tight text-gray-950">
+                <div className="font-black text-2xl font-display tracking-tight text-foreground">
                   {APP_NAME}
                 </div>
-                <div className="text-[11px] text-gray-500 -mt-0.5 font-medium">
+                <div className="text-[11px] text-muted-foreground -mt-0.5 font-medium">
                   Subastas en vivo del Perú
                 </div>
               </div>
@@ -311,12 +310,12 @@ function LoginContent() {
 
           {/* Hero copy + features */}
           <div className="relative space-y-7">
-            <h1 className="text-4xl lg:text-5xl font-black font-display leading-[1.05] tracking-tight text-gray-950">
+            <h1 className="text-4xl lg:text-5xl font-black font-display leading-[1.05] tracking-tight text-foreground">
               Subasta en vivo.
               <br />
               <span className="text-purple-700">Compra ya.</span> Vende ya.
             </h1>
-            <p className="text-gray-600 font-medium text-lg leading-relaxed max-w-md">
+            <p className="text-muted-foreground font-medium text-lg leading-relaxed max-w-md">
               El marketplace social del Perú. Pujas en tiempo real, pagas con Yape, Plin o
               PagoEfectivo, y recibes tus productos en 24 horas con envíos Shalom.
             </p>
@@ -334,8 +333,8 @@ function LoginContent() {
                     <f.icon className="h-5 w-5" />
                   </div>
                   <div className="space-y-1">
-                    <div className="font-bold text-base text-gray-900">{f.title}</div>
-                    <p className="text-sm text-gray-600 leading-relaxed max-w-sm">
+                    <div className="font-bold text-base text-foreground">{f.title}</div>
+                    <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
                       {f.body}
                     </p>
                   </div>
@@ -345,7 +344,7 @@ function LoginContent() {
           </div>
 
           {/* Footer */}
-          <div className="relative flex items-center justify-between text-xs text-gray-500 font-medium">
+          <div className="relative flex items-center justify-between text-xs text-muted-foreground font-medium">
             <span>© 2026 Vende Ya · Hecho en Perú 🇵🇪</span>
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
@@ -681,8 +680,7 @@ function LoginContent() {
             </div>
           </motion.div>
         </section>
-      </div>
-    </main>
+    </div>
   )
 }
 
@@ -719,7 +717,7 @@ function GoogleButton({
         'disabled:cursor-not-allowed',
         state === 'error'
           ? 'border-red-500/60 bg-red-500/10'
-          : 'border-border bg-white text-zinc-900 hover:bg-zinc-50 hover:border-zinc-300',
+          : 'border-border bg-card text-foreground hover:bg-accent hover:border-border',
         state === 'idle' && 'hover:shadow-xl hover:shadow-amber-500/20 active:scale-[0.99]'
       )}
     >
@@ -742,7 +740,7 @@ function GoogleButton({
       <span
         className={cn(
           'relative text-base font-bold tracking-tight',
-          state === 'error' ? 'text-red-600' : 'text-zinc-900'
+          state === 'error' ? 'text-red-600' : 'text-foreground'
         )}
       >
         {labelMap[state]}
