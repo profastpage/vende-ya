@@ -1,36 +1,83 @@
 import { SocialVideoFeed, SocialFeedItem } from '@/components/vendeda/SocialVideoFeed'
-import { MOCK_STREAMS } from '@/lib/vendeda/mock-data'
+import { db } from '@/lib/db'
 
-export default function Home() {
-  const feed: SocialFeedItem[] = MOCK_STREAMS.map(stream => ({
-    id: stream.id,
-    videoUrl: 'https://via.placeholder.com/1080x1920', // Mock video URL
-    thumbnailUrl: stream.thumbnailUrl || 'https://via.placeholder.com/1080x1920',
-    seller: {
-      displayName: stream.seller?.displayName || 'Usuario',
-      avatarUrl: stream.seller?.avatarUrl || undefined,
+export default async function Home() {
+  // Fetch real streams from Prisma
+  const streams = await db.liveStream.findMany({
+    where: {
+      status: 'live',
+      isLive: true,
     },
-    description: stream.title,
-    likes: Math.floor(Math.random() * 10000) + 100,
-    comments: Math.floor(Math.random() * 1000) + 10,
-    shares: Math.floor(Math.random() * 500) + 5,
-    product: {
-      id: 'p1',
-      title: stream.title + ' (Producto en vivo)',
-      price: Math.floor(Math.random() * 100) + 50,
-      thumbnail: stream.thumbnailUrl || 'https://via.placeholder.com/150x150'
+    include: {
+      seller: true,
+      auctions: {
+        include: {
+          product: true,
+        },
+        where: {
+          status: 'live'
+        },
+        take: 1
+      },
+      chatMessages: {
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+        include: { sender: true }
+      }
     },
-    liveComments: [
-      { id: 'c1', user: 'carlos_99', text: '¡Increíble producto!' },
-      { id: 'c2', user: 'maria_venta', text: '¿Haces envíos a provincia?' },
-      { id: 'c3', user: 'pedro_lopez', text: 'Me interesa la oferta.' },
-      { id: 'c4', user: 'ana_123', text: '¡Lo quiero ya!' },
-    ]
-  }))
+    orderBy: {
+      viewerCount: 'desc'
+    }
+  })
+
+  // Map to SocialFeedItem format
+  const feed: SocialFeedItem[] = streams.map(stream => {
+    const activeAuction = stream.auctions[0]
+    
+    return {
+      id: stream.id,
+      videoUrl: stream.playbackId ? `https://customer-xxx.cloudflarestream.com/${stream.playbackId}/manifest/video.m3u8` : 'https://via.placeholder.com/1080x1920',
+      thumbnailUrl: stream.thumbnailUrl || 'https://via.placeholder.com/1080x1920',
+      seller: {
+        displayName: stream.seller?.displayName || 'Usuario',
+        avatarUrl: stream.seller?.avatarUrl || undefined,
+      },
+      description: stream.title,
+      likes: stream.likeCount,
+      comments: stream.chatMessages.length, // approximation
+      shares: stream.shareCount,
+      product: activeAuction ? {
+        id: activeAuction.product.id,
+        title: activeAuction.product.title,
+        price: activeAuction.currentPrice,
+        thumbnail: 'https://via.placeholder.com/150x150' // Ideally from activeAuction.product.images
+      } : undefined,
+      liveComments: stream.chatMessages.map(msg => ({
+        id: msg.id,
+        user: msg.sender?.displayName || msg.guestName || 'Usuario',
+        text: msg.content
+      })).reverse() // Show chronological
+    }
+  })
+
+  // If no live streams exist yet in the database, show a fallback array so the UI doesn't look broken
+  const displayFeed = feed.length > 0 ? feed : [
+    {
+      id: 'empty',
+      videoUrl: 'https://via.placeholder.com/1080x1920',
+      thumbnailUrl: 'https://via.placeholder.com/1080x1920',
+      seller: { displayName: 'Vende Ya Oficial' },
+      description: '¡Pronto más subastas en vivo!',
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      liveComments: []
+    }
+  ]
 
   return (
-    <main className="bg-black w-full min-h-screen">
-      <SocialVideoFeed feed={feed} />
-    </main>
+    <div className="bg-black w-full h-full">
+      <SocialVideoFeed feed={displayFeed} />
+    </div>
   )
 }
