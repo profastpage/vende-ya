@@ -89,14 +89,14 @@ function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-3 bg-black/60 backdrop-blur-md p-2 rounded-xl border border-white/10 shadow-lg w-fit max-w-[90%] cursor-pointer hover:bg-black/80 transition-colors"
+              className="flex items-center gap-3 bg-muted/80 backdrop-blur-md p-2 rounded-xl border border-border shadow-lg w-fit max-w-[90%] cursor-pointer hover:bg-muted/90 transition-colors"
             >
               <img src={item.product.thumbnail} alt={item.product.title} className="w-12 h-12 rounded-lg object-cover shrink-0" />
               <div className="flex flex-col min-w-0">
-                <span className="text-white text-xs font-medium line-clamp-1">{item.product.title}</span>
+                <span className="text-foreground text-xs font-medium line-clamp-1">{item.product.title}</span>
                 <span className="text-[#FE2C55] font-bold text-sm">{formatPEN(item.product.price)}</span>
               </div>
-              <button className="bg-[#FE2C55] text-white px-2 py-1.5 rounded-lg font-bold text-[10px] md:text-xs ml-auto shrink-0 flex items-center gap-1">
+              <button className="bg-[#FE2C55] text-foreground px-2 py-1.5 rounded-lg font-bold text-[10px] md:text-xs ml-auto shrink-0 flex items-center gap-1">
                 <ShoppingBag className="w-3.5 h-3.5" /> Comprar
               </button>
             </motion.div>
@@ -104,8 +104,8 @@ function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
 
           {/* Stream Info */}
           <div>
-            <h3 className="text-white font-bold text-base drop-shadow-md hover:underline cursor-pointer">@{item.seller.displayName}</h3>
-            <p className="text-white/90 text-sm mt-1 line-clamp-2 drop-shadow-md">{item.description}</p>
+            <h3 className="text-foreground font-bold text-base drop-shadow-md hover:underline cursor-pointer">@{item.seller.displayName}</h3>
+            <p className="text-foreground/90 text-sm mt-1 line-clamp-2 drop-shadow-md">{item.description}</p>
           </div>
 
           {/* Live Comments Stream */}
@@ -113,8 +113,8 @@ function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
             <div className="h-32 overflow-y-auto no-scrollbar pointer-events-none space-y-2 mt-2" style={{ maskImage: 'linear-gradient(to top, black 50%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to top, black 50%, transparent 100%)' }}>
               {item.liveComments.map(comment => (
                 <div key={comment.id} className="text-sm">
-                  <span className="font-bold text-white/80 drop-shadow-md">{comment.user}: </span>
-                  <span className="text-white drop-shadow-md">{comment.text}</span>
+                  <span className="font-bold text-foreground/80 drop-shadow-md">{comment.user}: </span>
+                  <span className="text-foreground drop-shadow-md">{comment.text}</span>
                 </div>
               ))}
             </div>
@@ -144,36 +144,36 @@ function InteractionButtons({ item, isLiked, setIsLiked, isMobile }: { item: Soc
           {item.seller.avatarUrl ? (
             <img src={item.seller.avatarUrl} alt={item.seller.displayName} className="w-full h-full object-cover" />
           ) : (
-            <div className={cn("w-full h-full flex items-center justify-center font-bold", isMobile ? "text-white" : "text-foreground")}>{item.seller.displayName[0]}</div>
+            <div className={cn("w-full h-full flex items-center justify-center font-bold", isMobile ? "text-foreground" : "text-foreground")}>{item.seller.displayName[0]}</div>
           )}
         </div>
         <button className={cn("absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#FE2C55] rounded-full p-0.5 border-2", isMobile ? "border-black" : "border-background")}>
-          <Plus className="w-3 h-3 text-white" />
+          <Plus className="w-3 h-3 text-foreground" />
         </button>
       </div>
 
       {/* Like */}
       <button className="flex flex-col items-center gap-1 group" onClick={() => setIsLiked(!isLiked)}>
-        <div className={`p-2 rounded-full ${isMobile ? 'bg-black/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
-          <Heart className={`w-6 h-6 md:w-7 md:h-7 ${isLiked ? 'fill-[#FE2C55] text-[#FE2C55]' : isMobile ? 'text-white' : 'text-foreground'}`} />
+        <div className={`p-2 rounded-full ${isMobile ? 'bg-background/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
+          <Heart className={`w-6 h-6 md:w-7 md:h-7 ${isLiked ? 'fill-[#FE2C55] text-[#FE2C55]' : isMobile ? 'text-foreground' : 'text-foreground'}`} />
         </div>
-        <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{item.likes + (isLiked ? 1 : 0)}</span>
+        <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-foreground/90" : "text-foreground/90")}>{item.likes + (isLiked ? 1 : 0)}</span>
       </button>
 
       {/* Comments */}
       <button className="flex flex-col items-center gap-1 group">
-        <div className={`p-2 rounded-full ${isMobile ? 'bg-black/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
-          <MessageCircle className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-white' : 'text-foreground'}`} />
+        <div className={`p-2 rounded-full ${isMobile ? 'bg-background/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
+          <MessageCircle className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-foreground' : 'text-foreground'}`} />
         </div>
-        <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{item.comments}</span>
+        <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-foreground/90" : "text-foreground/90")}>{item.comments}</span>
       </button>
 
       {/* Share */}
       <button className="flex flex-col items-center gap-1 group">
-        <div className={`p-2 rounded-full ${isMobile ? 'bg-black/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
-          <Share2 className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-white' : 'text-foreground'}`} />
+        <div className={`p-2 rounded-full ${isMobile ? 'bg-background/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
+          <Share2 className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-foreground' : 'text-foreground'}`} />
         </div>
-        <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{item.shares}</span>
+        <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-foreground/90" : "text-foreground/90")}>{item.shares}</span>
       </button>
     </>
   )

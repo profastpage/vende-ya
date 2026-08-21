@@ -128,7 +128,7 @@ export function DesktopTopNav() {
       >
         <span className="h-1.5 w-1.5 rounded-full bg-rose-600 animate-pulse" />
         <span className="text-sm font-semibold">En vivo</span>
-        <span className="text-[10px] bg-rose-600 text-white rounded-full px-1.5 py-0 font-bold">3</span>
+        <span className="text-[10px] bg-rose-600 text-foreground rounded-full px-1.5 py-0 font-bold">3</span>
       </Link>
 
       {/* Actions */}

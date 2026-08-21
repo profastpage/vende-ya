@@ -76,7 +76,7 @@ export default async function Home() {
   ]
 
   return (
-    <div className="bg-black w-full h-full">
+    <div className="bg-background w-full h-full">
       <SocialVideoFeed feed={displayFeed} />
     </div>
   )

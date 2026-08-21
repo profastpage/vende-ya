@@ -74,7 +74,7 @@ export function MobileTopActions() {
           liveActive
             ? 'bg-[#FE2C55]/20 border border-[#FE2C55]/40 text-[#FE2C55]'
             : isSocialView 
-              ? 'bg-black/30 border border-white/20 text-white hover:bg-black/50' 
+              ? 'bg-black/30 border border-white/20 text-foreground hover:bg-muted/80' 
               : 'bg-accent border border-border text-foreground hover:bg-gray-200'
         )}
         aria-label="Ver transmisiones en vivo"

@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, ShoppingBag, Plus, User } from 'lucide-react'
+import { Home, ShoppingBag, Plus, User, MessageCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function MobileBottomNav() {
@@ -11,8 +11,9 @@ export function MobileBottomNav() {
 
   const items = [
     { id: 'feed',        icon: Home,         label: 'Inicio',       href: '/' },
-    { id: 'marketplace', icon: ShoppingBag,  label: 'Marketplace',  href: '/marketplace' },
+    { id: 'marketplace', icon: ShoppingBag,  label: 'Mercado',      href: '/marketplace' },
     { id: 'vender',      icon: Plus,         label: 'Vender',       href: '/vender' },
+    { id: 'mensajes',    icon: MessageCircle,label: 'Mensajes',     href: '/mensajes' },
     { id: 'perfil',      icon: User,         label: 'Perfil',       href: '/perfil' },
   ]
 
@@ -21,53 +22,36 @@ export function MobileBottomNav() {
     return pathname.startsWith(href)
   }
 
-  // Detect if we are in social/feed view (dark mode)
-  const isSocialView = pathname === '/'
-
   return (
-    <nav
-      className={cn(
-        "md:hidden fixed bottom-0 inset-x-0 z-50 border-t pb-safe transition-colors",
-        isSocialView ? "bg-black/80 backdrop-blur-md border-white/10" : "bg-background/95 backdrop-blur-md border-border"
-      )}
-      style={{ transform: 'translateZ(0)', willChange: 'transform' }}
-    >
-      <div className="mx-auto w-full max-w-md flex items-center justify-around h-16 px-2">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-background border-t border-border flex justify-around items-center pb-safe pt-2 transition-colors duration-200">
+      <div className="w-full flex items-center justify-around h-16 px-1">
         {items.map(({ id, icon: Icon, label, href }) => {
           const active = isActive(href)
           const isCenter = id === 'vender'
           
+          if (isCenter) {
+            return (
+              <Link key={id} href={href} className="transform -translate-y-4">
+                <div className="bg-primary text-primary-foreground rounded-full p-3.5 shadow-lg flex items-center justify-center hover:scale-105 transition-transform">
+                  <Icon size={24} strokeWidth={2.5} />
+                </div>
+              </Link>
+            )
+          }
+
           return (
             <Link
               key={id}
               href={href}
-              className="relative flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform flex-1"
-            >
-              <div
-                className={cn(
-                  'flex items-center justify-center transition-all',
-                  isCenter 
-                    ? 'h-10 w-10 rounded-full bg-[#FE2C55] text-white shadow-lg' 
-                    : 'h-8 w-8',
-                  !isCenter && active 
-                    ? isSocialView ? 'text-white' : 'text-foreground' 
-                    : !isCenter ? 'text-gray-400' : ''
-                )}
-              >
-                <Icon className="h-5 w-5" strokeWidth={active || isCenter ? 2.5 : 2} />
-              </div>
-              {!isCenter && (
-                <span
-                  className={cn(
-                    'text-[10px] font-semibold truncate text-center',
-                    active 
-                      ? isSocialView ? 'text-white' : 'text-foreground' 
-                      : 'text-gray-400'
-                  )}
-                >
-                  {label}
-                </span>
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 active:scale-95 transition-all w-16",
+                active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
               )}
+            >
+              <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
+              <span className="text-[10px] font-medium truncate w-full text-center">
+                {label}
+              </span>
             </Link>
           )
         })}
