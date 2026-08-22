@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+ï»¿import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/vendeda/supabase-server'
 import { db } from '@/lib/db'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,7 +8,7 @@ import { Users, ShoppingBag, Video, DollarSign, Activity } from 'lucide-react'
 const SUPER_ADMIN_EMAIL = 'profastpage@gmail.com'
 
 export default async function AdminDashboardPage() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   const { data: { user }, error } = await supabase.auth.getUser()
 
   if (error || !user || user.email !== SUPER_ADMIN_EMAIL) {
@@ -60,7 +60,7 @@ export default async function AdminDashboardPage() {
         <h1 className="text-3xl font-black tracking-tight flex items-center gap-2">
           <Activity className="w-8 h-8 text-[#FE2C55]" /> Panel de Control Ultimate
         </h1>
-        <p className="text-muted-foreground">Bienvenido, Super Administrador. Visión global del ecosistema Vende Ya.</p>
+        <p className="text-muted-foreground">Bienvenido, Super Administrador. VisiÃ³n global del ecosistema Vende Ya.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -93,7 +93,7 @@ export default async function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">S/ {stats.totalRevenue.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">{stats.orders} órdenes procesadas</p>
+            <p className="text-xs text-muted-foreground">{stats.orders} Ã³rdenes procesadas</p>
           </CardContent>
         </Card>
         
@@ -104,7 +104,7 @@ export default async function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.liveStreams}</div>
-            <p className="text-xs text-muted-foreground">Transmisiones históricas</p>
+            <p className="text-xs text-muted-foreground">Transmisiones histÃ³ricas</p>
           </CardContent>
         </Card>
       </div>
@@ -112,7 +112,7 @@ export default async function AdminDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>Últimos Usuarios Registrados</CardTitle>
+            <CardTitle>Ãšltimos Usuarios Registrados</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
@@ -145,7 +145,7 @@ export default async function AdminDashboardPage() {
              <div className="space-y-4">
                <div className="p-4 bg-muted/50 rounded-lg border border-border">
                   <h4 className="font-semibold text-sm mb-1">ImageKit (Marketplace)</h4>
-                  <p className="text-xs text-muted-foreground mb-2">Límite mensual: 20GB gratis</p>
+                  <p className="text-xs text-muted-foreground mb-2">LÃ­mite mensual: 20GB gratis</p>
                   <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
                     <div className="bg-green-500 w-[5%] h-full"></div>
                   </div>
