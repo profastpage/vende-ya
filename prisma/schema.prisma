@@ -416,7 +416,8 @@ model ShalomShipment {
   receiverDni         String
   shippingCost        Float
   shipmentStatus      String   @default("pending_dropoff") // pending_dropoff | in_transit | ready_for_pickup | delivered
-  pdfLabelUrl         String?
+  pdfLabelurl         String?
+  kickUsername String?
   updatedAt           DateTime @updatedAt
   createdAt           DateTime @default(now())
 

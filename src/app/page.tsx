@@ -39,6 +39,7 @@ export default async function Home() {
       id: stream.id,
       videoUrl: stream.playbackId ? `https://customer-xxx.cloudflarestream.com/${stream.playbackId}/manifest/video.m3u8` : 'https://via.placeholder.com/1080x1920',
       thumbnailUrl: stream.thumbnailUrl || 'https://via.placeholder.com/1080x1920',
+      kickUsername: stream.kickUsername || undefined,
       seller: {
         displayName: stream.seller?.displayName || 'Usuario',
         avatarUrl: stream.seller?.avatarUrl || undefined,
@@ -76,6 +77,26 @@ export default async function Home() {
     }
   ]
 
+  // If database is empty (or building), inject a mock Kick stream so the CEO can see the demo
+  if (feed.length === 0) {
+    feed.push({
+      id: "demo-kick-1",
+      videoUrl: "",
+      thumbnailUrl: "https://via.placeholder.com/1080x1920?text=Live",
+      kickUsername: "xqc", // Example popular Kick channel that is often live
+      seller: { displayName: "Demo Vendedor Kick" },
+      description: "¡Probando la nueva arquitectura 0 costo con Kick! Mira qu fluido va.",
+      likes: 1205,
+      comments: 340,
+      shares: 55,
+      product: {
+        id: "prod-1",
+        title: "Zapatillas Urbanas Demo",
+        price: 150,
+        thumbnail: "https://via.placeholder.com/150"
+      }
+    })
+  }
   return (
     <div className="bg-background w-full h-full">
       <SocialVideoFeed feed={displayFeed} />

@@ -10,6 +10,7 @@ export type SocialFeedItem = {
   id: string;
   videoUrl: string;
   thumbnailUrl: string;
+  kickUsername?: string;
   seller: { displayName: string; avatarUrl?: string };
   description: string;
   likes: number;
@@ -74,12 +75,23 @@ function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
       {/* Container that acts as the mobile screen on desktop */}
       <div className="relative w-full md:w-[350px] lg:w-[400px] h-full bg-zinc-900 md:rounded-2xl overflow-hidden flex shrink-0">
         
-        {/* Video Background */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${item.thumbnailUrl})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80" />
+        {/* Video Background / Kick Player */}
+        {item.kickUsername ? (
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <iframe
+              src={`https://player.kick.com/${item.kickUsername}?autoplay=true&muted=false`}
+              className="w-full h-full object-cover scale-150"
+              style={{ border: 'none' }}
+              allow="autoplay; fullscreen"
+            />
+          </div>
+        ) : (
+          <div 
+            className="absolute inset-0 bg-cover bg-center z-0"
+            style={{ backgroundImage: `url(${item.thumbnailUrl})` }}
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none z-10" />
 
         {/* Bottom Info & Product Pin (Inside Video Container) */}
         <div className="absolute bottom-4 left-4 right-16 flex flex-col justify-end gap-3 z-20 pb-16 md:pb-4 md:right-4">
