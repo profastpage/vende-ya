@@ -387,12 +387,12 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
             className="absolute inset-0 w-full h-full border-none pointer-events-auto"
             allow="autoplay; fullscreen"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30 pointer-events-none" />
 
           {/* Top overlays */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between items-start gap-3 z-20">
-            <div className="flex flex-col gap-2">
+          <div className="absolute top-4 left-4 right-4 flex justify-between items-start gap-3 z-20 pointer-events-none">
+            <div className="flex flex-col gap-2 pointer-events-auto">
               <button
                 onClick={() => router.back()}
                 className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center hover:bg-muted transition-colors"
@@ -402,7 +402,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
               </button>
               <SellerPill seller={seller} initial={initial} />
             </div>
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-col items-end gap-2 pointer-events-auto">
               <LiveBadge />
               <ViewersPill viewers={viewers} />
             </div>
@@ -628,16 +628,16 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       <div className="absolute inset-0 z-0">
         <iframe
           src={`https://kick.com/${stream?.kickUsername || 'gozustrike'}`}
-          className="w-full h-full object-cover border-none pointer-events-auto scale-[3.16] origin-center"
+          className="w-full h-full border-none pointer-events-auto"
           allow="autoplay; fullscreen"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/95" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/95 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 pointer-events-none" />
       </div>
 
       {/* Top bar */}
-      <div className="absolute top-0 inset-x-0 p-4 pt-6 flex justify-between items-start z-20 gap-2">
-        <div className="flex flex-col gap-2">
+      <div className="absolute top-0 inset-x-0 p-4 pt-6 flex justify-between items-start z-20 gap-2 pointer-events-none">
+        <div className="flex flex-col gap-2 pointer-events-auto">
           <button
             onClick={() => router.back()}
             className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center active:scale-95 transition-transform"
@@ -648,7 +648,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
           <SellerPill seller={seller} initial={initial} />
         </div>
 
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-end gap-2 pointer-events-auto">
           <LiveBadge />
           <ViewersPill viewers={viewers} />
         </div>
