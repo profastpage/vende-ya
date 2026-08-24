@@ -262,7 +262,9 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
   const id = stream?.id || 'demo'
 
   
-  const [currentBid, setCurrentBid] = React.useState(auction.currentPrice)
+  const safeAuction = auction || { id: '', currentPrice: 0, bidCount: 0, buyNowPrice: 0, startingPrice: 0, bidIncrement: 2 };
+  const safeProduct = product || { title: 'Esperando producto...', description: 'El vendedor no ha iniciado una subasta.', stock: 0 };
+  const [currentBid, setCurrentBid] = React.useState(safeAuction.currentPrice)
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -271,10 +273,10 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
   React.useEffect(() => {
     if (!auction?.id) return
     const channel = supabase
-      .channel(`auction_${auction.id}`)
+      .channel(`auction_${safeAuction.id}`)
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'Auction', filter: `id=eq.${auction.id}` },
+        { event: 'UPDATE', schema: 'public', table: 'Auction', filter: `id=eq.${safeAuction.id}` },
         (payload) => {
           if (payload.new && payload.new.currentPrice) {
             setCurrentBid(payload.new.currentPrice)
@@ -291,10 +293,10 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
     handleQuickBid(inc); // update locally immediately for UX
     // In a real app, we'd hit an API route to securely record the bid.
     // For this prompt, we just trigger the UI update and let Supabase broadcast.
-    await supabase.from('Auction').update({ currentPrice: newPrice, bidCount: bidCount + 1 }).eq('id', auction.id);
+    await supabase.from('Auction').update({ currentPrice: newPrice, bidCount: bidCount + 1 }).eq('id', safeAuction.id);
   }
 
-  const [bidCount, setBidCount] = React.useState(auction.bidCount || MOCK_BIDS.length)
+  const [bidCount, setBidCount] = React.useState(safeAuction.bidCount || MOCK_BIDS.length)
   const [viewers] = React.useState(stream?.viewerCount ?? 248)
   const [likes, setLikes] = React.useState(stream?.likeCount ?? 1240)
   const [showCheckout, setShowCheckout] = React.useState(false)
@@ -375,8 +377,8 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
   }
 
   
-  const thumbnail = stream.thumbnailUrl ?? product?.images?.[0] ?? ''
-  const buyNowPrice = auction.buyNowPrice ?? currentBid + 50
+  const thumbnail = stream.thumbnailUrl ?? safeProduct.images?.[0] ?? ''
+  const buyNowPrice = safeAuction.buyNowPrice ?? currentBid + 50
   const initial = seller.displayName?.slice(0, 2).toUpperCase() ?? 'VY'
 
   /* ================================================================ *
@@ -517,12 +519,12 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
 
         {/* Product description & vendor info (Borderless design) */}
         <div className="px-2">
-          <h1 className="text-2xl font-black text-white">{product?.title || stream.title}</h1>
+          <h1 className="text-2xl font-black text-white">{safeProduct.title || stream.title}</h1>
           <p className="text-gray-400 text-sm mt-1">
             Por <span className="font-bold text-white">{seller.displayName}</span> • Envío desde <span className="font-bold text-white">{seller.department}</span> • Envío instantáneo con Yape/Plin
           </p>
           <p className="text-gray-500 text-xs leading-relaxed mt-2.5 max-w-2xl">
-            {product?.description}
+            {safeProduct.description}
           </p>
         </div>
 
@@ -563,7 +565,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
           </div>
 
           <div className="flex gap-3">
-            <PujarButton increment={auction.bidIncrement || 2} onBid={executeRealtimeBid} />
+            <PujarButton increment={safeAuction.bidIncrement || 2} onBid={executeRealtimeBid} />
             <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} />
           </div>
         </div>
@@ -605,7 +607,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
             ))}
             <div className="flex items-center justify-between text-xs pt-1.5 border-t border-zinc-800/40">
               <span className="font-bold text-zinc-500">Puja inicial</span>
-              <span className="font-mono text-zinc-500">{formatPEN(auction.startingPrice)}</span>
+              <span className="font-mono text-zinc-500">{formatPEN(safeAuction.startingPrice)}</span>
               <span className="text-[10px] text-zinc-500">inicio</span>
             </div>
           </div>
@@ -831,7 +833,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
                 </div>
 
                 {/* Primary CTA — más compacto (py-2.5 vs py-3) */}
-                <PujarButton increment={auction.bidIncrement || 2} onBid={executeRealtimeBid} full />
+                <PujarButton increment={safeAuction.bidIncrement || 2} onBid={executeRealtimeBid} full />
 
                 {/* Secondary CTA */}
                 <div className="mt-1.5">
@@ -840,7 +842,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
 
                 {/* Stock mini-info */}
                 <p className="mt-1.5 text-[10px] text-muted-foreground leading-snug text-center">
-                  Stock: <span className="font-bold text-lime-400">{product?.stock ?? 0} uds</span> · {bidCount} pujas · {formatViewers(viewers)}
+                  Stock: <span className="font-bold text-lime-400">{safeProduct.stock ?? 0} uds</span> · {bidCount} pujas · {formatViewers(viewers)}
                 </p>
               </motion.div>
             ) : (
@@ -880,8 +882,8 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       <CheckoutBottomSheet
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}
-        productId={product?.id ?? id}
-        productName={product?.title ?? 'Subasta'}
+        productId={safeProduct.id ?? id}
+        productName={safeProduct.title ?? 'Subasta'}
         price={buyNowPrice}
         source="live_stream"
         sellerId={seller.id}
@@ -894,7 +896,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
           receiverDni: '87654321',
           receiverName: 'Tú',
           receiverPhone: '999111222',
-          packageDescription: product?.title ?? 'Subasta',
+          packageDescription: safeProduct.title ?? 'Subasta',
           weightKg: 0.5,
           declaredValue: buyNowPrice,
         }}

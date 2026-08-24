@@ -1,7 +1,7 @@
 import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import LiveRoomClient from './LiveRoomClient'
-import { MOCK_AUCTION, MOCK_PROFILES } from '@/lib/vendeda/mock-data'
+import { MOCK_PROFILES } from '@/lib/vendeda/mock-data'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,9 +22,9 @@ export default async function StreamDetailPage({ params }: { params: Promise<{ i
   const auction = await db.auction.findFirst({
     where: { streamId: stream.id, status: 'live' },
     include: { product: true }
-  }) || MOCK_AUCTION
+  })
 
-  const product = auction.product
+  const product = auction?.product || null
   const seller = stream.seller || MOCK_PROFILES[0]
 
   return (

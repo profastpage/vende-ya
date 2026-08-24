@@ -22,10 +22,24 @@ export default async function LivePage() {
   }
 
   // Ensure 'isLive' flag matches 'status === live' just in case
-  const formattedStreams = streams.map(s => ({
+  
+  // Filter out any mock/seed streams from the catalog
+  streams = streams.filter(s => s.title !== 'Demostración de Kick');
+
+  // Deduplicate streams by sellerId (keep only the most recent one if a seller bugged out and created multiple)
+  const uniqueStreams = streams.reduce((acc, current) => {
+    const exists = acc.find(stream => stream.sellerId === current.sellerId);
+    if (!exists) {
+      acc.push(current);
+    }
+    return acc;
+  }, []);
+
+  const formattedStreams = uniqueStreams.map(s => ({
     ...s,
     isLive: s.status === 'live' || s.isLive
   }))
+
 
   return <LiveHubClient initialStreams={formattedStreams} />
 }
