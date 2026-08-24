@@ -1,10 +1,14 @@
-import { db } from '@/lib/db'
+const fs = require('fs');
+const path = require('path');
+const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\app\\en-vivo\\page.tsx');
+
+const content = `import { db } from '@/lib/db'
 import LiveHubClient from './LiveHubClient'
 
 export const dynamic = 'force-dynamic'
 
 export default async function LivePage() {
-  let streams: any[] = []
+  let streams = []
   try {
     // Fetch all active/scheduled streams from DB
     streams = await db.liveStream.findMany({
@@ -29,3 +33,7 @@ export default async function LivePage() {
 
   return <LiveHubClient initialStreams={formattedStreams} />
 }
+`;
+
+fs.writeFileSync(file, content, 'utf8');
+console.log('Created new page.tsx Server Component');
