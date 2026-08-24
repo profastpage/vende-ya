@@ -53,18 +53,24 @@ export async function GET(request: Request) {
     },
   });
 
-  const reviews = await db.review.findMany({
-    where: { revieweeId: sellerId },
-    include: { reviewer: true },
-    orderBy: { createdAt: 'desc' },
-    take: 5
-  });
+  let reviews = [];
+  try {
+    reviews = await db.review.findMany({
+      where: { revieweeId: sellerId },
+      include: { reviewer: true },
+      orderBy: { createdAt: 'desc' },
+      take: 5
+    });
+  } catch (e) { console.error("Review fetch error", e); }
 
-  const notifications = await db.notification.findMany({
-    where: { userId: sellerId },
-    orderBy: { createdAt: 'desc' },
-    take: 6
-  });
+  let notifications = [];
+  try {
+    notifications = await db.notification.findMany({
+      where: { userId: sellerId },
+      orderBy: { createdAt: 'desc' },
+      take: 6
+    });
+  } catch (e) { console.error("Notification fetch error", e); }
 
 
   if (!wallet) {
@@ -137,5 +143,7 @@ export async function GET(request: Request) {
     pendingDropoffs,
     copyrightReports: wallet.copyrightReports,
     alerts,
-  });
+      reviews,
+      notifications,
+    });
 }

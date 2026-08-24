@@ -11,8 +11,7 @@ import {
 } from 'lucide-react'
 import type { Profile, Product, Auction } from '@/lib/vendeda/types'
 import {
-  MOCK_STREAMS, MOCK_AUCTION, MOCK_BIDS,
-  MOCK_PROFILES, MOCK_TRENDING_AUCTIONS,
+  
 } from '@/lib/vendeda/mock-data'
 import { formatViewers, formatPEN, timeAgoEs } from '@/lib/vendeda/format'
 import CheckoutBottomSheet from '@/components/vendeda/CheckoutBottomSheet'
@@ -39,13 +38,6 @@ interface ChatMessage {
   isBot?: boolean
 }
 
-const INITIAL_CHAT: ChatMessage[] = [
-  { id: '1', username: 'María', text: '¡Mío! Reservo talla M en terracota 🔥', color: 'text-amber-400' },
-  { id: '2', username: 'YaBot AI', text: 'Quedan 25 unidades en stock. Envío a todo Perú desde S/.8 🚚', color: 'text-purple-400', isBot: true },
-  { id: '3', username: 'Diego', text: 'S/. 38! 🔥 voy por más', color: 'text-sky-400' },
-  { id: '4', username: 'Carla', text: 'Yape listo, ¿aceptan Plin también?', color: 'text-lime-400' },
-  { id: '5', username: 'YaBot AI', text: 'Sí Carla, aceptamos Yape, Plin y tarjeta. Pago 100% protegido 💖', color: 'text-purple-400', isBot: true },
-]
 
 const QUICK_BIDS = [2, 5, 10]
 
@@ -296,11 +288,11 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
     await supabase.from('Auction').update({ currentPrice: newPrice, bidCount: bidCount + 1 }).eq('id', safeAuction.id);
   }
 
-  const [bidCount, setBidCount] = React.useState(safeAuction.bidCount || MOCK_BIDS.length)
+  const [bidCount, setBidCount] = React.useState(safeAuction.bidCount || 0); const [bids, setBids] = React.useState([]);
   const [viewers] = React.useState(stream?.viewerCount ?? 248)
   const [likes, setLikes] = React.useState(stream?.likeCount ?? 1240)
   const [showCheckout, setShowCheckout] = React.useState(false)
-  const [chat, setChat] = React.useState<ChatMessage[]>(INITIAL_CHAT)
+  const [chat, setChat] = React.useState<ChatMessage[]>([])
   const [chatInput, setChatInput] = React.useState('')
   const [secondsLeft, setSecondsLeft] = React.useState(164)
   const [liked, setLiked] = React.useState(false)
@@ -595,10 +587,10 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
         <div className="p-4 border-t border-zinc-800 border-b border-zinc-800 bg-zinc-950/80">
           <p className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 flex items-center justify-between">
             <span>Historial de pujas</span>
-            <span className="text-zinc-500 tabular-nums">{MOCK_BIDS.length}</span>
+            <span className="text-zinc-500 tabular-nums">{bidCount}</span>
           </p>
           <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1 no-scrollbar">
-            {MOCK_BIDS.slice().reverse().map((b) => (
+            {bids.slice().reverse().map((b: any) => (
               <div key={b.id} className="flex items-center justify-between text-xs">
                 <span className="font-bold text-sky-400">{b.bidder?.displayName}</span>
                 <span className="font-mono font-black text-amber-400">{formatPEN(b.amount)}</span>
