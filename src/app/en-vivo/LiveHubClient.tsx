@@ -9,6 +9,7 @@ import {
 import { formatViewers } from '@/lib/vendeda/format'
 import { ROUTES } from '@/lib/vendeda/routes'
 import type { LiveStream, Profile } from '@/lib/vendeda/types'
+import { useLiveViewers } from '@/hooks/useLiveViewers'
 
 /* ------------------------------------------------------------------ */
 /* Dark Stream Hub — /en-vivo index · "Ultra Inmersiva"               */
@@ -81,6 +82,7 @@ const itemVariants = {
 /* Featured hero card — large, glassmorphism, big CTA                 */
 /* ────────────────────────────────────────────────────────────────── */
 function FeaturedHeroCard({ stream }: { stream: LiveStream }) {
+  const viewers = useLiveViewers(stream.id, stream.viewerCount)
   const seller = stream.seller || { id: "0", displayName: "Usuario", rating: 5, department: "Lima", isVerified: false, username: "usuario" }
   const bucket = streamBucket(stream)
 
@@ -128,7 +130,7 @@ function FeaturedHeroCard({ stream }: { stream: LiveStream }) {
         <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/60 backdrop-blur-md border border-border rounded-full px-3 py-1.5">
           <Eye className="h-3.5 w-3.5 text-amber-400" />
           <span className="text-[11px] font-bold text-foreground tabular-nums">
-            {stream.viewerCount}
+            {viewers}
           </span>
         </div>
 
@@ -142,7 +144,7 @@ function FeaturedHeroCard({ stream }: { stream: LiveStream }) {
               </span>
               <span className="text-foreground/30" aria-hidden>·</span>
               <span className="text-[10px] font-medium text-muted-foreground">
-                {formatViewers(stream.viewerCount)}
+                {formatViewers(viewers)}
               </span>
             </div>
 
@@ -235,6 +237,7 @@ function FilterChip({
 /* Stream card — 3:4 aspect, image-first                              */
 /* ────────────────────────────────────────────────────────────────── */
 function StreamCard({ stream }: { stream: LiveStream }) {
+  const viewers = useLiveViewers(stream.id, stream.viewerCount)
   const seller = stream.seller || { id: "0", displayName: "Usuario", rating: 5, department: "Lima", isVerified: false, username: "usuario" }
   const bucket = streamBucket(stream)
 
@@ -283,7 +286,7 @@ function StreamCard({ stream }: { stream: LiveStream }) {
           <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-md border border-border rounded-full px-2 py-1">
             <Eye className="h-3 w-3 text-amber-400" />
             <span className="text-[10px] font-bold text-foreground tabular-nums">
-              {stream.viewerCount}
+              {viewers}
             </span>
           </div>
 
