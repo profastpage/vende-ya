@@ -382,9 +382,10 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       <main className="flex-1 space-y-6 flex flex-col min-w-0">
         {/* Video Player */}
         <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-zinc-800">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${thumbnail})` }}
+          <iframe
+            src={`https://kick.com/${stream?.kickUsername || 'gozustrike'}`}
+            className="absolute inset-0 w-full h-full border-none pointer-events-auto"
+            allow="autoplay; fullscreen"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
@@ -625,9 +626,10 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
     <div className="md:hidden fixed inset-0 z-50 bg-black text-foreground select-none overflow-hidden">
       {/* Video background */}
       <div className="absolute inset-0 z-0">
-        <div
-          className="w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${thumbnail})` }}
+        <iframe
+          src={`https://kick.com/${stream?.kickUsername || 'gozustrike'}`}
+          className="w-full h-full object-cover border-none pointer-events-auto scale-[3.16] origin-center"
+          allow="autoplay; fullscreen"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/95" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
