@@ -329,7 +329,11 @@ function VenderInner() {
         {/* ─── Mode selector ─── */}
         <section>
           <h2 className="text-xl md:text-2xl font-bold font-display text-foreground mb-1">¿Cómo quieres empezar?</h2>
-          <p className="text-sm text-muted-foreground mb-4">{isLive ? "Ingresa un título para tu transmisión en vivo y el precio base del artículo que ofrecerás." : "Completa los campos obligatorios marcados con asterisco. Las fotos son la primera impresión del comprador."}</p>
+          <p className="text-sm text-muted-foreground mb-4">
+              {isLive 
+                ? "Ingresa el título de tu transmisión en vivo y el precio base del artículo que ofrecerás." 
+                : "Completa los campos obligatorios marcados con asterisco. Las fotos son la primera impresión del comprador: usa luz natural y muestra detalles del producto."}
+            </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <ModeCard
                 active={mode === 'marketplace'}
@@ -466,8 +470,9 @@ function VenderInner() {
         <section id="producto" className="scroll-mt-20">
           <h2 className="text-xl md:text-2xl font-bold font-display text-foreground mb-1">{isLive ? "Detalles de la transmisión" : "Detalles del producto"}</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Completa los campos obligatorios marcados con asterisco. Cuanta más información des, mayor será la conversión.
-            Las fotos son la primera impresión del comprador: usa luz natural y muestra detalles del producto.
+            {isLive 
+              ? "Ingresa el título de tu transmisión en vivo y el precio base del artículo que ofrecerás." 
+              : "Completa los campos obligatorios marcados con asterisco. Las fotos son la primera impresión del comprador: usa luz natural y muestra detalles del producto."}
           </p>
           <form className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-6 space-y-5">
             <div className="flex items-center gap-2 mb-2">
@@ -580,11 +585,9 @@ function VenderInner() {
             )}
 
             {/* Auction toggle */}
-            <div className="rounded-xl border border-border bg-muted p-4 space-y-3">
-              
-
-              {isAuction && (
-                <div className="grid grid-cols-2 gap-3 pl-7">
+            {isAuction && (
+              <div className="rounded-xl border border-border bg-muted p-4 space-y-3">
+                <div className="grid grid-cols-2 gap-3 pl-2">
                   <div className="space-y-2">
                     <Label htmlFor="starting" className="text-muted-foreground">Precio inicial (S/.)</Label>
                     <Input
@@ -611,9 +614,11 @@ function VenderInner() {
                     </select>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
+            {!isLive && (
+            <>
             {/* Payment methods */}
             <div className="space-y-2">
               <Label className="text-muted-foreground">Métodos de pago aceptados</Label>
@@ -653,6 +658,8 @@ function VenderInner() {
                 className="h-12 bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-amber-400/40"
               />
             </div>
+            </>
+            )}
 
             <Button
               onClick={handleSubmit}
@@ -665,7 +672,7 @@ function VenderInner() {
                 </span>
               ) : (
                 <>
-                  {isAuction ? '🎉 Iniciar subasta' : '📦 Publicar producto'} <ArrowRight className="h-5 w-5" />
+                  {isAuction ? '🎉 Iniciar Subasta en Vivo' : isLive ? '🎥 Empezar Live Shopping' : '📦 Publicar en Marketplace'} <ArrowRight className="h-5 w-5" />
                 </>
               )}
             </Button>
