@@ -21,9 +21,11 @@ import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { cn } from '@/lib/utils'
 import ThemeToggle from './ThemeToggle'
+import { useAuth } from './AuthProvider'
 
 export function MobileTopActions() {
   const pathname = usePathname()
+  const { user } = useAuth()
   // Memoize active states to prevent re-renders
   const liveActive = React.useMemo(() => pathname.startsWith('/en-vivo'), [pathname])
   const notifActive = React.useMemo(() => pathname.startsWith('/notificaciones'), [pathname])
@@ -104,7 +106,12 @@ export function MobileTopActions() {
 
       {/* === Derecha: Tema + Alertas === */}
       <div className="flex items-center gap-2">
-        <ThemeToggle />
+        {user?.email === 'profastpage@gmail.com' && (
+            <Link href='/admin' className='p-2 bg-red-600/20 text-red-500 rounded-full hover:bg-red-600/40 transition-colors'>
+              <span className='text-lg'>👑</span>
+            </Link>
+          )}
+          <ThemeToggle />
         <Link
           href={ROUTES.notificaciones}
           className={cn(

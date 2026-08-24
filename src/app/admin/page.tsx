@@ -1,10 +1,10 @@
-﻿import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/vendeda/supabase-server'
 import { db } from '@/lib/db'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, ShoppingBag, Video, DollarSign, Activity } from 'lucide-react'
+import { Users, ShoppingBag, Video, DollarSign, Activity, Ban, Skull } from 'lucide-react'
+import { banUser, unbanUser, killStream } from './actions'
 
-// Super Admin Email
 const SUPER_ADMIN_EMAIL = 'profastpage@gmail.com'
 
 export default async function AdminDashboardPage() {
@@ -17,150 +17,179 @@ export default async function AdminDashboardPage() {
 
   // Fetch real statistics from Prisma
   let stats = {
-    users: 0,
-    products: 0,
-    liveStreams: 0,
-    orders: 0,
-    totalRevenue: 0
+    users: 0, products: 0, liveStreams: 0, orders: 0,
+    totalRevenue: 0, platformCommissions: 0,
+    marketplaceRevenue: 0, auctionRevenue: 0
   }
 
-  let recentUsers: any[] = []
+  let usersList: any[] = []
+  let activeStreamsList: any[] = []
 
   try {
-    const [usersCount, productsCount, streamsCount, ordersCount, revenueResult, users] = await Promise.all([
-      db.profile.count(),
-      db.product.count(),
-      db.liveStream.count(),
-      db.order.count(),
-      db.order.aggregate({
-        _sum: { totalAmount: true }
-      }),
-      db.profile.findMany({
-        take: 10,
-        orderBy: { createdAt: 'desc' }
-      })
+    const [usersCount, productsCount, streamsCount, ordersCount] = await Promise.all([
+      db.profile.count(), db.product.count(), db.liveStream.count(), db.order.count()
     ])
 
-    stats = {
-      users: usersCount,
-      products: productsCount,
-      liveStreams: streamsCount,
-      orders: ordersCount,
-      totalRevenue: revenueResult._sum.totalAmount || 0
-    }
-    recentUsers = users
+    const allOrders = await db.order.findMany({
+      select: { totalAmount: true, platformCommissionAmount: true, source: true }
+    })
 
-  } catch (dbError) {
-    console.error("Error fetching admin stats:", dbError)
+    const totalRev = allOrders.reduce((acc, o) => acc + o.totalAmount, 0)
+    const commRev = allOrders.reduce((acc, o) => acc + o.platformCommissionAmount, 0)
+    const mpRev = allOrders.filter(o => o.source === 'marketplace').reduce((acc, o) => acc + o.platformCommissionAmount, 0)
+    const auctionRev = allOrders.filter(o => o.source === 'live_stream').reduce((acc, o) => acc + o.platformCommissionAmount, 0)
+
+    stats = {
+      users: usersCount, products: productsCount, liveStreams: streamsCount, orders: ordersCount,
+      totalRevenue: totalRev, platformCommissions: commRev,
+      marketplaceRevenue: mpRev, auctionRevenue: auctionRev
+    }
+
+    usersList = await db.profile.findMany({ take: 20, orderBy: { createdAt: 'desc' } })
+    activeStreamsList = await db.liveStream.findMany({ 
+      where: { isLive: true },
+      include: { seller: true },
+      orderBy: { createdAt: 'desc' }
+    })
+  } catch (error) {
+    console.error(error)
   }
 
   return (
-    <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-8 pt-20">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-black tracking-tight flex items-center gap-2">
-          <Activity className="w-8 h-8 text-[#FE2C55]" /> Panel de Control Ultimate
-        </h1>
-        <p className="text-muted-foreground">Bienvenido, Super Administrador. Visión global del ecosistema Vende Ya.</p>
-      </div>
+    <div className="min-h-screen bg-black text-white p-6 pb-24 md:p-10">
+      <div className="max-w-7xl mx-auto space-y-8">
+        
+        <div>
+          <h1 className="text-4xl font-black text-[#FE2C55] flex items-center gap-3">
+            👑 PANEL MODO DIOS
+          </h1>
+          <p className="text-zinc-400 mt-2">Control total y absoluto sobre Vende Ya.</p>
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Usuarios Registrados</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.users}</div>
-            <p className="text-xs text-muted-foreground">Perfiles activos</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Productos Listados</CardTitle>
-            <ShoppingBag className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.products}</div>
-            <p className="text-xs text-muted-foreground">En el marketplace</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ventas Totales</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">S/ {stats.totalRevenue.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">{stats.orders} órdenes procesadas</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Live Streams</CardTitle>
-            <Video className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.liveStreams}</div>
-            <p className="text-xs text-muted-foreground">Transmisiones históricas</p>
-          </CardContent>
-        </Card>
-      </div>
+        {/* METRICS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-zinc-900 border-zinc-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-zinc-400">Total Ganancias (Comisiones)</CardTitle>
+              <DollarSign className="w-4 h-4 text-[#FE2C55]" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-black text-white">S/ {stats.platformCommissions.toFixed(2)}</div>
+              <div className="text-xs text-zinc-500 mt-1 flex justify-between">
+                <span>Subastas: S/ {stats.auctionRevenue.toFixed(2)}</span>
+                <span>Marketplace: S/ {stats.marketplaceRevenue.toFixed(2)}</span>
+              </div>
+            </CardContent>
+          </Card>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Últimos Usuarios Registrados</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-8">
-              {recentUsers.map(user => (
-                <div key={user.id} className="flex items-center">
-                  <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center font-bold">
-                    {user.displayName[0]}
+          <Card className="bg-zinc-900 border-zinc-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-zinc-400">Volumen Procesado (Bruto)</CardTitle>
+              <Activity className="w-4 h-4 text-emerald-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">S/ {stats.totalRevenue.toFixed(2)}</div>
+              <p className="text-xs text-zinc-500 mt-1">En {stats.orders} pedidos</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-zinc-900 border-zinc-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-zinc-400">Vendedores & Usuarios</CardTitle>
+              <Users className="w-4 h-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.users}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-zinc-900 border-zinc-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-zinc-400">Transmisiones Históricas</CardTitle>
+              <Video className="w-4 h-4 text-purple-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.liveStreams}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* ACTIVE STREAMS TO KILL */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold border-b border-zinc-800 pb-2 text-white">🔴 Transmisiones En Vivo (Botón del Pánico)</h2>
+          {activeStreamsList.length === 0 ? (
+            <p className="text-zinc-500">No hay nadie transmitiendo en este momento.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeStreamsList.map(stream => (
+                <div key={stream.id} className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl flex justify-between items-center">
+                  <div>
+                    <h3 className="font-bold text-white">{stream.title}</h3>
+                    <p className="text-xs text-zinc-400">Vendedor: {stream.seller?.displayName || 'Desconocido'}</p>
+                    <p className="text-xs text-zinc-400">Kick: {stream.kickUsername || 'N/A'}</p>
                   </div>
-                  <div className="ml-4 space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                    <p className="text-sm text-muted-foreground">@{user.username}</p>
-                  </div>
-                  <div className="ml-auto font-medium text-xs text-muted-foreground">
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </div>
+                  <form action={async () => {
+                    'use server';
+                    await killStream(stream.id);
+                  }}>
+                    <button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors">
+                      <Skull className="w-4 h-4" /> Matar Stream
+                    </button>
+                  </form>
                 </div>
               ))}
-              {recentUsers.length === 0 && (
-                <p className="text-sm text-muted-foreground">No hay usuarios recientes.</p>
-              )}
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
 
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Infraestructura & Costos</CardTitle>
-          </CardHeader>
-          <CardContent>
-             <div className="space-y-4">
-               <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                  <h4 className="font-semibold text-sm mb-1">ImageKit (Marketplace)</h4>
-                  <p className="text-xs text-muted-foreground mb-2">Límite mensual: 20GB gratis</p>
-                  <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
-                    <div className="bg-green-500 w-[5%] h-full"></div>
-                  </div>
-               </div>
-               
-               <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                  <h4 className="font-semibold text-sm mb-1">Bunny.net (Live Streams)</h4>
-                  <p className="text-xs text-muted-foreground mb-2">Volumen Estimado (Video HLS)</p>
-                  <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
-                    <div className="bg-blue-500 w-[15%] h-full"></div>
-                  </div>
-               </div>
-             </div>
-          </CardContent>
-        </Card>
+        {/* USERS TO BAN */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold border-b border-zinc-800 pb-2 text-white">🔨 Gestión de Vendedores (Banear)</h2>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+            <table className="w-full text-left text-sm text-zinc-300">
+              <thead className="bg-zinc-950 text-xs uppercase text-zinc-500">
+                <tr>
+                  <th className="px-4 py-3">Usuario</th>
+                  <th className="px-4 py-3">Email/ID</th>
+                  <th className="px-4 py-3">Estado</th>
+                  <th className="px-4 py-3 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800">
+                {usersList.map((u: any) => (
+                  <tr key={u.id} className="hover:bg-zinc-800/50">
+                    <td className="px-4 py-3 font-medium text-white">{u.displayName}</td>
+                    <td className="px-4 py-3 text-zinc-500">{u.username}</td>
+                    <td className="px-4 py-3">
+                      {u.isBanned ? (
+                        <span className="text-red-500 font-bold bg-red-500/10 px-2 py-1 rounded">BANEADO</span>
+                      ) : (
+                        <span className="text-emerald-500 font-bold bg-emerald-500/10 px-2 py-1 rounded">ACTIVO</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {u.username === 'profastpage' || u.id === 'system-demo-1' ? (
+                        <span className="text-xs text-zinc-600">INMORTAL</span>
+                      ) : (
+                        <form action={async () => {
+                          'use server';
+                          if (u.isBanned) await unbanUser(u.id);
+                          else await banUser(u.id);
+                        }}>
+                          <button type="submit" className={`font-bold px-3 py-1.5 rounded-lg flex items-center gap-2 ml-auto ${u.isBanned ? 'bg-zinc-700 text-white' : 'bg-red-900/50 text-red-500 hover:bg-red-600 hover:text-white'}`}>
+                            <Ban className="w-3.5 h-3.5" />
+                            {u.isBanned ? 'Desbanear' : 'Banear'}
+                          </button>
+                        </form>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   )
