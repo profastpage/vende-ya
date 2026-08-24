@@ -3,7 +3,7 @@
 import { InStreamCheckoutDrawer } from './InStreamCheckoutDrawer'
 
 import React from 'react'
-import { Heart, MessageCircle, Share2, Plus, ShoppingBag } from 'lucide-react'
+import { Heart, MessageCircle, Share2, Plus, ShoppingBag, Maximize, Minimize } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { formatPEN } from '@/lib/vendeda/format'
 import { cn } from '@/lib/utils'
