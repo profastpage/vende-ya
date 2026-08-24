@@ -52,9 +52,9 @@ export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
           </a>
         </nav>
         <div className="mt-6 pt-6 border-t border-border">
-          <p className="text-muted-foreground text-xs px-3">Inicia sesiÃƒÂ³n para seguir a creadores, dar me gusta a videos y ver comentarios.</p>
+          <p className="text-muted-foreground text-xs px-3">Inicia sesióntarios.</p>
           <button className="mt-4 w-full py-2.5 border border-[#FE2C55] text-[#FE2C55] font-bold rounded-lg hover:bg-[#FE2C55]/10">
-            Iniciar sesiÃƒÂ³n
+            Iniciar sesión
           </button>
         </div>
       </aside>

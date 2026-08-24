@@ -166,7 +166,7 @@ const PROVIDER_VISUALS: Record<
   apple: {
     label: 'Apple',
     bgClass: 'bg-black text-white border-white/15',
-    hoverClass: 'hover:bg-card hover:border-white/25',
+    hoverClass: 'hover:bg-zinc-800 hover:text-white',
     Icon: AppleIcon,
   },
 }

@@ -136,7 +136,7 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
         )}
         {msg.isBot && <BadgeCheck className="h-3 w-3 text-purple-300" />}
       </div>
-      <p className="mt-0.5 text-foreground leading-snug">{msg.text}</p>
+      <p className="mt-0.5 text-zinc-100 leading-snug">{msg.text}</p>
     </motion.div>
   )
 }
@@ -161,7 +161,7 @@ function ChatInputBar({
         onChange={(e) => setChatInput(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && onSend()}
         placeholder="Escribe..."
-        className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none py-1.5"
+        className="flex-1 bg-transparent text-xs text-white placeholder:text-zinc-500 outline-none py-1.5"
       />
       <motion.button
         whileTap={{ scale: 0.92 }}
@@ -197,7 +197,7 @@ function CountdownCard({
         <Clock className="inline h-2.5 w-2.5 mr-1" />
         Cierra en
       </span>
-      <span className={`font-mono font-black tabular-nums tracking-tight ${size === 'sm' ? 'text-base' : 'text-xl'} ${lowTime ? 'text-rose-200' : 'text-foreground'}`}>
+      <span className={`font-mono font-black tabular-nums tracking-tight ${size === 'sm' ? 'text-base' : 'text-xl'} ${lowTime ? 'text-rose-200' : 'text-white'}`}>
         {mm}:{ss}
       </span>
     </motion.div>
@@ -249,7 +249,7 @@ function ComprarYaButton({
     >
       <ShoppingBag className="h-4 w-4 text-amber-400" />
       <span className="text-muted-foreground">Comprar ya</span>
-      <span className="text-foreground font-mono font-black">{formatPEN(buyNowPrice)}</span>
+      <span className="text-white font-mono font-black">{formatPEN(buyNowPrice)}</span>
     </motion.button>
   )
 }
@@ -356,7 +356,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
    * DESKTOP LAYOUT — 3 columns (55% video / 25% auction / 20% chat)   *
    * ================================================================ */
   const DesktopLayout = (
-    <div className="hidden md:flex gap-6 max-w-7xl mx-auto p-4 bg-black text-foreground min-h-[calc(100vh-4rem)]">
+    <div className="hidden md:flex gap-6 max-w-7xl mx-auto p-4 bg-black text-zinc-100 min-h-[calc(100vh-4rem)]">
       {/* COLUMNA IZQUIERDA: Área Principal (Video, Producto y Puja) */}
       <main className="flex-1 space-y-6 flex flex-col min-w-0">
         {/* Video Player */}

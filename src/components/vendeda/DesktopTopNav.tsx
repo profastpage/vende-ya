@@ -151,7 +151,9 @@ export function DesktopTopNav() {
             <Plus className="h-4 w-4" /> Vender
           </Button>
         </Link>
-        <div className="relative" ref={dropdownRef}>
+        {user ? (
+          <div className="relative" ref={dropdownRef}>
+
           <button
             onClick={() => setOpen(!open)}
             className="flex items-center gap-1.5 pl-2 pr-3 h-10 rounded-lg hover:bg-accent text-gray-700 hover:text-foreground transition-colors focus:outline-none"
@@ -217,7 +219,13 @@ export function DesktopTopNav() {
               </button>
             </div>
           )}
-        </div>
+        
+          </div>
+        ) : (
+          <Link href="/login">
+            <Button variant="outline" className="font-bold border-zinc-200">Iniciar sesión</Button>
+          </Link>
+        )}
       </div>
     </header>
   )
