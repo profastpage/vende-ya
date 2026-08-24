@@ -36,28 +36,7 @@ export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
   return (
     <div className="flex w-full h-[100dvh] bg-background text-foreground overflow-hidden">
       {/* Left Sidebar - Desktop Only */}
-      <aside className="hidden md:flex flex-col w-[250px] border-r border-border p-4 shrink-0 overflow-y-auto">
-        <nav className="flex flex-col gap-2">
-          <a href="/" className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted text-[#FE2C55] font-bold">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            Para ti
-          </a>
-          <a href="/siguiendo" className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted font-semibold text-foreground/90">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-            Siguiendo
-          </a>
-          <a href="/marketplace" className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted font-semibold text-foreground/90">
-            <ShoppingBag className="w-6 h-6" />
-            Explorar Marketplace
-          </a>
-        </nav>
-        <div className="mt-6 pt-6 border-t border-border">
-          <p className="text-muted-foreground text-xs px-3">Inicia sesióntarios.</p>
-          <button className="mt-4 w-full py-2.5 border border-[#FE2C55] text-[#FE2C55] font-bold rounded-lg hover:bg-[#FE2C55]/10">
-            Iniciar sesión
-          </button>
-        </div>
-      </aside>
+      
 
       {/* Main Feed Container */}
       <div className="flex-1 w-full h-full snap-y snap-mandatory overflow-y-scroll no-scrollbar relative flex flex-col items-center">
@@ -79,14 +58,15 @@ function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
         
         {/* Video Background / Kick Player */}
         {item.kickUsername ? (
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            <iframe
-              src={`https://player.kick.com/${item.kickUsername}?autoplay=true&muted=false`}
-              className="w-full h-full object-cover scale-150"
-              style={{ border: 'none' }}
-              allow="autoplay; fullscreen"
-            />
-          </div>
+          <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
+              <iframe
+                src={`https://player.kick.com/${item.kickUsername}?autoplay=true&muted=false`}
+                className="w-full h-[50%] md:h-full object-contain md:object-cover"
+                style={{ border: 'none' }}
+                allow="autoplay; fullscreen"
+                allowFullScreen
+              />
+            </div>
         ) : (
           <div 
             className="absolute inset-0 bg-cover bg-center z-0"
