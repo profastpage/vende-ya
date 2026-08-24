@@ -19,7 +19,7 @@ export async function createKickStream(title: string, kickUsername: string, isAu
       sellerId: user.id,
       title: title,
       description: 'Producto vendido en transmisión en vivo por Kick',
-      price: price,
+      basePrice: price,
       currency: 'PEN',
       stock: 1,
       images: "[]",
