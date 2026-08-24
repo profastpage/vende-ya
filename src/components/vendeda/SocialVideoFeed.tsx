@@ -50,6 +50,7 @@ export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
 
 function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
   const [isLiked, setIsLiked] = React.useState(false)
+  const [isZoomed, setIsZoomed] = React.useState(false)
 
   return (
     <div className="relative w-full md:w-auto h-[100dvh] md:h-[calc(100vh-64px)] snap-center snap-always flex justify-center shrink-0 md:py-4">
@@ -61,8 +62,8 @@ function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
           <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
               <iframe
                 src={`https://player.kick.com/${item.kickUsername}?autoplay=true&muted=false`}
-                className="w-full h-full object-cover"
-                style={{ border: 'none' }}
+                className="w-full h-full object-cover transition-transform duration-300 origin-center"
+                style={{ border: 'none', transform: isZoomed ? 'scale(3.16)' : 'scale(1)' }}
                 allow="autoplay; fullscreen"
                 
               />
@@ -115,19 +116,19 @@ function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
 
         {/* Mobile Right Interaction Panel (Inside Video Container) - Hidden on md+ */}
         <div className="absolute right-2 bottom-20 flex flex-col items-center gap-5 z-20 md:hidden">
-          <InteractionButtons item={item} isLiked={isLiked} setIsLiked={setIsLiked} isMobile={true} />
+          <InteractionButtons item={item} isLiked={isLiked} setIsLiked={setIsLiked} isMobile={true} isZoomed={isZoomed} setIsZoomed={setIsZoomed} />
         </div>
       </div>
 
       {/* Desktop Right Interaction Panel (Outside Video Container) - Visible only on md+ */}
       <div className="hidden md:flex flex-col items-center gap-5 z-20 ml-4 self-end pb-8">
-        <InteractionButtons item={item} isLiked={isLiked} setIsLiked={setIsLiked} isMobile={false} />
+        <InteractionButtons item={item} isLiked={isLiked} setIsLiked={setIsLiked} isMobile={false} isZoomed={isZoomed} setIsZoomed={setIsZoomed} />
       </div>
     </div>
   )
 }
 
-function InteractionButtons({ item, isLiked, setIsLiked, isMobile }: { item: SocialFeedItem, isLiked: boolean, setIsLiked: (v: boolean) => void, isMobile: boolean }) {
+function InteractionButtons({ item, isLiked, setIsLiked, isMobile, isZoomed, setIsZoomed }: { item: SocialFeedItem, isLiked: boolean, setIsLiked: (v: boolean) => void, isMobile: boolean, isZoomed: boolean, setIsZoomed: (v: boolean) => void }) {
   return (
     <>
       {/* Avatar */}
