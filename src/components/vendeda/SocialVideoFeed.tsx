@@ -153,6 +153,16 @@ function InteractionButtons({ item, isLiked, setIsLiked, isMobile, isZoomed, set
         <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{item.likes + (isLiked ? 1 : 0)}</span>
       </button>
 
+      
+      {/* Zoom Toggle */}
+      <button className="flex flex-col items-center gap-1 group" onClick={() => setIsZoomed(!isZoomed)}>
+        <div className={`p-2 rounded-full ${isMobile ? 'bg-background/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
+          {isZoomed ? <Minimize className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-white' : 'text-foreground'}`} /> : <Maximize className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-white' : 'text-foreground'}`} />}
+        </div>
+        <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{isZoomed ? 'Alejar' : 'Acercar'}</span>
+      </button>
+
+
       {/* Comments */}
       <button className="flex flex-col items-center gap-1 group">
         <div className={`p-2 rounded-full ${isMobile ? 'bg-background/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
