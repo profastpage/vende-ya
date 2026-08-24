@@ -21,7 +21,7 @@ import { CATEGORIES, PAYMENT_METHODS } from '@/lib/vendeda/constants'
 import { formatPEN } from '@/lib/vendeda/format'
 import { cn } from '@/lib/utils'
 
-type Mode = 'quick' | 'live' | 'ai'
+type Mode = 'marketplace' | 'live_shopping' | 'live_auction'
 
 const PAGE_TITLE = 'Vender'
 const STEPS = [
@@ -45,7 +45,7 @@ const STEPS = [
     n: 3,
     icon: Radio,
     title: 'Inicia tu en vivo',
-    desc: 'Genera tu clave de stream para OBS Studio y comienza a transmitir. Los espectadores pujan en tiempo real con latencia menor a 2 segundos vía Cloudflare Stream.',
+    desc: 'Genera tu clave de stream para OBS Studio y comienza a transmitir. Tus compradores te ven en tiempo real y sin latencia. Interacción 100% directa.',
     color: 'text-rose-600 dark:text-rose-400',
     bg: 'from-rose-200/50 to-rose-100/30 dark:from-rose-400/15 dark:to-rose-500/5',
   },
@@ -146,7 +146,7 @@ function VenderInner() {
         title: '✨ Producto extraído con IA',
         description: `Sugerencia: ${data.title} — S/. ${data.suggestedPrice}`,
       })
-      setMode('quick') // Switch to the form
+      setMode('marketplace') // Switch to the form
     } catch (err) {
       toast({ title: '❌ Error de IA', description: 'Intenta de nuevo.', variant: 'destructive' })
     } finally {
@@ -333,35 +333,35 @@ function VenderInner() {
             Puedes cambiar de modo en cualquier momento sin perder lo que ya diligenciaste.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <ModeCard
-              active={mode === 'quick'}
-              onClick={() => setMode('quick')}
-              icon={Tag}
-              title="Subasta rápida"
-              desc="Publica y subasta en 3 minutos"
-              color="text-amber-400"
-            />
-            <ModeCard
-              active={mode === 'live'}
-              onClick={() => setMode('live')}
-              icon={Video}
-              title="Subastar en vivo"
-              desc="Conecta tu cámara y subasta en directo"
-              color="text-fuchsia-400"
-            />
-            <ModeCard
-              active={mode === 'ai'}
-              onClick={() => setMode('ai')}
-              icon={Sparkles}
-              title="Extraer con IA"
-              desc="Describe y la IA arma el listing"
-              color="text-purple-400"
-            />
-          </div>
-        </section>
+              <ModeCard
+                active={mode === 'marketplace'}
+                onClick={() => setMode('marketplace')}
+                icon={Tag}
+                title="Vender en Marketplace"
+                desc="Venta estática a precio fijo"
+                color="text-amber-400"
+              />
+              <ModeCard
+                active={mode === 'live_shopping'}
+                onClick={() => setMode('live_shopping')}
+                icon={Video}
+                title="Live Shopping"
+                desc="Vende en vivo a precio fijo (Stock)"
+                color="text-fuchsia-400"
+              />
+              <ModeCard
+                active={mode === 'live_auction'}
+                onClick={() => setMode('live_auction')}
+                icon={Sparkles}
+                title="Subasta en Vivo"
+                desc="Transmite y subasta al mejor postor"
+                color="text-purple-400"
+              />
+            </div>
+          </section>
 
         {/* ─── AI extraction mode ─── */}
-        {mode === 'ai' && (
+        {mode === 'live_auction' && (
           <motion.section
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -396,7 +396,7 @@ function VenderInner() {
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" /> Extraer con IA
+                  <Sparkles className="h-4 w-4" /> Subasta en Vivo
                 </span>
               )}
             </Button>
@@ -425,7 +425,7 @@ function VenderInner() {
         )}
 
         {/* ─── Live stream setup ─── */}
-        {mode === 'live' && (
+        {mode === 'live_shopping' && (
           <motion.section
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -447,7 +447,7 @@ function VenderInner() {
                   <li>Recibirás una <strong className="text-amber-700 dark:text-amber-300">clave de stream</strong> única (ej. para OBS Studio).</li>
                   <li>Configura OBS con: <code className="bg-amber-100 dark:bg-black/40 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded text-xs">rtmp://stream.vendeya.pe/live</code></li>
                   <li>Pega tu clave de stream y empieza a transmitir desde tu cámara o celular.</li>
-                  <li>Los viewers ven el stream con ~2s de latencia vía Cloudflare Stream y pueden pujar en vivo.</li>
+                  <li>Tus seguidores podrán ver tu transmisión en tiempo real y comprar directamente desde la app.</li>
                 </ol>
               </div>
               <Button className="w-full h-11 bg-gradient-to-r from-amber-400 to-fuchsia-600 hover:from-amber-500 hover:to-fuchsia-700 text-zinc-950 font-bold border-0">
