@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
+import { createKickStream } from './actions'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { CATEGORIES, PAYMENT_METHODS } from '@/lib/vendeda/constants'
 import { formatPEN } from '@/lib/vendeda/format'
@@ -80,6 +81,7 @@ function VenderInner() {
 
   // Form state
   const [title, setTitle] = React.useState('')
+  const [kickUsername, setKickUsername] = React.useState('')
   const [description, setDescription] = React.useState('')
   const [price, setPrice] = React.useState('')
   const [category, setCategory] = React.useState('')
@@ -160,6 +162,23 @@ function VenderInner() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!title || !price || !kickUsername) {
+      toast({ title: 'Error', description: 'Todos los campos son obligatorios, incluyendo tu usuario de Kick.', variant: 'destructive' })
+      return
+    }
+    setSubmitting(true)
+    try {
+      await createKickStream(title, kickUsername, isAuction, Number(price))
+      toast({ title: '¡En Vivo!', description: 'Tu transmisión de Kick ha sido enlazada a Vende Ya exitosamente.' })
+      router.push('/')
+    } catch(err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' })
+    } finally {
+      setSubmitting(false)
+    }
+    return;
+    /*
+    e.preventDefault()
     if (!title || !price) {
       toast({ title: '⚠️ Faltan campos', description: 'Título y precio son obligatorios.', variant: 'destructive' })
       return
@@ -174,6 +193,7 @@ function VenderInner() {
         : 'Tu producto ya está en el marketplace.',
     })
     router.push(ROUTES.dashboard)
+  }*/
   }
 
   return (
