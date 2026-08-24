@@ -9,7 +9,7 @@ import {
 import { formatViewers } from '@/lib/vendeda/format'
 import { ROUTES } from '@/lib/vendeda/routes'
 import type { LiveStream, Profile } from '@/lib/vendeda/types'
-import { useLiveViewers } from '@/hooks/useLiveViewers'
+import { useMultiLiveViewers } from '@/hooks/useMultiLiveViewers'
 
 /* ------------------------------------------------------------------ */
 /* Dark Stream Hub — /en-vivo index · "Ultra Inmersiva"               */
@@ -81,8 +81,7 @@ const itemVariants = {
 /* ────────────────────────────────────────────────────────────────── */
 /* Featured hero card — large, glassmorphism, big CTA                 */
 /* ────────────────────────────────────────────────────────────────── */
-function FeaturedHeroCard({ stream }: { stream: LiveStream }) {
-  const viewers = useLiveViewers(stream.id, stream.viewerCount)
+function FeaturedHeroCard({ stream, viewers }: { stream: LiveStream, viewers: number }) {
   const seller = stream.seller || { id: "0", displayName: "Usuario", rating: 5, department: "Lima", isVerified: false, username: "usuario" }
   const bucket = streamBucket(stream)
 
@@ -236,8 +235,7 @@ function FilterChip({
 /* ────────────────────────────────────────────────────────────────── */
 /* Stream card — 3:4 aspect, image-first                              */
 /* ────────────────────────────────────────────────────────────────── */
-function StreamCard({ stream }: { stream: LiveStream }) {
-  const viewers = useLiveViewers(stream.id, stream.viewerCount)
+function StreamCard({ stream, viewers }: { stream: LiveStream, viewers: number }) {
   const seller = stream.seller || { id: "0", displayName: "Usuario", rating: 5, department: "Lima", isVerified: false, username: "usuario" }
   const bucket = streamBucket(stream)
 
@@ -375,7 +373,8 @@ export default function LiveHubClient({ initialStreams }: { initialStreams: any[
   }, [filter])
 
   const totalLive = liveStreams.length
-  const totalViewers = liveStreams.reduce((sum, s) => sum + s.viewerCount, 0)
+  const viewersMap = useMultiLiveViewers(liveStreams.map(s => ({ id: s.id, viewerCount: s.viewerCount })))
+  const totalViewers = liveStreams.reduce((sum, s) => sum + (viewersMap[s.id] || s.viewerCount), 0)
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground dark">
@@ -391,7 +390,7 @@ export default function LiveHubClient({ initialStreams }: { initialStreams: any[
             </span>
           </div>
 
-          {featured && <FeaturedHeroCard stream={featured} />}
+          {featured && <FeaturedHeroCard stream={featured} viewers={viewersMap[featured.id] || featured.viewerCount} />}
         </section>
 
         {/* ────────────────────────────────────────────────────────
@@ -457,7 +456,7 @@ export default function LiveHubClient({ initialStreams }: { initialStreams: any[
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"
           >
             {filtered.map((s) => (
-              <StreamCard key={s.id} stream={s} />
+              <StreamCard key={s.id} stream={s} viewers={viewersMap[s.id] || s.viewerCount} />
             ))}
           </motion.div>
         )}

@@ -1,4 +1,9 @@
-import { useState, useEffect } from 'react'
+const fs = require('fs');
+const path = require('path');
+const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\hooks\\useLiveViewers.ts');
+let text = fs.readFileSync(file, 'utf8');
+
+const newHook = `import { useState, useEffect } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 
 export function useLiveViewers(streamId: string, initialCount: number) {
@@ -14,14 +19,14 @@ export function useLiveViewers(streamId: string, initialCount: number) {
     
     // Use a unique channel name for reading presence to avoid conflicts 
     // with other components reading the same stream!
-    // Wait, presence is tied to the channel name. We MUST use chat_${streamId}.
+    // Wait, presence is tied to the channel name. We MUST use chat_\${streamId}.
     // To avoid the "already subscribed" error, we can remove the channel first, OR
     // just use a separate client. Actually, createBrowserClient memoizes.
     
-    let channel = supabase.getChannels().find(c => c.topic === `realtime:chat_${streamId}`)
+    let channel = supabase.getChannels().find(c => c.topic === \`realtime:chat_\${streamId}\`)
     
     if (!channel) {
-      channel = supabase.channel(`chat_${streamId}`, {
+      channel = supabase.channel(\`chat_\${streamId}\`, {
         config: { presence: { key: 'viewer_hub_' + Math.random().toString(36).substr(2,9) } }
       })
       
@@ -56,3 +61,6 @@ export function useLiveViewers(streamId: string, initialCount: number) {
 
   return viewers
 }
+`;
+
+fs.writeFileSync(file, newHook, 'utf8');

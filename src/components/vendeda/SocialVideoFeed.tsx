@@ -32,7 +32,8 @@ interface SocialVideoFeedProps {
 }
 
 export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
-  // Mobile-first immersive container, now adapting to light/dark themes
+  // Mobile-first immersive container
+  const viewersMap = useMultiLiveViewers(feed.map(f => ({ id: f.id, viewerCount: 0 }))), now adapting to light/dark themes
   return (
     <div className="flex w-full h-[100dvh] bg-background text-foreground overflow-hidden">
       {/* Left Sidebar - Desktop Only */}
@@ -41,14 +42,14 @@ export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
       {/* Main Feed Container */}
       <div className="flex-1 w-full h-full snap-y snap-mandatory overflow-y-scroll no-scrollbar relative flex flex-col items-center">
         {feed.map((item, index) => (
-          <FeedItem key={item.id} item={item} isActive={index === 0} />
+          <FeedItem key={item.id} item={item} isActive={index === 0} viewers={viewersMap[item.id] || 0} />
         ))}
       </div>
     </div>
   )
 }
 
-function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
+function FeedItem({ item, isActive, viewers = 0 }: { item: SocialFeedItem; isActive: boolean; viewers?: number }) {
   const [isLiked, setIsLiked] = React.useState(false)
   const [isZoomed, setIsZoomed] = React.useState(false)
 
