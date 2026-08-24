@@ -265,14 +265,36 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
 
   React.useEffect(() => {
       // Chat Realtime (Always active)
-      const chatChannel = supabase.channel(`chat_${id}`)
+      const chatChannel = supabase.channel(`chat_${id}`, {
+        config: {
+          presence: {
+            key: 'user_' + Math.random().toString(36).substring(7),
+          },
+        },
+      })
+      
       chatChannel.on('broadcast', { event: 'new_message' }, (payload) => {
         setChat((prev) => {
           // prevent duplicates if it's our own message bouncing back
           if (prev.find(m => m.id === payload.payload.id)) return prev;
           return [...prev, payload.payload]
         })
-      }).subscribe()
+      })
+      
+      chatChannel.on('presence', { event: 'sync' }, () => {
+        const state = chatChannel.presenceState()
+        let count = 0
+        for (const key in state) {
+          count += state[key].length
+        }
+        setViewers(count)
+      })
+
+      chatChannel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await chatChannel.track({ online: true })
+        }
+      })
 
       // Auction Realtime (Only if auction exists)
       let auctionChannel: any = null
@@ -307,7 +329,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
   }
 
   const [bidCount, setBidCount] = React.useState(safeAuction.bidCount || 0); const [bids, setBids] = React.useState([]);
-  const [viewers] = React.useState(stream?.viewerCount ?? 248)
+  const [viewers, setViewers] = React.useState(stream?.viewerCount ?? 0)
   const [likes, setLikes] = React.useState(stream?.likeCount ?? 1240)
   const [showCheckout, setShowCheckout] = React.useState(false)
   const [chat, setChat] = React.useState<ChatMessage[]>([])
