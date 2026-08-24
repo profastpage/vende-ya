@@ -60,6 +60,12 @@ export async function GET(request: Request) {
     take: 5
   });
 
+  const notifications = await db.notification.findMany({
+    where: { userId: sellerId },
+    orderBy: { createdAt: 'desc' },
+    take: 6
+  });
+
 
   if (!wallet) {
     // Si el usuario es el propio vendedor y no tiene wallet, ofrecer crearla

@@ -105,11 +105,12 @@ interface SellerDashboardData {
   }>;
   copyrightReports: Array<{
     id: string;
-    reporterEmail: string;
-    infringedBrand: string;
     status: string;
+    reporterEmail: string;
     createdAt: string;
+    infringedBrand: string;
   }>;
+  notifications: any[];
   alerts: Array<{ level: 'info' | 'warning' | 'critical'; message: string }>;
 }
 
@@ -170,7 +171,7 @@ function DashboardContent() {
           <BentoKpiCard
             icon={Tag}
             label="Ventas hoy"
-            value={`S/ ${ventasHoy.toLocaleString('es-PE')}`}
+            value={`S/ ${(ventasHoy || 0).toLocaleString('es-PE')}`}
             delta="▲ +12 hoy"
             sub="vs. ayer"
             accent="lime"
@@ -195,7 +196,7 @@ function DashboardContent() {
           <BentoKpiCard
             icon={Eye}
             label="Espectadores"
-            value={espectadoresHoy.toLocaleString('es-PE')}
+            value={(espectadoresHoy || 0).toLocaleString('es-PE')}
             delta="▲ +320"
             sub="Pico de hoy"
             accent="fuchsia"
@@ -230,7 +231,7 @@ function DashboardContent() {
             />
           </div>
           <ReputationCard user={user} reviews={(data as any)?.reviews ?? []} />
-          <ActivityFeed />
+          <ActivityFeed notifications={data?.notifications ?? []} />
         </section>
 
         {/* ─── COPYRIGHT REPORTS (conditional) ───────────── */}
@@ -314,7 +315,7 @@ function HeroHeader({
                 : 'Conecta Mercado Pago para desbloquear el cobro instantáneo y el split automático de comisiones.'}
             </p>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              @{user.username} · {user.followerCount.toLocaleString('es-PE')} seguidores · {user.salesCount} ventas · ⭐ {user.rating.toFixed(1)}
+              @{user.username} · {(user?.followerCount || 0).toLocaleString('es-PE')} seguidores · {user?.salesCount || 0} ventas · ⭐ {(user?.rating || 0).toFixed(1)}
             </p>
           </div>
         </div>
@@ -871,16 +872,8 @@ interface ActivityItem {
   time: string
 }
 
-const ACTIVITY_ITEMS: ActivityItem[] = [
-  { icon: Trophy,        accent: 'lime',    title: 'Ganaste la subasta',                  desc: 'Polo algodón pima — S/. 38.00',   time: 'hace 2 horas' },
-  { icon: Gavel,         accent: 'amber',   title: 'Nueva puja en tu subasta',            desc: 'Vestido artesanal — S/. 120',     time: 'hace 5 horas' },
-  { icon: MessageSquare, accent: 'sky',     title: 'Nuevo mensaje de Rosa',                desc: '"¿Te interesa otro talla?"',      time: 'ayer' },
-  { icon: Heart,         accent: 'fuchsia', title: 'Tu producto favorito bajó de precio', desc: 'Samsung Galaxy A55 — S/. 1250',   time: 'hace 2 días' },
-  { icon: ShieldCheck,   accent: 'lime',    title: 'Pago liberado de escrow',              desc: 'Orden #ORD-9F32 — S/. 121.94',    time: 'hace 3 horas' },
-  { icon: Truck,         accent: 'sky',     title: 'Envío entregado',                       desc: 'SHP2417J992 → San Isidro',         time: 'hace 6 horas' },
-]
 
-function ActivityFeed() {
+function ActivityFeed({ notifications }: { notifications: any[] }) {
   return (
     <motion.div
       {...SECTION_MOTION}
@@ -901,22 +894,26 @@ function ActivityFeed() {
         </div>
 
         <div className="space-y-1">
-          {ACTIVITY_ITEMS.map((item, i) => {
-            const cfg = KPI_ACCENTS[item.accent]
-            const Icon = item.icon
+          {(!notifications || notifications.length === 0) ? (
+            <div className="text-center py-6 text-sm text-muted-foreground border border-dashed border-border rounded-xl">
+              No hay actividad aún.
+            </div>
+          ) : notifications.map((item: any, i: number) => {
             return (
               <div
                 key={i}
                 className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-muted transition-colors"
               >
                 <div className="rounded-lg p-1.5 bg-muted border border-border shrink-0">
-                  <Icon className={cn('h-4 w-4', cfg.text)} />
+                  <Bell className="h-4 w-4 text-fuchsia-400" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-foreground leading-snug">{item.title}</p>
-                  <p className="text-[11px] text-muted-foreground truncate">{item.desc}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{item.body || ''}</p>
                 </div>
-                <span className="text-[10px] text-muted-foreground shrink-0 mt-1">{item.time}</span>
+                <span className="text-[10px] text-muted-foreground shrink-0 mt-1">
+                  {item.createdAt ? timeAgoEs(new Date(item.createdAt)) : ''}
+                </span>
               </div>
             )
           })}
@@ -1177,7 +1174,7 @@ function ReputationCard({ user, reviews }: { user: Profile; reviews: any[] }) {
           <div className="flex text-amber-400 text-lg">
             {'★'.repeat(Math.round(user?.rating || 0))}{'☆'.repeat(5 - Math.round(user?.rating || 0))}
           </div>
-          <span className="text-xs text-muted-foreground">{user?.ratingsCount || 0} calificaciones</span>
+          <span className="text-xs text-muted-foreground">{(user?.ratingsCount || 0)} calificaciones</span>
         </div>
       </div>
 
