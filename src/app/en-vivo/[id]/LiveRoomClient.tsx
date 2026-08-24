@@ -8,6 +8,7 @@ import {
   ChevronLeft, Flame, Eye, Heart, Share2, ShoppingBag,
   MessageCircle, Send, Gavel, Clock, BadgeCheck, ShieldCheck,
   Bot, Users, Crown, MapPin, Package, Star, Zap, X,
+Maximize, Minimize,
 } from 'lucide-react'
 import type { Profile, Product, Auction } from '@/lib/vendeda/types'
 import {
@@ -296,6 +297,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
   const [chatInput, setChatInput] = React.useState('')
   const [secondsLeft, setSecondsLeft] = React.useState(164)
   const [liked, setLiked] = React.useState(false)
+  const [isZoomed, setIsZoomed] = React.useState(true)
   const [burstKey, setBurstKey] = React.useState(0)
   const [mobileTab, setMobileTab] = React.useState<'chat' | 'bid'>('bid')
   const [floatingEmojis, setFloatingEmojis] = React.useState<FloatingEmoji[]>([])
@@ -384,7 +386,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
         <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-zinc-800">
           <iframe
             src={`https://player.kick.com/${stream?.kickUsername || 'gozustrike'}?autoplay=true&muted=false`}
-            className="absolute inset-0 w-full h-full border-none pointer-events-auto"
+            className="absolute inset-0 w-full h-full border-none pointer-events-none origin-center" style={{ transform: isZoomed ? 'scale(1.25)' : 'scale(1)' }}
             allow="autoplay; fullscreen"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
@@ -402,10 +404,20 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
               </button>
               <SellerPill seller={seller} initial={initial} />
             </div>
-            <div className="flex flex-col items-end gap-2 pointer-events-auto">
-              <LiveBadge />
-              <ViewersPill viewers={viewers} />
-            </div>
+            
+              <div className="flex flex-col items-end gap-2 pointer-events-auto">
+                <LiveBadge />
+                <ViewersPill viewers={viewers} />
+                <button
+                  onClick={() => setIsZoomed((v) => !v)}
+                  className="mt-2 h-9 px-3 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center hover:bg-muted transition-colors gap-1.5"
+                  aria-label="Toggle Zoom"
+                >
+                  {isZoomed ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                  <span className="text-[10px] font-bold uppercase">{isZoomed ? 'Alejar' : 'Acercar'}</span>
+                </button>
+              </div>
+
           </div>
 
           {/* Floating emojis layer */}
@@ -628,7 +640,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       <div className="absolute inset-0 z-0">
         <iframe
           src={`https://player.kick.com/${stream?.kickUsername || 'gozustrike'}?autoplay=true&muted=false`}
-          className="w-full h-full border-none pointer-events-auto scale-[3.16] origin-center"
+          className="w-full h-full border-none pointer-events-none origin-center transition-transform duration-300" style={{ transform: isZoomed ? 'scale(3.16)' : 'scale(1)' }}
           allow="autoplay; fullscreen"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/95 pointer-events-none" />
@@ -703,6 +715,16 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
         >
           <Flame className="h-7 w-7 text-amber-400 drop-shadow-lg" />
           <span className="text-[10px] font-black text-foreground drop-shadow">Reacciona</span>
+        </button>
+
+        
+        {/* Zoom */}
+        <button
+          onClick={() => setIsZoomed((v) => !v)}
+          className="flex flex-col items-center gap-0.5"
+        >
+          {isZoomed ? <Minimize className="h-7 w-7 text-foreground drop-shadow-lg" /> : <Maximize className="h-7 w-7 text-foreground drop-shadow-lg" />}
+          <span className="text-[10px] font-black text-foreground drop-shadow">{isZoomed ? 'Alejar' : 'Acercar'}</span>
         </button>
 
         {/* Chat */}
