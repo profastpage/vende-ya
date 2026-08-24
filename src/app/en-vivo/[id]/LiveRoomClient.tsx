@@ -383,7 +383,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
         {/* Video Player */}
         <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-zinc-800">
           <iframe
-            src={`https://kick.com/${stream?.kickUsername || 'gozustrike'}`}
+            src={`https://player.kick.com/${stream?.kickUsername || 'gozustrike'}?autoplay=true&muted=false`}
             className="absolute inset-0 w-full h-full border-none pointer-events-auto"
             allow="autoplay; fullscreen"
           />
@@ -627,7 +627,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       {/* Video background */}
       <div className="absolute inset-0 z-0">
         <iframe
-          src={`https://kick.com/${stream?.kickUsername || 'gozustrike'}`}
+          src={`https://player.kick.com/${stream?.kickUsername || 'gozustrike'}?autoplay=true&muted=false`}
           className="w-full h-full border-none pointer-events-auto"
           allow="autoplay; fullscreen"
         />
