@@ -9,7 +9,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+  
 }
 
 datasource db {
@@ -18,7 +18,7 @@ datasource db {
   // Local dev: set DATABASE_URL in .env.local to the Supabase pooler.
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["public", "auth"]
+  
 }
 
 // ---------------------------------------------------------------------
