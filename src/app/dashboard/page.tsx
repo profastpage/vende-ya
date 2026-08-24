@@ -58,7 +58,7 @@ type KpiAccent = 'rose' | 'amber' | 'fuchsia' | 'lime' | 'purple' | 'sky'
 
 const KPI_ACCENTS: Record<KpiAccent, { text: string; gradient: string }> = {
   rose:    { text: 'text-rose-400',    gradient: 'linear-gradient(135deg, #f43f5e, #fb7185)' },
-  amber:   { text: 'text-amber-400',   gradient: 'linear-gradient(135deg, #f59e0b, #fbbf24)' },
+  amber:   { text: 'text-amber-600 dark:text-amber-400',   gradient: 'linear-gradient(135deg, #f59e0b, #fbbf24)' },
   fuchsia: { text: 'text-fuchsia-400', gradient: 'linear-gradient(135deg, #d946ef, #f0abfc)' },
   lime:    { text: 'text-lime-400',    gradient: 'linear-gradient(135deg, #84cc16, #bef264)' },
   purple:  { text: 'text-purple-400',  gradient: 'linear-gradient(135deg, #a855f7, #d8b4fe)' },
@@ -500,7 +500,7 @@ function WalletPanel({
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="rounded-xl p-2 bg-muted border border-border">
-              <Wallet className="h-4 w-4 text-amber-400" />
+              <Wallet className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </div>
             <h3 className="text-base font-black text-foreground">Wallet & Pagos</h3>
           </div>
@@ -513,7 +513,7 @@ function WalletPanel({
               <span className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse" /> Activa
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-400 text-[10px] font-black uppercase">
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase">
               <Clock className="h-3 w-3" /> Pendiente
             </span>
           )}
@@ -551,18 +551,18 @@ function WalletPanel({
                   </div>
                   <div className="rounded-lg bg-muted border border-border px-3 py-2">
                     <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">Escrow</p>
-                    <p className="font-black text-amber-400 tabular-nums">{formatPEN(summary.pendingEscrow)}</p>
+                    <p className="font-black text-amber-600 dark:text-amber-400 tabular-nums">{formatPEN(summary.pendingEscrow)}</p>
                   </div>
                 </>
               )}
               <div className="col-span-2 rounded-lg bg-muted border border-border px-3 py-2">
                 <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">Gateway Seller ID</p>
-                <p className="font-mono text-amber-400 break-all">{wallet.gatewaySellerId}</p>
+                <p className="font-mono text-amber-600 dark:text-amber-400 break-all">{wallet.gatewaySellerId}</p>
               </div>
             </div>
             <Link
               href={ROUTES.pagos}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:text-amber-300"
             >
               Ver detalle de pagos <ChevronRight className="h-3.5 w-3.5" />
             </Link>
@@ -608,7 +608,7 @@ const SHIPMENT_STATUS_CONFIG: Record<ShipmentStatus, {
   badge: string
   dot: string
 }> = {
-  pendiente: { label: 'Pendiente',   badge: 'bg-amber-500/10 border-amber-400/30 text-amber-400', dot: 'bg-amber-400' },
+  pendiente: { label: 'Pendiente',   badge: 'bg-amber-500/10 border-amber-400/30 text-amber-600 dark:text-amber-400', dot: 'bg-amber-400' },
   transit:   { label: 'En tránsito', badge: 'bg-sky-500/10 border-sky-400/30 text-sky-400',      dot: 'bg-sky-400' },
   entregado: { label: 'Entregado',   badge: 'bg-lime-500/10 border-lime-400/30 text-lime-400',   dot: 'bg-lime-400' },
   problem:   { label: 'Problema',    badge: 'bg-rose-500/10 border-rose-400/30 text-rose-400',   dot: 'bg-rose-400' },
@@ -695,7 +695,7 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
                     </td>
                     <td className="py-3 pr-3">
                       {row.trackingCode ? (
-                        <span className="font-mono text-xs text-amber-400">{row.trackingCode}</span>
+                        <span className="font-mono text-xs text-amber-600 dark:text-amber-400">{row.trackingCode}</span>
                       ) : (
                         <span className="text-xs text-muted-foreground italic">Sin generar</span>
                       )}
@@ -758,7 +758,7 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
 /* ================================================================== */
 const PAYMENT_STATUS_CONFIG: Record<string, { label: string; badge: string }> = {
   released:    { label: 'Liberado',   badge: 'bg-lime-500/10 border-lime-400/30 text-lime-400' },
-  escrow_hold: { label: 'En escrow',  badge: 'bg-amber-500/10 border-amber-400/30 text-amber-400' },
+  escrow_hold: { label: 'En escrow',  badge: 'bg-amber-500/10 border-amber-400/30 text-amber-600 dark:text-amber-400' },
   paid:        { label: 'Pagado',    badge: 'bg-sky-500/10 border-sky-400/30 text-sky-400' },
   refunded:    { label: 'Reembolsado', badge: 'bg-rose-500/10 border-rose-400/30 text-rose-400' },
   pending:     { label: 'Pendiente',  badge: 'bg-muted border-border text-muted-foreground' },
@@ -844,7 +844,7 @@ function RecentOrdersCard({
               >
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-mono text-xs text-amber-400">#{o.id}</span>
+                    <span className="font-mono text-xs text-amber-600 dark:text-amber-400">#{o.id}</span>
                     <span
                       className={cn(
                         'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border',
@@ -986,8 +986,8 @@ function AlertsBanner({ alerts }: { alerts: SellerDashboardData['alerts'] }) {
       
       <div className="relative">
         <div className="flex items-center gap-2 mb-2">
-          <AlertTriangle className="h-4 w-4 text-amber-400" />
-          <h3 className="text-sm font-black text-amber-300 uppercase tracking-wider">
+          <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          <h3 className="text-sm font-black text-amber-700 dark:text-amber-300 uppercase tracking-wider">
             Alertas de moderación
           </h3>
         </div>
@@ -1055,7 +1055,7 @@ function CopyrightReportsCard({
                     r.status === 'pending' || r.status === 'resolved_ban'
                       ? 'bg-rose-500/10 border-rose-400/30 text-rose-400'
                       : r.status === 'investigating'
-                        ? 'bg-amber-500/10 border-amber-400/30 text-amber-400'
+                        ? 'bg-amber-500/10 border-amber-400/30 text-amber-600 dark:text-amber-400'
                         : 'bg-muted border-border text-muted-foreground',
                   )}
                 >
@@ -1112,7 +1112,7 @@ function QuickActionsFooter() {
       <div className="relative">
         <div className="flex items-center gap-2 mb-4">
           <div className="rounded-xl p-2 bg-muted border border-border">
-            <Zap className="h-4 w-4 text-amber-400" />
+            <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
             <h3 className="text-base font-black text-foreground">Acciones rápidas</h3>

@@ -226,7 +226,7 @@ function WalletContent() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="h-10 w-10 rounded-xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-center">
-                      <span className="text-amber-300 font-black text-xs">MP</span>
+                      <span className="text-amber-700 dark:text-amber-300 font-black text-xs">MP</span>
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-wider text-amber-200/80">Mercado Pago</p>
@@ -271,7 +271,7 @@ function WalletContent() {
               ) : displayStatus === 'error' ? (
                 <AlertCircle className="h-6 w-6 text-rose-300" />
               ) : (
-                <Clock className="h-6 w-6 text-amber-300" />
+                <Clock className="h-6 w-6 text-amber-700 dark:text-amber-300" />
               )}
             </div>
             <div className="flex-1 min-w-0">
@@ -314,7 +314,7 @@ function WalletContent() {
             className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-6"
           >
             <div className="flex items-center gap-2 mb-4">
-              <Plug className="h-5 w-5 text-amber-400" />
+              <Plug className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               <h2 className="text-lg font-bold text-foreground">Cómo conectar tu Mercado Pago</h2>
             </div>
             <ol className="space-y-3">
@@ -342,7 +342,7 @@ function WalletContent() {
               ].map((step) => (
                 <li key={step.n} className="flex gap-3">
                   <div className="h-8 w-8 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center shrink-0">
-                    <span className="text-xs font-bold text-amber-300">{step.n}</span>
+                    <span className="text-xs font-bold text-amber-700 dark:text-amber-300">{step.n}</span>
                   </div>
                   <div className="flex-1 min-w-0 pt-1">
                     <p className="font-semibold text-foreground text-sm">{step.title}</p>
@@ -389,7 +389,7 @@ function WalletContent() {
             className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-6"
           >
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-amber-300 shrink-0 mt-0.5" />
+              <AlertCircle className="h-5 w-5 text-amber-700 dark:text-amber-300 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="font-semibold text-amber-100">Verificación KYC requerida</p>
                 <p className="text-sm text-amber-200/80 mt-1 leading-relaxed">
@@ -419,7 +419,7 @@ function WalletContent() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Banknote className="h-5 w-5 text-amber-400" />
+                <Banknote className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 <h2 className="text-lg font-bold text-foreground">Transacciones recientes</h2>
               </div>
               <button className="text-xs text-muted-foreground hover:text-foreground underline">Ver todas</button>
@@ -484,11 +484,11 @@ function WalletContent() {
           <div className="rounded-xl bg-black/30 border border-border p-4 text-sm space-y-2.5">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Comisión Vende Ya (en vivo)</span>
-              <span className="font-mono font-bold text-amber-300">12.00%</span>
+              <span className="font-mono font-bold text-amber-700 dark:text-amber-300">12.00%</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Comisión Vende Ya (marketplace)</span>
-              <span className="font-mono font-bold text-amber-300">8.00%</span>
+              <span className="font-mono font-bold text-amber-700 dark:text-amber-300">8.00%</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Costo pasarela (3.9% + IGV)</span>
@@ -579,7 +579,7 @@ function StatusBadge({ status }: { status: 'active' | 'pending' | 'error' }) {
     )
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border bg-amber-400/15 text-amber-300 border-amber-400/30">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border bg-amber-400/15 text-amber-700 dark:text-amber-300 border-amber-400/30">
       <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
       Pendiente
     </span>
@@ -599,7 +599,7 @@ function TxStatusBadge({ status }: { status: 'completed' | 'pending' | 'in_escro
   }
   if (status === 'in_escrow') {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold border bg-amber-400/15 text-amber-300 border-amber-400/30">
+      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold border bg-amber-400/15 text-amber-700 dark:text-amber-300 border-amber-400/30">
         <Clock className="h-3 w-3" /> En escrow
       </span>
     )
