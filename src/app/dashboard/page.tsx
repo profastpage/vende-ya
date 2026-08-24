@@ -168,6 +168,11 @@ function DashboardContent() {
           <AlertsBanner alerts={data.alerts} />
         )}
 
+        {/* QUICK ACTIONS */}
+        <div className="mt-5 md:mt-6">
+          <QuickActionsFooter />
+        </div>
+
         {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ BENTO KPI GRID (stagger entrance) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
         <motion.section
           variants={KPI_CONTAINER_VARIANTS}
@@ -211,11 +216,6 @@ function DashboardContent() {
           />
         </motion.section>
 
-        {/* Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ QUICK ACTIONS Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ */}
-        <div className="mt-5 md:mt-6">
-          <QuickActionsFooter />
-        </div>
-
 
         {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ 2-COL: STREAM ENGINE + WALLET ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
         <section className="mt-5 md:mt-6 grid md:grid-cols-2 gap-4 md:gap-6">
@@ -246,8 +246,6 @@ function DashboardContent() {
         {data && data.copyrightReports.length > 0 && (
           <CopyrightReportsCard reports={data.copyrightReports} />
         )}
-
-        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ QUICK ACTIONS FOOTER ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
         <QuickActionsFooter />
       </main>
     </div>
@@ -752,11 +750,6 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
       </div>
     </motion.section>
 
-        {/* Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ QUICK ACTIONS Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ */}
-        <div className="mt-5 md:mt-6">
-          <QuickActionsFooter />
-        </div>
-
   )
 }
 
@@ -1089,11 +1082,6 @@ function CopyrightReportsCard({
       </div>
     </motion.section>
 
-        {/* Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ QUICK ACTIONS Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ */}
-        <div className="mt-5 md:mt-6">
-          <QuickActionsFooter />
-        </div>
-
   )
 }
 
@@ -1157,11 +1145,6 @@ function QuickActionsFooter() {
         </div>
       </div>
     </motion.section>
-
-        {/* Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ QUICK ACTIONS Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ */}
-        <div className="mt-5 md:mt-6">
-          <QuickActionsFooter />
-        </div>
 
   )
 }
