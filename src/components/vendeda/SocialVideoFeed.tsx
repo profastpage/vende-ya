@@ -50,9 +50,9 @@ export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
           </a>
         </nav>
         <div className="mt-6 pt-6 border-t border-border">
-          <p className="text-muted-foreground text-xs px-3">Inicia sesión para seguir a creadores, dar me gusta a videos y ver comentarios.</p>
+          <p className="text-muted-foreground text-xs px-3">Inicia sesiÃ³n para seguir a creadores, dar me gusta a videos y ver comentarios.</p>
           <button className="mt-4 w-full py-2.5 border border-[#FE2C55] text-[#FE2C55] font-bold rounded-lg hover:bg-[#FE2C55]/10">
-            Iniciar sesión
+            Iniciar sesiÃ³n
           </button>
         </div>
       </aside>
@@ -108,9 +108,7 @@ function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
                 <span className="text-foreground text-xs font-medium line-clamp-1">{item.product.title}</span>
                 <span className="text-[#FE2C55] font-bold text-sm">{formatPEN(item.product.price)}</span>
               </div>
-              <button className="bg-[#FE2C55] text-foreground px-2 py-1.5 rounded-lg font-bold text-[10px] md:text-xs ml-auto shrink-0 flex items-center gap-1">
-                <ShoppingBag className="w-3.5 h-3.5" /> Comprar
-              </button>
+              <InStreamCheckoutDrawer product={item.product} />
             </motion.div>
           )}
 
