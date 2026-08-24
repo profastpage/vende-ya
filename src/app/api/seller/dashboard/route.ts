@@ -53,7 +53,7 @@ export async function GET(request: Request) {
     },
   });
 
-  let reviews = [];
+  let reviews: any[] = [];
   try {
     reviews = await db.review.findMany({
       where: { revieweeId: sellerId },
@@ -63,7 +63,7 @@ export async function GET(request: Request) {
     });
   } catch (e) { console.error("Review fetch error", e); }
 
-  let notifications = [];
+  let notifications: any[] = [];
   try {
     notifications = await db.notification.findMany({
       where: { userId: sellerId },
