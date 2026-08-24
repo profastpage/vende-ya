@@ -65,7 +65,7 @@ function LiveBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
     <span
       className={`inline-flex items-center gap-1 rounded-full bg-rose-500/90 backdrop-blur-md border border-rose-300/30 ${
         size === 'sm' ? 'px-2 py-0.5 text-[9px]' : 'px-2.5 py-1 text-[10px]'
-      } font-black tracking-wider text-foreground`}
+      } font-black tracking-wider text-white`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-white" />
       EN VIVO
@@ -76,7 +76,7 @@ function LiveBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
 /** ViewersPill — solo texto bold + icono, sin fondo negro (mejor UX) */
 function ViewersPill({ viewers }: { viewers: number }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-foreground">
+    <span className="inline-flex items-center gap-1.5 text-white">
       <Eye className="h-3.5 w-3.5 text-amber-400" strokeWidth={2.5} />
       <span className="text-xs font-black tabular-nums drop-shadow-lg">
         {formatViewers(viewers)}
@@ -93,7 +93,7 @@ function SellerPill({ seller, initial }: { seller: Profile; initial: string }) {
         {initial}
       </div>
       <div className="flex flex-col leading-tight">
-        <span className="text-xs font-black tracking-tight flex items-center gap-1 text-foreground">
+        <span className="text-xs font-black tracking-tight flex items-center gap-1 text-white">
           {seller.displayName}
           {seller.isVerified && <BadgeCheck className="h-3 w-3 text-sky-400" />}
         </span>
@@ -453,9 +453,9 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 14 }}
               >
-                <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-foreground'}`} />
+                <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
               </motion.span>
-              <span className="text-[10px] font-black text-foreground tabular-nums drop-shadow">
+              <span className="text-[10px] font-black text-white tabular-nums drop-shadow">
                 {formatViewers(likes).replace(' espectadores', '')}
               </span>
             </motion.button>
@@ -466,12 +466,12 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
               aria-label="Reacciones"
             >
               <Flame className="h-6 w-6 text-amber-400 drop-shadow-lg" />
-              <span className="text-[10px] font-black text-foreground drop-shadow">Reacciones</span>
+              <span className="text-[10px] font-black text-white drop-shadow">Reacciones</span>
             </button>
 
             <button className="flex flex-col items-center gap-0.5">
-              <Share2 className="h-6 w-6 text-foreground drop-shadow-lg" />
-              <span className="text-[10px] font-black text-foreground drop-shadow">Compartir</span>
+              <Share2 className="h-6 w-6 text-white drop-shadow-lg" />
+              <span className="text-[10px] font-black text-white drop-shadow">Compartir</span>
             </button>
           </div>
 
@@ -491,7 +491,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
                   </span>
                   <button
                     onClick={() => setShowEmojiPicker(false)}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-white"
                     aria-label="Cerrar"
                   >
                     <X className="h-3 w-3" />
@@ -553,7 +553,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
                 <span className="text-[9px] font-black tracking-widest uppercase text-muted-foreground">
                   <Gavel className="inline h-2.5 w-2.5 mr-1" />Pujas
                 </span>
-                <span className="text-xl font-black font-mono text-foreground tabular-nums">{bidCount}</span>
+                <span className="text-xl font-black font-mono text-white tabular-nums">{bidCount}</span>
               </div>
             </div>
           </div>
@@ -635,7 +635,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
    * MOBILE LAYOUT — TikTok-style full-screen vertical                *
    * ================================================================ */
   const MobileLayout = (
-    <div className="md:hidden fixed inset-0 z-50 bg-black text-foreground select-none overflow-hidden">
+    <div className="md:hidden fixed inset-0 z-50 bg-black text-white select-none overflow-hidden">
       {/* Video background */}
       <div className="absolute inset-0 z-0">
         <iframe
@@ -700,9 +700,9 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
             animate={{ scale: 1, opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 400, damping: 14 }}
           >
-            <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-foreground'}`} />
+            <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
           </motion.span>
-          <span className="text-[10px] font-black text-foreground tabular-nums drop-shadow">
+          <span className="text-[10px] font-black text-white tabular-nums drop-shadow">
             {formatViewers(likes).replace(' espectadores', '')}
           </span>
         </motion.button>
@@ -714,7 +714,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
           aria-label="Reacciones"
         >
           <Flame className="h-7 w-7 text-amber-400 drop-shadow-lg" />
-          <span className="text-[10px] font-black text-foreground drop-shadow">Reacciona</span>
+          <span className="text-[10px] font-black text-white drop-shadow">Reacciona</span>
         </button>
 
         
@@ -723,8 +723,8 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
           onClick={() => setIsZoomed((v) => !v)}
           className="flex flex-col items-center gap-0.5"
         >
-          {isZoomed ? <Minimize className="h-7 w-7 text-foreground drop-shadow-lg" /> : <Maximize className="h-7 w-7 text-foreground drop-shadow-lg" />}
-          <span className="text-[10px] font-black text-foreground drop-shadow">{isZoomed ? 'Alejar' : 'Acercar'}</span>
+          {isZoomed ? <Minimize className="h-7 w-7 text-white drop-shadow-lg" /> : <Maximize className="h-7 w-7 text-white drop-shadow-lg" />}
+          <span className="text-[10px] font-black text-white drop-shadow">{isZoomed ? 'Alejar' : 'Acercar'}</span>
         </button>
 
         {/* Chat */}
@@ -732,14 +732,14 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
           onClick={() => setMobileTab('chat')}
           className="flex flex-col items-center gap-0.5"
         >
-          <MessageCircle className="h-7 w-7 text-foreground drop-shadow-lg" />
-          <span className="text-[10px] font-black text-foreground drop-shadow">Chat</span>
+          <MessageCircle className="h-7 w-7 text-white drop-shadow-lg" />
+          <span className="text-[10px] font-black text-white drop-shadow">Chat</span>
         </button>
 
         {/* Share */}
         <button className="flex flex-col items-center gap-0.5">
-          <Share2 className="h-7 w-7 text-foreground drop-shadow-lg" />
-          <span className="text-[10px] font-black text-foreground drop-shadow">Compartir</span>
+          <Share2 className="h-7 w-7 text-white drop-shadow-lg" />
+          <span className="text-[10px] font-black text-white drop-shadow">Compartir</span>
         </button>
       </div>
 
@@ -763,7 +763,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
               </span>
               <button
                 onClick={() => setShowEmojiPicker(false)}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-white"
                 aria-label="Cerrar"
               >
                 <X className="h-3 w-3" />
