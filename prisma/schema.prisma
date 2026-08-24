@@ -184,6 +184,7 @@ model LiveStream {
 
   seller          Profile  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   auctions        Auction[]
+  chatMessages    ChatMessage[]
   chatMessages    LiveChatMessage[]
 
   @@index([sellerId])
@@ -470,3 +471,19 @@ model Review {
   @@index([revieweeId])
 }
 
+
+// ---------------------------------------------------------------------
+// CHAT MESSAGES
+// ---------------------------------------------------------------------
+model ChatMessage {
+  id        String   @id @default(cuid())
+  streamId  String
+  userId    String?  // nullable for anonymous
+  username  String
+  text      String
+  color     String?
+  isBot     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  stream    LiveStream @relation(fields: [streamId], references: [id], onDelete: Cascade)
+}

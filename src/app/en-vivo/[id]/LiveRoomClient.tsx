@@ -273,6 +273,20 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
         },
       })
       
+      // Load historical chat from DB
+      supabase.from('ChatMessage').select('*').eq('streamId', id).order('createdAt', { ascending: true })
+        .then(({ data }) => {
+          if (data && data.length > 0) {
+            setChat(data.map(d => ({
+              id: d.id,
+              username: d.username,
+              text: d.text,
+              color: d.color || 'text-white',
+              isBot: d.isBot
+            })))
+          }
+        })
+
       chatChannel.on('broadcast', { event: 'new_message' }, (payload) => {
         setChat((prev) => {
           // prevent duplicates if it's our own message bouncing back
@@ -344,21 +358,9 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       }
     }, [likes, id])
   const [showCheckout, setShowCheckout] = React.useState(false)
-  const [chat, setChat] = React.useState<ChatMessage[]>(() => {
-      if (typeof window !== 'undefined') {
-        const saved = localStorage.getItem(`chat_${id}`)
-        if (saved) {
-          try { return JSON.parse(saved) } catch (e) {}
-        }
-      }
-      return []
-    })
+  const [chat, setChat] = React.useState<ChatMessage[]>([])
 
-    React.useEffect(() => {
-      if (typeof window !== 'undefined' && chat.length > 0) {
-        localStorage.setItem(`chat_${id}`, JSON.stringify(chat))
-      }
-    }, [chat, id])
+    
   const [chatInput, setChatInput] = React.useState('')
   const [secondsLeft, setSecondsLeft] = React.useState(164)
   const [liked, setLiked] = React.useState(false)
@@ -415,6 +417,19 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
     const msg = { id: Date.now().toString(), username: 'Tú', text: chatInput.trim(), color: 'text-lime-400' }
     setChat((prev) => [...prev, msg])
     setChatInput('')
+
+    // Save to DB
+    try {
+      await supabase.from('ChatMessage').insert({
+        id: msg.id,
+        streamId: id,
+        username: 'Comprador',
+        text: msg.text,
+        color: msg.color,
+        isBot: false
+      })
+    } catch(e) {}
+
     // Broadcast to others
     await supabase.channel(`chat_${id}`).send({
       type: 'broadcast',
