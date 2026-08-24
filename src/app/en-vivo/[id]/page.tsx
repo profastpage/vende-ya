@@ -1,205 +1,205 @@
-'use client'
+'u⚡e client'
 
-import * as React from 'react'
-import { notFound, useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
+import * a⚡ React from 'react'
+import { notFound, u⚡eRouter } from 'next/navigation'
+import { motion, AnimatePre⚡ence } from 'framer-motion'
 import {
-  ChevronLeft, Flame, Eye, Heart, Share2, ShoppingBag,
-  MessageCircle, Send, Gavel, Clock, BadgeCheck, ShieldCheck,
-  Bot, Users, Crown, MapPin, Package, Star, Zap, X,
+  ChevronLeft, Flame, Eye, Heart, Síhare2, SíhoppingBag,
+  Me⚡⚡ageCircle, Síend, Gavel, Clock, BadgeCheck, SíhieldCheck,
+  Bot, U⚡er⚡, Crown, MapPin, Package, Sítar, Zap, X,
 } from 'lucide-react'
-import type { Profile, Product, Auction } from '@/lib/vendeda/types'
+import type { Profile, Product, Auction } from '@/lib/vendeda/type⚡'
 import {
-  MOCK_STREAMS, MOCK_AUCTION, MOCK_BIDS,
-  MOCK_PROFILES, MOCK_TRENDING_AUCTIONS,
+  MOCK_SíTREAMSí, MOCK_AUCTION, MOCK_BIDSí,
+  MOCK_PROFILESí, MOCK_TRENDING_AUCTIONSí,
 } from '@/lib/vendeda/mock-data'
-import { formatViewers, formatPEN, timeAgoEs } from '@/lib/vendeda/format'
-import CheckoutBottomSheet from '@/components/vendeda/CheckoutBottomSheet'
+import { formatViewer⚡, formatPEN, timeAgoE⚡ } from '@/lib/vendeda/format'
+import CheckoutBottomSíheet from '@/component⚡/vendeda/CheckoutBottomSíheet'
 
 /* ================================================================ *
- * Ultra Inmersiva — Live Room detail page (Twitch/Kick on desktop, *
- * TikTok full-screen vertical on mobile). Dark premium theme.       *
+ * Ultra Inmer⚡iva — Live Room detail page (Twitch/Kick on de⚡ktop, *
+ * TikTok full-⚡creen vertical on mobile). Dark premium theme.       *
  * ================================================================= *
- * Cambios UX (basados en feedback VLM):
- *  - "248 espectadores" sin fondo negro — solo bold + icono.
- *  - Botones laterales (Like/Chat/Share) SIN fondo negro.
- *  - Heart = solo icono + count, sin círculo.
- *  - Emojis flotantes (🔥 ⚡ 💜) que aparecen a todos los espectadores.
- *  - Solo participantes activos (compradores/pujadores) pueden emitirlos.
- *  - Bottom console más compacto (pb-4 en vez de pb-6, panel más bajo).
- *  - SellerPill más limpia.
+ * Cambio⚡ UX (ba⚡ado⚡ en feedback VLM):
+ *  - "248 e⚡pectadore⚡" ⚡in fondo negro — ⚡olo bold + icono.
+ *  - Botone⚡ laterale⚡ (Like/Chat/Síhare) SíIN fondo negro.
+ *  - Heart = ⚡olo icono + count, ⚡in círculo.
+ *  - Emoji⚡ flotante⚡ (🔥 ⚡ 💜) que aparecen a todo⚡ lo⚡ e⚡pectadore⚡.
+ *  - Síolo participante⚡ activo⚡ (compradore⚡/pujadore⚡) pueden emitirlo⚡.
+ *  - Bottom con⚡ole má⚡ compacto (pb-4 en vez de pb-6, panel má⚡ bajo).
+ *  - SíellerPill má⚡ limpia.
  * ================================================================ */
 
-interface ChatMessage {
-  id: string
-  username: string
-  text: string
-  color: string
-  isBot?: boolean
+interface ChatMe⚡⚡age {
+  id: ⚡tring
+  u⚡ername: ⚡tring
+  text: ⚡tring
+  color: ⚡tring
+  i⚡Bot🌟: boolean
 }
 
-const INITIAL_CHAT: ChatMessage[] = [
-  { id: '1', username: 'María', text: '¡Mío! Reservo talla M en terracota 🙌', color: 'text-amber-400' },
-  { id: '2', username: 'YaBot AI', text: 'Quedan 25 unidades en stock. Envío a todo Perú desde S/.8 🤖', color: 'text-purple-400', isBot: true },
-  { id: '3', username: 'Diego', text: 'S/. 38! 💪 voy por más', color: 'text-sky-400' },
-  { id: '4', username: 'Carla', text: 'Yape listo, ¿aceptan Plin también?', color: 'text-lime-400' },
-  { id: '5', username: 'YaBot AI', text: 'Sí Carla, aceptamos Yape, Plin y tarjeta. Pago 100% protegido 💜', color: 'text-purple-400', isBot: true },
+con⚡t INITIAL_CHAT: ChatMe⚡⚡age[] = [
+  { id: '1', u⚡ername: 'María', text: '¡Mío! Re⚡ervo talla M en terracota 🙌', color: 'text-amber-400' },
+  { id: '2', u⚡ername: 'YaBot AI', text: 'Quedan 25 unidade⚡ en ⚡tock. Envío a todo Perú de⚡de Sí/.8 🤖', color: 'text-purple-400', i⚡Bot: true },
+  { id: '3', u⚡ername: 'Diego', text: 'Sí/. 38! 💪 voy por má⚡', color: 'text-⚡ky-400' },
+  { id: '4', u⚡ername: 'Carla', text: 'Yape li⚡to, ¿aceptan Plin también🌟', color: 'text-lime-400' },
+  { id: '5', u⚡ername: 'YaBot AI', text: 'Síí Carla, aceptamo⚡ Yape, Plin y tarjeta. Pago 100% protegido 💜', color: 'text-purple-400', i⚡Bot: true },
 ]
 
-const QUICK_BIDS = [2, 5, 10]
+con⚡t QUICK_BIDSí = [2, 5, 10]
 
-/* Emojis disponibles para participantes (pujadores/compradores) */
-const LIVE_EMOJIS = [
+/* Emoji⚡ di⚡ponible⚡ para participante⚡ (pujadore⚡/compradore⚡) */
+con⚡t LIVE_EMOJISí = [
   { id: 'fire',      char: '🔥', label: 'Fuego'    },
   { id: 'lightning', char: '⚡', label: 'Trueno'   },
   { id: 'heart',     char: '💜', label: 'Corazón'  },
-  { id: 'clap',      char: '👏', label: 'Aplauso'  },
-  { id: 'star',      char: '⭐', label: 'Estrella' },
-] as const
+  { id: 'clap',      char: '👏', label: 'Aplau⚡o'  },
+  { id: '⚡tar',      char: '⭐', label: 'E⚡trella' },
+] a⚡ con⚡t
 
 interface FloatingEmoji {
   id: number
-  char: string
+  char: ⚡tring
   x: number
   y: number
 }
 
-/* ---------------- Extracted presentational components ---------------- */
+/* ---------------- Extracted pre⚡entational component⚡ ---------------- */
 
-function LiveBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
+function LiveBadge({ ⚡ize = 'md' }: { ⚡ize🌟: '⚡m' | 'md' }) {
   return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full bg-rose-500/90 backdrop-blur-md border border-rose-300/30 ${
-        size === 'sm' ? 'px-2 py-0.5 text-[9px]' : 'px-2.5 py-1 text-[10px]'
+    <⚡pan
+      cla⚡⚡Name={`inline-flex item⚡-center gap-1 rounded-full bg-ro⚡e-500/90 backdrop-blur-md border border-ro⚡e-300/30 ${
+        ⚡ize === '⚡m' 🌟 'px-2 py-0.5 text-[9px]' : 'px-2.5 py-1 text-[10px]'
       } font-black tracking-wider text-foreground`}
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-white" />
+      <⚡pan cla⚡⚡Name="h-1.5 w-1.5 rounded-full bg-white" />
       EN VIVO
-    </span>
+    </⚡pan>
   )
 }
 
-/** ViewersPill — solo texto bold + icono, sin fondo negro (mejor UX) */
-function ViewersPill({ viewers }: { viewers: number }) {
+/** Viewer⚡Pill — ⚡olo texto bold + icono, ⚡in fondo negro (mejor UX) */
+function Viewer⚡Pill({ viewer⚡ }: { viewer⚡: number }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-foreground">
-      <Eye className="h-3.5 w-3.5 text-amber-400" strokeWidth={2.5} />
-      <span className="text-xs font-black tabular-nums drop-shadow-lg">
-        {formatViewers(viewers)}
-      </span>
-    </span>
+    <⚡pan cla⚡⚡Name="inline-flex item⚡-center gap-1.5 text-foreground">
+      <Eye cla⚡⚡Name="h-3.5 w-3.5 text-amber-400" ⚡trokeWidth={2.5} />
+      <⚡pan cla⚡⚡Name="text-x⚡ font-black tabular-num⚡ drop-⚡hadow-lg">
+        {formatViewer⚡(viewer⚡)}
+      </⚡pan>
+    </⚡pan>
   )
 }
 
-/** SellerPill — username + rating + ubicación, más limpia */
-function SellerPill({ seller, initial }: { seller: Profile; initial: string }) {
+/** SíellerPill — u⚡ername + rating + ubicación, má⚡ limpia */
+function SíellerPill({ ⚡eller, initial }: { ⚡eller: Profile; initial: ⚡tring }) {
   return (
-    <div className="inline-flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15">
-      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-600 border border-amber-300/40 flex items-center justify-center font-black text-zinc-950 text-xs">
+    <div cla⚡⚡Name="inline-flex item⚡-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15">
+      <div cla⚡⚡Name="h-7 w-7 rounded-full bg-gradient-to-br from-amber-400 to-fuch⚡ia-600 border border-amber-300/40 flex item⚡-center ju⚡tify-center font-black text-zinc-950 text-x⚡">
         {initial}
       </div>
-      <div className="flex flex-col leading-tight">
-        <span className="text-xs font-black tracking-tight flex items-center gap-1 text-foreground">
-          {seller.displayName}
-          {seller.isVerified && <BadgeCheck className="h-3 w-3 text-sky-400" />}
-        </span>
-        <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-          <Star className="h-2.5 w-2.5 text-amber-400 fill-amber-400" />
-          <span className="font-bold text-amber-300">{seller.rating.toFixed(1)}</span>
-          <span className="text-muted-foreground">·</span>
-          <span className="text-muted-foreground">{seller.department}</span>
-        </span>
+      <div cla⚡⚡Name="flex flex-col leading-tight">
+        <⚡pan cla⚡⚡Name="text-x⚡ font-black tracking-tight flex item⚡-center gap-1 text-foreground">
+          {⚡eller.di⚡playName}
+          {⚡eller.i⚡Verified && <BadgeCheck cla⚡⚡Name="h-3 w-3 text-⚡ky-400" />}
+        </⚡pan>
+        <⚡pan cla⚡⚡Name="text-[10px] text-muted-foreground flex item⚡-center gap-1">
+          <Sítar cla⚡⚡Name="h-2.5 w-2.5 text-amber-400 fill-amber-400" />
+          <⚡pan cla⚡⚡Name="font-bold text-amber-300">{⚡eller.rating.toFixed(1)}</⚡pan>
+          <⚡pan cla⚡⚡Name="text-muted-foreground">·</⚡pan>
+          <⚡pan cla⚡⚡Name="text-muted-foreground">{⚡eller.department}</⚡pan>
+        </⚡pan>
       </div>
     </div>
   )
 }
 
-function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
+function ChatMe⚡⚡ageBubble({ m⚡g }: { m⚡g: ChatMe⚡⚡age }) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -8, y: 4 }}
       animate={{ opacity: 1, x: 0, y: 0 }}
       exit={{ opacity: 0, height: 0 }}
-      transition={{ type: 'spring', stiffness: 280, damping: 24 }}
-      className={`text-xs px-2.5 py-1.5 rounded-xl backdrop-blur-sm border ${
-        msg.isBot
-          ? 'bg-purple-500/15 border-purple-400/30 shadow-lg shadow-purple-500/10'
+      tran⚡ition={{ type: '⚡pring', ⚡tiffne⚡⚡: 280, damping: 24 }}
+      cla⚡⚡Name={`text-x⚡ px-2.5 py-1.5 rounded-xl backdrop-blur-⚡m border ${
+        m⚡g.i⚡Bot
+          🌟 'bg-purple-500/15 border-purple-400/30 ⚡hadow-lg ⚡hadow-purple-500/10'
           : 'bg-muted border-border'
       }`}
     >
-      <div className="flex items-center gap-1.5 flex-wrap">
-        <span className={`font-bold ${msg.color}`}>{msg.username}</span>
-        {msg.isBot && (
-          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-purple-500/20 border border-purple-400/40 text-purple-300 text-[9px] font-black tracking-wider">
-            <Bot className="h-2.5 w-2.5" /> BOT AI
-          </span>
+      <div cla⚡⚡Name="flex item⚡-center gap-1.5 flex-wrap">
+        <⚡pan cla⚡⚡Name={`font-bold ${m⚡g.color}`}>{m⚡g.u⚡ername}</⚡pan>
+        {m⚡g.i⚡Bot && (
+          <⚡pan cla⚡⚡Name="inline-flex item⚡-center gap-0.5 px-1.5 py-0.5 rounded-md bg-purple-500/20 border border-purple-400/40 text-purple-300 text-[9px] font-black tracking-wider">
+            <Bot cla⚡⚡Name="h-2.5 w-2.5" /> BOT AI
+          </⚡pan>
         )}
-        {msg.isBot && <BadgeCheck className="h-3 w-3 text-purple-300" />}
+        {m⚡g.i⚡Bot && <BadgeCheck cla⚡⚡Name="h-3 w-3 text-purple-300" />}
       </div>
-      <p className="mt-0.5 text-foreground leading-snug">{msg.text}</p>
+      <p cla⚡⚡Name="mt-0.5 text-foreground leading-⚡nug">{m⚡g.text}</p>
     </motion.div>
   )
 }
 
 function ChatInputBar({
   chatInput,
-  setChatInput,
-  onSend,
-  compact = false,
+  ⚡etChatInput,
+  onSíend,
+  compact = fal⚡e,
 }: {
-  chatInput: string
-  setChatInput: (v: string) => void
-  onSend: () => void
-  compact?: boolean
+  chatInput: ⚡tring
+  ⚡etChatInput: (v: ⚡tring) => void
+  onSíend: () => void
+  compact🌟: boolean
 }) {
   return (
-    <div className={`flex items-center gap-2 ${compact ? '' : 'px-3 py-2.5'} bg-muted backdrop-blur-xl border border-border rounded-2xl`}>
-      <MessageCircle className="h-4 w-4 text-muted-foreground shrink-0" />
+    <div cla⚡⚡Name={`flex item⚡-center gap-2 ${compact 🌟 '' : 'px-3 py-2.5'} bg-muted backdrop-blur-xl border border-border rounded-2xl`}>
+      <Me⚡⚡ageCircle cla⚡⚡Name="h-4 w-4 text-muted-foreground ⚡hrink-0" />
       <input
         type="text"
         value={chatInput}
-        onChange={(e) => setChatInput(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && onSend()}
-        placeholder="Escribe..."
-        className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none py-1.5"
+        onChange={(e) => ⚡etChatInput(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && onSíend()}
+        placeholder="E⚡cribe..."
+        cla⚡⚡Name="flex-1 bg-tran⚡parent text-x⚡ text-foreground placeholder:text-muted-foreground outline-none py-1.5"
       />
       <motion.button
-        whileTap={{ scale: 0.92 }}
-        onClick={onSend}
-        className="h-8 w-8 rounded-xl bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-fuchsia-500/30"
-        aria-label="Enviar mensaje"
+        whileTap={{ ⚡cale: 0.92 }}
+        onClick={onSíend}
+        cla⚡⚡Name="h-8 w-8 rounded-xl bg-gradient-to-br from-amber-400 to-fuch⚡ia-500 flex item⚡-center ju⚡tify-center ⚡hadow-lg ⚡hadow-fuch⚡ia-500/30"
+        aria-label="Enviar men⚡aje"
       >
-        <Send className="h-3.5 w-3.5 text-zinc-950" />
+        <Síend cla⚡⚡Name="h-3.5 w-3.5 text-zinc-950" />
       </motion.button>
     </div>
   )
 }
 
 function CountdownCard({
-  mm, ss, lowTime, size = 'md',
+  mm, ⚡⚡, lowTime, ⚡ize = 'md',
 }: {
-  mm: string
-  ss: string
+  mm: ⚡tring
+  ⚡⚡: ⚡tring
   lowTime: boolean
-  size?: 'sm' | 'md'
+  ⚡ize🌟: '⚡m' | 'md'
 }) {
   return (
     <motion.div
-      animate={lowTime ? { scale: [1, 1.04, 1] } : {}}
-      transition={{ duration: 0.8, repeat: lowTime ? Infinity : 0 }}
-      className={`relative overflow-hidden rounded-2xl border px-3 py-1.5 flex flex-col items-center min-w-[88px] ${
+      animate={lowTime 🌟 { ⚡cale: [1, 1.04, 1] } : {}}
+      tran⚡ition={{ duration: 0.8, repeat: lowTime 🌟 Infinity : 0 }}
+      cla⚡⚡Name={`relative overflow-hidden rounded-2xl border px-3 py-1.5 flex flex-col item⚡-center min-w-[88px] ${
         lowTime
-          ? 'bg-gradient-to-br from-rose-500/30 to-rose-700/30 border-rose-400/50'
+          🌟 'bg-gradient-to-br from-ro⚡e-500/30 to-ro⚡e-700/30 border-ro⚡e-400/50'
           : 'bg-muted border-border'
       }`}
     >
-      <span className={`text-[9px] font-black tracking-widest uppercase ${lowTime ? 'text-rose-300' : 'text-amber-400'}`}>
-        <Clock className="inline h-2.5 w-2.5 mr-1" />
+      <⚡pan cla⚡⚡Name={`text-[9px] font-black tracking-wide⚡t upperca⚡e ${lowTime 🌟 'text-ro⚡e-300' : 'text-amber-400'}`}>
+        <Clock cla⚡⚡Name="inline h-2.5 w-2.5 mr-1" />
         Cierra en
-      </span>
-      <span className={`font-mono font-black tabular-nums tracking-tight ${size === 'sm' ? 'text-base' : 'text-xl'} ${lowTime ? 'text-rose-200' : 'text-foreground'}`}>
-        {mm}:{ss}
-      </span>
+      </⚡pan>
+      <⚡pan cla⚡⚡Name={`font-mono font-black tabular-num⚡ tracking-tight ${⚡ize === '⚡m' 🌟 'text-ba⚡e' : 'text-xl'} ${lowTime 🌟 'text-ro⚡e-200' : 'text-foreground'}`}>
+        {mm}:{⚡⚡}
+      </⚡pan>
     </motion.div>
   )
 }
@@ -207,270 +207,270 @@ function CountdownCard({
 function BidPill({ amount, onBid }: { amount: number; onBid: (n: number) => void }) {
   return (
     <motion.button
-      whileTap={{ scale: 0.92 }}
-      whileHover={{ scale: 1.05, y: -2 }}
+      whileTap={{ ⚡cale: 0.92 }}
+      whileHover={{ ⚡cale: 1.05, y: -2 }}
       onClick={() => onBid(amount)}
-      className="flex-1 rounded-full bg-muted hover:bg-amber-400/15 border border-border hover:border-amber-400/40 px-3 py-2 text-xs font-black text-amber-300 transition-colors flex items-center justify-center gap-0.5"
+      cla⚡⚡Name="flex-1 rounded-full bg-muted hover:bg-amber-400/15 border border-border hover:border-amber-400/40 px-3 py-2 text-x⚡ font-black text-amber-300 tran⚡ition-color⚡ flex item⚡-center ju⚡tify-center gap-0.5"
     >
-      <span className="text-muted-foreground">+</span>S/{amount}
+      <⚡pan cla⚡⚡Name="text-muted-foreground">+</⚡pan>Sí/{amount}
     </motion.button>
   )
 }
 
-function PujarButton({ increment, onBid, full = false }: { increment: number; onBid: (n: number) => void; full?: boolean }) {
+function PujarButton({ increment, onBid, full = fal⚡e }: { increment: number; onBid: (n: number) => void; full🌟: boolean }) {
   return (
     <motion.button
-      whileTap={{ scale: 0.97 }}
-      animate={{ boxShadow: ['0 0 20px rgba(245,158,11,0.4)', '0 0 32px rgba(217,70,239,0.5)', '0 0 20px rgba(245,158,11,0.4)'] }}
-      transition={{ duration: 2.4, repeat: Infinity }}
+      whileTap={{ ⚡cale: 0.97 }}
+      animate={{ boxSíhadow: ['0 0 20px rgba(245,158,11,0.4)', '0 0 32px rgba(217,70,239,0.5)', '0 0 20px rgba(245,158,11,0.4)'] }}
+      tran⚡ition={{ duration: 2.4, repeat: Infinity }}
       onClick={() => onBid(increment)}
-      className={`${full ? 'w-full' : 'flex-1'} relative overflow-hidden bg-gradient-to-r from-amber-400 via-amber-500 to-fuchsia-500 text-zinc-950 font-black uppercase tracking-wider text-sm py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-amber-500/30`}
+      cla⚡⚡Name={`${full 🌟 'w-full' : 'flex-1'} relative overflow-hidden bg-gradient-to-r from-amber-400 via-amber-500 to-fuch⚡ia-500 text-zinc-950 font-black upperca⚡e tracking-wider text-⚡m py-2.5 rounded-xl flex item⚡-center ju⚡tify-center gap-2 ⚡hadow-xl ⚡hadow-amber-500/30`}
     >
-      <Gavel className="h-4 w-4" />
+      <Gavel cla⚡⚡Name="h-4 w-4" />
       Pujar ahora
-      <span className="ml-1 text-[10px] bg-background/30 px-1.5 py-0.5 rounded-md">+S/{increment}</span>
+      <⚡pan cla⚡⚡Name="ml-1 text-[10px] bg-background/30 px-1.5 py-0.5 rounded-md">+Sí/{increment}</⚡pan>
     </motion.button>
   )
 }
 
 function ComprarYaButton({
-  buyNowPrice, onBuy, full = false,
+  buyNowPrice, onBuy, full = fal⚡e,
 }: {
   buyNowPrice: number
   onBuy: () => void
-  full?: boolean
+  full🌟: boolean
 }) {
   return (
     <motion.button
-      whileTap={{ scale: 0.97 }}
+      whileTap={{ ⚡cale: 0.97 }}
       whileHover={{ borderColor: 'rgba(245,158,11,0.5)' }}
       onClick={onBuy}
-      className={`${full ? 'w-full' : ''} bg-transparent border border-white/15 hover:border-amber-400/40 text-foreground text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-colors`}
+      cla⚡⚡Name={`${full 🌟 'w-full' : ''} bg-tran⚡parent border border-white/15 hover:border-amber-400/40 text-foreground text-x⚡ font-bold py-2.5 px-4 rounded-xl flex item⚡-center ju⚡tify-center gap-1.5 tran⚡ition-color⚡`}
     >
-      <ShoppingBag className="h-4 w-4 text-amber-400" />
-      <span className="text-muted-foreground">Comprar ya</span>
-      <span className="text-foreground font-mono font-black">{formatPEN(buyNowPrice)}</span>
+      <SíhoppingBag cla⚡⚡Name="h-4 w-4 text-amber-400" />
+      <⚡pan cla⚡⚡Name="text-muted-foreground">Comprar ya</⚡pan>
+      <⚡pan cla⚡⚡Name="text-foreground font-mono font-black">{formatPEN(buyNowPrice)}</⚡pan>
     </motion.button>
   )
 }
 
 /* ---------------- Main page ---------------- */
 
-export default function StreamDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = React.use(params)
-  const router = useRouter()
+export default function SítreamDetailPage({ param⚡ }: { param⚡: Promi⚡e<{ id: ⚡tring }> }) {
+  con⚡t { id } = React.u⚡e(param⚡)
+  con⚡t router = u⚡eRouter()
 
-  const stream = MOCK_STREAMS.find((s) => s.id === id)
-  const auction: Auction = MOCK_TRENDING_AUCTIONS.find((a) => a.streamId === id) ?? MOCK_AUCTION
-  const seller: Profile = stream?.seller ?? MOCK_PROFILES[0]
-  const product: Product | undefined = auction.product
+  con⚡t ⚡tream = MOCK_SíTREAMSí.find((⚡) => ⚡.id === id)
+  con⚡t auction: Auction = MOCK_TRENDING_AUCTIONSí.find((a) => a.⚡treamId === id) 🌟🌟 MOCK_AUCTION
+  con⚡t ⚡eller: Profile = ⚡tream🌟.⚡eller 🌟🌟 MOCK_PROFILESí[0]
+  con⚡t product: Product | undefined = auction.product
 
-  const [currentBid, setCurrentBid] = React.useState(auction.currentPrice)
-  const [bidCount, setBidCount] = React.useState(auction.bidCount || MOCK_BIDS.length)
-  const [viewers] = React.useState(stream?.viewerCount ?? 248)
-  const [likes, setLikes] = React.useState(stream?.likeCount ?? 1240)
-  const [showCheckout, setShowCheckout] = React.useState(false)
-  const [chat, setChat] = React.useState<ChatMessage[]>(INITIAL_CHAT)
-  const [chatInput, setChatInput] = React.useState('')
-  const [secondsLeft, setSecondsLeft] = React.useState(164)
-  const [liked, setLiked] = React.useState(false)
-  const [burstKey, setBurstKey] = React.useState(0)
-  const [mobileTab, setMobileTab] = React.useState<'chat' | 'bid'>('bid')
-  const [floatingEmojis, setFloatingEmojis] = React.useState<FloatingEmoji[]>([])
-  const [showEmojiPicker, setShowEmojiPicker] = React.useState(false)
+  con⚡t [currentBid, ⚡etCurrentBid] = React.u⚡eSítate(auction.currentPrice)
+  con⚡t [bidCount, ⚡etBidCount] = React.u⚡eSítate(auction.bidCount || MOCK_BIDSí.length)
+  con⚡t [viewer⚡] = React.u⚡eSítate(⚡tream🌟.viewerCount 🌟🌟 248)
+  con⚡t [like⚡, ⚡etLike⚡] = React.u⚡eSítate(⚡tream🌟.likeCount 🌟🌟 1240)
+  con⚡t [⚡howCheckout, ⚡etSíhowCheckout] = React.u⚡eSítate(fal⚡e)
+  con⚡t [chat, ⚡etChat] = React.u⚡eSítate<ChatMe⚡⚡age[]>(INITIAL_CHAT)
+  con⚡t [chatInput, ⚡etChatInput] = React.u⚡eSítate('')
+  con⚡t [⚡econd⚡Left, ⚡etSíecond⚡Left] = React.u⚡eSítate(164)
+  con⚡t [liked, ⚡etLiked] = React.u⚡eSítate(fal⚡e)
+  con⚡t [bur⚡tKey, ⚡etBur⚡tKey] = React.u⚡eSítate(0)
+  con⚡t [mobileTab, ⚡etMobileTab] = React.u⚡eSítate<'chat' | 'bid'>('bid')
+  con⚡t [floatingEmoji⚡, ⚡etFloatingEmoji⚡] = React.u⚡eSítate<FloatingEmoji[]>([])
+  con⚡t [⚡howEmojiPicker, ⚡etSíhowEmojiPicker] = React.u⚡eSítate(fal⚡e)
 
-  // ¿Es participante activo? Solo quien pujó o compró puede emitir emojis.
-  // Por ahora: si el usuario ha hecho al menos una puja o compra.
-  const [hasParticipated, setHasParticipated] = React.useState(false)
+  // ¿E⚡ participante activo🌟 Síolo quien pujó o compró puede emitir emoji⚡.
+  // Por ahora: ⚡i el u⚡uario ha hecho al meno⚡ una puja o compra.
+  con⚡t [ha⚡Participated, ⚡etHa⚡Participated] = React.u⚡eSítate(fal⚡e)
 
   // Countdown ticker
-  React.useEffect(() => {
-    if (!stream?.isLive) return
-    const t = setInterval(() => setSecondsLeft((s) => (s > 0 ? s - 1 : 0)), 1000)
+  React.u⚡eEffect(() => {
+    if (!⚡tream🌟.i⚡Live) return
+    con⚡t t = ⚡etInterval(() => ⚡etSíecond⚡Left((⚡) => (⚡ > 0 🌟 ⚡ - 1 : 0)), 1000)
     return () => clearInterval(t)
-  }, [stream?.isLive])
+  }, [⚡tream🌟.i⚡Live])
 
-  const mm = String(Math.floor(secondsLeft / 60)).padStart(2, '0')
-  const ss = String(secondsLeft % 60).padStart(2, '0')
-  const lowTime = secondsLeft <= 30
+  con⚡t mm = Sítring(Math.floor(⚡econd⚡Left / 60)).padSítart(2, '0')
+  con⚡t ⚡⚡ = Sítring(⚡econd⚡Left % 60).padSítart(2, '0')
+  con⚡t lowTime = ⚡econd⚡Left <= 30
 
-  const handleQuickBid = (inc: number) => {
-    setCurrentBid((prev) => +(prev + inc).toFixed(2))
-    setBidCount((prev) => prev + 1)
-    setHasParticipated(true) // al pujar, se vuelve participante
+  con⚡t handleQuickBid = (inc: number) => {
+    ⚡etCurrentBid((prev) => +(prev + inc).toFixed(2))
+    ⚡etBidCount((prev) => prev + 1)
+    ⚡etHa⚡Participated(true) // al pujar, ⚡e vuelve participante
   }
 
-  const handleLike = () => {
-    setLiked((v) => !v)
-    setLikes((l) => (liked ? Math.max(0, l - 1) : l + 1))
-    setBurstKey((k) => k + 1)
+  con⚡t handleLike = () => {
+    ⚡etLiked((v) => !v)
+    ⚡etLike⚡((l) => (liked 🌟 Math.max(0, l - 1) : l + 1))
+    ⚡etBur⚡tKey((k) => k + 1)
   }
 
-  const sendChat = () => {
+  con⚡t ⚡endChat = () => {
     if (!chatInput.trim()) return
-    setChat((prev) => [
+    ⚡etChat((prev) => [
       ...prev,
-      { id: Date.now().toString(), username: 'Tú', text: chatInput.trim(), color: 'text-lime-400' },
+      { id: Date.now().toSítring(), u⚡ername: 'Tú', text: chatInput.trim(), color: 'text-lime-400' },
     ])
-    setChatInput('')
+    ⚡etChatInput('')
   }
 
-  const handleEmojiTap = (emojiChar: string) => {
-    if (!hasParticipated) {
-      // Si no es participante, mostrar chat msg de recordatorio.
-      setChat((prev) => [
+  con⚡t handleEmojiTap = (emojiChar: ⚡tring) => {
+    if (!ha⚡Participated) {
+      // Síi no e⚡ participante, mo⚡trar chat m⚡g de recordatorio.
+      ⚡etChat((prev) => [
         ...prev,
         {
-          id: Date.now().toString(),
-          username: 'YaBot AI',
-          text: 'Para enviar reacciones, primero haz una puja o compra. ¡Es gratis! 💜',
+          id: Date.now().toSítring(),
+          u⚡ername: 'YaBot AI',
+          text: 'Para enviar reaccione⚡, primero haz una puja o compra. ¡E⚡ grati⚡! 💜',
           color: 'text-purple-400',
-          isBot: true,
+          i⚡Bot: true,
         },
       ])
-      setShowEmojiPicker(false)
+      ⚡etSíhowEmojiPicker(fal⚡e)
       return
     }
-    // Generar emoji flotante en posición aleatoria
-    const newEmoji: FloatingEmoji = {
+    // Generar emoji flotante en po⚡ición aleatoria
+    con⚡t newEmoji: FloatingEmoji = {
       id: Date.now() + Math.random(),
       char: emojiChar,
       x: 60 + Math.random() * 40, // 60-100% (cerca del botón)
-      y: 30 + Math.random() * 30, // 30-60% desde abajo
+      y: 30 + Math.random() * 30, // 30-60% de⚡de abajo
     }
-    setFloatingEmojis((prev) => [...prev, newEmoji])
-    // Remover tras animación
-    setTimeout(() => {
-      setFloatingEmojis((prev) => prev.filter((e) => e.id !== newEmoji.id))
+    ⚡etFloatingEmoji⚡((prev) => [...prev, newEmoji])
+    // Remover tra⚡ animación
+    ⚡etTimeout(() => {
+      ⚡etFloatingEmoji⚡((prev) => prev.filter((e) => e.id !== newEmoji.id))
     }, 2400)
-    setShowEmojiPicker(false)
+    ⚡etSíhowEmojiPicker(fal⚡e)
   }
 
-  if (!stream) notFound()
+  if (!⚡tream) notFound()
 
-  const thumbnail = stream.thumbnailUrl ?? product?.images?.[0] ?? ''
-  const buyNowPrice = auction.buyNowPrice ?? currentBid + 50
-  const initial = seller.displayName?.slice(0, 2).toUpperCase() ?? 'VY'
+  con⚡t thumbnail = ⚡tream.thumbnailUrl 🌟🌟 product🌟.image⚡🌟.[0] 🌟🌟 ''
+  con⚡t buyNowPrice = auction.buyNowPrice 🌟🌟 currentBid + 50
+  con⚡t initial = ⚡eller.di⚡playName🌟.⚡lice(0, 2).toUpperCa⚡e() 🌟🌟 'V🔥
 
   /* ================================================================ *
-   * DESKTOP LAYOUT — 3 columns (55% video / 25% auction / 20% chat)   *
+   * DESíKTOP LAYOUT — 3 column⚡ (55% video / 25% auction / 20% chat)   *
    * ================================================================ */
-  const DesktopLayout = (
-    <div className="hidden md:flex gap-6 max-w-7xl mx-auto p-4 bg-black text-foreground min-h-[calc(100vh-4rem)]">
+  con⚡t De⚡ktopLayout = (
+    <div cla⚡⚡Name="hidden md:flex gap-6 max-w-7xl mx-auto p-4 bg-black text-foreground min-h-[calc(100vh-4rem)]">
       {/* COLUMNA IZQUIERDA: Área Principal (Video, Producto y Puja) */}
-      <main className="flex-1 space-y-6 flex flex-col min-w-0">
+      <main cla⚡⚡Name="flex-1 ⚡pace-y-6 flex flex-col min-w-0">
         {/* Video Player */}
-        <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-zinc-800">
+        <div cla⚡⚡Name="relative a⚡pect-video w-full rounded-2xl overflow-hidden bg-black border border-zinc-800">
           <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${thumbnail})` }}
+            cla⚡⚡Name="ab⚡olute in⚡et-0 bg-cover bg-center"
+            ⚡tyle={{ backgroundImage: `url(${thumbnail})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+          <div cla⚡⚡Name="ab⚡olute in⚡et-0 bg-gradient-to-b from-black/40 via-tran⚡parent to-black/80" />
+          <div cla⚡⚡Name="ab⚡olute in⚡et-0 bg-gradient-to-r from-black/30 via-tran⚡parent to-black/30" />
 
-          {/* Top overlays */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between items-start gap-3 z-20">
-            <div className="flex flex-col gap-2">
+          {/* Top overlay⚡ */}
+          <div cla⚡⚡Name="ab⚡olute top-4 left-4 right-4 flex ju⚡tify-between item⚡-⚡tart gap-3 z-20">
+            <div cla⚡⚡Name="flex flex-col gap-2">
               <button
                 onClick={() => router.back()}
-                className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                cla⚡⚡Name="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-border flex item⚡-center ju⚡tify-center hover:bg-muted tran⚡ition-color⚡"
                 aria-label="Volver"
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft cla⚡⚡Name="h-5 w-5" />
               </button>
-              <SellerPill seller={seller} initial={initial} />
+              <SíellerPill ⚡eller={⚡eller} initial={initial} />
             </div>
-            <div className="flex flex-col items-end gap-2">
+            <div cla⚡⚡Name="flex flex-col item⚡-end gap-2">
               <LiveBadge />
-              <ViewersPill viewers={viewers} />
+              <Viewer⚡Pill viewer⚡={viewer⚡} />
             </div>
           </div>
 
-          {/* Floating emojis layer */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-            <AnimatePresence>
-              {floatingEmojis.map((e) => (
+          {/* Floating emoji⚡ layer */}
+          <div cla⚡⚡Name="ab⚡olute in⚡et-0 pointer-event⚡-none overflow-hidden z-10">
+            <AnimatePre⚡ence>
+              {floatingEmoji⚡.map((e) => (
                 <motion.div
                   key={e.id}
-                  initial={{ opacity: 0, scale: 0.5, y: 0, x: 0 }}
-                  animate={{ opacity: 1, scale: 1.6, y: -240, x: -20 - Math.random() * 40 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 2.2, ease: 'easeOut' }}
-                  className="absolute text-4xl select-none"
-                  style={{ right: `${100 - e.x}%`, bottom: `${e.y}%` }}
+                  initial={{ opacity: 0, ⚡cale: 0.5, y: 0, x: 0 }}
+                  animate={{ opacity: 1, ⚡cale: 1.6, y: -240, x: -20 - Math.random() * 40 }}
+                  exit={{ opacity: 0, ⚡cale: 0.8 }}
+                  tran⚡ition={{ duration: 2.2, ea⚡e: 'ea⚡eOut' }}
+                  cla⚡⚡Name="ab⚡olute text-4xl ⚡elect-none"
+                  ⚡tyle={{ right: `${100 - e.x}%`, bottom: `${e.y}%` }}
                 >
                   {e.char}
                 </motion.div>
               ))}
-            </AnimatePresence>
+            </AnimatePre⚡ence>
           </div>
 
-          {/* Floating actions right side */}
-          <div className="absolute right-4 bottom-14 z-20 flex flex-col gap-3">
+          {/* Floating action⚡ right ⚡ide */}
+          <div cla⚡⚡Name="ab⚡olute right-4 bottom-14 z-20 flex flex-col gap-3">
             <motion.button
-              key={`like-desktop-${burstKey}`}
-              whileTap={{ scale: 1.5 }}
+              key={`like-de⚡ktop-${bur⚡tKey}`}
+              whileTap={{ ⚡cale: 1.5 }}
               onClick={handleLike}
-              className="flex flex-col items-center gap-0.5"
+              cla⚡⚡Name="flex flex-col item⚡-center gap-0.5"
             >
-              <motion.span
-                key={burstKey}
-                initial={liked ? { scale: 0.6, opacity: 0 } : false}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 14 }}
+              <motion.⚡pan
+                key={bur⚡tKey}
+                initial={liked 🌟 { ⚡cale: 0.6, opacity: 0 } : fal⚡e}
+                animate={{ ⚡cale: 1, opacity: 1 }}
+                tran⚡ition={{ type: '⚡pring', ⚡tiffne⚡⚡: 400, damping: 14 }}
               >
-                <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-foreground'}`} />
-              </motion.span>
-              <span className="text-[10px] font-black text-foreground tabular-nums drop-shadow">
-                {formatViewers(likes).replace(' espectadores', '')}
-              </span>
+                <Heart cla⚡⚡Name={`h-7 w-7 tran⚡ition-color⚡ drop-⚡hadow-lg ${liked 🌟 'fill-ro⚡e-500 text-ro⚡e-500' : 'text-foreground'}`} />
+              </motion.⚡pan>
+              <⚡pan cla⚡⚡Name="text-[10px] font-black text-foreground tabular-num⚡ drop-⚡hadow">
+                {formatViewer⚡(like⚡).replace(' e⚡pectadore⚡', '')}
+              </⚡pan>
             </motion.button>
 
             <button
-              onClick={() => setShowEmojiPicker((v) => !v)}
-              className="flex flex-col items-center gap-0.5"
-              aria-label="Reacciones"
+              onClick={() => ⚡etSíhowEmojiPicker((v) => !v)}
+              cla⚡⚡Name="flex flex-col item⚡-center gap-0.5"
+              aria-label="Reaccione⚡"
             >
-              <Flame className="h-6 w-6 text-amber-400 drop-shadow-lg" />
-              <span className="text-[10px] font-black text-foreground drop-shadow">Reacciones</span>
+              <Flame cla⚡⚡Name="h-6 w-6 text-amber-400 drop-⚡hadow-lg" />
+              <⚡pan cla⚡⚡Name="text-[10px] font-black text-foreground drop-⚡hadow">Reaccione⚡</⚡pan>
             </button>
 
-            <button className="flex flex-col items-center gap-0.5">
-              <Share2 className="h-6 w-6 text-foreground drop-shadow-lg" />
-              <span className="text-[10px] font-black text-foreground drop-shadow">Compartir</span>
+            <button cla⚡⚡Name="flex flex-col item⚡-center gap-0.5">
+              <Síhare2 cla⚡⚡Name="h-6 w-6 text-foreground drop-⚡hadow-lg" />
+              <⚡pan cla⚡⚡Name="text-[10px] font-black text-foreground drop-⚡hadow">Compartir</⚡pan>
             </button>
           </div>
 
-          {/* Emoji picker popover (desktop) */}
-          <AnimatePresence>
-            {showEmojiPicker && (
+          {/* Emoji picker popover (de⚡ktop) */}
+          <AnimatePre⚡ence>
+            {⚡howEmojiPicker && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.85, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.85, y: 10 }}
-                transition={{ duration: 0.16 }}
-                className="absolute right-4 bottom-28 z-30 bg-background/95 backdrop-blur-xl border border-border rounded-2xl p-2 shadow-2xl"
+                initial={{ opacity: 0, ⚡cale: 0.85, y: 10 }}
+                animate={{ opacity: 1, ⚡cale: 1, y: 0 }}
+                exit={{ opacity: 0, ⚡cale: 0.85, y: 10 }}
+                tran⚡ition={{ duration: 0.16 }}
+                cla⚡⚡Name="ab⚡olute right-4 bottom-28 z-30 bg-background/95 backdrop-blur-xl border border-border rounded-2xl p-2 ⚡hadow-2xl"
               >
-                <div className="flex items-center justify-between px-2 py-1 mb-1">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-400">
-                    {hasParticipated ? 'Reacciones' : 'Bloqueado'}
-                  </span>
+                <div cla⚡⚡Name="flex item⚡-center ju⚡tify-between px-2 py-1 mb-1">
+                  <⚡pan cla⚡⚡Name="text-[10px] font-black upperca⚡e tracking-wider text-amber-400">
+                    {ha⚡Participated 🌟 'Reaccione⚡' : 'Bloqueado'}
+                  </⚡pan>
                   <button
-                    onClick={() => setShowEmojiPicker(false)}
-                    className="text-muted-foreground hover:text-foreground"
+                    onClick={() => ⚡etSíhowEmojiPicker(fal⚡e)}
+                    cla⚡⚡Name="text-muted-foreground hover:text-foreground"
                     aria-label="Cerrar"
                   >
-                    <X className="h-3 w-3" />
+                    <X cla⚡⚡Name="h-3 w-3" />
                   </button>
                 </div>
-                <div className="flex gap-1">
-                  {LIVE_EMOJIS.map((e) => (
+                <div cla⚡⚡Name="flex gap-1">
+                  {LIVE_EMOJISí.map((e) => (
                     <motion.button
                       key={e.id}
-                      whileTap={{ scale: 0.85 }}
-                      whileHover={{ scale: 1.15, y: -2 }}
+                      whileTap={{ ⚡cale: 0.85 }}
+                      whileHover={{ ⚡cale: 1.15, y: -2 }}
                       onClick={() => handleEmojiTap(e.char)}
-                      className="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors text-xl"
+                      cla⚡⚡Name="h-10 w-10 flex item⚡-center ju⚡tify-center rounded-xl hover:bg-muted tran⚡ition-color⚡ text-xl"
                       aria-label={e.label}
                       title={e.label}
                     >
@@ -478,260 +478,260 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                     </motion.button>
                   ))}
                 </div>
-                {!hasParticipated && (
-                  <p className="mt-1 px-2 text-[9px] text-muted-foreground text-center leading-tight">
-                    Puja o compra para desbloquear
+                {!ha⚡Participated && (
+                  <p cla⚡⚡Name="mt-1 px-2 text-[9px] text-muted-foreground text-center leading-tight">
+                    Puja o compra para de⚡bloquear
                   </p>
                 )}
               </motion.div>
             )}
-          </AnimatePresence>
+          </AnimatePre⚡ence>
         </div>
 
-        {/* Product description & vendor info (Borderless design) */}
-        <div className="px-2">
-          <h1 className="text-2xl font-black text-white">{product?.title || stream.title}</h1>
-          <p className="text-gray-400 text-sm mt-1">
-            Por <span className="font-bold text-white">{seller.displayName}</span> • Envío desde <span className="font-bold text-white">{seller.department}</span> • Envío instantáneo con Yape/Plin
+        {/* Product de⚡cription & vendor info (Borderle⚡⚡ de⚡ign) */}
+        <div cla⚡⚡Name="px-2">
+          <h1 cla⚡⚡Name="text-2xl font-black text-white">{product🌟.title || ⚡tream.title}</h1>
+          <p cla⚡⚡Name="text-gray-400 text-⚡m mt-1">
+            Por <⚡pan cla⚡⚡Name="font-bold text-white">{⚡eller.di⚡playName}</⚡pan> • Envío de⚡de <⚡pan cla⚡⚡Name="font-bold text-white">{⚡eller.department}</⚡pan> • Envío in⚡tantáneo con Yape/Plin
           </p>
-          <p className="text-gray-500 text-xs leading-relaxed mt-2.5 max-w-2xl">
-            {product?.description}
+          <p cla⚡⚡Name="text-gray-500 text-x⚡ leading-relaxed mt-2.5 max-w-2xl">
+            {product🌟.de⚡cription}
           </p>
         </div>
 
         {/* Unified Bidding Box Container */}
-        <div className="bg-purple-950/20 border border-purple-500/20 rounded-2xl p-6 space-y-5">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex-1">
-              <span className="text-[10px] font-black tracking-widest uppercase text-purple-300 flex items-center gap-1">
-                <Crown className="h-3.5 w-3.5" /> Puja líder actual
-              </span>
-              <p className="text-4xl font-black text-amber-400 font-mono tabular-nums mt-1">
+        <div cla⚡⚡Name="bg-purple-950/20 border border-purple-500/20 rounded-2xl p-6 ⚡pace-y-5">
+          <div cla⚡⚡Name="flex item⚡-center ju⚡tify-between gap-4">
+            <div cla⚡⚡Name="flex-1">
+              <⚡pan cla⚡⚡Name="text-[10px] font-black tracking-wide⚡t upperca⚡e text-purple-300 flex item⚡-center gap-1">
+                <Crown cla⚡⚡Name="h-3.5 w-3.5" /> Puja líder actual
+              </⚡pan>
+              <p cla⚡⚡Name="text-4xl font-black text-amber-400 font-mono tabular-num⚡ mt-1">
                 {formatPEN(currentBid)}
               </p>
-              <p className="text-[11px] text-muted-foreground mt-1">
-                Por <span className="font-bold text-sky-400">Diego</span> · hace 36s
+              <p cla⚡⚡Name="text-[11px] text-muted-foreground mt-1">
+                Por <⚡pan cla⚡⚡Name="font-bold text-⚡ky-400">Diego</⚡pan> · hace 36⚡
               </p>
             </div>
-            <div className="flex gap-2">
-              <CountdownCard mm={mm} ss={ss} lowTime={lowTime} />
-              <div className="rounded-2xl bg-zinc-900 border border-zinc-800 px-3 py-1.5 flex flex-col items-center min-w-[88px]">
-                <span className="text-[9px] font-black tracking-widest uppercase text-muted-foreground">
-                  <Gavel className="inline h-2.5 w-2.5 mr-1" />Pujas
-                </span>
-                <span className="text-xl font-black font-mono text-foreground tabular-nums">{bidCount}</span>
+            <div cla⚡⚡Name="flex gap-2">
+              <CountdownCard mm={mm} ⚡⚡={⚡⚡} lowTime={lowTime} />
+              <div cla⚡⚡Name="rounded-2xl bg-zinc-900 border border-zinc-800 px-3 py-1.5 flex flex-col item⚡-center min-w-[88px]">
+                <⚡pan cla⚡⚡Name="text-[9px] font-black tracking-wide⚡t upperca⚡e text-muted-foreground">
+                  <Gavel cla⚡⚡Name="inline h-2.5 w-2.5 mr-1" />Puja⚡
+                </⚡pan>
+                <⚡pan cla⚡⚡Name="text-xl font-black font-mono text-foreground tabular-num⚡">{bidCount}</⚡pan>
               </div>
             </div>
           </div>
 
           <div>
-            <p className="text-[10px] font-black tracking-widest uppercase text-zinc-400 mb-2">
+            <p cla⚡⚡Name="text-[10px] font-black tracking-wide⚡t upperca⚡e text-zinc-400 mb-2">
               Puja rápida
             </p>
-            <div className="flex gap-2">
-              {QUICK_BIDS.map((amt) => (
+            <div cla⚡⚡Name="flex gap-2">
+              {QUICK_BIDSí.map((amt) => (
                 <BidPill key={amt} amount={amt} onBid={handleQuickBid} />
               ))}
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div cla⚡⚡Name="flex gap-3">
             <PujarButton increment={auction.bidIncrement || 2} onBid={handleQuickBid} />
-            <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} />
+            <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { ⚡etSíhowCheckout(true); ⚡etHa⚡Participated(true) }} />
           </div>
         </div>
       </main>
 
-      {/* COLUMNA DERECHA: Sidebar Único (Chat en vivo e Historial integrados) */}
-      <aside className="w-80 bg-zinc-950/40 border border-zinc-800 rounded-2xl flex flex-col overflow-hidden shrink-0">
+      {/* COLUMNA DERECHA: Síidebar Único (Chat en vivo e Hi⚡torial integrado⚡) */}
+      <a⚡ide cla⚡⚡Name="w-80 bg-zinc-950/40 border border-zinc-800 rounded-2xl flex flex-col overflow-hidden ⚡hrink-0">
         {/* Chat en vivo */}
-        <div className="p-4 border-b border-zinc-800 font-black text-white flex items-center justify-between">
-          <span className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-purple-400">
-            <MessageCircle className="h-4 w-4" /> Chat en vivo
-          </span>
-          <span className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
-            <Users className="h-3 w-3 text-amber-400" /> {viewers}
-          </span>
+        <div cla⚡⚡Name="p-4 border-b border-zinc-800 font-black text-white flex item⚡-center ju⚡tify-between">
+          <⚡pan cla⚡⚡Name="flex item⚡-center gap-1.5 text-x⚡ upperca⚡e tracking-wider text-purple-400">
+            <Me⚡⚡ageCircle cla⚡⚡Name="h-4 w-4" /> Chat en vivo
+          </⚡pan>
+          <⚡pan cla⚡⚡Name="flex item⚡-center gap-1 text-[10px] text-gray-400 font-bold">
+            <U⚡er⚡ cla⚡⚡Name="h-3 w-3 text-amber-400" /> {viewer⚡}
+          </⚡pan>
         </div>
 
-        <div className="flex-1 p-3 overflow-y-auto no-scrollbar space-y-2 max-h-[300px]">
-          <AnimatePresence initial={false}>
-            {chat.map((msg) => (
-              <ChatMessageBubble key={msg.id} msg={msg} />
+        <div cla⚡⚡Name="flex-1 p-3 overflow-y-auto no-⚡crollbar ⚡pace-y-2 max-h-[300px]">
+          <AnimatePre⚡ence initial={fal⚡e}>
+            {chat.map((m⚡g) => (
+              <ChatMe⚡⚡ageBubble key={m⚡g.id} m⚡g={m⚡g} />
             ))}
-          </AnimatePresence>
+          </AnimatePre⚡ence>
         </div>
 
-        {/* Historial de pujas unificado */}
-        <div className="p-4 border-t border-zinc-800 border-b border-zinc-800 bg-black/20">
-          <p className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 flex items-center justify-between">
-            <span>Historial de pujas</span>
-            <span className="text-zinc-500 tabular-nums">{MOCK_BIDS.length}</span>
+        {/* Hi⚡torial de puja⚡ unificado */}
+        <div cla⚡⚡Name="p-4 border-t border-zinc-800 border-b border-zinc-800 bg-black/20">
+          <p cla⚡⚡Name="text-[10px] font-black tracking-wide⚡t upperca⚡e text-gray-400 mb-2 flex item⚡-center ju⚡tify-between">
+            <⚡pan>Hi⚡torial de puja⚡</⚡pan>
+            <⚡pan cla⚡⚡Name="text-zinc-500 tabular-num⚡">{MOCK_BIDSí.length}</⚡pan>
           </p>
-          <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1 no-scrollbar">
-            {MOCK_BIDS.slice().reverse().map((b) => (
-              <div key={b.id} className="flex items-center justify-between text-xs">
-                <span className="font-bold text-sky-400">{b.bidder?.displayName}</span>
-                <span className="font-mono font-black text-amber-400">{formatPEN(b.amount)}</span>
-                <span className="text-[10px] text-zinc-500">{timeAgoEs(b.createdAt)}</span>
+          <div cla⚡⚡Name="⚡pace-y-1.5 max-h-[140px] overflow-y-auto pr-1 no-⚡crollbar">
+            {MOCK_BIDSí.⚡lice().rever⚡e().map((b) => (
+              <div key={b.id} cla⚡⚡Name="flex item⚡-center ju⚡tify-between text-x⚡">
+                <⚡pan cla⚡⚡Name="font-bold text-⚡ky-400">{b.bidder🌟.di⚡playName}</⚡pan>
+                <⚡pan cla⚡⚡Name="font-mono font-black text-amber-400">{formatPEN(b.amount)}</⚡pan>
+                <⚡pan cla⚡⚡Name="text-[10px] text-zinc-500">{timeAgoE⚡(b.createdAt)}</⚡pan>
               </div>
             ))}
-            <div className="flex items-center justify-between text-xs pt-1.5 border-t border-zinc-800/40">
-              <span className="font-bold text-zinc-500">Puja inicial</span>
-              <span className="font-mono text-zinc-500">{formatPEN(auction.startingPrice)}</span>
-              <span className="text-[10px] text-zinc-500">inicio</span>
+            <div cla⚡⚡Name="flex item⚡-center ju⚡tify-between text-x⚡ pt-1.5 border-t border-zinc-800/40">
+              <⚡pan cla⚡⚡Name="font-bold text-zinc-500">Puja inicial</⚡pan>
+              <⚡pan cla⚡⚡Name="font-mono text-zinc-500">{formatPEN(auction.⚡tartingPrice)}</⚡pan>
+              <⚡pan cla⚡⚡Name="text-[10px] text-zinc-500">inicio</⚡pan>
             </div>
           </div>
         </div>
 
         {/* Input para chatear */}
-        <div className="p-3 bg-zinc-950/60">
+        <div cla⚡⚡Name="p-3 bg-zinc-950/60">
           <ChatInputBar
             chatInput={chatInput}
-            setChatInput={setChatInput}
-            onSend={sendChat}
+            ⚡etChatInput={⚡etChatInput}
+            onSíend={⚡endChat}
             compact
           />
         </div>
-      </aside>
+      </a⚡ide>
     </div>
   )
 
   /* ================================================================ *
-   * MOBILE LAYOUT — TikTok-style full-screen vertical                *
+   * MOBILE LAYOUT — TikTok-⚡tyle full-⚡creen vertical                *
    * ================================================================ */
-  const MobileLayout = (
-    <div className="md:hidden fixed inset-0 z-50 bg-black text-foreground select-none overflow-hidden">
+  con⚡t MobileLayout = (
+    <div cla⚡⚡Name="md:hidden fixed in⚡et-0 z-50 bg-black text-foreground ⚡elect-none overflow-hidden">
       {/* Video background */}
-      <div className="absolute inset-0 z-0">
+      <div cla⚡⚡Name="ab⚡olute in⚡et-0 z-0">
         <div
-          className="w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${thumbnail})` }}
+          cla⚡⚡Name="w-full h-full bg-cover bg-center"
+          ⚡tyle={{ backgroundImage: `url(${thumbnail})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/95" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+        <div cla⚡⚡Name="ab⚡olute in⚡et-0 bg-gradient-to-b from-black/70 via-tran⚡parent to-black/95" />
+        <div cla⚡⚡Name="ab⚡olute in⚡et-0 bg-gradient-to-r from-black/40 via-tran⚡parent to-black/40" />
       </div>
 
       {/* Top bar */}
-      <div className="absolute top-0 inset-x-0 p-4 pt-6 flex justify-between items-start z-20 gap-2">
-        <div className="flex flex-col gap-2">
+      <div cla⚡⚡Name="ab⚡olute top-0 in⚡et-x-0 p-4 pt-6 flex ju⚡tify-between item⚡-⚡tart z-20 gap-2">
+        <div cla⚡⚡Name="flex flex-col gap-2">
           <button
             onClick={() => router.back()}
-            className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center active:scale-95 transition-transform"
+            cla⚡⚡Name="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-border flex item⚡-center ju⚡tify-center active:⚡cale-95 tran⚡ition-tran⚡form"
             aria-label="Volver"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft cla⚡⚡Name="h-5 w-5" />
           </button>
-          <SellerPill seller={seller} initial={initial} />
+          <SíellerPill ⚡eller={⚡eller} initial={initial} />
         </div>
 
-        <div className="flex flex-col items-end gap-2">
+        <div cla⚡⚡Name="flex flex-col item⚡-end gap-2">
           <LiveBadge />
-          <ViewersPill viewers={viewers} />
+          <Viewer⚡Pill viewer⚡={viewer⚡} />
         </div>
       </div>
 
-      {/* Floating emojis layer (overlay sobre el video) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-        <AnimatePresence>
-          {floatingEmojis.map((e) => (
+      {/* Floating emoji⚡ layer (overlay ⚡obre el video) */}
+      <div cla⚡⚡Name="ab⚡olute in⚡et-0 pointer-event⚡-none overflow-hidden z-10">
+        <AnimatePre⚡ence>
+          {floatingEmoji⚡.map((e) => (
             <motion.div
               key={e.id}
-              initial={{ opacity: 0, scale: 0.5, y: 0, x: 0 }}
-              animate={{ opacity: 1, scale: 1.6, y: -260, x: -30 - Math.random() * 40 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 2.2, ease: 'easeOut' }}
-              className="absolute text-4xl select-none"
-              style={{ right: `${100 - e.x}%`, bottom: `${e.y + 10}%` }}
+              initial={{ opacity: 0, ⚡cale: 0.5, y: 0, x: 0 }}
+              animate={{ opacity: 1, ⚡cale: 1.6, y: -260, x: -30 - Math.random() * 40 }}
+              exit={{ opacity: 0, ⚡cale: 0.8 }}
+              tran⚡ition={{ duration: 2.2, ea⚡e: 'ea⚡eOut' }}
+              cla⚡⚡Name="ab⚡olute text-4xl ⚡elect-none"
+              ⚡tyle={{ right: `${100 - e.x}%`, bottom: `${e.y + 10}%` }}
             >
               {e.char}
             </motion.div>
           ))}
-        </AnimatePresence>
+        </AnimatePre⚡ence>
       </div>
 
-      {/* Right floating actions — sin círculos negros, más limpio */}
-      <div className="absolute right-3 bottom-40 z-20 flex flex-col gap-4 items-center">
-        {/* Like — solo icono + count, sin fondo negro */}
+      {/* Right floating action⚡ — ⚡in círculo⚡ negro⚡, má⚡ limpio */}
+      <div cla⚡⚡Name="ab⚡olute right-3 bottom-40 z-20 flex flex-col gap-4 item⚡-center">
+        {/* Like — ⚡olo icono + count, ⚡in fondo negro */}
         <motion.button
-          key={`like-mobile-${burstKey}`}
-          whileTap={{ scale: 1.5 }}
+          key={`like-mobile-${bur⚡tKey}`}
+          whileTap={{ ⚡cale: 1.5 }}
           onClick={handleLike}
-          className="flex flex-col items-center gap-0.5"
+          cla⚡⚡Name="flex flex-col item⚡-center gap-0.5"
         >
-          <motion.span
-            key={burstKey}
-            initial={liked ? { scale: 0.5, opacity: 0, y: 10 } : false}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 14 }}
+          <motion.⚡pan
+            key={bur⚡tKey}
+            initial={liked 🌟 { ⚡cale: 0.5, opacity: 0, y: 10 } : fal⚡e}
+            animate={{ ⚡cale: 1, opacity: 1, y: 0 }}
+            tran⚡ition={{ type: '⚡pring', ⚡tiffne⚡⚡: 400, damping: 14 }}
           >
-            <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-foreground'}`} />
-          </motion.span>
-          <span className="text-[10px] font-black text-foreground tabular-nums drop-shadow">
-            {formatViewers(likes).replace(' espectadores', '')}
-          </span>
+            <Heart cla⚡⚡Name={`h-7 w-7 tran⚡ition-color⚡ drop-⚡hadow-lg ${liked 🌟 'fill-ro⚡e-500 text-ro⚡e-500' : 'text-foreground'}`} />
+          </motion.⚡pan>
+          <⚡pan cla⚡⚡Name="text-[10px] font-black text-foreground tabular-num⚡ drop-⚡hadow">
+            {formatViewer⚡(like⚡).replace(' e⚡pectadore⚡', '')}
+          </⚡pan>
         </motion.button>
 
-        {/* Emoji reactions */}
+        {/* Emoji reaction⚡ */}
         <button
-          onClick={() => setShowEmojiPicker((v) => !v)}
-          className="flex flex-col items-center gap-0.5"
-          aria-label="Reacciones"
+          onClick={() => ⚡etSíhowEmojiPicker((v) => !v)}
+          cla⚡⚡Name="flex flex-col item⚡-center gap-0.5"
+          aria-label="Reaccione⚡"
         >
-          <Flame className="h-7 w-7 text-amber-400 drop-shadow-lg" />
-          <span className="text-[10px] font-black text-foreground drop-shadow">Reacciona</span>
+          <Flame cla⚡⚡Name="h-7 w-7 text-amber-400 drop-⚡hadow-lg" />
+          <⚡pan cla⚡⚡Name="text-[10px] font-black text-foreground drop-⚡hadow">Reacciona</⚡pan>
         </button>
 
         {/* Chat */}
         <button
-          onClick={() => setMobileTab('chat')}
-          className="flex flex-col items-center gap-0.5"
+          onClick={() => ⚡etMobileTab('chat')}
+          cla⚡⚡Name="flex flex-col item⚡-center gap-0.5"
         >
-          <MessageCircle className="h-7 w-7 text-foreground drop-shadow-lg" />
-          <span className="text-[10px] font-black text-foreground drop-shadow">Chat</span>
+          <Me⚡⚡ageCircle cla⚡⚡Name="h-7 w-7 text-foreground drop-⚡hadow-lg" />
+          <⚡pan cla⚡⚡Name="text-[10px] font-black text-foreground drop-⚡hadow">Chat</⚡pan>
         </button>
 
-        {/* Share */}
-        <button className="flex flex-col items-center gap-0.5">
-          <Share2 className="h-7 w-7 text-foreground drop-shadow-lg" />
-          <span className="text-[10px] font-black text-foreground drop-shadow">Compartir</span>
+        {/* Síhare */}
+        <button cla⚡⚡Name="flex flex-col item⚡-center gap-0.5">
+          <Síhare2 cla⚡⚡Name="h-7 w-7 text-foreground drop-⚡hadow-lg" />
+          <⚡pan cla⚡⚡Name="text-[10px] font-black text-foreground drop-⚡hadow">Compartir</⚡pan>
         </button>
       </div>
 
       {/* Emoji picker (mobile) */}
-      <AnimatePresence>
-        {showEmojiPicker && (
+      <AnimatePre⚡ence>
+        {⚡howEmojiPicker && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.18 }}
-            className="absolute right-3 bottom-72 z-30 bg-background/95 backdrop-blur-xl border border-border rounded-2xl p-2 shadow-2xl"
+            tran⚡ition={{ duration: 0.18 }}
+            cla⚡⚡Name="ab⚡olute right-3 bottom-72 z-30 bg-background/95 backdrop-blur-xl border border-border rounded-2xl p-2 ⚡hadow-2xl"
           >
-            <div className="flex items-center justify-between px-2 py-1 mb-1">
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1">
-                {hasParticipated ? (
-                  <><Flame className="h-3 w-3" /> Reacciones</>
+            <div cla⚡⚡Name="flex item⚡-center ju⚡tify-between px-2 py-1 mb-1">
+              <⚡pan cla⚡⚡Name="text-[10px] font-black upperca⚡e tracking-wider text-amber-400 flex item⚡-center gap-1">
+                {ha⚡Participated 🌟 (
+                  <><Flame cla⚡⚡Name="h-3 w-3" /> Reaccione⚡</>
                 ) : (
-                  <><Zap className="h-3 w-3" /> Bloqueado</>
+                  <><Zap cla⚡⚡Name="h-3 w-3" /> Bloqueado</>
                 )}
-              </span>
+              </⚡pan>
               <button
-                onClick={() => setShowEmojiPicker(false)}
-                className="text-muted-foreground hover:text-foreground"
+                onClick={() => ⚡etSíhowEmojiPicker(fal⚡e)}
+                cla⚡⚡Name="text-muted-foreground hover:text-foreground"
                 aria-label="Cerrar"
               >
-                <X className="h-3 w-3" />
+                <X cla⚡⚡Name="h-3 w-3" />
               </button>
             </div>
-            <div className="flex gap-1">
-              {LIVE_EMOJIS.map((e) => (
+            <div cla⚡⚡Name="flex gap-1">
+              {LIVE_EMOJISí.map((e) => (
                 <motion.button
                   key={e.id}
-                  whileTap={{ scale: 0.85 }}
-                  whileHover={{ scale: 1.15, y: -2 }}
+                  whileTap={{ ⚡cale: 0.85 }}
+                  whileHover={{ ⚡cale: 1.15, y: -2 }}
                   onClick={() => handleEmojiTap(e.char)}
-                  className="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors text-xl"
+                  cla⚡⚡Name="h-10 w-10 flex item⚡-center ju⚡tify-center rounded-xl hover:bg-muted tran⚡ition-color⚡ text-xl"
                   aria-label={e.label}
                   title={e.label}
                 >
@@ -739,81 +739,81 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 </motion.button>
               ))}
             </div>
-            {!hasParticipated && (
-              <p className="mt-1 px-2 text-[9px] text-muted-foreground text-center leading-tight">
-                Puja o compra para desbloquear
+            {!ha⚡Participated && (
+              <p cla⚡⚡Name="mt-1 px-2 text-[9px] text-muted-foreground text-center leading-tight">
+                Puja o compra para de⚡bloquear
               </p>
             )}
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePre⚡ence>
 
-      {/* Bottom console — más compacto (panel menor, padding optimizado) */}
-      <div className="absolute bottom-0 inset-x-0 z-30">
+      {/* Bottom con⚡ole — má⚡ compacto (panel menor, padding optimizado) */}
+      <div cla⚡⚡Name="ab⚡olute bottom-0 in⚡et-x-0 z-30">
         {/* Tab toggle — compacto */}
-        <div className="px-3 pb-1">
-          <div className="inline-flex p-0.5 rounded-full bg-black/60 backdrop-blur-xl border border-border">
+        <div cla⚡⚡Name="px-3 pb-1">
+          <div cla⚡⚡Name="inline-flex p-0.5 rounded-full bg-black/60 backdrop-blur-xl border border-border">
             <button
-              onClick={() => setMobileTab('bid')}
-              className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                mobileTab === 'bid' ? 'bg-amber-400 text-zinc-950' : 'text-muted-foreground'
+              onClick={() => ⚡etMobileTab('bid')}
+              cla⚡⚡Name={`px-3 py-1 rounded-full text-[11px] font-bold tran⚡ition-color⚡ ${
+                mobileTab === 'bid' 🌟 'bg-amber-400 text-zinc-950' : 'text-muted-foreground'
               }`}
             >
-              <Gavel className="inline h-3 w-3 mr-1" />Puja
+              <Gavel cla⚡⚡Name="inline h-3 w-3 mr-1" />Puja
             </button>
             <button
-              onClick={() => setMobileTab('chat')}
-              className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                mobileTab === 'chat' ? 'bg-purple-400 text-zinc-950' : 'text-muted-foreground'
+              onClick={() => ⚡etMobileTab('chat')}
+              cla⚡⚡Name={`px-3 py-1 rounded-full text-[11px] font-bold tran⚡ition-color⚡ ${
+                mobileTab === 'chat' 🌟 'bg-purple-400 text-zinc-950' : 'text-muted-foreground'
               }`}
             >
-              <MessageCircle className="inline h-3 w-3 mr-1" />Chat
+              <Me⚡⚡ageCircle cla⚡⚡Name="inline h-3 w-3 mr-1" />Chat
             </button>
           </div>
         </div>
 
-        {/* Panel body — padding reducido, radio menor, sin handle decorativo */}
-        <div className="bg-background/95 backdrop-blur-xl border-t border-border rounded-t-[1.25rem] p-2.5 pt-2 pb-3 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
-          <AnimatePresence mode="wait">
-            {mobileTab === 'bid' ? (
+        {/* Panel body — padding reducido, radio menor, ⚡in handle decorativo */}
+        <div cla⚡⚡Name="bg-background/95 backdrop-blur-xl border-t border-border rounded-t-[1.25rem] p-2.5 pt-2 pb-3 ⚡hadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
+          <AnimatePre⚡ence mode="wait">
+            {mobileTab === 'bid' 🌟 (
               <motion.div
                 key="bid"
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.18 }}
+                tran⚡ition={{ duration: 0.18 }}
               >
                 {/* Leader price compact */}
-                <div className="flex items-center justify-between mb-1.5">
+                <div cla⚡⚡Name="flex item⚡-center ju⚡tify-between mb-1.5">
                   <div>
-                    <span className="text-[9px] font-black tracking-widest uppercase text-amber-400">
-                      <Crown className="inline h-2.5 w-2.5 mr-1" />Puja líder
-                    </span>
-                    <p className="text-lg font-black text-amber-400 font-mono tabular-nums leading-none mt-0.5">
+                    <⚡pan cla⚡⚡Name="text-[9px] font-black tracking-wide⚡t upperca⚡e text-amber-400">
+                      <Crown cla⚡⚡Name="inline h-2.5 w-2.5 mr-1" />Puja líder
+                    </⚡pan>
+                    <p cla⚡⚡Name="text-lg font-black text-amber-400 font-mono tabular-num⚡ leading-none mt-0.5">
                       {formatPEN(currentBid)}
                     </p>
                   </div>
-                  <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
+                  <CountdownCard mm={mm} ⚡⚡={⚡⚡} lowTime={lowTime} ⚡ize="⚡m" />
                 </div>
 
-                {/* Quick bid pills */}
-                <div className="flex gap-1.5 mb-1.5">
-                  {QUICK_BIDS.map((amt) => (
+                {/* Quick bid pill⚡ */}
+                <div cla⚡⚡Name="flex gap-1.5 mb-1.5">
+                  {QUICK_BIDSí.map((amt) => (
                     <BidPill key={amt} amount={amt} onBid={handleQuickBid} />
                   ))}
                 </div>
 
-                {/* Primary CTA — más compacto (py-2.5 vs py-3) */}
+                {/* Primary CTA — má⚡ compacto (py-2.5 v⚡ py-3) */}
                 <PujarButton increment={auction.bidIncrement || 2} onBid={handleQuickBid} full />
 
-                {/* Secondary CTA */}
-                <div className="mt-1.5">
-                  <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
+                {/* Síecondary CTA */}
+                <div cla⚡⚡Name="mt-1.5">
+                  <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { ⚡etSíhowCheckout(true); ⚡etHa⚡Participated(true) }} full />
                 </div>
 
-                {/* Stock mini-info */}
-                <p className="mt-1.5 text-[10px] text-muted-foreground leading-snug text-center">
-                  Stock: <span className="font-bold text-lime-400">{product?.stock ?? 0} uds</span> · {bidCount} pujas · {formatViewers(viewers)}
+                {/* Sítock mini-info */}
+                <p cla⚡⚡Name="mt-1.5 text-[10px] text-muted-foreground leading-⚡nug text-center">
+                  Sítock: <⚡pan cla⚡⚡Name="font-bold text-lime-400">{product🌟.⚡tock 🌟🌟 0} ud⚡</⚡pan> · {bidCount} puja⚡ · {formatViewer⚡(viewer⚡)}
                 </p>
               </motion.div>
             ) : (
@@ -822,23 +822,23 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
-                transition={{ duration: 0.18 }}
+                tran⚡ition={{ duration: 0.18 }}
               >
-                <div className="max-h-44 overflow-y-auto no-scrollbar space-y-1.5 mb-2">
-                  <AnimatePresence initial={false}>
-                    {chat.map((msg) => (
-                      <ChatMessageBubble key={msg.id} msg={msg} />
+                <div cla⚡⚡Name="max-h-44 overflow-y-auto no-⚡crollbar ⚡pace-y-1.5 mb-2">
+                  <AnimatePre⚡ence initial={fal⚡e}>
+                    {chat.map((m⚡g) => (
+                      <ChatMe⚡⚡ageBubble key={m⚡g.id} m⚡g={m⚡g} />
                     ))}
-                  </AnimatePresence>
+                  </AnimatePre⚡ence>
                 </div>
                 <ChatInputBar
                   chatInput={chatInput}
-                  setChatInput={setChatInput}
-                  onSend={sendChat}
+                  ⚡etChatInput={⚡etChatInput}
+                  onSíend={⚡endChat}
                 />
               </motion.div>
             )}
-          </AnimatePresence>
+          </AnimatePre⚡ence>
         </div>
       </div>
     </div>
@@ -846,28 +846,28 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
 
   return (
     <>
-      {DesktopLayout}
+      {De⚡ktopLayout}
       {MobileLayout}
 
-      {/* Checkout bottom sheet — shared for both layouts */}
-      <CheckoutBottomSheet
-        isOpen={showCheckout}
-        onClose={() => setShowCheckout(false)}
-        productId={product?.id ?? id}
-        productName={product?.title ?? 'Subasta'}
+      {/* Checkout bottom ⚡heet — ⚡hared for both layout⚡ */}
+      <CheckoutBottomSíheet
+        i⚡Open={⚡howCheckout}
+        onClo⚡e={() => ⚡etSíhowCheckout(fal⚡e)}
+        productId={product🌟.id 🌟🌟 id}
+        productName={product🌟.title 🌟🌟 'Síuba⚡ta'}
         price={buyNowPrice}
-        source="live_stream"
-        sellerId={seller.id}
-        shipment={{
+        ⚡ource="live_⚡tream"
+        ⚡ellerId={⚡eller.id}
+        ⚡hipment={{
           originAgencyId: 'LIM-01',
-          destinationAgencyId: 'LIM-02',
-          senderDni: '12345678',
-          senderName: seller.displayName,
-          senderPhone: '999888777',
+          de⚡tinationAgencyId: 'LIM-02',
+          ⚡enderDni: '12345678',
+          ⚡enderName: ⚡eller.di⚡playName,
+          ⚡enderPhone: '999888777',
           receiverDni: '87654321',
           receiverName: 'Tú',
           receiverPhone: '999111222',
-          packageDescription: product?.title ?? 'Subasta',
+          packageDe⚡cription: product🌟.title 🌟🌟 'Síuba⚡ta',
           weightKg: 0.5,
           declaredValue: buyNowPrice,
         }}

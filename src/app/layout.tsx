@@ -6,9 +6,7 @@ import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/vendeda/theme-provider";
 import { AuthProvider } from "@/components/vendeda/AuthProvider";
 import { PWAInstallPrompt, PWAUpdateBanner } from "@/components/vendeda/PWA";
-import { DesktopTopNav } from "@/components/vendeda/DesktopTopNav";
-import { MobileTopActions } from "@/components/vendeda/MobileTopActions";
-import { MobileBottomNav } from "@/components/vendeda/MobileBottomNav";
+import { LayoutClientWrapper } from '@/components/vendeda/LayoutClientWrapper';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +20,7 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-// Display font for headlines — warm, modern, distinct from body
+// Display font for headlines â€” warm, modern, distinct from body
 const display = Bricolage_Grotesque({
   variable: "--font-display",
   subsets: ["latin"],
@@ -33,14 +31,14 @@ const display = Bricolage_Grotesque({
 export const metadata: Metadata = {
   metadataBase: new URL("https://vendeya.pe"),
   title: {
-    default: "Vende Ya — Subastas en Vivo & Marketplace",
-    template: "%s · Vende Ya",
+    default: "Vende Ya â€” Subastas en Vivo & Marketplace",
+    template: "%s Â· Vende Ya",
   },
   description:
-    "El marketplace social del Perú. Compra y vende en subastas en vivo, paga con Yape, Plin o PagoEfectivo. Emite tu producto en directo y vende al mejor postor.",
+    "El marketplace social del PerÃº. Compra y vende en subastas en vivo, paga con Yape, Plin o PagoEfectivo. Emite tu producto en directo y vende al mejor postor.",
   keywords: [
-    "Vende Ya", "subastas en vivo", "marketplace Perú", "Yape", "Plin",
-    "PagoEfectivo", "live shopping", "Lima", "comprar online Perú",
+    "Vende Ya", "subastas en vivo", "marketplace PerÃº", "Yape", "Plin",
+    "PagoEfectivo", "live shopping", "Lima", "comprar online PerÃº",
   ],
   authors: [{ name: "Vende Ya" }],
   manifest: "/manifest.webmanifest",
@@ -62,8 +60,8 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
   },
   openGraph: {
-    title: "Vende Ya — Subastas en Vivo & Marketplace",
-    description: "El marketplace social del Perú. Subastas en vivo, Yape/Plin, envíos Olva.",
+    title: "Vende Ya â€” Subastas en Vivo & Marketplace",
+    description: "El marketplace social del PerÃº. Subastas en vivo, Yape/Plin, envÃ­os Olva.",
     siteName: "Vende Ya",
     type: "website",
     locale: "es_PE",
@@ -71,7 +69,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Vende Ya",
-    description: "El marketplace social del Perú. Subastas en vivo.",
+    description: "El marketplace social del PerÃº. Subastas en vivo.",
   },
 };
 
@@ -93,11 +91,11 @@ export default function RootLayout({
     <html lang="es-PE" suppressHydrationWarning>
       <head>
         {/*
-         * Flaticon Uicons CDN REMOVED — the cdn-uicons.flaticon.com 3.0.2
+         * Flaticon Uicons CDN REMOVED â€” the cdn-uicons.flaticon.com 3.0.2
          * URLs return 404 (CDN moved/deprecated), breaking the page with
          * ERR_ABORTED 404 errors. The Flaticon component still exists in
          * src/components/vendeda/Flaticon.tsx but is not used by any
-         * actual UI — all real icons use lucide-react which is bundled.
+         * actual UI â€” all real icons use lucide-react which is bundled.
          * If Flaticon icons are needed in the future, self-host the
          * uicons CSS + woff2 files under /public/fonts/uicons/.
          */}
@@ -112,12 +110,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <DesktopTopNav />
-            <MobileTopActions />
-            <main className="flex-1 w-full pt-14 md:pt-16 pb-24 md:pb-0 bg-background text-foreground">
-              {children}
-            </main>
-            <MobileBottomNav />
+            <LayoutClientWrapper>{children}</LayoutClientWrapper>
             <Toaster />
             <SonnerToaster position="top-center" richColors />
             <PWAInstallPrompt />
