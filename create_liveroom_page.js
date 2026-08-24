@@ -1,4 +1,8 @@
-import { db } from '@/lib/db'
+const fs = require('fs');
+const path = require('path');
+const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\app\\en-vivo\\[id]\\page.tsx');
+
+const content = `import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import LiveRoomClient from './LiveRoomClient'
 import { MOCK_AUCTION, MOCK_PROFILES } from '@/lib/vendeda/mock-data'
@@ -36,3 +40,7 @@ export default async function StreamDetailPage({ params }: { params: Promise<{ i
     />
   )
 }
+`;
+
+fs.writeFileSync(file, content, 'utf8');
+console.log('Created page.tsx Server Component for live room');
