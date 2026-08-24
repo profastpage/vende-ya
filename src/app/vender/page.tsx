@@ -329,10 +329,7 @@ function VenderInner() {
         {/* ─── Mode selector ─── */}
         <section>
           <h2 className="text-xl md:text-2xl font-bold font-display text-foreground mb-1">¿Cómo quieres empezar?</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Elige el modo que mejor se ajuste a tu inventario y a tu estilo de venta.
-            Puedes cambiar de modo en cualquier momento sin perder lo que ya diligenciaste.
-          </p>
+          <p className="text-sm text-muted-foreground mb-4">{isLive ? "Ingresa un título para tu transmisión en vivo y el precio base del artículo que ofrecerás." : "Completa los campos obligatorios marcados con asterisco. Las fotos son la primera impresión del comprador."}</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <ModeCard
                 active={mode === 'marketplace'}
@@ -467,7 +464,7 @@ function VenderInner() {
 
         {/* ─── Main form ─── */}
         <section id="producto" className="scroll-mt-20">
-          <h2 className="text-xl md:text-2xl font-bold font-display text-foreground mb-1">Detalles del producto</h2>
+          <h2 className="text-xl md:text-2xl font-bold font-display text-foreground mb-1">{isLive ? "Detalles de la transmisión" : "Detalles del producto"}</h2>
           <p className="text-sm text-muted-foreground mb-4">
             Completa los campos obligatorios marcados con asterisco. Cuanta más información des, mayor será la conversión.
             Las fotos son la primera impresión del comprador: usa luz natural y muestra detalles del producto.
@@ -487,15 +484,17 @@ function VenderInner() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-muted-foreground">Descripción</Label>
-              <Textarea
-                id="description" rows={4}
-                placeholder="Describe materiales, tallas, colores disponibles, condición, etc."
-                value={description} onChange={(e) => setDescription(e.target.value)}
-                className="bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-amber-400/40"
-              />
-            </div>
+            {!isLive && (
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-muted-foreground">Descripción</Label>
+                <Textarea
+                  id="description" rows={4}
+                  placeholder="Describe materiales, tallas, colores disponibles, condición, etc."
+                  value={description} onChange={(e) => setDescription(e.target.value)}
+                  className="bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-amber-400/40"
+                />
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
@@ -510,17 +509,20 @@ function VenderInner() {
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="stock" className="text-muted-foreground">Stock disponible</Label>
+              {!isLive && (
+                <div className="space-y-2">
+                  <Label htmlFor="stock" className="text-muted-foreground">Stock disponible</Label>
                 <Input
                   id="stock" type="number" min="1"
-                  value={stock} onChange={(e) => setStock(e.target.value)}
-                  className="h-12 bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-amber-400/40"
-                />
+                    value={stock} onChange={(e) => setStock(e.target.value)}
+                    className="h-12 bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-amber-400/40"
+                  />
+                </div>
+                )}
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3">
+              {!isLive && (
+              <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="category" className="text-muted-foreground">Categoría</Label>
                 <select
@@ -548,31 +550,34 @@ function VenderInner() {
                   <option value="usado-bueno" className="bg-card">Usado - bueno</option>
                   <option value="usado-aceptable" className="bg-card">Usado - aceptable</option>
                 </select>
+                </div>
               </div>
-            </div>
+              )}
 
-            {/* Photos */}
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">Fotos</Label>
-              <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                <button
-                  type="button"
-                  className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:bg-muted hover:border-amber-400/40 transition-colors"
-                >
-                  <ImageIcon className="h-6 w-6" />
-                  <span className="text-xs">Subir</span>
-                </button>
-                {[1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="aspect-square rounded-lg bg-muted border border-border flex items-center justify-center text-xs text-muted-foreground"
+              {/* Photos */}
+            {!isLive && (
+              <div className="space-y-2">
+                <Label className="text-muted-foreground">Fotos</Label>
+                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                  <button
+                    type="button"
+                    className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:bg-muted hover:border-amber-400/40 transition-colors"
                   >
-                    Foto {i}
-                  </div>
-                ))}
+                    <ImageIcon className="h-6 w-6" />
+                    <span className="text-xs">Subir</span>
+                  </button>
+                  {[1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="aspect-square rounded-lg bg-muted border border-border flex items-center justify-center text-xs text-muted-foreground"
+                    >
+                      Foto {i}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">Hasta 8 fotos. Primera foto = portada.</p>
               </div>
-              <p className="text-xs text-muted-foreground">Hasta 8 fotos. Primera foto = portada.</p>
-            </div>
+            )}
 
             {/* Auction toggle */}
             <div className="rounded-xl border border-border bg-muted p-4 space-y-3">
