@@ -1,9 +1,9 @@
 'use client'
 
 /* ------------------------------------------------------------------ */
-/* Seller Command Center — Ultra Inmersiva dark premium dashboard      */
-/* Pure dark (bg-background) · glassmorphism · neon accents · bento     */
-/* NO AppShell — navbar rendered at the layout level (layout.tsx).    */
+/* Seller Command Center ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Ultra Inmersiva dark premium dashboard      */
+/* Pure dark (bg-background) Ãƒâ€šÃ‚Â· glassmorphism Ãƒâ€šÃ‚Â· neon accents Ãƒâ€šÃ‚Â· bento     */
+/* NO AppShell ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â navbar rendered at the layout level (layout.tsx).    */
 /* ------------------------------------------------------------------ */
 
 import * as React from 'react'
@@ -52,7 +52,7 @@ const SECTION_MOTION = {
 } as const
 
 /* ------------------------------------------------------------------ */
-/* Accent palette — matches Live Room + Marketplace visual language   */
+/* Accent palette ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â matches Live Room + Marketplace visual language   */
 /* ------------------------------------------------------------------ */
 type KpiAccent = 'rose' | 'amber' | 'fuchsia' | 'lime' | 'purple' | 'sky'
 
@@ -143,44 +143,44 @@ function DashboardContent() {
     : MOCK_PROFILES[5]
 
   // Pull seller dashboard data (wallet, orders, summary, dropoffs, alerts).
-  // Polls every 30s — same logic as the prior implementation.
+  // Polls every 30s ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â same logic as the prior implementation.
   const effectiveSellerId = authUser?.id ?? user.id ?? 'demo-seller'
   const { data, isLoading, error } = useSellerDashboard(effectiveSellerId)
 
-  // KPI values — fall back to mock when data hasn't loaded yet
+  // KPI values ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â fall back to mock when data hasn't loaded yet
   const ventasHoy = data?.summary?.totalSales ?? 1247
   const ingresosDelta = '+18% mes'
   const subastasActivas = 3
   const espectadoresHoy = 2418
 
   return (
-    <div className="min-h-screen bg-background text-foreground dark">
+    <div className="min-h-screen bg-background text-foreground">
       <main className="w-full max-w-[1200px] mx-auto px-4 md:px-6 pt-4 md:pt-8 pb-24 md:pb-12">
-        {/* ─── HERO HEADER ─────────────────────────────────── */}
+        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ HERO HEADER ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
         <HeroHeader
           user={user}
           isDemo={authUser?.isDemo ?? true}
           walletActive={data?.wallet?.status === 'active'}
         />
 
-        {/* ─── MODERATION ALERTS BANNER (conditional) ──────── */}
+        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ MODERATION ALERTS BANNER (conditional) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
         {data && data.alerts.length > 0 && (
           <AlertsBanner alerts={data.alerts} />
         )}
 
-        {/* ─── BENTO KPI GRID (stagger entrance) ──────────── */}
+        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ BENTO KPI GRID (stagger entrance) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
         <motion.section
           variants={KPI_CONTAINER_VARIANTS}
           initial="hidden"
           animate="visible"
-          aria-label="Métricas clave"
+          aria-label="MÃƒÆ’Ã‚Â©tricas clave"
           className="mt-5 md:mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4"
         >
           <BentoKpiCard
             icon={Tag}
             label="Ventas hoy"
             value={`S/ ${ventasHoy.toLocaleString('es-PE')}`}
-            delta="▲ +12 hoy"
+            delta="ÃƒÂ¢Ã¢â‚¬â€œÃ‚Â² +12 hoy"
             sub="vs. ayer"
             accent="lime"
           />
@@ -189,7 +189,7 @@ function DashboardContent() {
             label="Ingresos"
             value={ingresosDelta}
             delta="Tendencia alcista"
-            sub="Últimos 30 días"
+            sub="ÃƒÆ’Ã…Â¡ltimos 30 dÃƒÆ’Ã‚Â­as"
             accent="amber"
             sparkline
           />
@@ -197,7 +197,7 @@ function DashboardContent() {
             icon={Gavel}
             label="Subastas"
             value={`${subastasActivas} activas`}
-            delta="▲ LIVE"
+            delta="ÃƒÂ¢Ã¢â‚¬â€œÃ‚Â² LIVE"
             sub="2 cerrando pronto"
             accent="rose"
           />
@@ -205,13 +205,19 @@ function DashboardContent() {
             icon={Eye}
             label="Espectadores"
             value={espectadoresHoy.toLocaleString('es-PE')}
-            delta="▲ +320"
+            delta="ÃƒÂ¢Ã¢â‚¬â€œÃ‚Â² +320"
             sub="Pico de hoy"
             accent="fuchsia"
           />
         </motion.section>
 
-        {/* ─── 2-COL: STREAM ENGINE + WALLET ──────────────── */}
+        {/* Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ QUICK ACTIONS Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ */}
+        <div className="mt-5 md:mt-6">
+          <QuickActionsFooter />
+        </div>
+
+
+        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ 2-COL: STREAM ENGINE + WALLET ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
         <section className="mt-5 md:mt-6 grid md:grid-cols-2 gap-4 md:gap-6">
           <StreamEngineLauncher />
           <WalletPanel
@@ -222,10 +228,10 @@ function DashboardContent() {
           />
         </section>
 
-        {/* ─── SHALOM LOGISTICS ────────────────────────────── */}
+        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ SHALOM LOGISTICS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
         <ShalomLogistics dropoffs={data?.pendingDropoffs ?? []} />
 
-        {/* ─── RECENT ORDERS + ACTIVITY FEED ───────────────── */}
+        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ RECENT ORDERS + ACTIVITY FEED ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
         <section className="mt-5 md:mt-6 grid lg:grid-cols-3 gap-4 md:gap-6">
           <div className="lg:col-span-2">
             <RecentOrdersCard
@@ -236,12 +242,12 @@ function DashboardContent() {
           <ActivityFeed />
         </section>
 
-        {/* ─── COPYRIGHT REPORTS (conditional) ───────────── */}
+        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ COPYRIGHT REPORTS (conditional) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
         {data && data.copyrightReports.length > 0 && (
           <CopyrightReportsCard reports={data.copyrightReports} />
         )}
 
-        {/* ─── QUICK ACTIONS FOOTER ───────────────────────── */}
+        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ QUICK ACTIONS FOOTER ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
         <QuickActionsFooter />
       </main>
     </div>
@@ -269,14 +275,14 @@ function HeroHeader({
       className="relative overflow-hidden rounded-3xl bg-muted backdrop-blur-xl border border-border p-5 md:p-7"
     >
       {/* Ambient glow */}
-      <div className="absolute -top-24 -right-20 w-80 h-80 bg-fuchsia-500/20 blur-3xl rounded-full pointer-events-none" />
-      <div className="absolute -bottom-24 -left-20 w-72 h-72 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
+      
+      
 
       <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-5">
         {/* Avatar + greeting */}
         <div className="flex items-center gap-4 min-w-0">
           <div className="relative shrink-0">
-            <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-br from-amber-400 via-fuchsia-500 to-purple-500 blur-md opacity-60" />
+            
             <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-fuchsia-500 to-purple-500 p-[2px]">
               <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center overflow-hidden">
                 {user.avatarUrl ? (
@@ -306,18 +312,18 @@ function HeroHeader({
               )}
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted border border-border text-muted-foreground text-[10px] font-bold uppercase tracking-wider">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                {isDemo ? 'Modo demo' : 'En sesión'}
+                {isDemo ? 'Modo demo' : 'En sesiÃƒÆ’Ã‚Â³n'}
               </span>
             </div>
             <p className="mt-1.5 text-sm md:text-base text-muted-foreground max-w-2xl leading-relaxed">
-              Tu comando de ventas en tiempo real. Aquí ves cada ingreso, cada puja, cada envío y cada espectador conectado, todo en un solo panel.
+              Tu comando de ventas en tiempo real. AquÃƒÆ’Ã‚Â­ ves cada ingreso, cada puja, cada envÃƒÆ’Ã‚Â­o y cada espectador conectado, todo en un solo panel.
               {' '}
               {walletActive
-                ? 'Tu wallet de Mercado Pago está activa y lista para recibir cobros con Yape, Plin y tarjetas.'
-                : 'Conecta Mercado Pago para desbloquear el cobro instantáneo y el split automático de comisiones.'}
+                ? 'Tu wallet de Mercado Pago estÃƒÆ’Ã‚Â¡ activa y lista para recibir cobros con Yape, Plin y tarjetas.'
+                : 'Conecta Mercado Pago para desbloquear el cobro instantÃƒÆ’Ã‚Â¡neo y el split automÃƒÆ’Ã‚Â¡tico de comisiones.'}
             </p>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              @{user.username} · {user.followerCount.toLocaleString('es-PE')} seguidores · {user.salesCount} ventas · ⭐ {user.rating.toFixed(1)}
+              @{user.username} Ãƒâ€šÃ‚Â· {user.followerCount.toLocaleString('es-PE')} seguidores Ãƒâ€šÃ‚Â· {user.salesCount} ventas Ãƒâ€šÃ‚Â· ÃƒÂ¢Ã‚Â­Ã‚Â {user.rating.toFixed(1)}
             </p>
           </div>
         </div>
@@ -371,10 +377,7 @@ function BentoKpiCard({
       whileHover={{ y: -2 }}
       className="relative overflow-hidden rounded-2xl bg-card/80 border border-border backdrop-blur-xl p-4 md:p-5"
     >
-      <div
-        className="absolute -top-14 -right-14 h-36 w-36 rounded-full blur-3xl opacity-40"
-        style={{ background: colors.gradient }}
-      />
+      
       <div className="relative flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{label}</p>
@@ -413,8 +416,8 @@ function StreamEngineLauncher() {
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
       className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-900/40 via-card to-fuchsia-900/30 border border-fuchsia-500/20 p-5 md:p-6"
     >
-      <div className="absolute -top-20 -right-10 w-60 h-60 bg-purple-500/30 blur-3xl rounded-full pointer-events-none" />
-      <div className="absolute -bottom-16 -left-10 w-48 h-48 bg-fuchsia-500/20 blur-3xl rounded-full pointer-events-none" />
+      
+      
 
       <div className="relative">
         <div className="flex items-center gap-2 flex-wrap">
@@ -427,10 +430,10 @@ function StreamEngineLauncher() {
         </div>
 
         <h2 className="mt-3 text-xl md:text-2xl font-black text-foreground">
-          ¿Listo para retransmitir?
+          Ãƒâ€šÃ‚Â¿Listo para retransmitir?
         </h2>
         <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed max-w-md">
-          Inicia tu transmisión en vivo, recibe pujas en tiempo real y cierra ventas con Yape o Plin al instante.
+          Inicia tu transmisiÃƒÆ’Ã‚Â³n en vivo, recibe pujas en tiempo real y cierra ventas con Yape o Plin al instante.
           El engine distribuye el video en adaptativo y baja latencia (menos de 2 segundos) para que tus compradores
           no se pierdan ninguna puja. Cada espectador puede pujar sin salir del stream.
         </p>
@@ -440,7 +443,7 @@ function StreamEngineLauncher() {
             href={ROUTES.vender}
             className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-400 hover:to-purple-500 text-foreground font-black text-xs shadow-lg shadow-purple-500/30 active:scale-95 transition-all"
           >
-            <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse" /> Iniciar transmisión
+            <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse" /> Iniciar transmisiÃƒÆ’Ã‚Â³n
           </Link>
           <Link
             href={ROUTES.vender}
@@ -471,7 +474,7 @@ function StreamEngineLauncher() {
 }
 
 /* ================================================================== */
-/* WALLET PANEL — status badge + Mercado Pago OAuth CTA                */
+/* WALLET PANEL ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â status badge + Mercado Pago OAuth CTA                */
 /* ================================================================== */
 function WalletPanel({
   wallet,
@@ -492,7 +495,7 @@ function WalletPanel({
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
       className="relative overflow-hidden rounded-3xl bg-card/80 border border-border backdrop-blur-xl p-5 md:p-6"
     >
-      <div className="absolute -top-12 -right-12 w-44 h-44 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
+      
 
       <div className="relative">
         <div className="flex items-center justify-between gap-3">
@@ -519,22 +522,22 @@ function WalletPanel({
 
         {error && !wallet && (
           <p className="mt-3 text-xs text-muted-foreground">
-            No pudimos contactar tu wallet todavía. Esto es normal si aún no la registras en Vende Ya. {error}
+            No pudimos contactar tu wallet todavÃƒÆ’Ã‚Â­a. Esto es normal si aÃƒÆ’Ã‚Âºn no la registras en Vende Ya. {error}
           </p>
         )}
 
         {isActive && wallet ? (
           <div className="mt-4 space-y-3">
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Tu wallet de Mercado Pago está conectada y operativa. Recibes el 90% neto de cada venta;
-              Vende Ya retiene la comisión automáticamente y libera el saldo a tu cuenta bancaria en máximo 24h hábiles.
+              Tu wallet de Mercado Pago estÃƒÆ’Ã‚Â¡ conectada y operativa. Recibes el 90% neto de cada venta;
+              Vende Ya retiene la comisiÃƒÆ’Ã‚Â³n automÃƒÆ’Ã‚Â¡ticamente y libera el saldo a tu cuenta bancaria en mÃƒÆ’Ã‚Â¡ximo 24h hÃƒÆ’Ã‚Â¡biles.
               Las transacciones con Yape y Plin se acreditan en el instante.
             </p>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <div className="rounded-lg bg-muted border border-border px-3 py-2">
                 <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">KYC</p>
                 <p className={cn('font-black', wallet.isVerified ? 'text-lime-400' : 'text-rose-400')}>
-                  {wallet.isVerified ? '✓ Verificada' : '✗ Pendiente'}
+                  {wallet.isVerified ? 'ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“ Verificada' : 'ÃƒÂ¢Ã…â€œÃ¢â‚¬â€ Pendiente'}
                 </p>
               </div>
               <div className="rounded-lg bg-muted border border-border px-3 py-2">
@@ -569,7 +572,7 @@ function WalletPanel({
           <div className="mt-4 space-y-3">
             <p className="text-sm text-muted-foreground leading-relaxed">
               Conecta Mercado Pago para empezar a recibir pagos con Yape, Plin y tarjetas.
-              Habilitamos el split automático de comisiones: recibes el 90% neto, nosotros retenemos el 10% en el momento del cobro.
+              Habilitamos el split automÃƒÆ’Ã‚Â¡tico de comisiones: recibes el 90% neto, nosotros retenemos el 10% en el momento del cobro.
               Sin mensualidades, solo pagas por venta efectiva.
             </p>
             <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
@@ -607,7 +610,7 @@ const SHIPMENT_STATUS_CONFIG: Record<ShipmentStatus, {
   dot: string
 }> = {
   pendiente: { label: 'Pendiente',   badge: 'bg-amber-500/10 border-amber-400/30 text-amber-400', dot: 'bg-amber-400' },
-  transit:   { label: 'En tránsito', badge: 'bg-sky-500/10 border-sky-400/30 text-sky-400',      dot: 'bg-sky-400' },
+  transit:   { label: 'En trÃƒÆ’Ã‚Â¡nsito', badge: 'bg-sky-500/10 border-sky-400/30 text-sky-400',      dot: 'bg-sky-400' },
   entregado: { label: 'Entregado',   badge: 'bg-lime-500/10 border-lime-400/30 text-lime-400',   dot: 'bg-lime-400' },
   problem:   { label: 'Problema',    badge: 'bg-rose-500/10 border-rose-400/30 text-rose-400',   dot: 'bg-rose-400' },
 }
@@ -647,7 +650,7 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
       className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-card/80 border border-border backdrop-blur-xl p-5 md:p-6"
     >
-      <div className="absolute -top-12 -right-12 w-44 h-44 bg-sky-500/10 blur-3xl rounded-full pointer-events-none" />
+      
 
       <div className="relative">
         <div className="flex items-center justify-between gap-3 mb-4">
@@ -656,8 +659,8 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
               <Truck className="h-4 w-4 text-sky-400" />
             </div>
             <div>
-              <h3 className="text-base font-black text-foreground">Shalom Logística</h3>
-              <p className="text-[11px] text-muted-foreground">Envíos recientes y estado de entrega</p>
+              <h3 className="text-base font-black text-foreground">Shalom LogÃƒÆ’Ã‚Â­stica</h3>
+              <p className="text-[11px] text-muted-foreground">EnvÃƒÆ’Ã‚Â­os recientes y estado de entrega</p>
             </div>
           </div>
           <Link
@@ -677,7 +680,7 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
                 <th className="py-2 pr-3 font-bold hidden sm:table-cell">Agencia</th>
                 <th className="py-2 pr-3 font-bold">Estado</th>
                 <th className="py-2 pr-3 font-bold text-right">Monto</th>
-                <th className="py-2 pl-3 font-bold text-right">Acción</th>
+                <th className="py-2 pl-3 font-bold text-right">AcciÃƒÆ’Ã‚Â³n</th>
               </tr>
             </thead>
             <tbody>
@@ -723,7 +726,7 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-muted border border-border text-[10px] font-bold text-muted-foreground hover:bg-muted"
                         >
-                          <Package className="h-3 w-3" /> Guía
+                          <Package className="h-3 w-3" /> GuÃƒÆ’Ã‚Â­a
                         </a>
                       ) : (
                         <Link
@@ -742,12 +745,18 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
         </div>
 
         <p className="mt-3 text-[11px] text-muted-foreground leading-relaxed">
-          Las guías se generan automáticamente con Shalom al confirmar el pago. Imprímelas antes de acercarte
-          al punto de dropoff más cercano. El cliente recibe el código de seguimiento por WhatsApp y push notification
+          Las guÃƒÆ’Ã‚Â­as se generan automÃƒÆ’Ã‚Â¡ticamente con Shalom al confirmar el pago. ImprÃƒÆ’Ã‚Â­melas antes de acercarte
+          al punto de dropoff mÃƒÆ’Ã‚Â¡s cercano. El cliente recibe el cÃƒÆ’Ã‚Â³digo de seguimiento por WhatsApp y push notification
           en tiempo real, y puede rastrear su pedido desde el link enviado.
         </p>
       </div>
     </motion.section>
+
+        {/* Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ QUICK ACTIONS Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ */}
+        <div className="mt-5 md:mt-6">
+          <QuickActionsFooter />
+        </div>
+
   )
 }
 
@@ -808,7 +817,7 @@ function RecentOrdersCard({
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.32 }}
       className="relative overflow-hidden rounded-3xl bg-card/80 border border-border backdrop-blur-xl p-5 md:p-6 h-full"
     >
-      <div className="absolute -top-12 -right-12 w-44 h-44 bg-lime-500/10 blur-3xl rounded-full pointer-events-none" />
+      
 
       <div className="relative">
         <div className="flex items-center justify-between gap-3 mb-4">
@@ -817,9 +826,9 @@ function RecentOrdersCard({
               <ShoppingBag className="h-4 w-4 text-lime-400" />
             </div>
             <div>
-              <h3 className="text-base font-black text-foreground">Órdenes recientes</h3>
+              <h3 className="text-base font-black text-foreground">ÃƒÆ’Ã¢â‚¬Å“rdenes recientes</h3>
               <p className="text-[11px] text-muted-foreground">
-                {isLoading ? 'Cargando órdenes…' : `${list.length} órdenes mostradas`}
+                {isLoading ? 'Cargando ÃƒÆ’Ã‚Â³rdenesÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦' : `${list.length} ÃƒÆ’Ã‚Â³rdenes mostradas`}
               </p>
             </div>
           </div>
@@ -864,7 +873,7 @@ function RecentOrdersCard({
                     <p className="text-foreground font-bold tabular-nums">{formatPEN(o.totalAmount)}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground uppercase tracking-wider text-[9px] font-bold">Comisión</p>
+                    <p className="text-muted-foreground uppercase tracking-wider text-[9px] font-bold">ComisiÃƒÆ’Ã‚Â³n</p>
                     <p className="text-rose-400 font-bold tabular-nums">-{formatPEN(o.platformCommissionAmount)}</p>
                   </div>
                   <div>
@@ -910,12 +919,12 @@ interface ActivityItem {
 }
 
 const ACTIVITY_ITEMS: ActivityItem[] = [
-  { icon: Trophy,        accent: 'lime',    title: 'Ganaste la subasta',                  desc: 'Polo algodón pima — S/. 38.00',   time: 'hace 2 horas' },
-  { icon: Gavel,         accent: 'amber',   title: 'Nueva puja en tu subasta',            desc: 'Vestido artesanal — S/. 120',     time: 'hace 5 horas' },
-  { icon: MessageSquare, accent: 'sky',     title: 'Nuevo mensaje de Rosa',                desc: '"¿Te interesa otro talla?"',      time: 'ayer' },
-  { icon: Heart,         accent: 'fuchsia', title: 'Tu producto favorito bajó de precio', desc: 'Samsung Galaxy A55 — S/. 1250',   time: 'hace 2 días' },
-  { icon: ShieldCheck,   accent: 'lime',    title: 'Pago liberado de escrow',              desc: 'Orden #ORD-9F32 — S/. 121.94',    time: 'hace 3 horas' },
-  { icon: Truck,         accent: 'sky',     title: 'Envío entregado',                       desc: 'SHP2417J992 → San Isidro',         time: 'hace 6 horas' },
+  { icon: Trophy,        accent: 'lime',    title: 'Ganaste la subasta',                  desc: 'Polo algodÃƒÆ’Ã‚Â³n pima ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â S/. 38.00',   time: 'hace 2 horas' },
+  { icon: Gavel,         accent: 'amber',   title: 'Nueva puja en tu subasta',            desc: 'Vestido artesanal ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â S/. 120',     time: 'hace 5 horas' },
+  { icon: MessageSquare, accent: 'sky',     title: 'Nuevo mensaje de Rosa',                desc: '"Ãƒâ€šÃ‚Â¿Te interesa otro talla?"',      time: 'ayer' },
+  { icon: Heart,         accent: 'fuchsia', title: 'Tu producto favorito bajÃƒÆ’Ã‚Â³ de precio', desc: 'Samsung Galaxy A55 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â S/. 1250',   time: 'hace 2 dÃƒÆ’Ã‚Â­as' },
+  { icon: ShieldCheck,   accent: 'lime',    title: 'Pago liberado de escrow',              desc: 'Orden #ORD-9F32 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â S/. 121.94',    time: 'hace 3 horas' },
+  { icon: Truck,         accent: 'sky',     title: 'EnvÃƒÆ’Ã‚Â­o entregado',                       desc: 'SHP2417J992 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ San Isidro',         time: 'hace 6 horas' },
 ]
 
 function ActivityFeed() {
@@ -925,7 +934,7 @@ function ActivityFeed() {
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
       className="relative overflow-hidden rounded-3xl bg-card/80 border border-border backdrop-blur-xl p-5 md:p-6 h-full"
     >
-      <div className="absolute -top-12 -right-12 w-44 h-44 bg-fuchsia-500/10 blur-3xl rounded-full pointer-events-none" />
+      
 
       <div className="relative">
         <div className="flex items-center gap-2 mb-4">
@@ -934,7 +943,7 @@ function ActivityFeed() {
           </div>
           <div>
             <h3 className="text-base font-black text-foreground">Actividad reciente</h3>
-            <p className="text-[11px] text-muted-foreground">Tus últimas notificaciones de venta</p>
+            <p className="text-[11px] text-muted-foreground">Tus ÃƒÆ’Ã‚Âºltimas notificaciones de venta</p>
           </div>
         </div>
 
@@ -981,12 +990,12 @@ function AlertsBanner({ alerts }: { alerts: SellerDashboardData['alerts'] }) {
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
       className="mt-5 md:mt-6 relative overflow-hidden rounded-2xl border border-amber-400/30 bg-amber-500/5 backdrop-blur-xl p-4 md:p-5"
     >
-      <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-500/20 blur-3xl rounded-full pointer-events-none" />
+      
       <div className="relative">
         <div className="flex items-center gap-2 mb-2">
           <AlertTriangle className="h-4 w-4 text-amber-400" />
           <h3 className="text-sm font-black text-amber-300 uppercase tracking-wider">
-            Alertas de moderación
+            Alertas de moderaciÃƒÆ’Ã‚Â³n
           </h3>
         </div>
         <div className="space-y-1.5">
@@ -1025,7 +1034,7 @@ function CopyrightReportsCard({
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
       className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-card/80 border border-rose-500/20 backdrop-blur-xl p-5 md:p-6"
     >
-      <div className="absolute -top-12 -right-12 w-44 h-44 bg-rose-500/15 blur-3xl rounded-full pointer-events-none" />
+      
       <div className="relative">
         <div className="flex items-center gap-2 mb-4">
           <div className="rounded-xl p-2 bg-rose-500/10 border border-rose-400/30">
@@ -1061,7 +1070,7 @@ function CopyrightReportsCard({
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
-                Reportado por {r.reporterEmail} · {timeAgoEs(new Date(r.createdAt))}
+                Reportado por {r.reporterEmail} Ãƒâ€šÃ‚Â· {timeAgoEs(new Date(r.createdAt))}
               </p>
             </div>
           ))}
@@ -1075,10 +1084,16 @@ function CopyrightReportsCard({
           >
             legal@vendeya.pe
           </a>{' '}
-          para apelar. La revisión toma máximo 72h hábiles y tu cuenta sigue operativa mientras tanto.
+          para apelar. La revisiÃƒÆ’Ã‚Â³n toma mÃƒÆ’Ã‚Â¡ximo 72h hÃƒÆ’Ã‚Â¡biles y tu cuenta sigue operativa mientras tanto.
         </p>
       </div>
     </motion.section>
+
+        {/* Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ QUICK ACTIONS Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ */}
+        <div className="mt-5 md:mt-6">
+          <QuickActionsFooter />
+        </div>
+
   )
 }
 
@@ -1096,7 +1111,7 @@ function QuickActionsFooter() {
     { icon: Gavel,          label: 'Crear subasta',   href: ROUTES.vender,         accent: 'rose' },
     { icon: MessageSquare,  label: 'Mensajes',         href: ROUTES.mensajes,       accent: 'sky' },
     { icon: Wallet,         label: 'Pagos',            href: ROUTES.pagos,          accent: 'lime' },
-    { icon: Settings,       label: 'Configuración',    href: ROUTES.configuracion,  accent: 'fuchsia' },
+    { icon: Settings,       label: 'ConfiguraciÃƒÆ’Ã‚Â³n',    href: ROUTES.configuracion,  accent: 'fuchsia' },
     { icon: Heart,          label: 'Favoritos',        href: ROUTES.dashboard,      accent: 'purple' },
   ]
 
@@ -1106,15 +1121,15 @@ function QuickActionsFooter() {
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.45 }}
       className="mt-5 md:mt-6 relative overflow-hidden rounded-3xl bg-card/80 border border-border backdrop-blur-xl p-5 md:p-6"
     >
-      <div className="absolute -top-12 -right-12 w-44 h-44 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
+      
       <div className="relative">
         <div className="flex items-center gap-2 mb-4">
           <div className="rounded-xl p-2 bg-muted border border-border">
             <Zap className="h-4 w-4 text-amber-400" />
           </div>
           <div>
-            <h3 className="text-base font-black text-foreground">Acciones rápidas</h3>
-            <p className="text-[11px] text-muted-foreground">Atajos a las tareas más comunes</p>
+            <h3 className="text-base font-black text-foreground">Acciones rÃƒÆ’Ã‚Â¡pidas</h3>
+            <p className="text-[11px] text-muted-foreground">Atajos a las tareas mÃƒÆ’Ã‚Â¡s comunes</p>
           </div>
         </div>
 
@@ -1142,11 +1157,17 @@ function QuickActionsFooter() {
         </div>
       </div>
     </motion.section>
+
+        {/* Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ QUICK ACTIONS Ã°Å¸â€Â¥Ã°Å¸â€Â¥Ã°Å¸â€Â¥ */}
+        <div className="mt-5 md:mt-6">
+          <QuickActionsFooter />
+        </div>
+
   )
 }
 
 /* ================================================================== */
-/* HOOK — useSellerDashboard                                          */
+/* HOOK ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â useSellerDashboard                                          */
 /* Same logic as prior version: fetches /api/seller/dashboard         */
 /* every 30s, gracefully handles errors when wallet isn't registered.  */
 /* ================================================================== */
