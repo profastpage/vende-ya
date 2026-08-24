@@ -20,7 +20,6 @@ import { AuthGuard } from '@/components/vendeda/AuthGuard'
 import { useAuth } from '@/components/vendeda/AuthProvider'
 import { PushSubscribeButton } from '@/components/vendeda/PWA'
 import { formatPEN, timeAgoEs, initials } from '@/lib/vendeda/format'
-import { MOCK_PROFILES } from '@/lib/vendeda/mock-data'
 import { ROUTES } from '@/lib/vendeda/routes'
 import type { Profile } from '@/lib/vendeda/types'
 import { cn } from '@/lib/utils'
@@ -132,15 +131,7 @@ export default function DashboardPage() {
 function DashboardContent() {
   const { user: authUser } = useAuth()
   // Use auth user if available, else fall back to mock for demo mode
-  const user: Profile = authUser
-    ? {
-        ...MOCK_PROFILES[5],
-        id: authUser.id,
-        displayName: authUser.displayName,
-        avatarUrl: authUser.avatarUrl ?? MOCK_PROFILES[5].avatarUrl ?? null,
-        bio: authUser.isDemo ? MOCK_PROFILES[5].bio : (MOCK_PROFILES[5].bio ?? null),
-      }
-    : MOCK_PROFILES[5]
+  const user: Profile = authUser as unknown as Profile
 
   // Pull seller dashboard data (wallet, orders, summary, dropoffs, alerts).
   // Polls every 30s — same logic as the prior implementation.
@@ -148,9 +139,9 @@ function DashboardContent() {
   const { data, isLoading, error } = useSellerDashboard(effectiveSellerId)
 
   // KPI values — fall back to mock when data hasn't loaded yet
-  const ventasHoy = data?.summary?.totalSales ?? 1247
-  const ingresosDelta = '+18% mes'
-  const subastasActivas = 3
+  const ventasHoy = data?.summary?.totalSales ?? 0
+  const ingresosDelta = "0% mes"
+  const subastasActivas = 0
   const espectadoresHoy = 2418
 
   return (
@@ -238,6 +229,7 @@ function DashboardContent() {
               isLoading={isLoading}
             />
           </div>
+          <ReputationCard user={user} reviews={(data as any)?.reviews ?? []} />
           <ActivityFeed />
         </section>
 
@@ -634,14 +626,8 @@ function ShalomLogistics({ dropoffs }: { dropoffs: PendingDropoff[] }) {
     amount: d.order.totalAmount,
   }))
 
-  const mockRows: ShipmentRow[] = [
-    { orderId: 'SHL-2418-A', trackingCode: 'SHP2418K017', status: 'transit',   agency: 'Shalom Express', amount: 145.00 },
-    { orderId: 'SHL-2417-B', trackingCode: 'SHP2417J992', status: 'entregado', agency: 'Olva Courier',   amount: 88.50 },
-    { orderId: 'SHL-2416-C', trackingCode: null,          status: 'pendiente', agency: 'Shalom Express', amount: 220.00 },
-    { orderId: 'SHL-2415-D', trackingCode: 'SHP2415H843', status: 'problem',    agency: 'Shalom Express', amount: 56.90 },
-  ]
-
-  const rows = realRows.length > 0 ? realRows.slice(0, 6) : mockRows
+  
+  const rows = realRows;
 
   return (
     <motion.section
@@ -764,36 +750,6 @@ const PAYMENT_STATUS_CONFIG: Record<string, { label: string; badge: string }> = 
   pending:     { label: 'Pendiente',  badge: 'bg-muted border-border text-muted-foreground' },
 }
 
-const MOCK_ORDERS: RecentOrder[] = [
-  {
-    id: 'ORD-9F32', buyerId: 'usr_carla', source: 'live_stream',
-    totalAmount: 145.00, platformCommissionAmount: 17.40, gatewayFeeAmount: 5.66,
-    sellerNetAmount: 121.94, paymentStatus: 'released', paymentMethod: 'yape',
-    gatewayTransactionId: 'MP-9182734',
-    createdAt: new Date(Date.now() - 3600_000).toISOString(),
-  },
-  {
-    id: 'ORD-9F31', buyerId: 'usr_diego', source: 'marketplace',
-    totalAmount: 88.50, platformCommissionAmount: 7.08, gatewayFeeAmount: 3.45,
-    sellerNetAmount: 77.97, paymentStatus: 'escrow_hold', paymentMethod: 'plin',
-    gatewayTransactionId: 'MP-9182601',
-    createdAt: new Date(Date.now() - 7200_000).toISOString(),
-  },
-  {
-    id: 'ORD-9F30', buyerId: 'usr_rosa', source: 'live_stream',
-    totalAmount: 220.00, platformCommissionAmount: 26.40, gatewayFeeAmount: 8.58,
-    sellerNetAmount: 185.02, paymentStatus: 'paid', paymentMethod: 'card',
-    gatewayTransactionId: 'MP-9182401',
-    createdAt: new Date(Date.now() - 5400_000).toISOString(),
-  },
-  {
-    id: 'ORD-9F29', buyerId: 'usr_luis', source: 'marketplace',
-    totalAmount: 56.90, platformCommissionAmount: 4.55, gatewayFeeAmount: 2.22,
-    sellerNetAmount: 50.13, paymentStatus: 'refunded', paymentMethod: 'yape',
-    gatewayTransactionId: null,
-    createdAt: new Date(Date.now() - 86400_000).toISOString(),
-  },
-]
 
 function RecentOrdersCard({
   orders,
@@ -802,7 +758,7 @@ function RecentOrdersCard({
   orders: RecentOrder[]
   isLoading: boolean
 }) {
-  const list = orders.length > 0 ? orders.slice(0, 6) : MOCK_ORDERS
+  const list = orders;
 
   return (
     <motion.div
@@ -834,7 +790,11 @@ function RecentOrdersCard({
         </div>
 
         <div className="space-y-2">
-          {list.map((o) => {
+          {list.length === 0 ? (
+              <div className="text-center py-6 text-sm text-muted-foreground border border-dashed border-border rounded-xl">
+                Aún no tienes órdenes. ¡Empieza a vender/comprar!
+              </div>
+            ) : list.map((o) => {
             const statusCfg =
               PAYMENT_STATUS_CONFIG[o.paymentStatus] ?? PAYMENT_STATUS_CONFIG.pending
             return (
@@ -1193,3 +1153,49 @@ function useSellerDashboard(sellerId: string) {
   return { data, error, isLoading }
 }
 
+
+
+function ReputationCard({ user, reviews }: { user: Profile; reviews: any[] }) {
+  return (
+    <motion.div
+      {...SECTION_MOTION}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
+      className="relative overflow-hidden rounded-3xl bg-card/80 border border-border backdrop-blur-xl p-5 md:p-6"
+    >
+      <div className="flex items-center gap-2 mb-4">
+        <div className="rounded-xl p-2 bg-muted border border-border">
+          <Heart className="h-4 w-4 text-rose-400" />
+        </div>
+        <div>
+          <h3 className="text-base font-black text-foreground">Reputación</h3>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-4 mb-4 p-4 rounded-xl bg-muted border border-border">
+        <div className="text-4xl font-black text-foreground">{user?.rating?.toFixed(1) || '0.0'}</div>
+        <div className="flex flex-col">
+          <div className="flex text-amber-400 text-lg">
+            {'★'.repeat(Math.round(user?.rating || 0))}{'☆'.repeat(5 - Math.round(user?.rating || 0))}
+          </div>
+          <span className="text-xs text-muted-foreground">{user?.ratingsCount || 0} calificaciones</span>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {(!reviews || reviews.length === 0) ? (
+          <div className="text-center py-4 text-xs text-muted-foreground border border-dashed border-border rounded-xl">
+            Aún no tienes reseñas.
+          </div>
+        ) : reviews.map((r: any) => (
+          <div key={r.id} className="p-3 rounded-xl bg-background border border-border text-sm">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-bold text-foreground">{r.reviewer?.displayName}</span>
+              <span className="text-amber-400 text-xs">{'★'.repeat(r.rating)}</span>
+            </div>
+            <p className="text-muted-foreground text-xs">{r.comment}</p>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  )
+}

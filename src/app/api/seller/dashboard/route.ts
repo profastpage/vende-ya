@@ -45,8 +45,21 @@ export async function GET(request: Request) {
         orderBy: { createdAt: 'desc' },
         take: 10,
       },
+      ordersBuyer: {
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        include: { shipment: true, review: true, seller: true },
+      },
     },
   });
+
+  const reviews = await db.review.findMany({
+    where: { revieweeId: sellerId },
+    include: { reviewer: true },
+    orderBy: { createdAt: 'desc' },
+    take: 5
+  });
+
 
   if (!wallet) {
     // Si el usuario es el propio vendedor y no tiene wallet, ofrecer crearla

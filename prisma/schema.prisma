@@ -69,6 +69,8 @@ model Profile {
   notifications Notification[]
   paymentsBuyer  Payment[]    @relation("PaymentBuyer")
   paymentsSeller Payment[]    @relation("PaymentSeller")
+  reviewsGiven Review[] @relation("Reviewer")
+  reviewsRecv Review[] @relation("Reviewee")
 }
 
 // ---------------------------------------------------------------------
@@ -399,6 +401,7 @@ model Order {
   buyer                    SellerWallet @relation("OrderBuyer",  fields: [buyerId],  references: [id])
   seller                   SellerWallet @relation("OrderSeller", fields: [sellerId], references: [id])
   shipment                 ShalomShipment?
+  review                   Review?
 
   @@index([sellerId])
   @@index([buyerId])
@@ -448,3 +451,21 @@ model CopyrightReport {
   @@index([status])
   @@index([targetSellerId])
 }
+// ---------------------------------------------------------------------
+// REVIEWS - Transactional ratings
+// ---------------------------------------------------------------------
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int      // 1 to 5
+  comment     String?
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reviewerId  String
+  reviewer    Profile  @relation("Reviewer", fields: [reviewerId], references: [id])
+  revieweeId  String
+  reviewee    Profile  @relation("Reviewee", fields: [revieweeId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([revieweeId])
+}
+
