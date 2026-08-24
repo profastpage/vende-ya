@@ -25,5 +25,17 @@ const newEmojis = `const LIVE_EMOJIS = [
 ] as const`;
 text = text.replace(oldEmojisRegex, newEmojis);
 
+// Fix isolated corrupted characters (be very specific to avoid replacing code!)
+text = text.replace(/username: 'T[^']+'/g, "username: 'Tú'");
+text = text.replace(/Envo desde/g, "Envío desde");
+text = text.replace(/instantneo/g, "instantáneo");
+text = text.replace(/mǭs compacto/g, "más compacto");
+text = text.replace(/Mo!/g, "¡Mío!");
+text = text.replace(/Perǧ/g, "Perú");
+text = text.replace(/crculo/g, "círculo");
+
+// Fix bottom console comment
+text = text.replace(/Bottom console mǭs compacto/g, "Bottom console más compacto");
+
 fs.writeFileSync(filePath, text, 'utf8');
-console.log('Restored chat and emojis');
+console.log('Fixed chat, emojis, and specific strings');
