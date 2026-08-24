@@ -61,10 +61,10 @@ function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
           <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
               <iframe
                 src={`https://player.kick.com/${item.kickUsername}?autoplay=true&muted=false`}
-                className="w-full h-[50%] md:h-full object-contain md:object-cover"
+                className="w-full h-full object-cover"
                 style={{ border: 'none' }}
                 allow="autoplay; fullscreen"
-                allowFullScreen
+                
               />
             </div>
         ) : (
