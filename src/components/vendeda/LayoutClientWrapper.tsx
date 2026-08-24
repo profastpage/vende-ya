@@ -8,8 +8,12 @@ import { MobileBottomNav } from "./MobileBottomNav"
 export function LayoutClientWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   
-  // Define full-screen routes where navs and padding are completely hidden
-  const isFullScreenRoute = pathname?.startsWith('/en-vivo') || pathname?.startsWith('/subastas') || pathname?.startsWith('/studio')
+  // Define full-screen routes where navs and padding are completely hidden.
+  // We use strict matching so that index pages like /en-vivo and /subastas still scroll normally!
+  const isFullScreenRoute = 
+    (pathname?.startsWith('/en-vivo/') && pathname !== '/en-vivo') || 
+    (pathname?.startsWith('/subastas/') && pathname !== '/subastas') || 
+    pathname === '/studio'
 
   if (isFullScreenRoute) {
     return <main className="w-full h-[100dvh] bg-black overflow-hidden relative">{children}</main>
