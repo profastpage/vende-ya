@@ -169,7 +169,8 @@ function VenderInner() {
     }
     setSubmitting(true)
     try {
-      await createKickStream(title, kickUsername, isAuction, Number(price))
+      const res = await createKickStream(title, kickUsername, isAuction, Number(price))
+        if (res?.error) throw new Error(res.error)
       toast({ title: '¡En Vivo!', description: 'Tu transmisión de Kick ha sido enlazada a Vende Ya exitosamente.' })
       router.push('/')
     } catch(err: any) {
