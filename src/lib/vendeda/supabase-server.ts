@@ -85,84 +85,24 @@ export async function getAuthenticatedUser(request: Request): Promise<{
   error: string | null
 }> {
   if (!isSupabaseServerConfigured) {
-    return {
-      user: null,
-      error: 'Supabase no configurado en el servidor.',
-    }
+    return { user: null, error: 'Supabase no configurado en el servidor.' }
   }
-  if (!SUPABASE_SERVICE_ROLE_KEY) {
-    return {
-      user: null,
-      error: 'SUPABASE_SERVICE_ROLE_KEY no configurado.',
-    }
-  }
-
-  const admin = getServiceClient()
-
+  
   try {
-    // 1. Prefer Bearer token from Authorization header
-    const authHeader = request.headers.get('Authorization')
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1]
-      const { data, error } = await admin.auth.getUser(token)
-      if (error || !data.user) {
-        return {
-          user: null,
-          error: 'Sesión inválida o expirada. Inicie sesión nuevamente.',
-        }
-      }
-      return {
-        user: { id: data.user.id, email: data.user.email ?? null },
-        error: null,
-      }
+    const supabase = await createServerClient()
+    const { data: { user }, error } = await supabase.auth.getUser()
+    
+    if (error || !user) {
+      return { user: null, error: error?.message || 'Sesin invlida o expirada.' }
     }
-
-    // 2. Fall back to sb-* access_token cookie set by the browser SDK
-    const cookieStore = await cookies()
-    const all = cookieStore.getAll()
-    // Supabase stores the access token in cookies like `sb-<ref>-auth-token`
-    // (which is JSON-encoded) or split chunks when too large.
-    const tokenCookies = all.filter((c) =>
-      c.name.startsWith('sb-') && c.name.includes('auth-token')
-    )
-
-    if (tokenCookies.length === 0) {
-      return { user: null, error: 'Token de autenticación ausente.' }
-    }
-
-    // Reassemble multi-chunk cookies if present
-    let token: string
-    if (tokenCookies.length === 1) {
-      token = tokenCookies[0].value
-    } else {
-      // Sort chunks by their numeric suffix
-      const sorted = tokenCookies.sort((a, b) => a.name.localeCompare(b.name))
-      token = sorted.map((c) => c.value).join('')
-    }
-
-    // If the cookie value is a JSON object like {"access_token":"...","refresh_token":"..."}
-    // we need to extract the access_token.
-    try {
-      const parsed = JSON.parse(token)
-      if (parsed && typeof parsed.access_token === 'string') {
-        token = parsed.access_token
-      }
-    } catch {
-      // Not JSON — assume it's a raw JWT
-    }
-
-    const { data, error } = await admin.auth.getUser(token)
-    if (error || !data.user) {
-      return {
-        user: null,
-        error: 'Sesión inválida o expirada. Inicie sesión nuevamente.',
-      }
-    }
+    
     return {
-      user: { id: data.user.id, email: data.user.email ?? null },
+      user: { id: user.id, email: user.email ?? null },
       error: null,
     }
-  } catch (e) {
-    return { user: null, error: 'Error al verificar la sesión.' }
+  } catch (error: any) {
+    return { user: null, error: error?.message || 'Server Error' }
   }
 }
+
+// EOF_MARKER

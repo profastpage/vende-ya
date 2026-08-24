@@ -1,6 +1,8 @@
 import { SocialVideoFeed, SocialFeedItem } from '@/components/vendeda/SocialVideoFeed'
 import { db } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   // Fetch real streams from Prisma, with fallback to prevent build crashes
   let streams: any[] = []
