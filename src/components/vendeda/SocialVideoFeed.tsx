@@ -62,8 +62,8 @@ function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
           <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
               <iframe
                 src={`https://player.kick.com/${item.kickUsername}?autoplay=true&muted=false`}
-                className="w-full h-full object-cover transition-transform duration-300 origin-center"
-                style={{ border: 'none', transform: isZoomed ? 'scale(3.16)' : 'scale(1)' }}
+                className="w-full h-full object-cover transition-transform duration-300 origin-center pointer-events-none"
+                style={{ border: 'none', transform: isZoomed ? 'scale(3.16)' : 'scale(1.25)' }}
                 allow="autoplay; fullscreen"
                 
               />

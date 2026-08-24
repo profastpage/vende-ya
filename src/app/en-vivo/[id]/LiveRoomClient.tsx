@@ -855,7 +855,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
                 mobileTab === 'bid' ? 'bg-amber-400 text-zinc-950' : 'text-muted-foreground'
               }`}
             >
-              <Gavel className="inline h-3 w-3 mr-1" />Puja
+              {auction ? <><Gavel className="inline h-3 w-3 mr-1" />Puja</> : <><ShoppingBag className="inline h-3 w-3 mr-1" />Comprar</>}
             </button>
             <button
               onClick={() => setMobileTab('chat')}
@@ -871,47 +871,60 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
         {/* Panel body — padding reducido, radio menor, sin handle decorativo */}
         <div className="bg-background/95 backdrop-blur-xl border-t border-border rounded-t-[1.25rem] p-2.5 pt-2 pb-3 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
           <AnimatePresence mode="wait">
-            {mobileTab === 'bid' ? (
-              <motion.div
-                key="bid"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.18 }}
-              >
-                {/* Leader price compact */}
-                <div className="flex items-center justify-between mb-1.5">
-                  <div>
-                    <span className="text-[9px] font-black tracking-widest uppercase text-amber-400">
-                      <Crown className="inline h-2.5 w-2.5 mr-1" />Puja líder
-                    </span>
-                    <p className="text-lg font-black text-amber-400 font-mono tabular-nums leading-none mt-0.5">
-                      {formatPEN(currentBid)}
-                    </p>
-                  </div>
-                  <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
-                </div>
-
-                {/* Quick bid pills */}
-                <div className="flex gap-1.5 mb-1.5">
-                  {QUICK_BIDS.map((amt) => (
-                    <BidPill key={amt} amount={amt} onBid={executeRealtimeBid} />
-                  ))}
-                </div>
-
-                {/* Conditional CTA */}
+              {mobileTab === 'bid' ? (
+                <motion.div
+                  key="bid"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.18 }}
+                >
                   {auction ? (
                     <>
+                      {/* Leader price compact */}
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div>
+                          <span className="text-[9px] font-black tracking-widest uppercase text-amber-400">
+                            <Crown className="inline h-2.5 w-2.5 mr-1" />Puja líder
+                          </span>
+                          <p className="text-lg font-black text-amber-400 font-mono tabular-nums leading-none mt-0.5">
+                            {formatPEN(currentBid)}
+                          </p>
+                        </div>
+                        <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
+                      </div>
+
+                      {/* Quick bid pills */}
+                      <div className="flex gap-1.5 mb-1.5">
+                        {QUICK_BIDS.map((amt) => (
+                          <BidPill key={amt} amount={amt} onBid={executeRealtimeBid} />
+                        ))}
+                      </div>
+
                       <PujarButton increment={safeAuction.bidIncrement || 2} onBid={executeRealtimeBid} full />
                       <div className="mt-1.5">
                         <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
                       </div>
                     </>
                   ) : (
-                    <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
+                    <>
+                      {/* Live Shopping Mode Mobile */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <span className="text-[10px] font-black tracking-widest uppercase text-sky-400">
+                            <ShoppingBag className="inline h-3 w-3 mr-1" />Live Shopping
+                          </span>
+                          <p className="text-2xl font-black text-white font-mono tabular-nums leading-none mt-1">
+                            {formatPEN(buyNowPrice)}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
+                    </>
                   )}
 
-                {/* Stock mini-info */}
+                  {/* Stock mini-info */}
                 <p className="mt-1.5 text-[10px] text-muted-foreground leading-snug text-center">
                   Stock: <span className="font-bold text-lime-400">{safeProduct.stock ?? 0} uds</span> · {bidCount} pujas · {formatViewers(viewers)}
                 </p>
