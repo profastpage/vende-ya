@@ -12,8 +12,28 @@ export async function createKickStream(title: string, kickUsername: string, isAu
     return { success: false, error: 'Tu sesión ha expirado o no estás logueado. Por favor, vuelve a iniciar sesión.' }
   }
 
-  try {
+try {
+    // 0. Ensure Profile exists to prevent Foreign Key constraints
+    let profile = await db.profile.findUnique({ where: { id: user.id } });
+    if (!profile) {
+      // Try to find by authId just in case
+      profile = await db.profile.findUnique({ where: { authId: user.id } });
+    }
+    
+    if (!profile) {
+      // Create a default profile on the fly
+      profile = await db.profile.create({
+        data: {
+          id: user.id, // Force ID to match Supabase for easier relations
+          authId: user.id,
+          username: `user_${user.id.substring(0,8)}`,
+          displayName: user.email?.split('@')[0] || 'Usuario',
+        }
+      });
+    }
+
     // 1. Create dummy product for the stream
+
     const product = await db.product.create({
       data: {
         id: `prod-${Date.now()}`,
