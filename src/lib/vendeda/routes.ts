@@ -12,6 +12,7 @@ export const ROUTES = {
   registro: '/registro',
   // Authenticated
   dashboard: '/dashboard',
+  compras: '/compras',
   vender: '/vender',
   notificaciones: '/notificaciones',
   mensajes: '/mensajes',

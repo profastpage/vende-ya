@@ -27,6 +27,7 @@ export function DesktopTopNav() {
     { href: ROUTES.live, label: 'En vivo' },
     { href: ROUTES.marketplace, label: 'Marketplace' },
     { href: ROUTES.dashboard, label: 'Mi dashboard' },
+    { href: ROUTES.compras, label: 'Mis compras' },
   ]
 
   React.useEffect(() => {
@@ -191,6 +192,13 @@ export function DesktopTopNav() {
                 className="flex w-full items-center px-3 py-2 text-xs font-semibold text-gray-700 hover:text-foreground hover:bg-accent rounded-lg transition-colors"
               >
                 Mi Dashboard
+              </Link>
+              <Link
+                href="/compras"
+                onClick={() => setOpen(false)}
+                className="flex w-full items-center px-3 py-2 text-xs font-semibold text-gray-700 hover:text-foreground hover:bg-accent rounded-lg transition-colors"
+              >
+                Mis compras
               </Link>
               <Link
                 href="/subastas"
