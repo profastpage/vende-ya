@@ -264,9 +264,21 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
   )
 
   React.useEffect(() => {
-    if (!auction?.id) return
-    const channel = supabase
-      .channel(`auction_${safeAuction.id}`)
+      // Chat Realtime (Always active)
+      const chatChannel = supabase.channel(`chat_${id}`)
+      chatChannel.on('broadcast', { event: 'new_message' }, (payload) => {
+        setChat((prev) => {
+          // prevent duplicates if it's our own message bouncing back
+          if (prev.find(m => m.id === payload.payload.id)) return prev;
+          return [...prev, payload.payload]
+        })
+      }).subscribe()
+
+      // Auction Realtime (Only if auction exists)
+      let auctionChannel: any = null
+      if (auction?.id) {
+        auctionChannel = supabase.channel(`auction_${safeAuction.id}`)
+
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'Auction', filter: `id=eq.${safeAuction.id}` },
@@ -278,8 +290,13 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
         }
       )
       .subscribe()
-    return () => { supabase.removeChannel(channel) }
-  }, [auction?.id, supabase])
+      }
+
+      return () => { 
+        supabase.removeChannel(chatChannel);
+        if (auctionChannel) supabase.removeChannel(auctionChannel); 
+      }
+    }, [auction?.id, id, supabase])
 
   const executeRealtimeBid = async (inc: number) => {
     const newPrice = +(currentBid + inc).toFixed(2);
@@ -324,19 +341,38 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
     setHasParticipated(true) // al pujar, se vuelve participante
   }
 
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: stream?.title || 'Vende Ya En Vivo',
+          text: '¡Únete a esta transmisión en Vende Ya!',
+          url: window.location.href,
+        })
+      } else {
+        await navigator.clipboard.writeText(window.location.href)
+        alert('¡Enlace copiado al portapapeles!')
+      }
+    } catch (e) {}
+  }
+  
   const handleLike = () => {
     setLiked((v) => !v)
     setLikes((l) => (liked ? Math.max(0, l - 1) : l + 1))
     setBurstKey((k) => k + 1)
   }
 
-  const sendChat = () => {
+  const sendChat = async () => {
     if (!chatInput.trim()) return
-    setChat((prev) => [
-      ...prev,
-      { id: Date.now().toString(), username: 'Tú', text: chatInput.trim(), color: 'text-lime-400' },
-    ])
+    const msg = { id: Date.now().toString(), username: 'Tú', text: chatInput.trim(), color: 'text-lime-400' }
+    setChat((prev) => [...prev, msg])
     setChatInput('')
+    // Broadcast to others
+    await supabase.channel(`chat_${id}`).send({
+      type: 'broadcast',
+      event: 'new_message',
+      payload: { ...msg, username: 'Comprador' }
+    })
   }
 
   const handleEmojiTap = (emojiChar: string) => {
@@ -469,7 +505,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
               <span className="text-[10px] font-black text-white drop-shadow">Reacciones</span>
             </button>
 
-            <button className="flex flex-col items-center gap-0.5">
+            <button onClick={handleShare} className="flex flex-col items-center gap-0.5">
               <Share2 className="h-6 w-6 text-white drop-shadow-lg" />
               <span className="text-[10px] font-black text-white drop-shadow">Compartir</span>
             </button>
@@ -535,45 +571,60 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
 
         {/* Unified Bidding Box Container */}
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 space-y-5">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex-1">
-              <span className="text-[10px] font-black tracking-widest uppercase text-amber-400 flex items-center gap-1">
-                <Crown className="h-3.5 w-3.5" /> Puja líder actual
-              </span>
-              <p className="text-4xl font-black text-amber-400 font-mono tabular-nums mt-1">
-                {formatPEN(currentBid)}
-              </p>
-              <p className="text-[11px] text-muted-foreground mt-1">
-                Por <span className="font-bold text-sky-400">Diego</span> · hace 36s
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <CountdownCard mm={mm} ss={ss} lowTime={lowTime} />
-              <div className="rounded-2xl bg-zinc-900 border border-zinc-800 px-3 py-1.5 flex flex-col items-center min-w-[88px]">
-                <span className="text-[9px] font-black tracking-widest uppercase text-muted-foreground">
-                  <Gavel className="inline h-2.5 w-2.5 mr-1" />Pujas
-                </span>
-                <span className="text-xl font-black font-mono text-white tabular-nums">{bidCount}</span>
-              </div>
-            </div>
-          </div>
+            {auction ? (
+              <>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <span className="text-[10px] font-black tracking-widest uppercase text-amber-400 flex items-center gap-1">
+                      <Crown className="h-3.5 w-3.5" /> Puja líder actual
+                    </span>
+                    <p className="text-4xl font-black text-amber-400 font-mono tabular-nums mt-1">
+                      {formatPEN(currentBid)}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Por <span className="font-bold text-sky-400">Diego</span> • hace 36s
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <CountdownCard mm={mm} ss={ss} lowTime={lowTime} />
+                    <div className="rounded-2xl bg-zinc-900 border border-zinc-800 px-3 py-1.5 flex flex-col items-center min-w-[88px]">
+                      <span className="text-[9px] font-black tracking-widest uppercase text-muted-foreground">
+                        <Gavel className="inline h-2.5 w-2.5 mr-1" />Pujas
+                      </span>
+                      <span className="text-xl font-black font-mono text-white tabular-nums">{bidCount}</span>
+                    </div>
+                  </div>
+                </div>
 
-          <div>
-            <p className="text-[10px] font-black tracking-widest uppercase text-zinc-400 mb-2">
-              Puja rápida
-            </p>
-            <div className="flex gap-2">
-              {QUICK_BIDS.map((amt) => (
-                <BidPill key={amt} amount={amt} onBid={executeRealtimeBid} />
-              ))}
+                <div>
+                  <p className="text-[10px] font-black tracking-widest uppercase text-zinc-400 mb-2">
+                    Puja rápida
+                  </p>
+                  <div className="flex gap-2">
+                    {QUICK_BIDS.map((amt) => (
+                      <BidPill key={amt} amount={amt} onBid={executeRealtimeBid} />
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+                <div className="flex items-center justify-between gap-4 mb-4">
+                  <div className="flex-1">
+                    <span className="text-[10px] font-black tracking-widest uppercase text-sky-400 flex items-center gap-1">
+                      <ShoppingBag className="h-3.5 w-3.5" /> Live Shopping
+                    </span>
+                    <p className="text-4xl font-black text-white font-mono tabular-nums mt-1">
+                      {formatPEN(buyNowPrice)}
+                    </p>
+                  </div>
+                </div>
+            )}
+
+            <div className="flex gap-3">
+              {auction && <PujarButton increment={safeAuction.bidIncrement || 2} onBid={executeRealtimeBid} />}
+              <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} />
             </div>
           </div>
-
-          <div className="flex gap-3">
-            <PujarButton increment={safeAuction.bidIncrement || 2} onBid={executeRealtimeBid} />
-            <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} />
-          </div>
-        </div>
       </main>
 
       {/* COLUMNA DERECHA: Sidebar Único (Chat en vivo e Historial integrados) */}
@@ -648,23 +699,23 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       </div>
 
       {/* Top bar */}
-      <div className="absolute top-0 inset-x-0 p-4 pt-6 flex justify-between items-start z-20 gap-2 pointer-events-none">
-        <div className="flex flex-col gap-2 pointer-events-auto">
-          <button
-            onClick={() => router.back()}
-            className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center active:scale-95 transition-transform"
-            aria-label="Volver"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <SellerPill seller={seller} initial={initial} />
-        </div>
+        <div className="absolute top-0 inset-x-0 p-4 pt-6 flex justify-between items-start z-20 pointer-events-none">
+          <div className="flex items-center gap-2 pointer-events-auto">
+            <button
+              onClick={() => router.back()}
+              className="h-9 w-9 shrink-0 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center active:scale-95 transition-transform"
+              aria-label="Volver"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <SellerPill seller={seller} initial={initial} />
+          </div>
 
-        <div className="flex flex-col items-end gap-2 pointer-events-auto">
-          <LiveBadge />
-          <ViewersPill viewers={viewers} />
+          <div className="flex flex-col items-end gap-1.5 pointer-events-auto mt-0.5">
+            <LiveBadge />
+            <ViewersPill viewers={viewers} />
+          </div>
         </div>
-      </div>
 
       {/* Floating emojis layer (overlay sobre el video) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
@@ -737,7 +788,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
         </button>
 
         {/* Share */}
-        <button className="flex flex-col items-center gap-0.5">
+        <button onClick={handleShare} className="flex flex-col items-center gap-0.5">
           <Share2 className="h-7 w-7 text-white drop-shadow-lg" />
           <span className="text-[10px] font-black text-white drop-shadow">Compartir</span>
         </button>
@@ -848,13 +899,17 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
                   ))}
                 </div>
 
-                {/* Primary CTA — más compacto (py-2.5 vs py-3) */}
-                <PujarButton increment={safeAuction.bidIncrement || 2} onBid={executeRealtimeBid} full />
-
-                {/* Secondary CTA */}
-                <div className="mt-1.5">
-                  <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
-                </div>
+                {/* Conditional CTA */}
+                  {auction ? (
+                    <>
+                      <PujarButton increment={safeAuction.bidIncrement || 2} onBid={executeRealtimeBid} full />
+                      <div className="mt-1.5">
+                        <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
+                      </div>
+                    </>
+                  ) : (
+                    <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
+                  )}
 
                 {/* Stock mini-info */}
                 <p className="mt-1.5 text-[10px] text-muted-foreground leading-snug text-center">
