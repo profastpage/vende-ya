@@ -1,4 +1,5 @@
 'use client'
+import { useMultiLiveViewers } from '@/hooks/useMultiLiveViewers'
 
 import { InStreamCheckoutDrawer } from './InStreamCheckoutDrawer'
 
@@ -33,7 +34,8 @@ interface SocialVideoFeedProps {
 
 export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
   // Mobile-first immersive container
-  const viewersMap = useMultiLiveViewers(feed.map(f => ({ id: f.id, viewerCount: 0 }))), now adapting to light/dark themes
+  const viewersMap = useMultiLiveViewers(feed.map(f => ({ id: f.id, viewerCount: 0 })))
+  // now adapting to light/dark themes
   return (
     <div className="flex w-full h-[100dvh] bg-background text-foreground overflow-hidden">
       {/* Left Sidebar - Desktop Only */}

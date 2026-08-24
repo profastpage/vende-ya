@@ -274,15 +274,15 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       })
       
       // Load historical chat from DB
-      supabase.from('ChatMessage').select('*').eq('streamId', id).order('createdAt', { ascending: true })
+      supabase.from('LiveChatMessage').select('*').eq('streamId', id).order('createdAt', { ascending: true })
         .then(({ data }) => {
           if (data && data.length > 0) {
             setChat(data.map(d => ({
               id: d.id,
-              username: d.username,
-              text: d.text,
-              color: d.color || 'text-white',
-              isBot: d.isBot
+              username: d.guestName || 'Usuario',
+              text: d.content,
+              color: d.type === 'ai' ? 'text-purple-400' : 'text-white',
+              isBot: d.type === 'ai'
             })))
           }
         })
@@ -420,13 +420,12 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
 
     // Save to DB
     try {
-      await supabase.from('ChatMessage').insert({
+      await supabase.from('LiveChatMessage').insert({
         id: msg.id,
         streamId: id,
-        username: 'Comprador',
-        text: msg.text,
-        color: msg.color,
-        isBot: false
+        guestName: 'Comprador',
+        content: msg.text,
+        type: 'user'
       })
     } catch(e) {}
 
