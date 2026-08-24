@@ -63,7 +63,7 @@ function FeedItem({ item }: { item: SocialFeedItem; isActive: boolean }) {
               <iframe
                 src={`https://player.kick.com/${item.kickUsername}?autoplay=true&muted=false`}
                 className="w-full h-full object-cover transition-transform duration-300 origin-center pointer-events-none"
-                style={{ border: 'none', transform: isZoomed ? 'scale(3.16)' : 'scale(1.25)' }}
+                style={{ border: 'none', transform: 'scale(3.16)' }}
                 allow="autoplay; fullscreen"
                 
               />
@@ -154,13 +154,7 @@ function InteractionButtons({ item, isLiked, setIsLiked, isMobile, isZoomed, set
       </button>
 
       
-      {/* Zoom Toggle */}
-      <button className="flex flex-col items-center gap-1 group" onClick={() => setIsZoomed(!isZoomed)}>
-        <div className={`p-2 rounded-full ${isMobile ? 'bg-background/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
-          {isZoomed ? <Minimize className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-white' : 'text-foreground'}`} /> : <Maximize className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-white' : 'text-foreground'}`} />}
-        </div>
-        <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{isZoomed ? 'Alejar' : 'Acercar'}</span>
-      </button>
+      
 
 
       {/* Comments */}

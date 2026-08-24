@@ -330,9 +330,35 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
 
   const [bidCount, setBidCount] = React.useState(safeAuction.bidCount || 0); const [bids, setBids] = React.useState([]);
   const [viewers, setViewers] = React.useState(stream?.viewerCount ?? 0)
-  const [likes, setLikes] = React.useState(stream?.likeCount ?? 1240)
+  const [likes, setLikes] = React.useState(() => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem(`likes_${id}`)
+        if (saved) return parseInt(saved, 10)
+      }
+      return stream?.likeCount ?? 1240
+    })
+
+    React.useEffect(() => {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`likes_${id}`, likes.toString())
+      }
+    }, [likes, id])
   const [showCheckout, setShowCheckout] = React.useState(false)
-  const [chat, setChat] = React.useState<ChatMessage[]>([])
+  const [chat, setChat] = React.useState<ChatMessage[]>(() => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem(`chat_${id}`)
+        if (saved) {
+          try { return JSON.parse(saved) } catch (e) {}
+        }
+      }
+      return []
+    })
+
+    React.useEffect(() => {
+      if (typeof window !== 'undefined' && chat.length > 0) {
+        localStorage.setItem(`chat_${id}`, JSON.stringify(chat))
+      }
+    }, [chat, id])
   const [chatInput, setChatInput] = React.useState('')
   const [secondsLeft, setSecondsLeft] = React.useState(164)
   const [liked, setLiked] = React.useState(false)
@@ -444,7 +470,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
         <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-zinc-800">
           <iframe
             src={`https://player.kick.com/${stream?.kickUsername || 'gozustrike'}?autoplay=true&muted=false`}
-            className="absolute inset-0 w-full h-full border-none pointer-events-none origin-center" style={{ transform: isZoomed ? 'scale(1.25)' : 'scale(1)' }}
+            className="absolute inset-0 w-full h-full border-none pointer-events-none origin-center" style={{ transform: 'scale(1.25)' }}
             allow="autoplay; fullscreen"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
@@ -466,14 +492,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
               <div className="flex flex-col items-end gap-2 pointer-events-auto">
                 <LiveBadge />
                 <ViewersPill viewers={viewers} />
-                <button
-                  onClick={() => setIsZoomed((v) => !v)}
-                  className="mt-2 h-9 px-3 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center hover:bg-muted transition-colors gap-1.5"
-                  aria-label="Toggle Zoom"
-                >
-                  {isZoomed ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-                  <span className="text-[10px] font-bold uppercase">{isZoomed ? 'Alejar' : 'Acercar'}</span>
-                </button>
+                
               </div>
 
           </div>
@@ -713,7 +732,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       <div className="absolute inset-0 z-0">
         <iframe
           src={`https://player.kick.com/${stream?.kickUsername || 'gozustrike'}?autoplay=true&muted=false`}
-          className="w-full h-full border-none pointer-events-none origin-center transition-transform duration-300" style={{ transform: isZoomed ? 'scale(3.16)' : 'scale(1)' }}
+          className="w-full h-full border-none pointer-events-none origin-center transition-transform duration-300" style={{ transform: 'scale(3.16)' }}
           allow="autoplay; fullscreen"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/95 pointer-events-none" />
@@ -791,14 +810,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
         </button>
 
         
-        {/* Zoom */}
-        <button
-          onClick={() => setIsZoomed((v) => !v)}
-          className="flex flex-col items-center gap-0.5"
-        >
-          {isZoomed ? <Minimize className="h-7 w-7 text-white drop-shadow-lg" /> : <Maximize className="h-7 w-7 text-white drop-shadow-lg" />}
-          <span className="text-[10px] font-black text-white drop-shadow">{isZoomed ? 'Alejar' : 'Acercar'}</span>
-        </button>
+        
 
         {/* Chat */}
         <button
