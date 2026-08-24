@@ -22,7 +22,7 @@ export async function createKickStream(title: string, kickUsername: string, isAu
       price: price,
       currency: 'PEN',
       stock: 1,
-      images: [],
+      images: "[]",
       status: 'active'
     }
   })
