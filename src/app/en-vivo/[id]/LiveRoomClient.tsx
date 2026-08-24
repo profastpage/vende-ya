@@ -250,7 +250,7 @@ function ComprarYaButton({
 
 /* ---------------- Main page ---------------- */
 
-export default function LiveRoomClient({ stream, auction, product, seller }: { stream: any, auction: any, product: any, seller: any }) {
+export default function LiveRoomClient({ stream, auction, product, seller, initialChat }: { stream: any, auction: any, product: any, seller: any, initialChat?: ChatMessage[] }) {
     const router = useRouter()
   const id = stream?.id || 'demo'
 
@@ -273,20 +273,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
         },
       })
       
-      // Load historical chat from DB
-      supabase.from('LiveChatMessage').select('*').eq('streamId', id).order('createdAt', { ascending: true })
-        .then(({ data }) => {
-          if (data && data.length > 0) {
-            setChat(data.map(d => ({
-              id: d.id,
-              username: d.guestName || 'Usuario',
-              text: d.content,
-              color: d.type === 'ai' ? 'text-purple-400' : 'text-white',
-              isBot: d.type === 'ai'
-            })))
-          }
-        })
-
+      
       chatChannel.on('broadcast', { event: 'new_message' }, (payload) => {
         setChat((prev) => {
           // prevent duplicates if it's our own message bouncing back
@@ -358,7 +345,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       }
     }, [likes, id])
   const [showCheckout, setShowCheckout] = React.useState(false)
-  const [chat, setChat] = React.useState<ChatMessage[]>([])
+  const [chat, setChat] = React.useState<ChatMessage[]>(initialChat || [])
 
     
   const [chatInput, setChatInput] = React.useState('')
@@ -420,12 +407,16 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
 
     // Save to DB
     try {
-      await supabase.from('LiveChatMessage').insert({
-        id: msg.id,
-        streamId: id,
-        guestName: 'Comprador',
-        content: msg.text,
-        type: 'user'
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          streamId: id,
+          username: 'Comprador',
+          text: msg.text,
+          color: msg.color,
+          isBot: false
+        })
       })
     } catch(e) {}
 

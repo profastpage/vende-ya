@@ -27,12 +27,27 @@ export default async function StreamDetailPage({ params }: { params: Promise<{ i
   const product = auction?.product || null
   const seller = stream.seller || MOCK_PROFILES[0]
 
+  const initialChatMessages = await db.liveChatMessage.findMany({
+    where: { streamId: id },
+    orderBy: { createdAt: 'asc' },
+    take: 100
+  })
+
+  const initialChat = initialChatMessages.map(msg => ({
+    id: msg.id,
+    username: msg.guestName || 'Usuario',
+    text: msg.content,
+    color: msg.type === 'ai' ? 'text-purple-400' : 'text-white',
+    isBot: msg.type === 'ai'
+  }))
+
   return (
     <LiveRoomClient 
       stream={stream} 
       auction={auction} 
       product={product} 
-      seller={seller} 
+      seller={seller}
+      initialChat={initialChat}
     />
   )
 }
