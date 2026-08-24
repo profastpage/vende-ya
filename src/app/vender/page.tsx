@@ -69,9 +69,11 @@ function VenderInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
-  const initialMode = (searchParams.get('mode') as Mode) ?? 'quick'
+  const initialMode = (searchParams.get('mode') as Mode) ?? 'marketplace'
 
   const [mode, setMode] = React.useState<Mode>(initialMode)
+  const isAuction = mode === 'live_auction'
+  const isLive = mode === 'live_shopping' || mode === 'live_auction'
   const [aiInput, setAiInput] = React.useState('')
   const [aiLoading, setAiLoading] = React.useState(false)
   const [extracted, setExtracted] = React.useState<{
@@ -89,8 +91,7 @@ function VenderInner() {
   const [stock, setStock] = React.useState('1')
   const [paymentMethods, setPaymentMethods] = React.useState<string[]>(['yape', 'plin'])
   const [shippingCost, setShippingCost] = React.useState('10')
-  const [isAuction, setIsAuction] = React.useState(true)
-  const [startingPrice, setStartingPrice] = React.useState('')
+    const [startingPrice, setStartingPrice] = React.useState('')
   const [duration, setDuration] = React.useState('180')
   const [submitting, setSubmitting] = React.useState(false)
 
@@ -162,8 +163,8 @@ function VenderInner() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title || !price || !kickUsername) {
-      toast({ title: 'Error', description: 'Todos los campos son obligatorios, incluyendo tu usuario de Kick.', variant: 'destructive' })
+    if (!title || !price || (isLive && !kickUsername)) {
+      toast({ title: 'Error', description: 'Todos los campos son obligatorios, y si es en vivo, tu usuario de Kick.', variant: 'destructive' })
       return
     }
     setSubmitting(true)
@@ -424,41 +425,45 @@ function VenderInner() {
           </motion.section>
         )}
 
-        {/* ─── Live stream setup ─── */}
-        {mode === 'live_shopping' && (
-          <motion.section
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-6"
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <div className="h-9 w-9 rounded-lg bg-rose-400/10 border border-rose-400/20 flex items-center justify-center">
-                <Video className="h-4 w-4 text-rose-400" />
+        {/* 🎥 Live stream setup 🎥 */}
+          {isLive && (
+            <motion.section
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-6"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-9 w-9 rounded-lg bg-rose-400/10 border border-rose-400/20 flex items-center justify-center">
+                  <Video className="h-4 w-4 text-rose-400" />
+                </div>
+                <h3 className="font-bold text-foreground">Conecta tu transmisión en vivo</h3>
               </div>
-              <h3 className="font-bold text-foreground">Configura tu transmisión en vivo</h3>
-            </div>
-            <div className="space-y-4">
-              <div className="rounded-xl bg-muted border border-border p-4 text-sm">
-                <p className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                  📡 Cómo funciona
-                </p>
-                <ol className="list-decimal list-inside space-y-1.5 text-muted-foreground">
-                  <li>Recibirás una <strong className="text-amber-700 dark:text-amber-300">clave de stream</strong> única (ej. para OBS Studio).</li>
-                  <li>Configura OBS con: <code className="bg-amber-100 dark:bg-black/40 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded text-xs">rtmp://stream.vendeya.pe/live</code></li>
-                  <li>Pega tu clave de stream y empieza a transmitir desde tu cámara o celular.</li>
-                  <li>Tus seguidores podrán ver tu transmisión en tiempo real y comprar directamente desde la app.</li>
-                </ol>
+              <div className="space-y-4">
+                <div className="rounded-xl bg-muted border border-border p-4 text-sm">
+                  <p className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                    📱 Cómo transmitir con Kick
+                  </p>
+                  <ol className="list-decimal list-inside space-y-1.5 text-muted-foreground">
+                    <li>Descarga la app de Kick en tu celular o usa OBS Studio en PC.</li>
+                    <li>Inicia transmisión desde tu cuenta de Kick.</li>
+                    <li>Ingresa tu usuario exacto de Kick abajo para enlazar el stream a tu producto.</li>
+                    <li>¡Tus seguidores verán el video embebido y podrán comprar sin salir de Vende Ya!</li>
+                  </ol>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="kickUser" className="text-foreground font-semibold">Usuario de Kick *</Label>
+                  <Input 
+                    id="kickUser" 
+                    placeholder="Ej. mi_canal_oficial" 
+                    value={kickUsername}
+                    onChange={(e) => setKickUsername(e.target.value)}
+                    className="h-11 bg-background"
+                  />
+                </div>
               </div>
-              <Button className="w-full h-11 bg-gradient-to-r from-amber-400 to-fuchsia-600 hover:from-amber-500 hover:to-fuchsia-700 text-zinc-950 font-bold border-0">
-                <Video className="h-4 w-4 mr-2" /> Generar clave de stream y empezar
-              </Button>
-              <p className="text-xs text-muted-foreground text-center">
-                Recomendamos resolución 720p @ 30fps y bitrate entre 2500–4000 kbps para estabilidad móvil.
-              </p>
-            </div>
-          </motion.section>
-        )}
+            </motion.section>
+          )}
 
         {/* ─── Main form ─── */}
         <section id="producto" className="scroll-mt-20">
@@ -571,18 +576,7 @@ function VenderInner() {
 
             {/* Auction toggle */}
             <div className="rounded-xl border border-border bg-muted p-4 space-y-3">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isAuction}
-                  onChange={(e) => setIsAuction(e.target.checked)}
-                  className="h-4 w-4 accent-amber-400"
-                />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Subastar este producto</p>
-                  <p className="text-xs text-muted-foreground">Si activas, los usuarios pujan en tiempo real durante tu en vivo.</p>
-                </div>
-              </label>
+              
 
               {isAuction && (
                 <div className="grid grid-cols-2 gap-3 pl-7">
