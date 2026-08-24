@@ -428,7 +428,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
           </div>
 
           {/* Floating actions right side */}
-          <div className="absolute right-4 bottom-14 z-20 flex flex-col gap-3">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-3">
             <motion.button
               key={`like-desktop-${burstKey}`}
               whileTap={{ scale: 1.5 }}
@@ -628,7 +628,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       <div className="absolute inset-0 z-0">
         <iframe
           src={`https://player.kick.com/${stream?.kickUsername || 'gozustrike'}?autoplay=true&muted=false`}
-          className="w-full h-full border-none pointer-events-auto"
+          className="w-full h-full border-none pointer-events-auto scale-[3.16] origin-center"
           allow="autoplay; fullscreen"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/95 pointer-events-none" />
@@ -674,7 +674,7 @@ export default function LiveRoomClient({ stream, auction, product, seller }: { s
       </div>
 
       {/* Right floating actions — sin círculos negros, más limpio */}
-      <div className="absolute right-3 bottom-40 z-20 flex flex-col gap-4 items-center">
+      <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-4 items-center">
         {/* Like — solo icono + count, sin fondo negro */}
         <motion.button
           key={`like-mobile-${burstKey}`}

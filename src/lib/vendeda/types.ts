@@ -79,6 +79,7 @@ export interface LiveStream {
   seller?: Profile
   streamKey: string
   playbackId?: string | null
+  kickUsername?: string | null
   title: string
   description?: string | null
   thumbnailUrl?: string | null

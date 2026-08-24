@@ -92,12 +92,20 @@ function FeaturedHeroCard({ stream }: { stream: LiveStream }) {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative aspect-video rounded-3xl overflow-hidden border border-border bg-card shadow-2xl shadow-black/60"
       >
-        {/* Background image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-          style={{ backgroundImage: `url(${stream.thumbnailUrl ?? ''})` }}
-          aria-hidden
-        />
+        {/* Background Media */}
+        {stream.kickUsername ? (
+          <iframe
+            src={`https://player.kick.com/${stream.kickUsername}?autoplay=true&muted=true`}
+            className="absolute inset-0 w-full h-full border-none pointer-events-none"
+            allow="autoplay; fullscreen"
+          />
+        ) : (
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+            style={{ backgroundImage: `url(${stream.thumbnailUrl ?? ''})` }}
+            aria-hidden
+          />
+        )}
 
         {/* Overlays for readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20" />
@@ -234,12 +242,20 @@ function StreamCard({ stream }: { stream: LiveStream }) {
     <motion.div variants={itemVariants} whileHover={{ y: -4 }}>
       <Link href={ROUTES.stream(stream.id)} className="group block h-full" aria-label={`Ver ${stream.title}`}>
         <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-border bg-card shadow-lg shadow-black/40">
-          {/* Image */}
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-            style={{ backgroundImage: `url(${stream.thumbnailUrl ?? ''})` }}
-            aria-hidden
-          />
+          {/* Background Media */}
+          {stream.kickUsername ? (
+            <iframe
+              src={`https://player.kick.com/${stream.kickUsername}?autoplay=true&muted=true`}
+              className="absolute inset-0 w-full h-full object-cover border-none pointer-events-none origin-center scale-[3.16]"
+              allow="autoplay; fullscreen"
+            />
+          ) : (
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+              style={{ backgroundImage: `url(${stream.thumbnailUrl ?? ''})` }}
+              aria-hidden
+            />
+          )}
 
           {/* Bottom gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
