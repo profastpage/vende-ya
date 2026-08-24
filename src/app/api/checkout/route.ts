@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import {
   calculateSplit,
@@ -225,7 +225,7 @@ export async function POST(request: Request) {
 
         shipmentInfo = {
           trackingCode: shalomResult.trackingCode,
-          pdfLabelurl: shalomResult.pdfLabelUrl,
+          pdfLabelUrl: shalomResult.pdfLabelUrl,
           shippingCost: shalomResult.shippingCost,
         };
       } catch (e) {
