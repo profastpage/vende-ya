@@ -1,4 +1,8 @@
-import { SocialVideoFeed, SocialFeedItem } from '@/components/vendeda/SocialVideoFeed'
+const fs = require('fs');
+const path = require('path');
+const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\app\\page.tsx');
+
+const newContent = `import { SocialVideoFeed, SocialFeedItem } from '@/components/vendeda/SocialVideoFeed'
 import { db } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
@@ -48,7 +52,7 @@ export default async function Home() {
     
     return {
       id: stream.id,
-      videoUrl: stream.playbackId ? `https://customer-xxx.cloudflarestream.com/${stream.playbackId}/manifest/video.m3u8` : 'https://via.placeholder.com/1080x1920',
+      videoUrl: stream.playbackId ? \`https://customer-xxx.cloudflarestream.com/\${stream.playbackId}/manifest/video.m3u8\` : 'https://via.placeholder.com/1080x1920',
       thumbnailUrl: stream.thumbnailUrl || 'https://via.placeholder.com/1080x1920',
       kickUsername: stream.kickUsername || undefined,
       seller: {
@@ -86,3 +90,7 @@ export default async function Home() {
     </main>
   )
 }
+`
+
+fs.writeFileSync(file, newContent, 'utf8');
+console.log('Rewritten page.tsx without mocks and with deduplication');
