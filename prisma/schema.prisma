@@ -131,6 +131,7 @@ model Product {
   shippingFrom String? // department
   shipsNationwide Boolean @default(true)
   shippingCost Float   @default(0)
+  isLiveOnly   Boolean @default(false)
   // Payment methods accepted (JSON array: ["yape","plin","pagoefectivo","card"])
   paymentMethods String   @default("yape,plin")
   // Status

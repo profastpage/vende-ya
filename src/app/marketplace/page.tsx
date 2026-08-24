@@ -13,7 +13,7 @@ export default async function MarketplacePage() {
         take: 20
       }),
       db.product.findMany({
-        where: { status: 'active' },
+        where: { status: 'active', isLiveOnly: false },
         include: { seller: true, category: true },
         orderBy: { createdAt: 'desc' },
         take: 50

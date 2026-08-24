@@ -43,6 +43,7 @@ try {
         basePrice: price,
         currency: 'PEN',
         stock: 1,
+          isLiveOnly: true,
         images: "[]",
         status: 'active'
       }

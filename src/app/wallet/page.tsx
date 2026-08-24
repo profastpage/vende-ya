@@ -180,16 +180,16 @@ function WalletContent() {
             </div>
           ) : isActive ? (
             // Active — amber gradient balance
-            <div className="relative overflow-hidden rounded-3xl border border-amber-400/30 bg-gradient-to-br from-amber-500/30 via-amber-600/15 to-background p-6 md:p-8">
+            <div className="relative overflow-hidden rounded-3xl border border-amber-300 dark:border-amber-800 bg-gradient-to-br from-amber-500/30 via-amber-600/15 to-background p-6 md:p-8">
               <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/20 blur-3xl rounded-full pointer-events-none" />
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-fuchsia-500/10 blur-3xl rounded-full pointer-events-none" />
               <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-amber-200/80 mb-1">Saldo disponible</p>
+                  <p className="text-xs uppercase tracking-wider text-amber-800 dark:text-amber-200/80 mb-1">Saldo disponible</p>
                   <p className="text-4xl md:text-5xl font-black font-mono text-foreground tabular-nums">
                     {formatPEN(wallet.balance ?? 0)}
                   </p>
-                  <p className="text-xs text-amber-200/80 mt-2 flex items-center gap-1.5">
+                  <p className="text-xs text-amber-800 dark:text-amber-200/80 mt-2 flex items-center gap-1.5">
                     <TrendingUp className="h-3.5 w-3.5" />
                     +{formatPEN(284.50)} en los últimos 7 días
                   </p>
@@ -205,36 +205,36 @@ function WalletContent() {
               </div>
               <div className="relative grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-border">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-amber-200/70">En escrow</p>
+                  <p className="text-[10px] uppercase tracking-wider text-amber-800 dark:text-amber-200/70">En escrow</p>
                   <p className="text-lg font-bold font-mono text-foreground tabular-nums">{formatPEN(469.00)}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-amber-200/70">Ventas del mes</p>
+                  <p className="text-[10px] uppercase tracking-wider text-amber-800 dark:text-amber-200/70">Ventas del mes</p>
                   <p className="text-lg font-bold font-mono text-foreground tabular-nums">{formatPEN(2314.50)}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-amber-200/70">Comisión pagada</p>
+                  <p className="text-[10px] uppercase tracking-wider text-amber-800 dark:text-amber-200/70">Comisión pagada</p>
                   <p className="text-lg font-bold font-mono text-foreground tabular-nums">{formatPEN(277.74)}</p>
                 </div>
               </div>
             </div>
           ) : (
             // Pending — amber-400/10 backdrop
-            <div className="relative overflow-hidden rounded-3xl border border-amber-400/30 bg-amber-400/10 p-6 md:p-8">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/10 blur-3xl rounded-full pointer-events-none" />
+            <div className="relative overflow-hidden rounded-3xl border border-amber-300 dark:border-amber-800 bg-amber-100 dark:bg-amber-900/20 p-6 md:p-8">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-100 dark:bg-amber-900/20 blur-3xl rounded-full pointer-events-none" />
               <div className="relative flex flex-col md:flex-row md:items-center gap-6">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="h-10 w-10 rounded-xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-center">
-                      <span className="text-amber-700 dark:text-amber-300 font-black text-xs">MP</span>
+                    <div className="h-10 w-10 rounded-xl bg-amber-400/15 border border-amber-300 dark:border-amber-800 flex items-center justify-center">
+                      <span className="text-amber-900 dark:text-amber-300 font-black text-xs">MP</span>
                     </div>
                     <div>
-                      <p className="text-xs uppercase tracking-wider text-amber-200/80">Mercado Pago</p>
-                      <p className="text-sm font-bold text-amber-100">Billetera no verificada</p>
+                      <p className="text-xs uppercase tracking-wider text-amber-800 dark:text-amber-200/80">Mercado Pago</p>
+                      <p className="text-sm font-bold text-amber-900 dark:text-amber-200">Billetera no verificada</p>
                     </div>
                   </div>
                   <p className="text-2xl md:text-3xl font-black font-mono text-muted-foreground/40 tabular-nums">S/. — — —</p>
-                  <p className="text-sm text-amber-200/80 mt-2 leading-relaxed">
+                  <p className="text-sm text-amber-800 dark:text-amber-200/80 mt-2 leading-relaxed">
                     Para mostrar tu saldo disponible necesitas conectar y verificar tu cuenta de Mercado Pago.
                     Mientras tanto, las ventas se acumulan en escrow protegido hasta 7 días.
                   </p>
@@ -263,15 +263,15 @@ function WalletContent() {
             <div className={cn(
               'h-14 w-14 rounded-2xl border flex items-center justify-center shrink-0',
               displayStatus === 'active' && 'bg-lime-400/15 border-lime-400/30',
-              displayStatus === 'pending' && 'bg-amber-400/15 border-amber-400/30',
+              displayStatus === 'pending' && 'bg-amber-400/15 border-amber-300 dark:border-amber-800',
               displayStatus === 'error' && 'bg-rose-500/15 border-rose-500/30',
             )}>
               {displayStatus === 'active' ? (
-                <ShieldCheck className="h-6 w-6 text-lime-300" />
+                <ShieldCheck className="h-6 w-6 text-foreground" />
               ) : displayStatus === 'error' ? (
                 <AlertCircle className="h-6 w-6 text-rose-300" />
               ) : (
-                <Clock className="h-6 w-6 text-amber-700 dark:text-amber-300" />
+                <Clock className="h-6 w-6 text-amber-900 dark:text-amber-300" />
               )}
             </div>
             <div className="flex-1 min-w-0">
@@ -341,8 +341,8 @@ function WalletContent() {
                 },
               ].map((step) => (
                 <li key={step.n} className="flex gap-3">
-                  <div className="h-8 w-8 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center shrink-0">
-                    <span className="text-xs font-bold text-amber-700 dark:text-amber-300">{step.n}</span>
+                  <div className="h-8 w-8 rounded-full bg-amber-400/15 border border-amber-300 dark:border-amber-800 flex items-center justify-center shrink-0">
+                    <span className="text-xs font-bold text-amber-900 dark:text-amber-300">{step.n}</span>
                   </div>
                   <div className="flex-1 min-w-0 pt-1">
                     <p className="font-semibold text-foreground text-sm">{step.title}</p>
@@ -386,13 +386,13 @@ function WalletContent() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-6"
+            className="rounded-2xl border border-amber-300 dark:border-amber-800 bg-amber-100 dark:bg-amber-900/20 p-6"
           >
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-amber-700 dark:text-amber-300 shrink-0 mt-0.5" />
+              <AlertCircle className="h-5 w-5 text-amber-900 dark:text-amber-300 shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="font-semibold text-amber-100">Verificación KYC requerida</p>
-                <p className="text-sm text-amber-200/80 mt-1 leading-relaxed">
+                <p className="font-semibold text-amber-900 dark:text-amber-200">Verificación KYC requerida</p>
+                <p className="text-sm text-amber-800 dark:text-amber-200/80 mt-1 leading-relaxed">
                   Para activar cobros reales necesitas completar la verificación de identidad en Mercado Pago.
                   Esto incluye foto del DNI + selfie y tarda 1-2 días hábiles. Sin KYC los pagos quedan retenidos en escrow.
                 </p>
@@ -400,7 +400,7 @@ function WalletContent() {
                   href="https://www.mercadopago.com.pe/hub/centers/account"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm text-amber-200 underline font-semibold mt-3 hover:text-amber-100"
+                  className="inline-flex items-center gap-1.5 text-sm text-amber-900 dark:text-amber-200 underline font-semibold mt-3 hover:text-amber-900 dark:text-amber-200"
                 >
                   Completar KYC en Mercado Pago <ArrowRight className="h-3.5 w-3.5" />
                 </a>
@@ -454,7 +454,7 @@ function WalletContent() {
                         <TxStatusBadge status={tx.status} />
                       </td>
                       <td className="px-2 py-3 text-right">
-                        <span className="font-mono font-semibold text-lime-300">
+                        <span className="font-mono font-semibold text-foreground">
                           +{formatPEN(tx.amount)}
                         </span>
                       </td>
@@ -481,14 +481,14 @@ function WalletContent() {
             Vende Ya aplica una comisión plana según el canal de venta. La pasarela de Mercado Pago cobra adicionalmente
             el costo de procesamiento. Todas las retenciones se calculan en la fuente — tú siempre recibes el neto exacto.
           </p>
-          <div className="rounded-xl bg-black/30 border border-border p-4 text-sm space-y-2.5">
+          <div className="rounded-xl bg-muted/50 border border-border p-4 text-sm space-y-2.5">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Comisión Vende Ya (en vivo)</span>
-              <span className="font-mono font-bold text-amber-700 dark:text-amber-300">12.00%</span>
+              <span className="font-mono font-bold text-amber-900 dark:text-amber-300">12.00%</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Comisión Vende Ya (marketplace)</span>
-              <span className="font-mono font-bold text-amber-700 dark:text-amber-300">8.00%</span>
+              <span className="font-mono font-bold text-amber-900 dark:text-amber-300">8.00%</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Costo pasarela (3.9% + IGV)</span>
@@ -496,11 +496,11 @@ function WalletContent() {
             </div>
             <div className="border-t border-border pt-2.5 mt-1 flex justify-between font-bold">
               <span className="text-foreground">Neto para ti (en vivo)</span>
-              <span className="text-lime-300 font-mono">83.40%</span>
+              <span className="text-foreground font-mono">83.40%</span>
             </div>
             <div className="flex justify-between font-bold">
               <span className="text-foreground">Neto para ti (marketplace)</span>
-              <span className="text-lime-300 font-mono">87.40%</span>
+              <span className="text-foreground font-mono">87.40%</span>
             </div>
             <p className="text-xs text-muted-foreground pt-2 leading-relaxed">
               Ejemplo: una venta de S/ 100 en vivo → recibes S/ 83.40 netos. En marketplace → recibes S/ 87.40.
@@ -564,7 +564,7 @@ function WalletContent() {
 function StatusBadge({ status }: { status: 'active' | 'pending' | 'error' }) {
   if (status === 'active') {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border bg-lime-400/15 text-lime-300 border-lime-400/30">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border bg-lime-400/15 text-foreground border-lime-400/30">
         <span className="h-1.5 w-1.5 rounded-full bg-lime-400 animate-pulse" />
         Verificada
       </span>
@@ -579,7 +579,7 @@ function StatusBadge({ status }: { status: 'active' | 'pending' | 'error' }) {
     )
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border bg-amber-400/15 text-amber-700 dark:text-amber-300 border-amber-400/30">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border bg-amber-400/15 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800">
       <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
       Pendiente
     </span>
@@ -592,14 +592,14 @@ function StatusBadge({ status }: { status: 'active' | 'pending' | 'error' }) {
 function TxStatusBadge({ status }: { status: 'completed' | 'pending' | 'in_escrow' }) {
   if (status === 'completed') {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold border bg-lime-400/15 text-lime-300 border-lime-400/30">
+      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold border bg-lime-400/15 text-foreground border-lime-400/30">
         <Check className="h-3 w-3" /> Completado
       </span>
     )
   }
   if (status === 'in_escrow') {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold border bg-amber-400/15 text-amber-700 dark:text-amber-300 border-amber-400/30">
+      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold border bg-amber-400/15 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800">
         <Clock className="h-3 w-3" /> En escrow
       </span>
     )
