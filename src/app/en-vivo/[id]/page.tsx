@@ -124,7 +124,7 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
       className={`text-xs px-2.5 py-1.5 rounded-xl backdrop-blur-sm border ${
         msg.isBot
           ? 'bg-purple-500/15 border-purple-400/30 shadow-lg shadow-purple-500/10'
-          : 'bg-muted border-border'
+          : 'bg-zinc-900/80 border-white/5 text-zinc-100 shadow-sm'
       }`}
     >
       <div className="flex items-center gap-1.5 flex-wrap">
@@ -153,7 +153,7 @@ function ChatInputBar({
   compact?: boolean
 }) {
   return (
-    <div className={`flex items-center gap-2 ${compact ? '' : 'px-3 py-2.5'} bg-muted backdrop-blur-xl border border-border rounded-2xl`}>
+    <div className={`flex items-center gap-2 ${compact ? '' : 'px-3 py-2.5'} bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-2xl`}>
       <MessageCircle className="h-4 w-4 text-muted-foreground shrink-0" />
       <input
         type="text"
@@ -166,7 +166,7 @@ function ChatInputBar({
       <motion.button
         whileTap={{ scale: 0.92 }}
         onClick={onSend}
-        className="h-8 w-8 rounded-xl bg-gradient-to-br from-amber-400 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-fuchsia-500/30"
+        className="h-8 w-8 rounded-xl bg-amber-400 hover:bg-amber-500 text-black flex items-center justify-center shadow-lg shadow-amber-400/20 transition-colors"
         aria-label="Enviar mensaje"
       >
         <Send className="h-3.5 w-3.5 text-zinc-950" />
@@ -189,8 +189,8 @@ function CountdownCard({
       transition={{ duration: 0.8, repeat: lowTime ? Infinity : 0 }}
       className={`relative overflow-hidden rounded-2xl border px-3 py-1.5 flex flex-col items-center min-w-[88px] ${
         lowTime
-          ? 'bg-gradient-to-br from-rose-500/30 to-rose-700/30 border-rose-400/50'
-          : 'bg-muted border-border'
+          ? 'bg-rose-500/20 border-rose-500/30'
+          : 'bg-zinc-900/80 border-white/5 text-zinc-100 shadow-sm'
       }`}
     >
       <span className={`text-[9px] font-black tracking-widest uppercase ${lowTime ? 'text-rose-300' : 'text-amber-400'}`}>
@@ -210,7 +210,7 @@ function BidPill({ amount, onBid }: { amount: number; onBid: (n: number) => void
       whileTap={{ scale: 0.92 }}
       whileHover={{ scale: 1.05, y: -2 }}
       onClick={() => onBid(amount)}
-      className="flex-1 rounded-full bg-muted hover:bg-amber-400/15 border border-border hover:border-amber-400/40 px-3 py-2 text-xs font-black text-amber-300 transition-colors flex items-center justify-center gap-0.5"
+      className="flex-1 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/10 hover:border-amber-400/40 px-3 py-2 text-xs font-black text-amber-300 transition-colors flex items-center justify-center gap-0.5"
     >
       <span className="text-muted-foreground">+</span>S/{amount}
     </motion.button>
@@ -221,10 +221,10 @@ function PujarButton({ increment, onBid, full = false }: { increment: number; on
   return (
     <motion.button
       whileTap={{ scale: 0.97 }}
-      animate={{ boxShadow: ['0 0 20px rgba(245,158,11,0.4)', '0 0 32px rgba(217,70,239,0.5)', '0 0 20px rgba(245,158,11,0.4)'] }}
+      animate={{ boxShadow: ['0 0 20px rgba(251,191,36,0.3)', '0 0 32px rgba(251,191,36,0.5)', '0 0 20px rgba(251,191,36,0.3)'] }}
       transition={{ duration: 2.4, repeat: Infinity }}
       onClick={() => onBid(increment)}
-      className={`${full ? 'w-full' : 'flex-1'} relative overflow-hidden bg-gradient-to-r from-amber-400 via-amber-500 to-fuchsia-500 text-zinc-950 font-black uppercase tracking-wider text-sm py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-amber-500/30`}
+      className={`${full ? 'w-full' : 'flex-1'} relative overflow-hidden bg-amber-400 hover:bg-amber-500 text-zinc-950 font-black uppercase tracking-wider text-sm py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-amber-400/20`}
     >
       <Gavel className="h-4 w-4" />
       Pujar ahora
@@ -245,7 +245,7 @@ function ComprarYaButton({
       whileTap={{ scale: 0.97 }}
       whileHover={{ borderColor: 'rgba(245,158,11,0.5)' }}
       onClick={onBuy}
-      className={`${full ? 'w-full' : ''} bg-transparent border border-white/15 hover:border-amber-400/40 text-foreground text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-colors`}
+      className={`${full ? 'w-full' : ''} bg-zinc-900 border border-white/10 hover:border-amber-400/40 text-white shadow-sm text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-colors`}
     >
       <ShoppingBag className="h-4 w-4 text-amber-400" />
       <span className="text-muted-foreground">Comprar ya</span>
@@ -500,10 +500,10 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Unified Bidding Box Container */}
-        <div className="bg-purple-950/20 border border-purple-500/20 rounded-2xl p-6 space-y-5">
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 space-y-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1">
-              <span className="text-[10px] font-black tracking-widest uppercase text-purple-300 flex items-center gap-1">
+              <span className="text-[10px] font-black tracking-widest uppercase text-amber-400 flex items-center gap-1">
                 <Crown className="h-3.5 w-3.5" /> Puja líder actual
               </span>
               <p className="text-4xl font-black text-amber-400 font-mono tabular-nums mt-1">
@@ -546,7 +546,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
       <aside className="w-80 bg-zinc-950/40 border border-zinc-800 rounded-2xl flex flex-col overflow-hidden shrink-0">
         {/* Chat en vivo */}
         <div className="p-4 border-b border-zinc-800 font-black text-white flex items-center justify-between">
-          <span className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-purple-400">
+          <span className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-zinc-100">
             <MessageCircle className="h-4 w-4" /> Chat en vivo
           </span>
           <span className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
@@ -563,7 +563,7 @@ export default function StreamDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Historial de pujas unificado */}
-        <div className="p-4 border-t border-zinc-800 border-b border-zinc-800 bg-black/20">
+        <div className="p-4 border-t border-zinc-800 border-b border-zinc-800 bg-zinc-950/80">
           <p className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 flex items-center justify-between">
             <span>Historial de pujas</span>
             <span className="text-zinc-500 tabular-nums">{MOCK_BIDS.length}</span>
