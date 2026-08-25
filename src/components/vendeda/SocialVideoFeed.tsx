@@ -1,3 +1,4 @@
+import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer';
 'use client'
 import { useMultiLiveViewers } from '@/hooks/useMultiLiveViewers'
 
@@ -15,6 +16,8 @@ export type SocialFeedItem = {
   thumbnailUrl: string;
   kickUsername?: string;
   youtubeLiveId?: string;
+  streamProvider?: string | null;
+  streamProviderId?: string | null;
   seller: { displayName: string; avatarUrl?: string };
   description: string;
   likes: number;
@@ -62,16 +65,10 @@ function FeedItem({ item, isActive, viewers = 0 }: { item: SocialFeedItem; isAct
       <div className="relative w-full md:w-[350px] lg:w-[400px] h-full bg-zinc-900 md:rounded-2xl overflow-hidden flex shrink-0">
         
         {/* Video Background / Kick Player */}
-        {item.youtubeLiveId || item.kickUsername ? (
+        {item.streamProviderId || item.youtubeLiveId || item.kickUsername ? (
             <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
               <div className="relative w-full h-full">
-                <iframe
-                  src={`https://www.youtube.com/embed/${item.youtubeLiveId || item.kickUsername}?autoplay=1&mute=1&rel=0&modestbranding=1`}
-                  title="YouTube Live Stream"
-                  className="absolute top-0 left-0 w-full h-full border-none"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+                <DynamicLivePlayer provider={item.streamProvider || 'YOUTUBE'} providerId={item.streamProviderId || item.youtubeLiveId || item.kickUsername || ''} />
               </div>
             </div>
           ) : (

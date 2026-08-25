@@ -1,3 +1,4 @@
+import { DynamicHubPlayer } from '@/components/vendeda/DynamicLivePlayer';
 'use client'
 
 import * as React from 'react'
@@ -94,14 +95,10 @@ function FeaturedHeroCard({ stream, viewers }: { stream: LiveStream, viewers: nu
         className="relative aspect-video rounded-3xl overflow-hidden border border-border bg-card shadow-2xl shadow-black/60"
       >
         {/* Background Media */}
-        {stream.youtubeLiveId || stream.kickUsername ? (
+        {stream.streamProviderId || stream.youtubeLiveId || stream.kickUsername ? (
           <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
             <div className="relative w-full aspect-video pointer-events-none">
-              <iframe
-                src={`https://www.youtube.com/embed/${stream.youtubeLiveId || stream.kickUsername}?autoplay=1&mute=1&rel=0&modestbranding=1&controls=0`}
-                className="absolute top-0 left-0 w-full h-full border-none"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              />
+              <DynamicLivePlayer provider={stream.streamProvider || 'YOUTUBE'} providerId={stream.streamProviderId || stream.youtubeLiveId || stream.kickUsername || ''} />
             </div>
           </div>
         ) : (
@@ -248,14 +245,10 @@ function StreamCard({ stream, viewers }: { stream: LiveStream, viewers: number }
       <Link href={ROUTES.stream(stream.id)} className="group block h-full" aria-label={`Ver ${stream.title}`}>
         <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-border bg-card shadow-lg shadow-black/40">
           {/* Background Media */}
-          {stream.youtubeLiveId || stream.kickUsername ? (
+          {stream.streamProviderId || stream.youtubeLiveId || stream.kickUsername ? (
             <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
-              <div className="relative w-full aspect-video pointer-events-none">
-                <iframe
-                  src={`https://www.youtube.com/embed/${stream.youtubeLiveId || stream.kickUsername}?autoplay=1&mute=1&rel=0&modestbranding=1&controls=0`}
-                  className="absolute top-0 left-0 w-full h-full border-none"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                />
+              <div className="relative w-full h-full pointer-events-none">
+                <DynamicLivePlayer provider={stream.streamProvider || 'YOUTUBE'} providerId={stream.streamProviderId || stream.youtubeLiveId || stream.kickUsername || ''} />
               </div>
             </div>
           ) : (
@@ -360,6 +353,34 @@ function EmptyState() {
 /* ════════════════════════════════════════════════════════════════ */
 /* PAGE                                                                */
 /* ════════════════════════════════════════════════════════════════ */
+
+function DynamicLivePlayer({ provider, providerId }: { provider: string, providerId: string }) {
+  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'localhost';
+  const containerClasses = "relative w-full h-full bg-black pointer-events-none";
+
+  if (provider === 'TWITCH') {
+    return (
+      <div className={containerClasses}>
+        <iframe src={`https://player.twitch.tv/?channel=${providerId}&parent=${domain}&muted=true&autoplay=true&playsinline=true`} className="w-full h-full border-none" allowFullScreen />
+      </div>
+    );
+  }
+
+  if (provider === 'KICK') {
+    return (
+      <div className={containerClasses}>
+        <iframe src={`https://kick.com/${providerId}/embed`} className="w-full h-full border-none pointer-events-none" allowFullScreen />
+      </div>
+    );
+  }
+
+  return (
+    <div className={containerClasses}>
+      <iframe src={`https://www.youtube.com/embed/${providerId}?autoplay=1&mute=1&rel=0&modestbranding=1&controls=0`} className="w-full h-full border-none pointer-events-none" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
+    </div>
+  );
+}
+
 export default function LiveHubClient({ initialStreams }: { initialStreams: any[] }) {
   const [filter, setFilter] = React.useState<FilterKey>('all')
 

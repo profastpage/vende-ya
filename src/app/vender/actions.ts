@@ -5,17 +5,23 @@ import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 
 
-function extractYouTubeID(url: string): string | null {
-  try {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|live\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  } catch (e) {
-    return null;
+
+export function parseStreamUrl(url: string) {
+  if (url.includes('twitch.tv/')) {
+    return { provider: 'TWITCH', id: url.split('twitch.tv/')[1].split('/')[0].split('?')[0] };
   }
+  if (url.includes('kick.com/')) {
+    return { provider: 'KICK', id: url.split('kick.com/')[1].split('/')[0].split('?')[0] };
+  }
+  if (url.includes('youtu') || url.includes('youtube')) {
+    const ytMatch = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|live\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+    if (ytMatch && ytMatch[2].length === 11) return { provider: 'YOUTUBE', id: ytMatch[2] };
+  }
+  return null;
 }
 
-export async function createYouTubeStream(title: string, youtubeUrl: string, isAuction: boolean, price: number) {
+
+export async function createMultiStream(title: string, streamUrl: string, isAuction: boolean, price: number) {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -25,9 +31,9 @@ export async function createYouTubeStream(title: string, youtubeUrl: string, isA
 
 try {
 
-    const videoId = extractYouTubeID(youtubeUrl);
-    if (!videoId) {
-      return { success: false, error: 'El enlace de YouTube no es válido. Asegúrate de copiar el link correcto (ej: https://www.youtube.com/watch?v=... o https://youtu.be/...)' }
+    const parsedStream = parseStreamUrl(streamUrl);
+    if (!parsedStream) {
+      return { success: false, error: 'El enlace no es válido. Pega una URL correcta de Twitch, Kick o YouTube.' }
     }
 
     // 0. Ensure Profile exists to prevent Foreign Key constraints
@@ -56,7 +62,7 @@ try {
         id: `prod-${Date.now()}`,
         sellerId: user.id,
         title: title,
-        description: 'Producto vendido en transmisión en vivo por YouTube',
+        description: 'Producto vendido en transmisión en vivo',
         basePrice: price,
         currency: 'PEN',
         stock: 1,
@@ -75,8 +81,10 @@ try {
         streamKey: `yt-${Date.now()}`,
         isLive: true,
         status: 'live',
-        youtubeLiveId: videoId,
-        kickUsername: null
+        youtubeLiveId: parsedStream.provider === 'YOUTUBE' ? parsedStream.id : null,
+        kickUsername: parsedStream.provider === 'KICK' ? parsedStream.id : null,
+        streamProvider: parsedStream.provider,
+        streamProviderId: parsedStream.id
       }
     })
 

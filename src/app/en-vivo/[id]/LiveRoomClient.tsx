@@ -1,3 +1,4 @@
+import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer';
 'use client'
 
 import * as React from 'react'
@@ -473,13 +474,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
       <main className="flex-1 space-y-6 flex flex-col min-w-0">
         {/* Video Player */}
         <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-2xl">
-            <iframe
-              src={`https://www.youtube.com/embed/${stream?.youtubeLiveId || stream?.kickUsername || '21X5lGlDOfg'}?autoplay=1&mute=1&rel=0&modestbranding=1`}
-              title="YouTube Live Stream"
-              className="absolute top-0 left-0 w-full h-full border-none"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            <DynamicLivePlayer provider={stream?.streamProvider || 'YOUTUBE'} providerId={stream?.streamProviderId || stream?.youtubeLiveId || stream?.kickUsername || '21X5lGlDOfg'} />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30 pointer-events-none" />
 
@@ -738,13 +733,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
       {/* Video background */}
       <div className="absolute inset-0 z-0 bg-black">
           <div className="relative w-full h-full">
-            <iframe
-              src={`https://www.youtube.com/embed/${stream?.youtubeLiveId || stream?.kickUsername || '21X5lGlDOfg'}?autoplay=1&mute=1&rel=0&modestbranding=1`}
-              title="YouTube Live Stream"
-              className="absolute top-0 left-0 w-full h-full border-none"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            <DynamicLivePlayer provider={stream?.streamProvider || 'YOUTUBE'} providerId={stream?.streamProviderId || stream?.youtubeLiveId || stream?.kickUsername || '21X5lGlDOfg'} />
           </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/95 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 pointer-events-none" />

@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { createYouTubeStream } from './actions'
+import { createMultiStream } from './actions'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { CATEGORIES, PAYMENT_METHODS } from '@/lib/vendeda/constants'
 import { formatPEN } from '@/lib/vendeda/format'
@@ -83,7 +83,7 @@ function VenderInner() {
 
   // Form state
   const [title, setTitle] = React.useState('')
-  const [youtubeUrl, setYoutubeUrl] = React.useState('')
+  const [streamUrl, setStreamUrl] = React.useState('')
   const [description, setDescription] = React.useState('')
   const [price, setPrice] = React.useState('')
   const [category, setCategory] = React.useState('')
@@ -163,15 +163,15 @@ function VenderInner() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title || !price || (isLive && !youtubeUrl)) {
-        toast({ title: 'Error', description: 'Todos los campos son obligatorios, y si es en vivo, el enlace de YouTube.', variant: 'destructive' })
+    if (!title || !price || (isLive && !streamUrl)) {
+        toast({ title: 'Error', description: 'Todos los campos son obligatorios, y si es en vivo, el enlace de tu transmisión.', variant: 'destructive' })
         return
       }
     setSubmitting(true)
     try {
-      const res = await createYouTubeStream(title, youtubeUrl, isAuction, Number(price))
+      const res = await createMultiStream(title, streamUrl, isAuction, Number(price))
         if (res?.error) throw new Error(res.error)
-      toast({ title: '¡En Vivo!', description: 'Tu transmisión de YouTube ha sido enlazada a Vende Ya exitosamente.' })
+      toast({ title: '¡En Vivo!', description: 'Tu transmisión ha sido enlazada a Vende Ya exitosamente.' })
       router.push('/')
     } catch(err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' })
@@ -444,22 +444,22 @@ function VenderInner() {
               <div className="space-y-4">
                 <div className="rounded-xl bg-muted border border-border p-4 text-sm">
                     <p className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                      🎥 Cómo transmitir con YouTube
+                      🎥 Cómo transmitir
                     </p>
                     <ol className="list-decimal list-inside space-y-1.5 text-muted-foreground">
-                      <li>Inicia transmisión desde tu app de YouTube o PC.</li>
-                      <li><strong className="text-amber-500">👉 RECOMENDACIÓN:</strong> Transmite en vertical (Shorts) o en horizontal, Vende Ya se adaptará automáticamente.</li>
-                      <li>Toca en "Compartir" y copia el enlace.</li>
-                      <li>Pega el enlace de YouTube aquí abajo para enlazar tu producto al instante.</li>
+                      <li>Inicia transmisión en tu plataforma favorita (Twitch, Kick o YouTube).</li>
+                      <li><strong className="text-amber-500">👉 RECOMENDACIÓN:</strong> Transmite en vertical desde tu celular para una mejor experiencia móvil de tus compradores.</li>
+                      <li>Copia el enlace de tu transmisión.</li>
+                      <li>Pégalo aquí abajo y nuestro sistema lo auto-detectará.</li>
                     </ol>
                   </div>
                 <div className="space-y-2">
-                  <Label htmlFor="youtubeUrl" className="text-foreground font-semibold">Enlace de YouTube Live *</Label>
+                  <Label htmlFor="youtubeUrl" className="text-foreground font-semibold">Enlace de tu transmisión (Twitch, Kick o YouTube) *</Label>
                   <Input 
-                    id="youtubeUrl" 
-                    placeholder="Ej. https://www.youtube.com/watch?v=..." 
-                    value={youtubeUrl}
-                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                    id="streamUrl" 
+                      placeholder="Ej. https://twitch.tv/mi_canal" 
+                      value={streamUrl}
+                      onChange={(e) => setStreamUrl(e.target.value)}
                     className="h-11 bg-background"
                   />
                 </div>
