@@ -62,17 +62,19 @@ function FeedItem({ item, isActive, viewers = 0 }: { item: SocialFeedItem; isAct
       <div className="relative w-full md:w-[350px] lg:w-[400px] h-full bg-zinc-900 md:rounded-2xl overflow-hidden flex shrink-0">
         
         {/* Video Background / Kick Player */}
-        {item.kickUsername ? (
-          <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
-              <iframe
-                src={`https://player.kick.com/${item.kickUsername}?autoplay=true&muted=false`}
-                className="w-full h-full object-cover transition-transform duration-300 origin-center pointer-events-none"
-                style={{ border: 'none', transform: 'scale(3.16)' }}
-                allow="autoplay; fullscreen"
-                
-              />
+        {item.youtubeLiveId || item.kickUsername ? (
+            <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
+              <div className="relative w-full aspect-video">
+                <iframe
+                  src={`https://www.youtube.com/embed/${item.youtubeLiveId || item.kickUsername}?autoplay=1&mute=1&rel=0&modestbranding=1`}
+                  title="YouTube Live Stream"
+                  className="absolute top-0 left-0 w-full h-full border-none"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
             </div>
-        ) : (
+          ) : (
           <div 
             className="absolute inset-0 bg-cover bg-center z-0"
             style={{ backgroundImage: `url(${item.thumbnailUrl})` }}

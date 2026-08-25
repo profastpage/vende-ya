@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
+const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\lib\\vendeda\\mock-data.ts');
+let text = fs.readFileSync(file, 'utf8');
 
-const filePath = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\lib\\vendeda\\mock-data.ts');
-let text = fs.readFileSync(filePath, 'utf8');
+text = text.replace(/Kick/g, 'YouTube');
+text = text.replace(/kickUsername:/g, 'youtubeLiveId:');
 
-text = text.replace(/title: '.*Mega subasta de moda.*/g, "title: '🔥 Mega subasta de moda — todo a S/.1 🔥!',");
-
-fs.writeFileSync(filePath, text, 'utf8');
+fs.writeFileSync(file, text, 'utf8');

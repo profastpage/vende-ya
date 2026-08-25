@@ -56,7 +56,7 @@ try {
         id: `prod-${Date.now()}`,
         sellerId: user.id,
         title: title,
-        description: 'Producto vendido en transmisión en vivo por Kick',
+        description: 'Producto vendido en transmisión en vivo por YouTube',
         basePrice: price,
         currency: 'PEN',
         stock: 1,
@@ -72,7 +72,7 @@ try {
         id: `stream-${Date.now()}`,
         sellerId: user.id,
         title: title,
-        streamKey: `kick-${Date.now()}`,
+        streamKey: `yt-${Date.now()}`,
         isLive: true,
         status: 'live',
         youtubeLiveId: videoId,
@@ -101,6 +101,6 @@ try {
     return { success: true, streamId: stream.id }
   } catch (error: any) {
     console.error('Error in createKickStream:', error);
-    return { success: false, error: 'Hubo un error en la base de datos al crear tu transmisión. Asegúrate de haber completado tu perfil.' }
+    return { success: false, error: 'Error BD: ' + (error.message || error.toString()) }
   }
 }

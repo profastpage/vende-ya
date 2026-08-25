@@ -443,17 +443,16 @@ function VenderInner() {
               </div>
               <div className="space-y-4">
                 <div className="rounded-xl bg-muted border border-border p-4 text-sm">
-                  <p className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                    📱 Cómo transmitir con Kick
-                  </p>
-                  <ol className="list-decimal list-inside space-y-1.5 text-muted-foreground">
-                    <li>Descarga la app de Kick en tu celular o usa OBS Studio en PC.</li>
-                    <li><strong className="text-amber-500">💡 RECOMENDACIÓN:</strong> Transmite siempre en <strong>modo horizontal</strong> para que los compradores vean tu pantalla completa. Si transmites en vertical, Kick añadirá barras negras, pero tus compradores podrán usar el botón "Acercar" para solucionarlo.</li>
-                    <li>Inicia transmisión desde tu cuenta de Kick.</li>
-                    <li>Ingresa tu usuario exacto de Kick abajo para enlazar el stream a tu producto.</li>
-                    <li>¡Tus seguidores verán el video embebido y podrán comprar sin salir de Vende Ya!</li>
-                  </ol>
-                </div>
+                    <p className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                      🎥 Cómo transmitir con YouTube
+                    </p>
+                    <ol className="list-decimal list-inside space-y-1.5 text-muted-foreground">
+                      <li>Inicia transmisión desde tu app de YouTube o PC.</li>
+                      <li><strong className="text-amber-500">👉 RECOMENDACIÓN:</strong> Transmite en vertical (Shorts) o en horizontal, Vende Ya se adaptará automáticamente.</li>
+                      <li>Toca en "Compartir" y copia el enlace.</li>
+                      <li>Pega el enlace de YouTube aquí abajo para enlazar tu producto al instante.</li>
+                    </ol>
+                  </div>
                 <div className="space-y-2">
                   <Label htmlFor="youtubeUrl" className="text-foreground font-semibold">Enlace de YouTube Live *</Label>
                   <Input 

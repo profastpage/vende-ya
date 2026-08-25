@@ -472,12 +472,14 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
       {/* COLUMNA IZQUIERDA: Área Principal (Video, Producto y Puja) */}
       <main className="flex-1 space-y-6 flex flex-col min-w-0">
         {/* Video Player */}
-        <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-zinc-800">
-          <iframe
-            src={`https://player.kick.com/${stream?.kickUsername || 'gozustrike'}?autoplay=true&muted=false`}
-            className="absolute inset-0 w-full h-full border-none pointer-events-none origin-center" style={{ transform: 'scale(1.25)' }}
-            allow="autoplay; fullscreen"
-          />
+        <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-2xl">
+            <iframe
+              src={`https://www.youtube.com/embed/${stream?.youtubeLiveId || stream?.kickUsername || '21X5lGlDOfg'}?autoplay=1&mute=1&rel=0&modestbranding=1`}
+              title="YouTube Live Stream"
+              className="absolute top-0 left-0 w-full h-full border-none"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30 pointer-events-none" />
 
@@ -734,12 +736,16 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   const MobileLayout = (
     <div className="md:hidden fixed inset-0 z-50 bg-black text-white select-none overflow-hidden">
       {/* Video background */}
-      <div className="absolute inset-0 z-0">
-        <iframe
-          src={`https://player.kick.com/${stream?.kickUsername || 'gozustrike'}?autoplay=true&muted=false`}
-          className="w-full h-full border-none pointer-events-none origin-center transition-transform duration-300" style={{ transform: 'scale(3.16)' }}
-          allow="autoplay; fullscreen"
-        />
+      <div className="absolute inset-0 z-0 bg-black flex items-center justify-center">
+          <div className="relative w-full aspect-video">
+            <iframe
+              src={`https://www.youtube.com/embed/${stream?.youtubeLiveId || stream?.kickUsername || '21X5lGlDOfg'}?autoplay=1&mute=1&rel=0&modestbranding=1`}
+              title="YouTube Live Stream"
+              className="absolute top-0 left-0 w-full h-full border-none"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/95 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 pointer-events-none" />
       </div>
