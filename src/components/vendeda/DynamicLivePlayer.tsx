@@ -1,13 +1,13 @@
 import React from 'react';
 
 export function DynamicLivePlayer({ provider, providerId }: { provider: string, providerId: string }) {
-  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'localhost';
+  const domainParams = `parent=localhost&parent=vende-ya-phi.vercel.app`;
   const containerClasses = "relative w-full h-full bg-black";
 
   if (provider === 'TWITCH') {
     return (
       <div className={containerClasses}>
-        <iframe src={`https://player.twitch.tv/?channel=${providerId}&parent=${domain}&muted=false&autoplay=true&playsinline=true`} className="w-full h-full border-none" allowFullScreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" />
+        <iframe src={`https://player.twitch.tv/?channel=${providerId}&${domainParams}&muted=false&autoplay=true&playsinline=true`} className="w-full h-full border-none" allowFullScreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" />
       </div>
     );
   }
@@ -29,13 +29,13 @@ export function DynamicLivePlayer({ provider, providerId }: { provider: string, 
 }
 
 export function DynamicHubPlayer({ provider, providerId }: { provider: string, providerId: string }) {
-  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'localhost';
+  const domainParams = `parent=localhost&parent=vende-ya-phi.vercel.app`;
   const containerClasses = "relative w-full h-full bg-black pointer-events-none";
 
   if (provider === 'TWITCH') {
     return (
       <div className={containerClasses}>
-        <iframe src={`https://player.twitch.tv/?channel=${providerId}&parent=${domain}&muted=true&autoplay=true&playsinline=true`} className="w-full h-full border-none pointer-events-none" allowFullScreen />
+        <iframe src={`https://player.twitch.tv/?channel=${providerId}&${domainParams}&muted=true&autoplay=true&playsinline=true`} className="w-full h-full border-none pointer-events-none" allowFullScreen />
       </div>
     );
   }
