@@ -1,7 +1,9 @@
+'use client';
 import React from 'react';
 
 export function DynamicLivePlayer({ provider, providerId }: { provider: string, providerId: string }) {
-  const domainParams = `parent=localhost&parent=vende-ya-phi.vercel.app`;
+  const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'vende-ya-phi.vercel.app';
+  const domainParams = `parent=${currentDomain}`;
   const containerClasses = "relative w-full h-full bg-black";
 
   if (provider === 'TWITCH') {
@@ -20,7 +22,6 @@ export function DynamicLivePlayer({ provider, providerId }: { provider: string, 
     );
   }
 
-  // Fallback to YouTube
   return (
     <div className={containerClasses}>
       <iframe src={`https://www.youtube.com/embed/${providerId}?autoplay=1&mute=1&rel=0&modestbranding=1`} className="w-full h-full border-none" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
@@ -29,7 +30,8 @@ export function DynamicLivePlayer({ provider, providerId }: { provider: string, 
 }
 
 export function DynamicHubPlayer({ provider, providerId }: { provider: string, providerId: string }) {
-  const domainParams = `parent=localhost&parent=vende-ya-phi.vercel.app`;
+  const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'vende-ya-phi.vercel.app';
+  const domainParams = `parent=${currentDomain}`;
   const containerClasses = "relative w-full h-full bg-black pointer-events-none";
 
   if (provider === 'TWITCH') {
