@@ -259,10 +259,10 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   const safeAuction = auction || { id: '', currentPrice: 0, bidCount: 0, buyNowPrice: 0, startingPrice: 0, bidIncrement: 2 };
   const safeProduct = product || { title: 'Esperando producto...', description: 'El vendedor no ha iniciado una subasta.', stock: 0 };
   const [currentBid, setCurrentBid] = React.useState(safeAuction.currentPrice)
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const supabase = React.useMemo(() => createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    ), [])
 
   React.useEffect(() => {
       // Chat Realtime (Always active)
@@ -754,7 +754,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
         </div>
 
         {/* Product / Bidding / Chat Section */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           
           <div className="p-3 bg-zinc-900/30 border-b border-white/5 shrink-0">
             <div className="flex gap-3">

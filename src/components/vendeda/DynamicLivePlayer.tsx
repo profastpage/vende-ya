@@ -43,7 +43,7 @@ export function DynamicLivePlayer({ provider, providerId, isActive = true }: { p
     return (
       <div className={containerClasses}>
         <iframe 
-          key={`twitch-${providerId}-${Date.now()}`}
+          key={`twitch-${providerId}`}
           src={`https://player.twitch.tv/?channel=${providerId}&${domainParams}&muted=true&autoplay=true&playsinline=true`} 
           className="w-full h-full border-none" 
           allowFullScreen 
