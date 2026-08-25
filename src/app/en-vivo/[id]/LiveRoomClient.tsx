@@ -1,6 +1,7 @@
+'use client'
+
 import { endLiveStream } from '@/app/vender/actions'
 import { useTransition } from 'react'
-'use client'
 import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer';
 
 import * as React from 'react'
