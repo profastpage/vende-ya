@@ -736,8 +736,8 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   const MobileLayout = (
     <div className="md:hidden fixed inset-0 z-50 bg-black text-white select-none overflow-hidden">
       {/* Video background */}
-      <div className="absolute inset-0 z-0 bg-black flex items-center justify-center">
-          <div className="relative w-full aspect-video">
+      <div className="absolute inset-0 z-0 bg-black">
+          <div className="relative w-full h-full">
             <iframe
               src={`https://www.youtube.com/embed/${stream?.youtubeLiveId || stream?.kickUsername || '21X5lGlDOfg'}?autoplay=1&mute=1&rel=0&modestbranding=1`}
               title="YouTube Live Stream"

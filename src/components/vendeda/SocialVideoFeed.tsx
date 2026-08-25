@@ -64,7 +64,7 @@ function FeedItem({ item, isActive, viewers = 0 }: { item: SocialFeedItem; isAct
         {/* Video Background / Kick Player */}
         {item.youtubeLiveId || item.kickUsername ? (
             <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
-              <div className="relative w-full aspect-video">
+              <div className="relative w-full h-full">
                 <iframe
                   src={`https://www.youtube.com/embed/${item.youtubeLiveId || item.kickUsername}?autoplay=1&mute=1&rel=0&modestbranding=1`}
                   title="YouTube Live Stream"
