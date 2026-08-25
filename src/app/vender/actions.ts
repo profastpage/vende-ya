@@ -4,7 +4,18 @@ import { createServerClient } from '@/lib/vendeda/supabase-server'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 
-export async function createKickStream(title: string, kickUsername: string, isAuction: boolean, price: number) {
+
+function extractYouTubeID(url: string): string | null {
+  try {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|live\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+export async function createYouTubeStream(title: string, youtubeUrl: string, isAuction: boolean, price: number) {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -13,6 +24,12 @@ export async function createKickStream(title: string, kickUsername: string, isAu
   }
 
 try {
+
+    const videoId = extractYouTubeID(youtubeUrl);
+    if (!videoId) {
+      return { success: false, error: 'El enlace de YouTube no es válido. Asegúrate de copiar el link correcto (ej: https://www.youtube.com/watch?v=... o https://youtu.be/...)' }
+    }
+
     // 0. Ensure Profile exists to prevent Foreign Key constraints
     let profile = await db.profile.findUnique({ where: { id: user.id } });
     if (!profile) {
@@ -58,7 +75,8 @@ try {
         streamKey: `kick-${Date.now()}`,
         isLive: true,
         status: 'live',
-        kickUsername: kickUsername.toLowerCase().trim()
+        youtubeLiveId: videoId,
+        kickUsername: null
       }
     })
 

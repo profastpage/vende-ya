@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { createKickStream } from './actions'
+import { createYouTubeStream } from './actions'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { CATEGORIES, PAYMENT_METHODS } from '@/lib/vendeda/constants'
 import { formatPEN } from '@/lib/vendeda/format'
@@ -83,7 +83,7 @@ function VenderInner() {
 
   // Form state
   const [title, setTitle] = React.useState('')
-  const [kickUsername, setKickUsername] = React.useState('')
+  const [youtubeUrl, setYoutubeUrl] = React.useState('')
   const [description, setDescription] = React.useState('')
   const [price, setPrice] = React.useState('')
   const [category, setCategory] = React.useState('')
@@ -163,15 +163,15 @@ function VenderInner() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title || !price || (isLive && !kickUsername)) {
-      toast({ title: 'Error', description: 'Todos los campos son obligatorios, y si es en vivo, tu usuario de Kick.', variant: 'destructive' })
-      return
-    }
+    if (!title || !price || (isLive && !youtubeUrl)) {
+        toast({ title: 'Error', description: 'Todos los campos son obligatorios, y si es en vivo, el enlace de YouTube.', variant: 'destructive' })
+        return
+      }
     setSubmitting(true)
     try {
-      const res = await createKickStream(title, kickUsername, isAuction, Number(price))
+      const res = await createYouTubeStream(title, youtubeUrl, isAuction, Number(price))
         if (res?.error) throw new Error(res.error)
-      toast({ title: '¡En Vivo!', description: 'Tu transmisión de Kick ha sido enlazada a Vende Ya exitosamente.' })
+      toast({ title: '¡En Vivo!', description: 'Tu transmisión de YouTube ha sido enlazada a Vende Ya exitosamente.' })
       router.push('/')
     } catch(err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' })
@@ -455,12 +455,12 @@ function VenderInner() {
                   </ol>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="kickUser" className="text-foreground font-semibold">Usuario de Kick *</Label>
+                  <Label htmlFor="youtubeUrl" className="text-foreground font-semibold">Enlace de YouTube Live *</Label>
                   <Input 
-                    id="kickUser" 
-                    placeholder="Ej. mi_canal_oficial" 
-                    value={kickUsername}
-                    onChange={(e) => setKickUsername(e.target.value)}
+                    id="youtubeUrl" 
+                    placeholder="Ej. https://www.youtube.com/watch?v=..." 
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
                     className="h-11 bg-background"
                   />
                 </div>
