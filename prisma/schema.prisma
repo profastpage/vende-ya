@@ -162,6 +162,7 @@ model LiveStream {
   streamKey       String   @unique // Cloudflare Stream live input key
   playbackId      String?  // Cloudflare Stream playback ID (HLS/DASH)
   kickUsername    String?
+  youtubeLiveId   String?
   title           String
   description     String? 
   thumbnailUrl    String?

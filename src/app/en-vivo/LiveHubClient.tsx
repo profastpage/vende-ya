@@ -94,12 +94,16 @@ function FeaturedHeroCard({ stream, viewers }: { stream: LiveStream, viewers: nu
         className="relative aspect-video rounded-3xl overflow-hidden border border-border bg-card shadow-2xl shadow-black/60"
       >
         {/* Background Media */}
-        {stream.kickUsername ? (
-          <iframe
-            src={`https://player.kick.com/${stream.kickUsername}?autoplay=true&muted=true`}
-            className="absolute inset-0 w-full h-full border-none pointer-events-none"
-            allow="autoplay; fullscreen"
-          />
+        {stream.youtubeLiveId || stream.kickUsername ? (
+          <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
+            <div className="relative w-full aspect-video pointer-events-none">
+              <iframe
+                src={`https://www.youtube.com/embed/${stream.youtubeLiveId || stream.kickUsername}?autoplay=1&mute=1&rel=0&modestbranding=1&controls=0`}
+                className="absolute top-0 left-0 w-full h-full border-none"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            </div>
+          </div>
         ) : (
           <div
             className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
@@ -244,12 +248,16 @@ function StreamCard({ stream, viewers }: { stream: LiveStream, viewers: number }
       <Link href={ROUTES.stream(stream.id)} className="group block h-full" aria-label={`Ver ${stream.title}`}>
         <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-border bg-card shadow-lg shadow-black/40">
           {/* Background Media */}
-          {stream.kickUsername ? (
-            <iframe
-              src={`https://player.kick.com/${stream.kickUsername}?autoplay=true&muted=true`}
-              className="absolute inset-0 w-full h-full object-cover border-none pointer-events-none origin-center scale-[3.16]"
-              allow="autoplay; fullscreen"
-            />
+          {stream.youtubeLiveId || stream.kickUsername ? (
+            <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
+              <div className="relative w-full aspect-video pointer-events-none">
+                <iframe
+                  src={`https://www.youtube.com/embed/${stream.youtubeLiveId || stream.kickUsername}?autoplay=1&mute=1&rel=0&modestbranding=1&controls=0`}
+                  className="absolute top-0 left-0 w-full h-full border-none"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                />
+              </div>
+            </div>
           ) : (
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"

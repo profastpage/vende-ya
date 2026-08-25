@@ -14,6 +14,7 @@ export type SocialFeedItem = {
   videoUrl: string;
   thumbnailUrl: string;
   kickUsername?: string;
+  youtubeLiveId?: string;
   seller: { displayName: string; avatarUrl?: string };
   description: string;
   likes: number;

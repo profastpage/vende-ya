@@ -80,6 +80,7 @@ export interface LiveStream {
   streamKey: string
   playbackId?: string | null
   kickUsername?: string | null
+  youtubeLiveId?: string | null
   title: string
   description?: string | null
   thumbnailUrl?: string | null
