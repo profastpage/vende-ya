@@ -1,3 +1,5 @@
+import { endLiveStream } from '@/app/vender/actions'
+import { useTransition } from 'react'
 'use client'
 import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer';
 
@@ -6,7 +8,7 @@ import { createBrowserClient } from '@supabase/ssr'
 import { notFound, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  ChevronLeft, ChevronRight, Flame, Eye, Heart, Share2, ShoppingBag,
+  PowerOff, ChevronLeft, ChevronRight, Flame, Eye, Heart, Share2, ShoppingBag,
   MessageCircle, Send, Gavel, Clock, BadgeCheck, ShieldCheck,
   Bot, Users, Crown, MapPin, Package, Star, Zap, X,
 Maximize, Minimize,
@@ -251,7 +253,21 @@ function ComprarYaButton({
 
 /* ---------------- Main page ---------------- */
 
-export default function LiveRoomClient({ stream, auction, product, seller, initialChat }: { stream: any, auction: any, product: any, seller: any, initialChat?: ChatMessage[] }) {
+export default function LiveRoomClient({ stream, auction, product, seller, initialChat, currentUserId }: { stream: any, auction: any, product: any, seller: any, initialChat?: ChatMessage[], currentUserId?: string }) {
+  const [isEnding, startEnding] = useTransition();
+  const isSeller = currentUserId === seller.id;
+
+  const handleEndStream = () => {
+    startEnding(async () => {
+      try {
+        await endLiveStream(stream.id);
+        router.push('/');
+      } catch(e) {
+        console.error(e);
+      }
+    });
+  };
+
     const router = useRouter()
   const id = stream?.id || 'demo'
 
@@ -486,8 +502,18 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           
           {/* Back Button Overlay - Solamente boton de volver encima, YouTube lo permite */}
           <button onClick={() => router.back()} className="absolute top-4 left-4 z-30 h-10 w-10 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors text-white">
-            <ChevronLeft className="h-6 w-6" />
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+        {isSeller && (
+          <button 
+            onClick={handleEndStream}
+            disabled={isEnding}
+            className="absolute top-4 right-4 z-30 h-10 px-4 rounded-full bg-red-600/90 backdrop-blur-md border border-red-500/50 flex items-center justify-center hover:bg-red-500 transition-colors text-white font-bold text-sm gap-2 disabled:opacity-50"
+          >
+            <PowerOff className="h-4 w-4" />
+            {isEnding ? 'Cerrando...' : 'Finalizar Transmisión'}
           </button>
+        )}
         </div>
 
         {/* 2. ZONA INTERACTIVA (Ocupa el resto de la pantalla) */}

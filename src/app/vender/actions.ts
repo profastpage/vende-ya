@@ -112,3 +112,21 @@ try {
     return { success: false, error: 'Error BD: ' + (error.message || error.toString()) }
   }
 }
+
+export async function endLiveStream(streamId: string) {
+  const { db } = await import('@/lib/db');
+  const { revalidatePath } = await import('next/cache');
+  
+  await db.liveStream.update({
+    where: { id: streamId },
+    data: { 
+      isLive: false,
+      status: 'ended',
+      endedAt: new Date()
+    }
+  });
+  
+  revalidatePath('/');
+  revalidatePath('/marketplace');
+  return { success: true };
+}
