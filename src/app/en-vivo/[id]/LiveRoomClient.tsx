@@ -541,45 +541,45 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
             </div>
           </div>
 
-          {/* Zona Scrollable (Producto, Pujas, Chat) */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col p-4 space-y-4 no-scrollbar">
+          {/* Zona 2: Producto y Pujas (FIJO) */}
+          <div className="shrink-0 bg-zinc-900/20 border-b border-white/5 p-3 flex flex-col gap-3">
             
             {/* Info de Producto */}
-            <div className="flex gap-4 p-4 bg-zinc-900/50 rounded-2xl border border-white/5 shrink-0">
-              <img src={safeProduct.thumbnail} alt={safeProduct.title} className="w-24 h-24 object-cover rounded-xl shadow-md border border-white/10 shrink-0" />
+            <div className="flex gap-4 p-3 bg-black/40 rounded-xl border border-white/5 shadow-inner">
+              <img src={safeProduct.thumbnail} alt={safeProduct.title} className="w-20 h-20 object-cover rounded-lg shadow-md border border-white/10 shrink-0" />
               <div className="flex flex-col flex-1 min-w-0 justify-between">
                 <div>
-                  <h2 className="font-bold text-base line-clamp-2 leading-snug">{safeProduct.title}</h2>
-                  <p className="text-xs text-zinc-400 line-clamp-1 mt-1">{safeProduct.description}</p>
+                  <h2 className="font-bold text-sm line-clamp-2 leading-tight">{safeProduct.title}</h2>
                 </div>
-                <div className="mt-3 flex items-center justify-between">
+                <div className="mt-2 flex items-end justify-between">
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Última Puja</span>
-                    <span className="font-black text-amber-400 text-xl leading-none mt-0.5">{formatPEN(currentBid)}</span>
+                    <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Última Puja</span>
+                    <span className="font-black text-amber-400 text-lg leading-none mt-0.5">{formatPEN(currentBid)}</span>
                   </div>
                   <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
                 </div>
               </div>
             </div>
             
-            {/* Opciones Rápidas de Puja (Solo si es subasta) */}
+            {/* Opciones Rápidas de Puja */}
             {safeAuction.id && (
-              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 shrink-0 px-1">
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 px-1">
                 {[safeAuction.bidIncrement, safeAuction.bidIncrement * 2, safeAuction.bidIncrement * 3].map(amt => (
                   <BidPill key={amt} amount={amt} onBid={executeRealtimeBid} />
                 ))}
               </div>
             )}
+          </div>
 
-            {/* Chat Messages */}
-            <div className="flex-1 min-h-[200px] flex flex-col justify-end">
+          {/* Zona 3: Chat Messages (SCROLLABLE, ESPACIO RESTANTE) */}
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 flex flex-col no-scrollbar">
+            <div className="flex-1 flex flex-col justify-end">
               <div className="space-y-3 flex flex-col-reverse">
                 {[...chat].reverse().map((msg) => (
                   <ChatMessageBubble key={msg.id} msg={msg} />
                 ))}
               </div>
             </div>
-            
           </div>
 
           {/* Footer Fijo de Acción */}
