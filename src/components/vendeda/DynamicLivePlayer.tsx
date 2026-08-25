@@ -20,7 +20,7 @@ export function DynamicLivePlayer({ provider, providerId, isActive = true }: { p
   if (provider === 'TWITCH') {
     return (
       <div className={containerClasses}>
-        <iframe src={`https://player.twitch.tv/?channel=${providerId}&${domainParams}&muted=false&autoplay=true&playsinline=true`} className="w-full h-full border-none" allowFullScreen />
+        <iframe src={`https://player.twitch.tv/?channel=${providerId}&${domainParams}&muted=true&autoplay=true&playsinline=true`} className="w-full h-full border-none" allowFullScreen />
       </div>
     );
   }
