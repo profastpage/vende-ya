@@ -1,9 +1,17 @@
+
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export function DynamicLivePlayer({ provider, providerId }: { provider: string, providerId: string }) {
-  const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'vende-ya-phi.vercel.app';
-  const domainParams = `parent=${currentDomain}`;
+  const [hostname, setHostname] = useState('vende-ya-phi.vercel.app');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setHostname(window.location.hostname);
+    }
+  }, []);
+
+  const domainParams = `parent=localhost&parent=${hostname}`;
   const containerClasses = "relative w-full h-full bg-black";
 
   if (provider === 'TWITCH') {
@@ -30,8 +38,15 @@ export function DynamicLivePlayer({ provider, providerId }: { provider: string, 
 }
 
 export function DynamicHubPlayer({ provider, providerId }: { provider: string, providerId: string }) {
-  const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'vende-ya-phi.vercel.app';
-  const domainParams = `parent=${currentDomain}`;
+  const [hostname, setHostname] = useState('vende-ya-phi.vercel.app');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setHostname(window.location.hostname);
+    }
+  }, []);
+
+  const domainParams = `parent=localhost&parent=${hostname}`;
   const containerClasses = "relative w-full h-full bg-black pointer-events-none";
 
   if (provider === 'TWITCH') {
