@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 
 
 
-export function parseStreamUrl(url: string) {
+export async function parseStreamUrl(url: string) {
   if (url.includes('twitch.tv/')) {
     return { provider: 'TWITCH', id: url.split('twitch.tv/')[1].split('/')[0].split('?')[0] };
   }
@@ -31,7 +31,7 @@ export async function createMultiStream(title: string, streamUrl: string, isAuct
 
 try {
 
-    const parsedStream = parseStreamUrl(streamUrl);
+    const parsedStream = await parseStreamUrl(streamUrl);
     if (!parsedStream) {
       return { success: false, error: 'El enlace no es válido. Pega una URL correcta de Twitch, Kick o YouTube.' }
     }

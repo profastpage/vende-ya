@@ -1,5 +1,5 @@
-import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer';
 'use client'
+import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer';
 
 import * as React from 'react'
 import { createBrowserClient } from '@supabase/ssr'

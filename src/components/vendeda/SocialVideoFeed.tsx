@@ -1,5 +1,5 @@
-import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer';
 'use client'
+import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer';
 import { useMultiLiveViewers } from '@/hooks/useMultiLiveViewers'
 
 import { InStreamCheckoutDrawer } from './InStreamCheckoutDrawer'
