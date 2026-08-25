@@ -48,19 +48,36 @@ export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
       {/* Main Feed Container */}
       <div className="flex-1 w-full h-full snap-y snap-mandatory overflow-y-scroll no-scrollbar relative flex flex-col items-center">
         {feed.map((item, index) => (
-          <FeedItem key={item.id} item={item} isActive={index === 0} viewers={viewersMap[item.id] || 0} />
+          <FeedItem key={item.id} item={item} viewers={viewersMap[item.id] || 0} />
         ))}
       </div>
     </div>
   )
 }
 
-function FeedItem({ item, isActive, viewers = 0 }: { item: SocialFeedItem; isActive: boolean; viewers?: number }) {
+function FeedItem({ item, viewers = 0 }: { item: SocialFeedItem; viewers?: number }) {
+  const [isActive, setIsActive] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsActive(entry.isIntersecting);
+        });
+      },
+      { threshold: 0.6 }
+    );
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
   const [isLiked, setIsLiked] = React.useState(false)
   const [isZoomed, setIsZoomed] = React.useState(false)
 
   return (
-    <div className="relative w-full md:w-auto h-[100dvh] md:h-[calc(100vh-64px)] snap-center snap-always flex justify-center shrink-0 md:py-4">
+    <div ref={containerRef} className="relative w-full md:w-auto h-[100dvh] md:h-[calc(100vh-64px)] snap-center snap-always flex justify-center shrink-0 md:py-4">
       {/* Container that acts as the mobile screen on desktop */}
       <div className="relative w-full md:w-[350px] lg:w-[400px] h-full bg-zinc-900 md:rounded-2xl overflow-hidden flex shrink-0">
         
@@ -68,7 +85,7 @@ function FeedItem({ item, isActive, viewers = 0 }: { item: SocialFeedItem; isAct
         {item.streamProviderId || item.youtubeLiveId || item.kickUsername ? (
             <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
               <div className="relative w-full h-full">
-                <DynamicLivePlayer provider={item.streamProvider || 'YOUTUBE'} providerId={item.streamProviderId || item.youtubeLiveId || item.kickUsername || ''} />
+                <DynamicLivePlayer provider={item.streamProvider || 'YOUTUBE'} providerId={item.streamProviderId || item.youtubeLiveId || item.kickUsername || ''} isActive={isActive} />
               </div>
             </div>
           ) : (

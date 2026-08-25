@@ -2,7 +2,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 
-export function DynamicLivePlayer({ provider, providerId }: { provider: string, providerId: string }) {
+export function DynamicLivePlayer({ provider, providerId, isActive = true }: { provider: string, providerId: string, isActive?: boolean }) {
+  if (!isActive) {
+    return <div className="relative w-full h-full bg-black flex items-center justify-center text-white/30">Cargando...</div>;
+  }
   const [hostname, setHostname] = useState('vende-ya-phi.vercel.app');
 
   useEffect(() => {
