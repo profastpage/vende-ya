@@ -729,263 +729,97 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
    * MOBILE LAYOUT — TikTok-style full-screen vertical                *
    * ================================================================ */
   const MobileLayout = (
-    <div className="fixed inset-0 z-50 bg-black text-white select-none overflow-hidden">
-      {/* Video background */}
-      <div className="absolute inset-0 z-0 bg-black">
-          <div className="relative w-full h-full">
-            <DynamicLivePlayer provider={stream?.streamProvider || 'YOUTUBE'} providerId={stream?.streamProviderId || stream?.youtubeLiveId || stream?.kickUsername || '21X5lGlDOfg'} />
-          </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/95 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 pointer-events-none" />
+    <div className="fixed inset-0 z-50 flex flex-col bg-background text-white select-none overflow-hidden">
+      
+      {/* 1. ZONA SEGURA DEL REPRODUCTOR (Arriba, Pure block) */}
+      <div className="w-full aspect-video bg-black flex-shrink-0 relative">
+        <DynamicLivePlayer provider={stream?.streamProvider || 'YOUTUBE'} providerId={stream?.streamProviderId || stream?.youtubeLiveId || stream?.kickUsername || '21X5lGlDOfg'} />
       </div>
 
-      {/* Top bar */}
-        <div className="absolute top-0 inset-x-0 p-4 pt-6 flex justify-between items-start z-20 pointer-events-none">
-          <div className="flex items-center gap-2 pointer-events-auto">
-            <button
-              onClick={() => router.back()}
-              className="h-9 w-9 shrink-0 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center active:scale-95 transition-transform"
-              aria-label="Volver"
-            >
+      {/* 2. ZONA DE INTERACCIÓN Y VENTAS (Abajo) */}
+      <div className="flex-1 flex flex-col overflow-hidden relative bg-zinc-950">
+        
+        {/* Mobile Header (Seller Info) */}
+        <div className="px-3 py-2 border-b border-white/10 flex justify-between items-center bg-zinc-900/50">
+          <div className="flex items-center gap-2">
+            <button onClick={() => router.back()} className="p-1.5 rounded-full bg-white/5 hover:bg-white/10">
               <ChevronLeft className="h-5 w-5" />
             </button>
             <SellerPill seller={seller} initial={initial} />
           </div>
-
-          <div className="flex flex-col items-end gap-1.5 pointer-events-auto mt-0.5">
-            <LiveBadge />
+          <div className="flex items-center gap-2">
             <ViewersPill viewers={viewers} />
+            <LiveBadge size="sm" />
           </div>
         </div>
 
-      {/* Floating emojis layer (overlay sobre el video) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-        <AnimatePresence>
-          {floatingEmojis.map((e) => (
-            <motion.div
-              key={e.id}
-              initial={{ opacity: 0, scale: 0.5, y: 0, x: 0 }}
-              animate={{ opacity: 1, scale: 1.6, y: -260, x: -30 - Math.random() * 40 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 2.2, ease: 'easeOut' }}
-              className="absolute text-4xl select-none"
-              style={{ right: `${100 - e.x}%`, bottom: `${e.y + 10}%` }}
-            >
-              {e.char}
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
-
-      {/* Right floating actions — sin círculos negros, más limpio */}
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-4 items-center">
-        {/* Like — solo icono + count, sin fondo negro */}
-        <motion.button
-          key={`like-mobile-${burstKey}`}
-          whileTap={{ scale: 1.5 }}
-          onClick={handleLike}
-          className="flex flex-col items-center gap-0.5"
-        >
-          <motion.span
-            key={burstKey}
-            initial={liked ? { scale: 0.5, opacity: 0, y: 10 } : false}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 14 }}
-          >
-            <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
-          </motion.span>
-          <span className="text-[10px] font-black text-white tabular-nums drop-shadow">
-            {formatViewers(likes).replace(' espectadores', '')}
-          </span>
-        </motion.button>
-
-        {/* Emoji reactions */}
-        <button
-          onClick={() => setShowEmojiPicker((v) => !v)}
-          className="flex flex-col items-center gap-0.5"
-          aria-label="Reacciones"
-        >
-          <Flame className="h-7 w-7 text-amber-400 drop-shadow-lg" />
-          <span className="text-[10px] font-black text-white drop-shadow">Reacciona</span>
-        </button>
-
-        
-        
-
-        {/* Chat */}
-        <button
-          onClick={() => setMobileTab('chat')}
-          className="flex flex-col items-center gap-0.5"
-        >
-          <MessageCircle className="h-7 w-7 text-white drop-shadow-lg" />
-          <span className="text-[10px] font-black text-white drop-shadow">Chat</span>
-        </button>
-
-        {/* Share */}
-        <button onClick={handleShare} className="flex flex-col items-center gap-0.5">
-          <Share2 className="h-7 w-7 text-white drop-shadow-lg" />
-          <span className="text-[10px] font-black text-white drop-shadow">Compartir</span>
-        </button>
-      </div>
-
-      {/* Emoji picker (mobile) */}
-      <AnimatePresence>
-        {showEmojiPicker && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.18 }}
-            className="absolute right-3 bottom-72 z-30 bg-background/95 backdrop-blur-xl border border-border rounded-2xl p-2 shadow-2xl"
-          >
-            <div className="flex items-center justify-between px-2 py-1 mb-1">
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1">
-                {hasParticipated ? (
-                  <><Flame className="h-3 w-3" /> Reacciones</>
-                ) : (
-                  <><Zap className="h-3 w-3" /> Bloqueado</>
-                )}
-              </span>
-              <button
-                onClick={() => setShowEmojiPicker(false)}
-                className="text-muted-foreground hover:text-white"
-                aria-label="Cerrar"
+        {/* Product / Bidding / Chat Section */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col">
+          
+          <div className="p-3 bg-zinc-900/30 border-b border-white/5 shrink-0">
+            <div className="flex gap-3">
+              <img src={safeProduct.thumbnail} alt={safeProduct.title} className="w-20 h-20 object-cover rounded-lg shadow-md border border-white/10 shrink-0" />
+              <div className="flex flex-col flex-1 min-w-0">
+                <h2 className="font-bold text-sm line-clamp-2 leading-snug">{safeProduct.title}</h2>
+                <div className="mt-auto flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Última Puja</span>
+                    <span className="font-black text-amber-400 text-lg">{formatPEN(currentBid)}</span>
+                  </div>
+                  <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
+                </div>
+              </div>
+            </div>
+            
+            {safeAuction.id && (
+              <div className="mt-3 flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                {[safeAuction.bidIncrement, safeAuction.bidIncrement * 2, safeAuction.bidIncrement * 3].map(amt => (
+                  <BidPill key={amt} amount={amt} onBid={executeRealtimeBid} />
+                ))}
+              </div>
+            )}
+            
+            <div className="mt-3 flex gap-2">
+              <PujarButton increment={safeAuction.bidIncrement} onBid={executeRealtimeBid} full />
+              <button 
+                onClick={handleLike}
+                className="h-12 px-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center active:scale-95 transition-transform"
               >
-                <X className="h-3 w-3" />
+                <Heart className={`h-5 w-5 ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
               </button>
             </div>
-            <div className="flex gap-1">
-              {LIVE_EMOJIS.map((e) => (
-                <motion.button
-                  key={e.id}
-                  whileTap={{ scale: 0.85 }}
-                  whileHover={{ scale: 1.15, y: -2 }}
-                  onClick={() => handleEmojiTap(e.char)}
-                  className="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors text-xl"
-                  aria-label={e.label}
-                  title={e.label}
-                >
-                  {e.char}
-                </motion.button>
+          </div>
+
+          {/* Chat Section */}
+          <div className="flex-1 min-h-0 flex flex-col p-3">
+            <div className="flex-1 overflow-y-auto pr-2 space-y-3 no-scrollbar flex flex-col-reverse pb-2">
+              {[...chat].reverse().map((msg) => (
+                <ChatMessageBubble key={msg.id} msg={msg} />
               ))}
             </div>
-            {!hasParticipated && (
-              <p className="mt-1 px-2 text-[9px] text-muted-foreground text-center leading-tight">
-                Puja o compra para desbloquear
-              </p>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Bottom console — más compacto (panel menor, padding optimizado) */}
-      <div className="absolute bottom-0 inset-x-0 z-30">
-        {/* Tab toggle — compacto */}
-        <div className="px-3 pb-1">
-          <div className="inline-flex p-0.5 rounded-full bg-black/60 backdrop-blur-xl border border-border">
-            <button
-              onClick={() => setMobileTab('bid')}
-              className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                mobileTab === 'bid' ? 'bg-amber-400 text-zinc-950' : 'text-muted-foreground'
-              }`}
-            >
-              {auction ? <><Gavel className="inline h-3 w-3 mr-1" />Puja</> : <><ShoppingBag className="inline h-3 w-3 mr-1" />Comprar</>}
-            </button>
-            <button
-              onClick={() => setMobileTab('chat')}
-              className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                mobileTab === 'chat' ? 'bg-purple-400 text-zinc-950' : 'text-muted-foreground'
-              }`}
-            >
-              <MessageCircle className="inline h-3 w-3 mr-1" />Chat
-            </button>
-          </div>
-        </div>
-
-        {/* Panel body — padding reducido, radio menor, sin handle decorativo */}
-        <div className="bg-background/95 backdrop-blur-xl border-t border-border rounded-t-[1.25rem] p-2.5 pt-2 pb-3 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
-          <AnimatePresence mode="wait">
-              {mobileTab === 'bid' ? (
-                <motion.div
-                  key="bid"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.18 }}
-                >
-                  {auction ? (
-                    <>
-                      {/* Leader price compact */}
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div>
-                          <span className="text-[9px] font-black tracking-widest uppercase text-amber-400">
-                            <Crown className="inline h-2.5 w-2.5 mr-1" />Puja líder
-                          </span>
-                          <p className="text-lg font-black text-amber-400 font-mono tabular-nums leading-none mt-0.5">
-                            {formatPEN(currentBid)}
-                          </p>
-                        </div>
-                        <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
-                      </div>
-
-                      {/* Quick bid pills */}
-                      <div className="flex gap-1.5 mb-1.5">
-                        {QUICK_BIDS.map((amt) => (
-                          <BidPill key={amt} amount={amt} onBid={executeRealtimeBid} />
-                        ))}
-                      </div>
-
-                      <PujarButton increment={safeAuction.bidIncrement || 2} onBid={executeRealtimeBid} full />
-                      <div className="mt-1.5">
-                        <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      {/* Live Shopping Mode Mobile */}
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <span className="text-[10px] font-black tracking-widest uppercase text-sky-400">
-                            <ShoppingBag className="inline h-3 w-3 mr-1" />Live Shopping
-                          </span>
-                          <p className="text-2xl font-black text-white font-mono tabular-nums leading-none mt-1">
-                            {formatPEN(buyNowPrice)}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} full />
-                    </>
-                  )}
-
-                  {/* Stock mini-info */}
-                <p className="mt-1.5 text-[10px] text-muted-foreground leading-snug text-center">
-                  Stock: <span className="font-bold text-lime-400">{safeProduct.stock ?? 0} uds</span> · {bidCount} pujas · {formatViewers(viewers)}
-                </p>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="chat"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                transition={{ duration: 0.18 }}
-              >
-                <div className="max-h-44 overflow-y-auto no-scrollbar space-y-1.5 mb-2">
-                  <AnimatePresence initial={false}>
-                    {chat.map((msg) => (
-                      <ChatMessageBubble key={msg.id} msg={msg} />
-                    ))}
-                  </AnimatePresence>
-                </div>
-                <ChatInputBar
-                  chatInput={chatInput}
-                  setChatInput={setChatInput}
-                  onSend={sendChat}
+            
+            {/* Mobile Chat Input Area */}
+            <div className="pt-2">
+              <div className="flex items-center gap-2 bg-zinc-900/80 border border-white/10 rounded-2xl pl-3 pr-1.5 py-1.5">
+                <MessageCircle className="h-4 w-4 text-zinc-500 shrink-0" />
+                <input
+                  type="text"
+                  placeholder="Escribe..."
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && sendChat()}
+                  className="flex-1 bg-transparent text-sm text-white placeholder:text-zinc-500 focus:outline-none min-w-0"
                 />
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <button
+                  onClick={sendChat}
+                  disabled={!chatInput.trim()}
+                  className="p-2 rounded-xl bg-amber-400 text-black disabled:opacity-50 disabled:bg-zinc-800 disabled:text-zinc-500"
+                >
+                  <MessageCircle className="h-4 w-4" strokeWidth={3} />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
