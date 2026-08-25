@@ -51,6 +51,9 @@ export default async function Home() {
       videoUrl: stream.playbackId ? `https://customer-xxx.cloudflarestream.com/${stream.playbackId}/manifest/video.m3u8` : 'https://via.placeholder.com/1080x1920',
       thumbnailUrl: stream.thumbnailUrl || 'https://via.placeholder.com/1080x1920',
       kickUsername: stream.kickUsername || undefined,
+      youtubeLiveId: stream.youtubeLiveId || undefined,
+      streamProvider: stream.streamProvider || undefined,
+      streamProviderId: stream.streamProviderId || undefined,
       seller: {
         displayName: stream.seller?.displayName || 'Usuario',
         avatarUrl: stream.seller?.avatarUrl || undefined,
