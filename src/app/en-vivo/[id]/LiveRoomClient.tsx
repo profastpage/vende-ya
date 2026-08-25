@@ -6,7 +6,7 @@ import { createBrowserClient } from '@supabase/ssr'
 import { notFound, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  ChevronLeft, Flame, Eye, Heart, Share2, ShoppingBag,
+  ChevronLeft, ChevronRight, Flame, Eye, Heart, Share2, ShoppingBag,
   MessageCircle, Send, Gavel, Clock, BadgeCheck, ShieldCheck,
   Bot, Users, Crown, MapPin, Package, Star, Zap, X,
 Maximize, Minimize,
