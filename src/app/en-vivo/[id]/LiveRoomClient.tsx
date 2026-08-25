@@ -468,369 +468,122 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   /* ================================================================ *
    * DESKTOP LAYOUT — 3 columns (55% video / 25% auction / 20% chat)   *
    * ================================================================ */
-  const DesktopLayout = (
-    <div className="flex gap-6 max-w-7xl mx-auto p-4 bg-black text-zinc-100 min-h-[calc(100vh-4rem)]">
-      {/* COLUMNA IZQUIERDA: Área Principal (Video, Producto y Puja) */}
-      <main className="flex-1 space-y-6 flex flex-col min-w-0">
-        {/* Video Player */}
-        <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-2xl">
-            <DynamicLivePlayer provider={stream?.streamProvider || 'YOUTUBE'} providerId={stream?.streamProviderId || stream?.youtubeLiveId || stream?.kickUsername || '21X5lGlDOfg'} />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30 pointer-events-none" />
+  
+  const youtubeUrl = `https://www.youtube.com/embed/${stream?.streamProviderId || stream?.youtubeLiveId || '21X5lGlDOfg'}?autoplay=1&mute=1&playsinline=1&modestbranding=1&rel=0`;
 
-          {/* Top overlays */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between items-start gap-3 z-20 pointer-events-none">
-            <div className="flex flex-col gap-2 pointer-events-auto">
-              <button
-                onClick={() => router.back()}
-                className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-xl border border-border flex items-center justify-center hover:bg-muted transition-colors"
-                aria-label="Volver"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <SellerPill seller={seller} initial={initial} />
-            </div>
-            
-              <div className="flex flex-col items-end gap-2 pointer-events-auto">
-                <LiveBadge />
-                <ViewersPill viewers={viewers} />
-                
-              </div>
-
-          </div>
-
-          {/* Floating emojis layer */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-            <AnimatePresence>
-              {floatingEmojis.map((e) => (
-                <motion.div
-                  key={e.id}
-                  initial={{ opacity: 0, scale: 0.5, y: 0, x: 0 }}
-                  animate={{ opacity: 1, scale: 1.6, y: -240, x: -20 - Math.random() * 40 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 2.2, ease: 'easeOut' }}
-                  className="absolute text-4xl select-none"
-                  style={{ right: `${100 - e.x}%`, bottom: `${e.y}%` }}
-                >
-                  {e.char}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-
-          {/* Floating actions right side */}
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-3">
-            <motion.button
-              key={`like-desktop-${burstKey}`}
-              whileTap={{ scale: 1.5 }}
-              onClick={handleLike}
-              className="flex flex-col items-center gap-0.5"
-            >
-              <motion.span
-                key={burstKey}
-                initial={liked ? { scale: 0.6, opacity: 0 } : false}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 14 }}
-              >
-                <Heart className={`h-7 w-7 transition-colors drop-shadow-lg ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
-              </motion.span>
-              <span className="text-[10px] font-black text-white tabular-nums drop-shadow">
-                {formatViewers(likes).replace(' espectadores', '')}
-              </span>
-            </motion.button>
-
-            <button
-              onClick={() => setShowEmojiPicker((v) => !v)}
-              className="flex flex-col items-center gap-0.5"
-              aria-label="Reacciones"
-            >
-              <Flame className="h-6 w-6 text-amber-400 drop-shadow-lg" />
-              <span className="text-[10px] font-black text-white drop-shadow">Reacciones</span>
-            </button>
-
-            <button onClick={handleShare} className="flex flex-col items-center gap-0.5">
-              <Share2 className="h-6 w-6 text-white drop-shadow-lg" />
-              <span className="text-[10px] font-black text-white drop-shadow">Compartir</span>
-            </button>
-          </div>
-
-          {/* Emoji picker popover (desktop) */}
-          <AnimatePresence>
-            {showEmojiPicker && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.85, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.85, y: 10 }}
-                transition={{ duration: 0.16 }}
-                className="absolute right-4 bottom-28 z-30 bg-background/95 backdrop-blur-xl border border-border rounded-2xl p-2 shadow-2xl"
-              >
-                <div className="flex items-center justify-between px-2 py-1 mb-1">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-400">
-                    {hasParticipated ? 'Reacciones' : 'Bloqueado'}
-                  </span>
-                  <button
-                    onClick={() => setShowEmojiPicker(false)}
-                    className="text-muted-foreground hover:text-white"
-                    aria-label="Cerrar"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-                <div className="flex gap-1">
-                  {LIVE_EMOJIS.map((e) => (
-                    <motion.button
-                      key={e.id}
-                      whileTap={{ scale: 0.85 }}
-                      whileHover={{ scale: 1.15, y: -2 }}
-                      onClick={() => handleEmojiTap(e.char)}
-                      className="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors text-xl"
-                      aria-label={e.label}
-                      title={e.label}
-                    >
-                      {e.char}
-                    </motion.button>
-                  ))}
-                </div>
-                {!hasParticipated && (
-                  <p className="mt-1 px-2 text-[9px] text-muted-foreground text-center leading-tight">
-                    Puja o compra para desbloquear
-                  </p>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Product description & vendor info (Borderless design) */}
-        <div className="px-2">
-          <h1 className="text-2xl font-black text-white">{safeProduct.title || stream.title}</h1>
-          <p className="text-gray-400 text-sm mt-1">
-            Por <span className="font-bold text-white">{seller.displayName}</span> • Envío desde <span className="font-bold text-white">{seller.department}</span> • Envío instantáneo con Yape/Plin
-          </p>
-          <p className="text-gray-500 text-xs leading-relaxed mt-2.5 max-w-2xl">
-            {safeProduct.description}
-          </p>
-        </div>
-
-        {/* Unified Bidding Box Container */}
-        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 space-y-5">
-            {auction ? (
-              <>
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <span className="text-[10px] font-black tracking-widest uppercase text-amber-400 flex items-center gap-1">
-                      <Crown className="h-3.5 w-3.5" /> Puja líder actual
-                    </span>
-                    <p className="text-4xl font-black text-amber-400 font-mono tabular-nums mt-1">
-                      {formatPEN(currentBid)}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground mt-1">
-                      Por <span className="font-bold text-sky-400">Diego</span> • hace 36s
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <CountdownCard mm={mm} ss={ss} lowTime={lowTime} />
-                    <div className="rounded-2xl bg-zinc-900 border border-zinc-800 px-3 py-1.5 flex flex-col items-center min-w-[88px]">
-                      <span className="text-[9px] font-black tracking-widest uppercase text-muted-foreground">
-                        <Gavel className="inline h-2.5 w-2.5 mr-1" />Pujas
-                      </span>
-                      <span className="text-xl font-black font-mono text-white tabular-nums">{bidCount}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-[10px] font-black tracking-widest uppercase text-zinc-400 mb-2">
-                    Puja rápida
-                  </p>
-                  <div className="flex gap-2">
-                    {QUICK_BIDS.map((amt) => (
-                      <BidPill key={amt} amount={amt} onBid={executeRealtimeBid} />
-                    ))}
-                  </div>
-                </div>
-              </>
-            ) : (
-                <div className="flex items-center justify-between gap-4 mb-4">
-                  <div className="flex-1">
-                    <span className="text-[10px] font-black tracking-widest uppercase text-sky-400 flex items-center gap-1">
-                      <ShoppingBag className="h-3.5 w-3.5" /> Live Shopping
-                    </span>
-                    <p className="text-4xl font-black text-white font-mono tabular-nums mt-1">
-                      {formatPEN(buyNowPrice)}
-                    </p>
-                  </div>
-                </div>
-            )}
-
-            <div className="flex gap-3">
-              {auction && <PujarButton increment={safeAuction.bidIncrement || 2} onBid={executeRealtimeBid} />}
-              <ComprarYaButton buyNowPrice={buyNowPrice} onBuy={() => { setShowCheckout(true); setHasParticipated(true) }} />
-            </div>
-          </div>
-      </main>
-
-      {/* COLUMNA DERECHA: Sidebar Único (Chat en vivo e Historial integrados) */}
-      <aside className="w-80 bg-zinc-950/40 border border-zinc-800 rounded-2xl flex flex-col overflow-hidden shrink-0">
-        {/* Chat en vivo */}
-        <div className="p-4 border-b border-zinc-800 font-black text-white flex items-center justify-between">
-          <span className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-zinc-100">
-            <MessageCircle className="h-4 w-4" /> Chat en vivo
-          </span>
-          <span className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
-            <Users className="h-3 w-3 text-amber-400" /> {viewers}
-          </span>
-        </div>
-
-        <div className="flex-1 p-3 overflow-y-auto no-scrollbar space-y-2 max-h-[300px]">
-          <AnimatePresence initial={false}>
-            {chat.map((msg) => (
-              <ChatMessageBubble key={msg.id} msg={msg} />
-            ))}
-          </AnimatePresence>
-        </div>
-
-        {/* Historial de pujas unificado */}
-        <div className="p-4 border-t border-zinc-800 border-b border-zinc-800 bg-zinc-950/80">
-          <p className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 flex items-center justify-between">
-            <span>Historial de pujas</span>
-            <span className="text-zinc-500 tabular-nums">{bidCount}</span>
-          </p>
-          <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1 no-scrollbar">
-            {bids.slice().reverse().map((b: any) => (
-              <div key={b.id} className="flex items-center justify-between text-xs">
-                <span className="font-bold text-sky-400">{b.bidder?.displayName}</span>
-                <span className="font-mono font-black text-amber-400">{formatPEN(b.amount)}</span>
-                <span className="text-[10px] text-zinc-500">{timeAgoEs(b.createdAt)}</span>
-              </div>
-            ))}
-            <div className="flex items-center justify-between text-xs pt-1.5 border-t border-zinc-800/40">
-              <span className="font-bold text-zinc-500">Puja inicial</span>
-              <span className="font-mono text-zinc-500">{formatPEN(safeAuction.startingPrice)}</span>
-              <span className="text-[10px] text-zinc-500">inicio</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Input para chatear */}
-        <div className="p-3 bg-zinc-950/60">
-          <ChatInputBar
-            chatInput={chatInput}
-            setChatInput={setChatInput}
-            onSend={sendChat}
-            compact
-          />
-        </div>
-      </aside>
-    </div>
-  )
-
-  /* ================================================================ *
-   * MOBILE LAYOUT — TikTok-style full-screen vertical                *
-   * ================================================================ */
-  const MobileLayout = (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background text-white select-none overflow-hidden">
-      
-      {/* 1. ZONA SEGURA DEL REPRODUCTOR (Arriba, Pure block) */}
-      <div className="w-full aspect-video bg-black flex-shrink-0 relative">
-        <DynamicLivePlayer provider={stream?.streamProvider || 'YOUTUBE'} providerId={stream?.streamProviderId || stream?.youtubeLiveId || stream?.kickUsername || '21X5lGlDOfg'} />
-      </div>
-
-      {/* 2. ZONA DE INTERACCIÓN Y VENTAS (Abajo) */}
-      <div className="flex-1 flex flex-col overflow-hidden relative bg-zinc-950">
+  return (
+    <>
+      <div className="flex flex-col w-full h-[100dvh] bg-background overflow-hidden text-foreground">
         
-        {/* Mobile Header (Seller Info) */}
-        <div className="px-3 py-2 border-b border-white/10 flex justify-between items-center bg-zinc-900/50">
-          <div className="flex items-center gap-2">
-            <button onClick={() => router.back()} className="p-1.5 rounded-full bg-white/5 hover:bg-white/10">
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <SellerPill seller={seller} initial={initial} />
-          </div>
-          <div className="flex items-center gap-2">
-            <ViewersPill viewers={viewers} />
-            <LiveBadge size="sm" />
-          </div>
+        {/* 1. ZONA DE VIDEO (Rigida, sin superposiciones) */}
+        <div className="w-full h-[35vh] md:h-[50vh] md:max-h-[600px] shrink-0 bg-black relative flex items-center justify-center border-b border-white/5 shadow-lg z-20">
+          <iframe
+            src={youtubeUrl}
+            className="absolute inset-0 w-full h-full border-none"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+          />
+          
+          {/* Back Button Overlay - Solamente boton de volver encima, YouTube lo permite */}
+          <button onClick={() => router.back()} className="absolute top-4 left-4 z-30 h-10 w-10 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors text-white">
+            <ChevronLeft className="h-6 w-6" />
+          </button>
         </div>
 
-        {/* Product / Bidding / Chat Section */}
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {/* 2. ZONA INTERACTIVA (Ocupa el resto de la pantalla) */}
+        <div className="flex-1 flex flex-col min-h-0 bg-zinc-950 relative z-10 max-w-5xl mx-auto w-full border-x border-white/5 shadow-2xl">
           
-          <div className="p-3 bg-zinc-900/30 border-b border-white/5 shrink-0">
-            <div className="flex gap-3">
-              <img src={safeProduct.thumbnail} alt={safeProduct.title} className="w-20 h-20 object-cover rounded-lg shadow-md border border-white/10 shrink-0" />
-              <div className="flex flex-col flex-1 min-w-0">
-                <h2 className="font-bold text-sm line-clamp-2 leading-snug">{safeProduct.title}</h2>
-                <div className="mt-auto flex items-center justify-between">
+          {/* Header Vendedor */}
+          <div className="shrink-0 p-3 border-b border-white/10 flex items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10">
+            <SellerPill seller={seller} initial={initial} />
+            <div className="flex items-center gap-3">
+              <ViewersPill viewers={viewers} />
+              <LiveBadge size="sm" />
+            </div>
+          </div>
+
+          {/* Zona Scrollable (Producto, Pujas, Chat) */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col p-4 space-y-4 no-scrollbar">
+            
+            {/* Info de Producto */}
+            <div className="flex gap-4 p-4 bg-zinc-900/50 rounded-2xl border border-white/5 shrink-0">
+              <img src={safeProduct.thumbnail} alt={safeProduct.title} className="w-24 h-24 object-cover rounded-xl shadow-md border border-white/10 shrink-0" />
+              <div className="flex flex-col flex-1 min-w-0 justify-between">
+                <div>
+                  <h2 className="font-bold text-base line-clamp-2 leading-snug">{safeProduct.title}</h2>
+                  <p className="text-xs text-zinc-400 line-clamp-1 mt-1">{safeProduct.description}</p>
+                </div>
+                <div className="mt-3 flex items-center justify-between">
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Última Puja</span>
-                    <span className="font-black text-amber-400 text-lg">{formatPEN(currentBid)}</span>
+                    <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Última Puja</span>
+                    <span className="font-black text-amber-400 text-xl leading-none mt-0.5">{formatPEN(currentBid)}</span>
                   </div>
                   <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
                 </div>
               </div>
             </div>
             
+            {/* Opciones Rápidas de Puja (Solo si es subasta) */}
             {safeAuction.id && (
-              <div className="mt-3 flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 shrink-0 px-1">
                 {[safeAuction.bidIncrement, safeAuction.bidIncrement * 2, safeAuction.bidIncrement * 3].map(amt => (
                   <BidPill key={amt} amount={amt} onBid={executeRealtimeBid} />
                 ))}
               </div>
             )}
+
+            {/* Chat Messages */}
+            <div className="flex-1 min-h-[200px] flex flex-col justify-end">
+              <div className="space-y-3 flex flex-col-reverse">
+                {[...chat].reverse().map((msg) => (
+                  <ChatMessageBubble key={msg.id} msg={msg} />
+                ))}
+              </div>
+            </div>
             
-            <div className="mt-3 flex gap-2">
-              <PujarButton increment={safeAuction.bidIncrement} onBid={executeRealtimeBid} full />
-              <button 
-                onClick={handleLike}
-                className="h-12 px-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center active:scale-95 transition-transform"
+          </div>
+
+          {/* Footer Fijo de Acción */}
+          <div className="shrink-0 p-3 pt-4 border-t border-white/10 bg-zinc-950 pb-safe">
+            <div className="flex gap-3 mb-3">
+               <div className="flex-1 flex gap-2">
+                 {safeAuction.id ? (
+                   <PujarButton increment={safeAuction.bidIncrement} onBid={executeRealtimeBid} full />
+                 ) : (
+                   <button onClick={() => setShowCheckout(true)} className="flex-1 h-12 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
+                     <ShoppingBag className="h-5 w-5" /> Comprar Ya - {formatPEN(safeProduct.basePrice)}
+                   </button>
+                 )}
+               </div>
+               <button onClick={handleLike} className="h-12 w-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center active:scale-95 transition-transform shrink-0">
+                 <Heart className={`h-6 w-6 ${liked ? 'fill-rose-500 text-rose-500' : 'text-zinc-400'}`} />
+               </button>
+            </div>
+            
+            {/* Chat Input */}
+            <div className="flex items-center gap-2 bg-zinc-900 border border-white/10 rounded-2xl pl-3 pr-1.5 py-1.5 focus-within:border-white/20 transition-colors">
+              <MessageCircle className="h-5 w-5 text-zinc-500 shrink-0" />
+              <input
+                type="text"
+                placeholder="Escribe en el chat..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && sendChat()}
+                className="flex-1 bg-transparent text-sm text-white placeholder:text-zinc-500 focus:outline-none min-w-0"
+              />
+              <button
+                onClick={sendChat}
+                disabled={!chatInput.trim()}
+                className="h-9 w-9 rounded-xl bg-amber-400 text-black flex items-center justify-center hover:bg-amber-300 disabled:opacity-50 disabled:bg-zinc-800 transition-colors shrink-0"
               >
-                <Heart className={`h-5 w-5 ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
+                <ChevronRight className="h-5 w-5" strokeWidth={3} />
               </button>
             </div>
           </div>
 
-          {/* Chat Section */}
-          <div className="flex-1 min-h-0 flex flex-col p-3">
-            <div className="flex-1 overflow-y-auto pr-2 space-y-3 no-scrollbar flex flex-col-reverse pb-2">
-              {[...chat].reverse().map((msg) => (
-                <ChatMessageBubble key={msg.id} msg={msg} />
-              ))}
-            </div>
-            
-            {/* Mobile Chat Input Area */}
-            <div className="pt-2">
-              <div className="flex items-center gap-2 bg-zinc-900/80 border border-white/10 rounded-2xl pl-3 pr-1.5 py-1.5">
-                <MessageCircle className="h-4 w-4 text-zinc-500 shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Escribe..."
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && sendChat()}
-                  className="flex-1 bg-transparent text-sm text-white placeholder:text-zinc-500 focus:outline-none min-w-0"
-                />
-                <button
-                  onClick={sendChat}
-                  disabled={!chatInput.trim()}
-                  className="p-2 rounded-xl bg-amber-400 text-black disabled:opacity-50 disabled:bg-zinc-800 disabled:text-zinc-500"
-                >
-                  <MessageCircle className="h-4 w-4" strokeWidth={3} />
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
-    </div>
-  )
 
-  return (
-    <>
-      {DesktopLayout}
-      {MobileLayout}
-
-      {/* Checkout bottom sheet — shared for both layouts */}
       <CheckoutBottomSheet
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}
