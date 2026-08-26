@@ -81,7 +81,8 @@ function LiveBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
 }
 
 /** ViewersPill — solo texto bold + icono, sin fondo negro (mejor UX) */
-function ViewersPill({ viewers }: { viewers: number }) {
+function ViewersPill({ spectators }: { spectators: any[] }) {
+  const viewers = spectators.length;
   const [open, setOpen] = React.useState(false)
   const spectatorRef = React.useRef<HTMLDivElement>(null)
 
@@ -357,12 +358,9 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
       })
       
       chatChannel.on('presence', { event: 'sync' }, () => {
-        const state = chatChannel.presenceState()
-        let count = 0
-        for (const key in state) {
-          count += state[key].length
-        }
-        setViewers(count)
+        const state = chatChannel.presenceState();
+        const usersList = Object.values(state).flat();
+        setSpectators(usersList);
       })
 
       chatChannel.subscribe(async (status) => {
@@ -393,7 +391,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
         supabase.removeChannel(chatChannel);
         if (auctionChannel) supabase.removeChannel(auctionChannel); 
       }
-    }, [auction?.id, id, supabase])
+    }, [auction?.id, id, supabase, user])
 
   const executeRealtimeBid = async (inc: number) => {
     const newPrice = +(currentBid + inc).toFixed(2);
@@ -404,7 +402,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   }
 
   const [bidCount, setBidCount] = React.useState(safeAuction.bidCount || 0); const [bids, setBids] = React.useState([]);
-  const [viewers, setViewers] = React.useState(stream?.viewerCount ?? 0)
+  const [spectators, setSpectators] = React.useState<any[]>([])
   const [likes, setLikes] = React.useState(() => {
       if (typeof window !== 'undefined') {
         const saved = localStorage.getItem(`likes_${id}`)
@@ -624,7 +622,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           <div className="shrink-0 p-3 border-b border-white/10 hidden md:flex items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10">
             <SellerPill seller={seller} initial={initial} />
             <div className="flex items-center gap-3">
-              <ViewersPill viewers={viewers} />
+              <ViewersPill spectators={spectators} />
               <LiveBadge size="sm" />
             </div>
           </div>
@@ -633,7 +631,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           <div className="shrink-0 p-3 border-b border-white/10 flex md:hidden items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10">
              <SellerPill seller={seller} initial={initial} />
              <div className="flex items-center gap-3">
-               <ViewersPill viewers={viewers} />
+               <ViewersPill spectators={spectators} />
                <LiveBadge size="sm" />
              </div>
           </div>
