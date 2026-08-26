@@ -83,8 +83,21 @@ function LiveBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
 /** ViewersPill — solo texto bold + icono, sin fondo negro (mejor UX) */
 function ViewersPill({ viewers }: { viewers: number }) {
   const [open, setOpen] = React.useState(false)
+  const spectatorRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (spectatorRef.current && !spectatorRef.current.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [open])
   return (
-    <div className="relative">
+    <div className="relative" ref={spectatorRef}>
       <button 
         onClick={() => setOpen(!open)}
         className="inline-flex items-center gap-1.5 text-white hover:bg-white/10 px-2 py-1 rounded-lg transition-colors cursor-pointer"
@@ -412,6 +425,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   const [chatInput, setChatInput] = React.useState('')
   const [secondsLeft, setSecondsLeft] = React.useState(164)
   const [liked, setLiked] = React.useState(false)
+    const [floatingHearts, setFloatingHearts] = React.useState<{id: number, left: number}[]>([])
   const [isZoomed, setIsZoomed] = React.useState(true)
   const [burstKey, setBurstKey] = React.useState(0)
   const [mobileTab, setMobileTab] = React.useState<'chat' | 'bid'>('bid')
@@ -563,6 +577,25 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
 
           {/* REPRODUCTOR YOUTUBE */}
           <div className="flex-1 w-full relative flex items-center justify-center bg-black">
+            {/* Corazones Flotantes */}
+            <div className="absolute bottom-0 right-10 w-32 h-64 pointer-events-none z-40 overflow-hidden">
+              <AnimatePresence>
+                {floatingHearts.map(heart => (
+                  <motion.div
+                    key={heart.id}
+                    initial={{ opacity: 1, y: 50, x: 0, scale: 0.5 }}
+                    animate={{ opacity: 0, y: -200, x: (Math.random() - 0.5) * 50, scale: 1.5 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    className="absolute bottom-0"
+                    style={{ left: `${heart.left}%` }}
+                  >
+                    <Heart className="h-8 w-8 fill-rose-500 text-rose-500 drop-shadow-lg" />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
             {isValidYoutubeId ? (
               <iframe
                 src={youtubeUrl}
