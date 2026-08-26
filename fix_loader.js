@@ -3,12 +3,7 @@ const path = require('path');
 const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\app\\en-vivo\\[id]\\LiveRoomClient.tsx');
 let text = fs.readFileSync(file, 'utf8');
 
-// Fix Loader2 import
-if (!text.includes('Loader2,')) {
-    text = text.replace(/import {/, `import { Loader2, `);
-}
-
-// Fix user_metadata typescript error
-text = text.replace(/user\?\.user_metadata\?\.name/g, "(user as any)?.user_metadata?.name");
+text = text.replace(/import { Loader2, /, `import { `);
+text = text.replace(/import { (ChevronLeft,)/, `import { Loader2, $1`);
 
 fs.writeFileSync(file, text, 'utf8');
