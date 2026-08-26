@@ -490,66 +490,85 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   const isValidYoutubeId = videoId && videoId.length === 11;
   const youtubeUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&modestbranding=1&rel=0`;
 
-  return (
+    return (
     <>
-      <div className="flex flex-col w-full max-w-md mx-auto h-[100dvh] md:h-[100vh] bg-background overflow-hidden text-foreground relative md:border-x md:border-white/10 md:shadow-2xl">
+      <div className="flex flex-col md:flex-row w-full h-[100dvh] bg-background overflow-hidden text-foreground">
         
-        {/* 1. ZONA DE VIDEO (Rigida, sin superposiciones) */}
-        <div className="w-full h-[45vh] md:h-[65vh] shrink-0 bg-black relative flex items-center justify-center border-b border-white/5 shadow-lg z-20">
-        {isValidYoutubeId ? (
-          <iframe
-            src={youtubeUrl}
-            className="absolute inset-0 w-full h-full border-none"
-            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-            allowFullScreen
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center w-full h-full text-white/50 bg-zinc-900">
-            <svg className="w-12 h-12 mb-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-            <p className="text-sm font-medium">Transmisión no disponible</p>
-            <p className="text-xs text-white/30 mt-1">ID inválido o stream finalizado</p>
-          </div>
-        )}
-        
-        {/* Back Button Overlay - Solamente boton de volver encima, YouTube lo permite */}
-        <button onClick={() => router.back()} className="absolute top-4 left-4 z-30 h-10 w-10 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors text-white">
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        {isSeller && (
-          <button 
-            onClick={handleEndStream}
-            disabled={isEnding}
-            className="absolute top-4 right-4 z-30 h-10 px-4 rounded-full bg-red-600/90 backdrop-blur-md border border-red-500/50 flex items-center justify-center hover:bg-red-500 transition-colors text-white font-bold text-sm gap-2 disabled:opacity-50"
-          >
-            <PowerOff className="h-4 w-4" />
-            {isEnding ? 'Cerrando...' : 'Finalizar'}
-          </button>
-        )}
-      </div>
-
-        {/* 2. ZONA INTERACTIVA (Ocupa el resto de la pantalla) */}
-        <div className="flex-1 flex flex-col min-h-0 bg-zinc-950 relative z-10 max-w-5xl mx-auto w-full border-x border-white/5 shadow-2xl">
+        {/* ========================================================
+            COLUMNA IZQUIERDA: VIDEO (PC) / ARRIBA (MOBILE)
+            ======================================================== */}
+        <div className="w-full md:w-2/3 lg:w-3/4 h-[40vh] md:h-[100dvh] shrink-0 bg-black relative flex flex-col border-b md:border-b-0 md:border-r border-white/5 z-20">
           
-          {/* Header Vendedor */}
-          <div className="shrink-0 p-3 border-b border-white/10 flex items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10">
+          {/* TOP BAR: Back & Finish Buttons */}
+          <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between p-3 md:p-4 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
+            <div className="flex items-center gap-3 pointer-events-auto">
+              <button onClick={() => router.back()} className="h-10 w-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/80 transition-colors text-white">
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              {isSeller && (
+                <button 
+                  onClick={handleEndStream}
+                  disabled={isEnding}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-600/90 backdrop-blur-md border border-red-500/50 hover:bg-red-500 transition-colors text-white font-bold text-xs disabled:opacity-50 shadow-lg"
+                >
+                  <PowerOff className="h-4 w-4" />
+                  {isEnding ? 'Cerrando...' : 'Finalizar Transmisión'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* REPRODUCTOR YOUTUBE */}
+          <div className="flex-1 w-full relative flex items-center justify-center bg-black">
+            {isValidYoutubeId ? (
+              <iframe
+                src={youtubeUrl}
+                className="absolute inset-0 w-full h-full border-none"
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                allowFullScreen
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center w-full h-full text-white/50 bg-zinc-900">
+                <svg className="w-12 h-12 mb-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm font-medium">Transmisión no disponible</p>
+                <p className="text-xs text-white/30 mt-1">ID inválido o stream finalizado</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ========================================================
+            COLUMNA DERECHA: INTERACCION (PC) / ABAJO (MOBILE)
+            ======================================================== */}
+        <div className="flex-1 md:w-1/3 lg:w-1/4 flex flex-col min-h-0 bg-zinc-950 relative z-10 w-full shadow-2xl border-l border-border">
+          
+          {/* Header Vendedor (Siempre visible) */}
+          <div className="shrink-0 p-3 border-b border-white/10 hidden md:flex items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10">
             <SellerPill seller={seller} initial={initial} />
             <div className="flex items-center gap-3">
               <ViewersPill viewers={viewers} />
               <LiveBadge size="sm" />
             </div>
           </div>
+          
+          {/* Header Vendedor Mobile */}
+          <div className="shrink-0 p-3 border-b border-white/10 flex md:hidden items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10">
+             <SellerPill seller={seller} initial={initial} />
+             <div className="flex items-center gap-3">
+               <ViewersPill viewers={viewers} />
+               <LiveBadge size="sm" />
+             </div>
+          </div>
 
           {/* Zona 2: Producto y Pujas (FIJO) */}
           <div className="shrink-0 bg-zinc-900/20 border-b border-white/5 p-3 flex flex-col gap-3">
-            
-            {/* Info de Producto */}
             <div className="flex gap-4 p-3 bg-black/40 rounded-xl border border-white/5 shadow-inner">
               <img src={safeProduct.thumbnail} alt={safeProduct.title} className="w-20 h-20 object-cover rounded-lg shadow-md border border-white/10 shrink-0" />
               <div className="flex flex-col flex-1 min-w-0 justify-between">
                 <div>
-                  <h2 className="font-bold text-sm line-clamp-2 leading-tight">{safeProduct.title}</h2>
+                  <h2 className="font-bold text-sm line-clamp-2 leading-tight text-white">{safeProduct.title}</h2>
                 </div>
                 <div className="mt-2 flex items-end justify-between">
                   <div className="flex flex-col">
@@ -572,7 +591,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           </div>
 
           {/* Zona 3: Chat Messages (SCROLLABLE, ESPACIO RESTANTE) */}
-          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 flex flex-col no-scrollbar">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 flex flex-col no-scrollbar bg-zinc-950/50">
             <div className="flex-1 flex flex-col justify-end">
               <div className="space-y-3 flex flex-col-reverse">
                 {[...chat].reverse().map((msg) => (
@@ -582,14 +601,14 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
             </div>
           </div>
 
-          {/* Footer Fijo de Acción */}
+          {/* Zona 4: Footer Fijo de Acción */}
           <div className="shrink-0 p-3 pt-4 border-t border-white/10 bg-zinc-950 pb-safe">
             <div className="flex gap-3 mb-3">
                <div className="flex-1 flex gap-2">
                  {safeAuction.id ? (
                    <PujarButton increment={safeAuction.bidIncrement} onBid={executeRealtimeBid} full />
                  ) : (
-                   <button onClick={() => setShowCheckout(true)} className="flex-1 h-12 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
+                   <button onClick={() => setShowCheckout(true)} className="flex-1 h-12 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-lg">
                      <ShoppingBag className="h-5 w-5" /> Comprar Ya - {formatPEN(Number(safeProduct?.basePrice) || Number(safeProduct?.price) || 0)}
                    </button>
                  )}
@@ -622,7 +641,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
 
         </div>
       </div>
-
+      
       <CheckoutBottomSheet
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}

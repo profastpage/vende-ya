@@ -1,16 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const file1 = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\components\\vendeda\\SocialVideoFeed.tsx');
-let text1 = fs.readFileSync(file1, 'utf8');
+const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\app\\en-vivo\\[id]\\LiveRoomClient.tsx');
+let text = fs.readFileSync(file, 'utf8');
 
-text1 = text1.replace("import { useMultiLiveViewers } from '@/hooks/useMultiLiveViewers'\n'use client'", "'use client'\nimport { useMultiLiveViewers } from '@/hooks/useMultiLiveViewers'");
+// Remove all existing 'use client' directives
+text = text.replace(/'use client'[\r\n]*/g, '');
+text = text.replace(/"use client"[\r\n]*/g, '');
 
-fs.writeFileSync(file1, text1, 'utf8');
+// Prepend exactly one 'use client' at the very beginning
+text = "'use client'\n\n" + text.trimStart();
 
-const file2 = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\hooks\\useMultiLiveViewers.ts');
-let text2 = fs.readFileSync(file2, 'utf8');
-
-text2 = "'use client'\n" + text2;
-fs.writeFileSync(file2, text2, 'utf8');
-
-console.log('Fixed use client');
+fs.writeFileSync(file, text, 'utf8');

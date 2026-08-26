@@ -237,56 +237,41 @@ export default function CheckoutBottomSheet({
                   Compra segura con protección Vende Ya · Modo A
                 </p>
 
-                {/* Resumen del producto + split Modo A */}
-                <div className="bg-muted rounded-2xl p-4 mb-5 border border-border">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-foreground truncate max-w-[200px]">
-                      {productName}
-                    </span>
-                    <span className="text-lg font-black text-amber-400">
-                      {formatPEN(price)}
-                    </span>
-                  </div>
-                  <div className="text-[10px] text-muted-foreground flex justify-between mb-2">
-                    <span>
-                      Tipo:{' '}
-                      <b className="text-foreground uppercase">
-                        {source === 'live_stream' ? 'En vivo' : 'Marketplace'}
-                      </b>
-                    </span>
-                    <span>
-                      Comisión:{' '}
-                      <b className="text-foreground">{split.platformCommissionRate}%</b>
-                    </span>
-                  </div>
-                  <div className="border-t border-border pt-2 grid grid-cols-3 gap-2 text-[10px]">
-                    <div>
-                      <div className="text-muted-foreground">Plataforma</div>
-                      <div className="text-amber-400 font-semibold">
-                        -{formatPEN(split.platformCommissionAmount)}
-                      </div>
+                {/* Resumen del producto para el Comprador */}
+                  <div className="bg-muted rounded-2xl p-4 mb-5 border border-border">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm font-medium text-foreground truncate max-w-[200px]">
+                        {productName}
+                      </span>
+                      <span className="text-lg font-black text-amber-400">
+                        {formatPEN(price)}
+                      </span>
                     </div>
-                    <div>
-                      <div className="text-muted-foreground">Pasarela + IGV</div>
-                      <div className="text-rose-400 font-semibold">
-                        -{formatPEN(split.gatewayFeeWithIgv)}
+                    <div className="border-t border-border pt-3 text-xs text-muted-foreground flex flex-col gap-1">
+                      <div className="flex justify-between">
+                        <span>Origen de compra:</span>
+                        <b className="text-foreground uppercase">
+                          {source === 'live_stream' ? 'Live Stream' : 'Marketplace'}
+                        </b>
                       </div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground">Neto vendedor</div>
-                      <div className="text-emerald-400 font-semibold">
-                        {formatPEN(split.sellerNetAmount)}
+                      <div className="flex justify-between">
+                        <span>Envío:</span>
+                        {shipment ? (
+                          <span className="text-emerald-400 font-semibold text-[11px]">
+                            Gestionado por Shalom
+                          </span>
+                        ) : (
+                          <span className="text-foreground font-semibold">Acordar con vendedor</span>
+                        )}
+                      </div>
+                      <div className="flex justify-between mt-2 pt-2 border-t border-white/5">
+                        <span className="font-bold text-foreground">Total a pagar:</span>
+                        <span className="font-bold text-amber-400 text-sm">{formatPEN(price)}</span>
                       </div>
                     </div>
                   </div>
-                  {shipment && (
-                    <div className="mt-2 text-[10px] text-muted-foreground">
-                      Envío: <b className="text-foreground">Shalom agencia → agencia</b>
-                    </div>
-                  )}
-                </div>
 
-                {/* Indicador de sesión activa */}
+                  {/* Indicador de sesión activa */}
                 {user && !isDemoMode ? (
                   <div className="flex items-center gap-2 text-[10px] text-emerald-400 mb-4 bg-emerald-950/30 border border-emerald-900/50 rounded-lg px-3 py-2">
                     <CheckCircle2 className="h-3 w-3" />

@@ -565,13 +565,11 @@ function VenderInner() {
               <div className="space-y-2">
                 <Label className="text-muted-foreground">Fotos</Label>
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                  <button
-                    type="button"
-                    className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:bg-muted hover:border-amber-400/40 transition-colors"
-                  >
-                    <ImageIcon className="h-6 w-6" />
-                    <span className="text-xs">Subir</span>
-                  </button>
+                                      <label className="aspect-square rounded-lg border-2 border-dashed border-amber-400/30 flex flex-col items-center justify-center gap-1 text-muted-foreground hover:bg-muted hover:border-amber-400 transition-colors cursor-pointer bg-amber-400/5">
+                      <ImageIcon className="h-6 w-6 text-amber-400/70" />
+                      <span className="text-xs font-semibold text-amber-400">Portada *</span>
+                      <input type="file" accept="image/*" className="hidden" required />
+                    </label>
                   {[1, 2].map((i) => (
                     <div
                       key={i}
@@ -765,32 +763,32 @@ function WalletStatusBanner({
             <ShieldCheck className="h-5 w-5 text-lime-300" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-lime-200 mb-1">Tu Mercado Pago está conectado y verificado</p>
-            <p className="text-sm text-lime-200/80 leading-relaxed mb-4">
+            <p className="font-bold text-lime-400 mb-1">Tu Mercado Pago está conectado y verificado</p>
+            <p className="text-sm text-lime-100 leading-relaxed mb-4">
               Recibirás los pagos automáticamente en tu cuenta. La comisión de Vende Ya (12% en vivo / 8% marketplace)
               se descuenta en la fuente vía split payment de Mercado Pago. Ya puedes publicar productos y empezar a transmitir.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="rounded-xl bg-black/30 border border-lime-400/20 p-3">
-                <div className="flex items-center gap-2 text-xs font-semibold text-lime-200 mb-1">
+                <div className="flex items-center gap-2 text-xs font-semibold text-lime-400 mb-1">
                   <span className="h-5 w-5 rounded-full bg-lime-400/20 border border-lime-400/40 flex items-center justify-center text-[10px]">1</span>
                   Crea tu producto
                 </div>
-                <p className="text-[11px] text-lime-200/70">Completa el formulario de abajo con fotos y precio base.</p>
+                <p className="text-[11px] text-lime-100/90">Completa el formulario de abajo con fotos y precio base.</p>
               </div>
               <div className="rounded-xl bg-black/30 border border-lime-400/20 p-3">
-                <div className="flex items-center gap-2 text-xs font-semibold text-lime-200 mb-1">
+                <div className="flex items-center gap-2 text-xs font-semibold text-lime-400 mb-1">
                   <span className="h-5 w-5 rounded-full bg-lime-400/20 border border-lime-400/40 flex items-center justify-center text-[10px]">2</span>
                   Activa la subasta
                 </div>
-                <p className="text-[11px] text-lime-200/70">Marca la casilla y fija precio inicial + duración del cronómetro.</p>
+                <p className="text-[11px] text-lime-100/90">Marca la casilla y fija precio inicial + duración del cronómetro.</p>
               </div>
               <div className="rounded-xl bg-black/30 border border-lime-400/20 p-3">
-                <div className="flex items-center gap-2 text-xs font-semibold text-lime-200 mb-1">
+                <div className="flex items-center gap-2 text-xs font-semibold text-lime-400 mb-1">
                   <span className="h-5 w-5 rounded-full bg-lime-400/20 border border-lime-400/40 flex items-center justify-center text-[10px]">3</span>
                   Inicia tu en vivo
                 </div>
-                <p className="text-[11px] text-lime-200/70">Genera la clave de stream y empieza a transmitir en OBS Studio.</p>
+                <p className="text-[11px] text-lime-100/90">Genera la clave de stream y empieza a transmitir en OBS Studio.</p>
               </div>
             </div>
             <div className="mt-4 flex items-center gap-3">
@@ -829,15 +827,15 @@ function WalletStatusBanner({
             <span className="text-amber-300 font-black text-xs leading-none">MP</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-amber-900 dark:text-amber-200 mb-1 flex items-center gap-2">
+            <p className="font-bold text-amber-100 mb-1 flex items-center gap-2">
               Conecta tu Mercado Pago para empezar a vender
             </p>
-            <p className="text-sm text-amber-800 dark:text-amber-200/80 leading-relaxed">
+            <p className="text-sm text-amber-200/90 leading-relaxed">
               Antes de publicar, vincula tu cuenta de Mercado Pago. Recibirás pagos con Yape, Plin y tarjetas.
               Vende Ya retiene automáticamente su comisión (12% en vivo, 8% marketplace) y tú recibes el neto exacto.
               Sin KYC completo los pagos quedan retenidos hasta 7 días, así que completa la verificación cuanto antes.
             </p>
-            <p className="text-xs text-amber-700 dark:text-amber-200/60 mt-2">
+            <p className="text-xs text-amber-300/60 mt-2">
               Estado actual:{' '}
               <span className="font-semibold text-amber-200">
                 {status === 'pending' ? 'Verificación pendiente' : 'No conectada'}
