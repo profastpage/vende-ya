@@ -81,8 +81,8 @@ function LiveBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
 }
 
 /** ViewersPill — solo texto bold + icono, sin fondo negro (mejor UX) */
-function ViewersPill({ spectators }: { spectators: any[] }) {
-  const viewers = spectators.length;
+function ViewersPill({ realSpectators, anonymousCount }: { realSpectators: any[], anonymousCount: number }) {
+  const viewers = realSpectators.length + anonymousCount;
   const [open, setOpen] = React.useState(false)
   const spectatorRef = React.useRef<HTMLDivElement>(null)
 
@@ -119,19 +119,26 @@ function ViewersPill({ spectators }: { spectators: any[] }) {
           >
             <div className="text-[10px] font-bold text-zinc-500 uppercase px-2 mb-2">Espectadores ({viewers})</div>
             <div className="space-y-1 max-h-[200px] overflow-y-auto no-scrollbar">
-              {spectators.slice(0, 10).map((spec, idx) => (
-                <div key={idx} className="flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 rounded-lg">
-                  <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">
-                    {spec.avatar || 'E'}
-                  </div>
-                  <span className="text-xs font-medium text-white truncate">{spec.name || 'Espectador Anónimo'}</span>
-                </div>
-              ))}
-              {spectators.length > 10 && (
-                <div className="px-2 py-1.5 text-xs text-zinc-500 italic">
-                  y {spectators.length - 10} más...
-                </div>
-              )}
+              {realSpectators.map((user, idx) => (
+    <div key={idx} className="flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 rounded-lg">
+      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">
+        {user.avatar || 'E'}
+      </div>
+      <span className="text-xs font-medium text-white truncate">{user.name}</span>
+    </div>
+  ))}
+
+  {anonymousCount > 0 && (
+    <div className="flex items-center gap-2 px-2 py-1.5 mt-1 border-t border-white/10">
+      <div className="h-6 w-6 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-400">
+        +
+      </div>
+      <span className="text-xs font-medium text-zinc-400 italic">
+        {anonymousCount} anónimo{anonymousCount !== 1 ? 's' : ''}
+      </span>
+    </div>
+  )}
+              
             </div>
           </motion.div>
         )}
@@ -357,7 +364,14 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
       chatChannel.on('presence', { event: 'sync' }, () => {
         const state = chatChannel.presenceState();
         const usersList = Object.values(state).flat();
-        setSpectators(usersList);
+        
+        // Filtrar usuarios reales (que tengan un ID válido de Supabase o nombre distinto a 'Anónimo')
+        const reals = usersList.filter((u: any) => u.name !== 'Espectador Anónimo');
+        // Contar el resto
+        const anons = usersList.length - reals.length;
+        
+        setRealSpectators(reals);
+        setAnonymousCount(anons);
       })
 
       chatChannel.subscribe(async (status) => {
@@ -399,7 +413,8 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   }
 
   const [bidCount, setBidCount] = React.useState(safeAuction.bidCount || 0); const [bids, setBids] = React.useState([]);
-  const [spectators, setSpectators] = React.useState<any[]>([])
+  const [realSpectators, setRealSpectators] = React.useState<any[]>([])
+    const [anonymousCount, setAnonymousCount] = React.useState(0)
   const [likes, setLikes] = React.useState(() => {
       if (typeof window !== 'undefined') {
         const saved = localStorage.getItem(`likes_${id}`)
@@ -610,7 +625,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           <div className="shrink-0 p-3 border-b border-white/10 hidden md:flex items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10">
             <SellerPill seller={seller} initial={initial} />
             <div className="flex items-center gap-3">
-              <ViewersPill spectators={spectators} />
+              <ViewersPill realSpectators={realSpectators} anonymousCount={anonymousCount} />
               <LiveBadge size="sm" />
             </div>
           </div>
@@ -619,7 +634,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           <div className="shrink-0 p-3 border-b border-white/10 flex md:hidden items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10">
              <SellerPill seller={seller} initial={initial} />
              <div className="flex items-center gap-3">
-               <ViewersPill spectators={spectators} />
+               <ViewersPill realSpectators={realSpectators} anonymousCount={anonymousCount} />
                <LiveBadge size="sm" />
              </div>
           </div>

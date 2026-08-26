@@ -55,6 +55,7 @@ export default async function Home() {
       streamProvider: stream.streamProvider || undefined,
       streamProviderId: stream.streamProviderId || undefined,
       seller: {
+        username: stream.seller?.username || 'usuario',
         displayName: stream.seller?.displayName || 'Usuario',
         avatarUrl: stream.seller?.avatarUrl || undefined,
       },

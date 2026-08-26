@@ -18,7 +18,7 @@ export type SocialFeedItem = {
   youtubeLiveId?: string;
   streamProvider?: string | null;
   streamProviderId?: string | null;
-  seller: { displayName: string; avatarUrl?: string };
+  seller: { username: string; displayName: string; avatarUrl?: string };
   description: string;
   likes: number;
   comments: number;
@@ -85,7 +85,7 @@ function FeedItem({ item, viewers = 0 }: { item: SocialFeedItem; viewers?: numbe
         {/* Fondo de Portada (Imagen del Producto o Placeholder) */}
         <div 
           className="absolute inset-0 w-full h-full cursor-pointer z-0 group" 
-          onClick={() => router.push(`/en-vivo/${item.id}`)}
+          onClick={() => router.push(`/en-vivo/${item.seller.username}`)}
         >
           <div 
             className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
