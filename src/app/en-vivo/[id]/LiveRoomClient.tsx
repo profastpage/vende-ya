@@ -626,13 +626,11 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
 
           {/* Zona 3: Chat Messages (SCROLLABLE, ESPACIO RESTANTE) */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 flex flex-col no-scrollbar bg-zinc-950/50">
-            <div className="flex-1 flex flex-col justify-end">
-              <div className="space-y-3 flex flex-col">
+            <div className="mt-auto flex flex-col space-y-3">
                 {chat.map((msg) => (
                   <ChatMessageBubble key={msg.id} msg={msg} />
                 ))}
                 <div ref={messagesEndRef} />
-              </div>
             </div>
           </div>
 
