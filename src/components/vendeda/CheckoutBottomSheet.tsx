@@ -80,6 +80,12 @@ export default function CheckoutBottomSheet({
   const [orderStatus, setOrderStatus] = useState<OrderStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [operationCode, setOperationCode] = useState('');
+  const [shippingDest, setShippingDest] = useState('LIMA-CENTRO');
+  const [copiedPhone, setCopiedPhone] = useState(false);
+  const currentShippingCost = shippingDest === 'RETIRO' ? 0 : 15.00;
+  const finalPrice = price + currentShippingCost;
+
   const [trackingCode, setTrackingCode] = useState<string | null>(null);
   // Sprint 2-A: QR dinámico retornado por Mercado Pago
   const [qrData, setQrData] = useState<{ qrCode?: string; qrCodeBase64?: string; deepLink?: string } | null>(null);
@@ -248,25 +254,26 @@ export default function CheckoutBottomSheet({
                       </span>
                     </div>
                     <div className="border-t border-border pt-3 text-xs text-muted-foreground flex flex-col gap-1">
-                      <div className="flex justify-between">
-                        <span>Origen de compra:</span>
-                        <b className="text-foreground uppercase">
-                          {source === 'live_stream' ? 'Live Stream' : 'Marketplace'}
-                        </b>
+                      <div className="flex justify-between items-center mb-1">
+                        <span>Destino (Shalom):</span>
+                        <select 
+                          value={shippingDest} 
+                          onChange={(e) => setShippingDest(e.target.value)}
+                          className="bg-zinc-900 border border-white/10 rounded-lg text-xs px-2 py-1 outline-none text-amber-400 focus:border-amber-400"
+                        >
+                          <option value="RETIRO">Retiro en tienda (S/ 0)</option>
+                          <option value="LIMA-CENTRO">Lima Centro (S/ 15.00)</option>
+                          <option value="AREQUIPA">Arequipa (S/ 15.00)</option>
+                          <option value="TRUJILLO">Trujillo (S/ 15.00)</option>
+                        </select>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Envío:</span>
-                        {shipment ? (
-                          <span className="text-emerald-400 font-semibold text-[11px]">
-                            Gestionado por Shalom
-                          </span>
-                        ) : (
-                          <span className="text-foreground font-semibold">Acordar con vendedor</span>
-                        )}
+                      <div className="flex justify-between mt-1 text-[11px] text-muted-foreground border-b border-white/5 pb-2">
+                        <span>Costo de envío:</span>
+                        <span className="font-semibold text-foreground">{formatPEN(currentShippingCost)}</span>
                       </div>
                       <div className="flex justify-between mt-2 pt-2 border-t border-white/5">
                         <span className="font-bold text-foreground">Total a pagar:</span>
-                        <span className="font-bold text-amber-400 text-sm">{formatPEN(price)}</span>
+                        <span className="font-bold text-amber-400 text-sm">{formatPEN(finalPrice)}</span>
                       </div>
                     </div>
                   </div>
@@ -315,45 +322,49 @@ export default function CheckoutBottomSheet({
 
                 {/* Vista dinámica del método de pago */}
                 <AnimatePresence mode="wait">
-                  {paymentMethod === 'yape' && (
-                    <motion.div
-                      key="yape"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="bg-purple-950/20 border border-purple-900/50 rounded-2xl p-4 mb-6 text-center"
-                    >
-                      <p className="text-xs text-purple-300 mb-2">
-                        Escanea el QR con la app de Yape para confirmar el pago
-                      </p>
-                      <div className="w-32 h-32 bg-white mx-auto rounded-xl flex items-center justify-center text-slate-800 font-bold shadow-lg">
-                        <QrCode className="h-16 w-16" />
-                      </div>
-                      <p className="text-[10px] text-purple-400 mt-2">
-                        Monto exacto: {formatPEN(price)}
-                      </p>
-                    </motion.div>
-                  )}
+                  {(paymentMethod === 'yape' || paymentMethod === 'plin') && (
+                      <motion.div
+                        key="yape-plin"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className={`${paymentMethod === 'yape' ? 'bg-purple-950/20 border-purple-900/50' : 'bg-teal-950/20 border-teal-900/50'} border rounded-2xl p-4 mb-4`}
+                      >
+                        <p className={`text-xs ${paymentMethod === 'yape' ? 'text-purple-300' : 'text-teal-300'} mb-3 text-center`}>
+                          1. Transfiere exactamente <b>{formatPEN(finalPrice)}</b> a este número:
+                        </p>
+                        
+                        <div className="flex items-center justify-between bg-black/40 rounded-xl p-3 border border-white/5 mb-4">
+                          <div className="flex flex-col">
+                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Celular Empresa</span>
+                            <span className="text-xl font-mono font-black text-white">999 888 777</span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText('999888777');
+                              setCopiedPhone(true);
+                              setTimeout(() => setCopiedPhone(false), 2000);
+                            }}
+                            className={`h-10 w-10 rounded-lg flex items-center justify-center transition-colors ${copiedPhone ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                          >
+                            {copiedPhone ? <CheckCircle2 className="h-5 w-5" /> : <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>}
+                          </button>
+                        </div>
+                        
+                        <p className={`text-xs ${paymentMethod === 'yape' ? 'text-purple-300' : 'text-teal-300'} mb-2 text-center`}>
+                          2. Ingresa tu número de operación:
+                        </p>
+                        <input
+                          type="text"
+                          placeholder="Ej: 12345678"
+                          value={operationCode}
+                          onChange={(e) => setOperationCode(e.target.value)}
+                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-center text-white placeholder:text-zinc-600 focus:outline-none focus:border-amber-400"
+                        />
+                      </motion.div>
+                    )}
 
-                  {paymentMethod === 'plin' && (
-                    <motion.div
-                      key="plin"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="bg-teal-950/20 border border-teal-900/50 rounded-2xl p-4 mb-6 text-center"
-                    >
-                      <p className="text-xs text-teal-300 mb-2">
-                        Escanea el QR con la app de Plin para confirmar el pago
-                      </p>
-                      <div className="w-32 h-32 bg-white mx-auto rounded-xl flex items-center justify-center text-slate-800 font-bold shadow-lg">
-                        <QrCode className="h-16 w-16" />
-                      </div>
-                      <p className="text-[10px] text-teal-400 mt-2">
-                        Monto exacto: {formatPEN(price)}
-                      </p>
-                    </motion.div>
-                  )}
+                  
 
                   {paymentMethod === 'card' && (
                     <motion.div

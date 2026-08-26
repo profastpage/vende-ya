@@ -400,7 +400,10 @@ model Order {
   paymentStatus            String   @default("pending") // pending | paid | escrow_hold | released | refunded
   paymentMethod            String   // yape | plin | credit_card | pago_efectivo
   gatewayTransactionId     String?  @unique
-  createdAt                DateTime @default(now())
+  productId String?
+    shalomTrackingCode String?
+    status OrderStatus @default(PENDING)
+    createdAt                DateTime @default(now())
 
   buyer                    SellerWallet @relation("OrderBuyer",  fields: [buyerId],  references: [id])
   seller                   SellerWallet @relation("OrderSeller", fields: [sellerId], references: [id])
@@ -474,3 +477,20 @@ model Review {
 }
 
 
+
+enum OrderStatus {
+  PENDING
+  HELD_IN_ESCROW
+  SHIPPED
+  DELIVERED
+  COMPLETED
+  REFUNDED
+}
+
+model Wallet {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  availableBalance Decimal  @default(0.00) @db.Decimal(10, 2)
+  frozenBalance    Decimal  @default(0.00) @db.Decimal(10, 2)
+  updatedAt        DateTime @updatedAt
+}
