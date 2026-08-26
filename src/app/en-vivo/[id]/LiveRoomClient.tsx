@@ -468,9 +468,13 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   }
   
   const handleLike = () => {
-    setLiked((v) => !v)
-    setLikes((l) => (liked ? Math.max(0, l - 1) : l + 1))
-    setBurstKey((k) => k + 1)
+    setLiked(true);
+    setLikes((l) => l + 1); // allow multiple likes
+    const newHeart = { id: Date.now(), left: Math.random() * 60 - 30 }; // random X offset
+    setFloatingHearts(prev => [...prev, newHeart]);
+    setTimeout(() => {
+      setFloatingHearts(prev => prev.filter(h => h.id !== newHeart.id));
+    }, 1500);
   }
 
   const sendChat = async () => {
@@ -576,24 +580,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
 
           {/* REPRODUCTOR YOUTUBE */}
           <div className="flex-1 w-full relative flex items-center justify-center bg-black">
-            {/* Corazones Flotantes */}
-            <div className="absolute bottom-0 right-10 w-32 h-64 pointer-events-none z-40 overflow-hidden">
-              <AnimatePresence>
-                {floatingHearts.map(heart => (
-                  <motion.div
-                    key={heart.id}
-                    initial={{ opacity: 1, y: 50, x: 0, scale: 0.5 }}
-                    animate={{ opacity: 0, y: -200, x: (Math.random() - 0.5) * 50, scale: 1.5 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    className="absolute bottom-0"
-                    style={{ left: `${heart.left}%` }}
-                  >
-                    <Heart className="h-8 w-8 fill-rose-500 text-rose-500 drop-shadow-lg" />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+            
 
             {isValidYoutubeId ? (
               <iframe
@@ -637,34 +624,6 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
              </div>
           </div>
 
-          {/* Zona 2: Producto y Pujas (FIJO) */}
-          <div className="shrink-0 bg-zinc-900/20 border-b border-white/5 p-3 flex flex-col gap-3">
-            <div className="flex gap-4 p-3 bg-black/40 rounded-xl border border-white/5 shadow-inner">
-              <img src={safeProduct.thumbnail} alt={safeProduct.title} className="w-20 h-20 object-cover rounded-lg shadow-md border border-white/10 shrink-0" />
-              <div className="flex flex-col flex-1 min-w-0 justify-between">
-                <div>
-                  <h2 className="font-bold text-sm line-clamp-2 leading-tight text-white">{safeProduct.title}</h2>
-                </div>
-                <div className="mt-2 flex items-end justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Última Puja</span>
-                    <span className="font-black text-amber-400 text-lg leading-none mt-0.5">{formatPEN(currentBid)}</span>
-                  </div>
-                  <CountdownCard mm={mm} ss={ss} lowTime={lowTime} size="sm" />
-                </div>
-              </div>
-            </div>
-            
-            {/* Opciones Rápidas de Puja */}
-            {safeAuction.id && (
-              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 px-1">
-                {[safeAuction.bidIncrement, safeAuction.bidIncrement * 2, safeAuction.bidIncrement * 3].map(amt => (
-                  <BidPill key={amt} amount={amt} onBid={executeRealtimeBid} />
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* Zona 3: Chat Messages (SCROLLABLE, ESPACIO RESTANTE) */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 flex flex-col no-scrollbar bg-zinc-950/50">
             <div className="flex-1 flex flex-col justify-end">
@@ -689,9 +648,28 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
                    </button>
                  )}
                </div>
-               <button onClick={handleLike} className="h-12 w-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center active:scale-95 transition-transform shrink-0">
+               <div className="relative">
+                 {/* Floating Emojis */}
+                 <div className="absolute bottom-12 right-2 pointer-events-none overflow-visible z-50">
+                    <AnimatePresence>
+                      {floatingHearts.map(heart => (
+                        <motion.span
+                          key={heart.id}
+                          initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
+                          animate={{ opacity: 0, y: -150, x: heart.left, scale: 1.5 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 1.5, ease: "easeOut" }}
+                          className="absolute text-2xl select-none"
+                        >
+                          ❤️
+                        </motion.span>
+                      ))}
+                    </AnimatePresence>
+                 </div>
+                 <button onClick={handleLike} className="h-12 w-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center active:scale-95 transition-transform shrink-0">
                  <Heart className={`h-6 w-6 ${liked ? 'fill-rose-500 text-rose-500' : 'text-zinc-400'}`} />
                </button>
+                 </div>
             </div>
             
             {/* Chat Input */}
