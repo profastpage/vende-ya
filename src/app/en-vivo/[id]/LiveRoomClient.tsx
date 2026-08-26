@@ -119,22 +119,19 @@ function ViewersPill({ spectators }: { spectators: any[] }) {
           >
             <div className="text-[10px] font-bold text-zinc-500 uppercase px-2 mb-2">Espectadores ({viewers})</div>
             <div className="space-y-1 max-h-[200px] overflow-y-auto no-scrollbar">
-              {/* Simulated MVP Viewers */}
-              <div className="flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 rounded-lg">
-                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">L</div>
-                <span className="text-xs font-medium text-white truncate">Luis.tech</span>
-              </div>
-              <div className="flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 rounded-lg">
-                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-[10px] font-bold text-white">M</div>
-                <span className="text-xs font-medium text-white truncate">MariaGomez99</span>
-              </div>
-              <div className="flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 rounded-lg">
-                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-rose-400 to-pink-600 flex items-center justify-center text-[10px] font-bold text-white">J</div>
-                <span className="text-xs font-medium text-white truncate">Juan_perez</span>
-              </div>
-              <div className="px-2 py-1.5 text-xs text-zinc-500 italic">
-                y {Math.max(0, viewers - 3)} más...
-              </div>
+              {spectators.slice(0, 10).map((spec, idx) => (
+                <div key={idx} className="flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 rounded-lg">
+                  <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">
+                    {spec.avatar || 'E'}
+                  </div>
+                  <span className="text-xs font-medium text-white truncate">{spec.name || 'Espectador Anónimo'}</span>
+                </div>
+              ))}
+              {spectators.length > 10 && (
+                <div className="px-2 py-1.5 text-xs text-zinc-500 italic">
+                  y {spectators.length - 10} más...
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -418,6 +415,10 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
     }, [likes, id])
   const [showCheckout, setShowCheckout] = React.useState(false)
   const [chat, setChat] = React.useState<ChatMessage[]>(initialChat || [])
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chat]);
 
     
   const [chatInput, setChatInput] = React.useState('')
@@ -667,10 +668,11 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           {/* Zona 3: Chat Messages (SCROLLABLE, ESPACIO RESTANTE) */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 flex flex-col no-scrollbar bg-zinc-950/50">
             <div className="flex-1 flex flex-col justify-end">
-              <div className="space-y-3 flex flex-col-reverse">
-                {[...chat].reverse().map((msg) => (
+              <div className="space-y-3 flex flex-col">
+                {chat.map((msg) => (
                   <ChatMessageBubble key={msg.id} msg={msg} />
                 ))}
+                <div ref={messagesEndRef} />
               </div>
             </div>
           </div>
