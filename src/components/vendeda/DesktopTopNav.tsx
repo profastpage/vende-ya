@@ -163,12 +163,10 @@ export function DesktopTopNav() {
             title={user?.displayName || "Tu perfil"}
           >
             <Avatar className="h-7 w-7 ring-2 ring-gray-200">
-              {user?.avatarUrl ? (
-                <AvatarImage src={user.avatarUrl} alt={user.displayName} />
-              ) : (
-                <AvatarImage src="https://i.pravatar.cc/150?img=8" alt="Tu perfil" />
-              )}
-              <AvatarFallback className="bg-accent text-gray-800">{user?.displayName ? user.displayName.slice(0, 2).toUpperCase() : 'TÚ'}</AvatarFallback>
+              {user?.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.displayName} />}
+              <AvatarFallback className="bg-gradient-to-br from-amber-400 to-fuchsia-600 font-black text-white text-xs">
+                  {user?.displayName ? user.displayName.slice(0, 1).toUpperCase() : 'U'}
+                </AvatarFallback>
             </Avatar>
             <ChevronDown className={cn("h-3 w-3 text-muted-foreground transition-transform", open && "rotate-180")} />
           </button>

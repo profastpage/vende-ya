@@ -44,6 +44,7 @@ interface ChatMessage {
   text: string
   color: string
   isBot?: boolean
+  avatarUrl?: string | null
 }
 
 
@@ -121,9 +122,13 @@ function ViewersPill({ realSpectators, anonymousCount }: { realSpectators: any[]
             <div className="space-y-1 max-h-[200px] overflow-y-auto no-scrollbar">
               {realSpectators.map((user, idx) => (
     <div key={idx} className="flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 rounded-lg">
-      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">
-        {user.avatar || 'E'}
-      </div>
+      {user.avatarUrl ? (
+          <img src={user.avatarUrl} alt={user.name} className="h-6 w-6 rounded-full object-cover border border-white/20" />
+        ) : (
+          <div className="h-6 w-6 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-600 flex items-center justify-center text-[10px] font-bold text-white">
+            {user.avatar || user.name?.charAt(0)?.toUpperCase() || 'E'}
+          </div>
+        )}
       <span className="text-xs font-medium text-white truncate">{user.name}</span>
     </div>
   ))}
@@ -184,7 +189,14 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
       }`}
     >
       <div className="flex items-center gap-1.5 flex-wrap">
-        <span className={`font-bold ${msg.color}`}>{msg.username}</span>
+        {msg.avatarUrl ? (
+            <img src={msg.avatarUrl} alt={msg.username} className="h-4 w-4 rounded-full object-cover shrink-0" />
+          ) : (
+            <div className="h-4 w-4 rounded-full bg-white/10 shrink-0 flex items-center justify-center text-[8px] font-bold text-white">
+              {msg.username?.charAt(0)?.toUpperCase()}
+            </div>
+          )}
+          <span className={`font-bold ${msg.color}`}>{msg.username}</span>
         {msg.isBot && (
           <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-purple-500/20 border border-purple-400/40 text-purple-300 text-[9px] font-black tracking-wider">
             <Bot className="h-2.5 w-2.5" /> BOT AI
@@ -506,6 +518,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
         body: JSON.stringify({
           streamId: id,
           username: userName,
+            avatarUrl: user?.avatarUrl,
           text: msg.text,
           color: msg.color,
           isBot: false
@@ -563,7 +576,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   
   const videoId = stream?.streamProviderId || stream?.youtubeLiveId;
   const isValidYoutubeId = videoId && videoId.length === 11;
-  const youtubeUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&modestbranding=1&rel=0`;
+  const youtubeUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&modestbranding=1&rel=0&controls=0`;
 
     return (
     <>
