@@ -182,7 +182,7 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
         animate={{ opacity: 1, x: 0, y: 0 }}
         exit={{ opacity: 0, height: 0 }}
         transition={{ type: 'spring', stiffness: 280, damping: 24 }}
-        className="text-xs px-2.5 py-1.5 rounded-xl backdrop-blur-sm border bg-purple-500/15 border-purple-400/30 shadow-lg shadow-purple-500/10 text-white"
+        className="text-xs px-2.5 py-1.5 rounded-xl backdrop-blur-sm border bg-purple-500/15 border-purple-400/30 shadow-lg shadow-purple-500/10 text-white pointer-events-auto"
       >
         <span className="font-bold text-purple-400 mr-1.5">{msg.username}</span>
         <span className="text-zinc-100/90 leading-relaxed">{msg.text}</span>
@@ -199,7 +199,7 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
       className="text-[13px] px-1 py-1 text-white"
       style={{ textShadow: '0px 1px 3px rgba(0,0,0,0.9), 0px 1px 1px rgba(0,0,0,0.6)' }}
     >
-      <div className="flex items-start gap-2 w-full max-w-full">
+      <div className="flex items-start gap-2 w-full max-w-full pointer-events-auto">
         {msg.avatarUrl ? (
           <img src={msg.avatarUrl} alt={msg.username} className="h-6 w-6 rounded-full object-cover shrink-0 mt-0.5 border border-white/20 shadow-sm" />
         ) : (
@@ -553,7 +553,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           </div>
 
           {/* Zona 3: Chat Messages (SCROLLABLE, ESPACIO RESTANTE) */}
-          <div className={`h-[28vh] md:flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 md:p-4 flex flex-col no-scrollbar relative z-10 ${hideUI ? 'pointer-events-none md:pointer-events-auto' : 'pointer-events-auto'}`} style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
+          <div className={`h-[22vh] md:flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 md:p-4 flex flex-col no-scrollbar relative z-10 pointer-events-none md:pointer-events-auto`} style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
             <div className="mt-auto flex flex-col space-y-3">
                 {chat.map((msg) => (
                   <ChatMessageBubble key={msg.id} msg={msg} />
