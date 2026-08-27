@@ -3,11 +3,12 @@ import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   try {
-    const { streamId, username, text, color, isBot } = await req.json()
+    const { streamId, username, text, color, isBot, senderId } = await req.json()
     const msg = await db.liveChatMessage.create({
       data: {
         streamId,
         guestName: username,
+        senderId: senderId || null,
         content: text,
         type: isBot ? 'ai' : 'user',
       }

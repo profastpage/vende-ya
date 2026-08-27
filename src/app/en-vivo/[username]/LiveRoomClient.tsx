@@ -207,9 +207,9 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
             {msg.username?.charAt(0)?.toUpperCase()}
           </div>
         )}
-        <div className="flex flex-col leading-tight gap-0.5">
-          <span className="font-extrabold text-white/95 text-[12px]">{msg.username}</span>
-          <span className="text-white text-[13px] break-words leading-snug">{msg.text}</span>
+        <div className="flex flex-col leading-tight gap-0.5 min-w-0 flex-1 overflow-hidden">
+          <span className="font-extrabold text-white/95 text-[12px] truncate">{msg.username}</span>
+          <span className="text-white text-[13px] break-words break-all leading-snug whitespace-normal">{msg.text}</span>
         </div>
       </div>
     </motion.div>
@@ -565,7 +565,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
             {/* 4A: Chat Input & Like (eBay Style) */}
             <div className="flex items-center gap-3 mb-2 px-3 relative">
               {/* Floating Emojis */}
-              <div className="absolute bottom-12 right-6 pointer-events-none overflow-visible z-50">
+              <div className="absolute bottom-14 right-14 pointer-events-none overflow-visible z-50">
                 <AnimatePresence>
                   {floatingEmojis.map(emoji => (
                     <motion.span

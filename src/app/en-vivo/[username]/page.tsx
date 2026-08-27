@@ -36,15 +36,17 @@ export default async function StreamDetailPage({ params }: { params: Promise<{ u
   const seller = stream.seller || MOCK_PROFILES[0]
 
   const initialChatMessages = await db.liveChatMessage.findMany({
-    where: { streamId: stream.id },
-    orderBy: { createdAt: 'asc' },
-    take: 100
-  })
+      where: { streamId: stream.id },
+      orderBy: { createdAt: 'asc' },
+      take: 100,
+      include: { sender: true }
+    })
 
   const initialChat = initialChatMessages.map(msg => ({
-    id: msg.id,
-    username: msg.guestName || 'Usuario',
-    text: msg.content,
+      id: msg.id,
+      username: msg.sender?.displayName || msg.guestName || 'Usuario',
+      avatarUrl: msg.sender?.avatarUrl || undefined,
+      text: msg.content,
     color: msg.type === 'ai' ? 'text-purple-400' : 'text-white',
     isBot: msg.type === 'ai'
   }))
