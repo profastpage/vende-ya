@@ -553,7 +553,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           </div>
 
           {/* Zona 3: Chat Messages (SCROLLABLE, ESPACIO RESTANTE) */}
-          <div className={`h-[35vh] md:flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 md:p-4 flex flex-col no-scrollbar relative z-10 ${hideUI ? 'pointer-events-none md:pointer-events-auto' : 'pointer-events-auto'}`} style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
+          <div className={`h-[28vh] md:flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 md:p-4 flex flex-col no-scrollbar relative z-10 ${hideUI ? 'pointer-events-none md:pointer-events-auto' : 'pointer-events-auto'}`} style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
             <div className="mt-auto flex flex-col space-y-3">
                 {chat.map((msg) => (
                   <ChatMessageBubble key={msg.id} msg={msg} />
@@ -669,7 +669,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
       </div>
       
       {/* Ocultar UI Toggle (Solo Mobile) - ROOT LEVEL PARA Z-INDEX ABSOLUTO */}
-          <div className="md:hidden absolute right-3 top-20 z-[100] flex flex-col items-end gap-2 pointer-events-auto">
+          <div className="md:hidden absolute right-3 top-28 z-[100] flex flex-col items-end gap-2 pointer-events-auto">
             {hideUI && (
               <div className="bg-gradient-to-r from-rose-500 to-rose-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-lg animate-bounce mr-1">
                 💬 Ver Chat y Compras
