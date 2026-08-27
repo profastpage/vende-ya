@@ -38,17 +38,9 @@ export async function POST(request: Request) {
   }
 
   // --------------------------------------------------------------
-  // 1. Asegurar perfil
+  // 1. Asegurar perfil (PRISMA Profile + profiles)
   // --------------------------------------------------------------
   try {
-    // Verificar si ya existe
-    const { data: existing } = await admin
-      .from('profiles')
-      .select('id, auth_id, email')
-      .eq('auth_id', user.id)
-      .maybeSingle()
-
-    // Obtener metadatos del usuario desde auth.admin
     const { data: userData } = await admin.auth.admin.getUserById(user.id)
     const meta = userData?.user?.user_metadata ?? {}
     const rawEmail = userData?.user?.email ?? user.email ?? ''
@@ -63,74 +55,29 @@ export async function POST(request: Request) {
     const avatarUrl = meta?.avatar_url || meta?.picture || meta?.photo || null
     const email = rawEmail
 
-    // Generar username único
     let username = (meta?.username || (email ? email.split('@')[0] : 'user'))
       .toLowerCase()
       .replace(/[^a-z0-9_.-]/g, '')
       .slice(0, 30)
     if (!username) username = 'user'
 
-    const existingProfile = existing as {
-      id: string
-      auth_id: string
-      email: string | null
-      display_name?: string | null
-      avatar_url?: string | null
-    } | null
+    // Update Prisma Profile directly!
+    await db.profile.upsert({
+      where: { authId: user.id },
+      create: {
+        id: user.id,
+        authId: user.id,
+        username: username,
+        displayName: displayName,
+        avatarUrl: avatarUrl,
+      },
+      update: {
+        displayName: displayName,
+        avatarUrl: avatarUrl,
+      }
+    });
 
-    if (existingProfile) {
-      // Actualizar email/display_name/avatar si cambiaron
-      await admin
-        .from('profiles')
-        .update({
-          email,
-          display_name: existingProfile.display_name?.length
-            ? existingProfile.display_name
-            : displayName,
-          avatar_url: existingProfile.avatar_url ?? avatarUrl,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('auth_id', user.id)
-      results.profile = 'updated'
-    } else {
-      // Insertar nuevo perfil
-      let attempt = 0
-      let inserted = false
-      while (!inserted && attempt < 4) {
-        attempt++
-        const candidate =
-          attempt === 1 ? username : `${username}_${attempt}`
-        const { error: insErr } = await admin.from('profiles').insert({
-          auth_id: user.id,
-          username: candidate,
-          display_name: displayName,
-          email,
-          avatar_url: avatarUrl,
-        })
-        if (!insErr) {
-          inserted = true
-          results.profile = 'created'
-          break
-        }
-        if (insErr.code !== '23505') {
-          // unique_violation
-          throw insErr
-        }
-      }
-      if (!inserted) {
-        // último intento: username aleatorio
-        const randomUser = 'u' + Math.random().toString(36).slice(2, 10)
-        const { error: lastErr } = await admin.from('profiles').insert({
-          auth_id: user.id,
-          username: randomUser,
-          display_name: displayName,
-          email,
-          avatar_url: avatarUrl,
-        })
-        if (lastErr) throw lastErr
-        results.profile = 'created'
-      }
-    }
+    results.profile = 'updated'
   } catch (e: any) {
     results.profile = 'error'
     results.error = `profile: ${e?.message ?? String(e)}`

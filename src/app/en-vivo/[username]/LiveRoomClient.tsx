@@ -326,7 +326,7 @@ function ComprarYaButton({
 
 export default function LiveRoomClient({ stream, auction, product, seller, initialChat, currentUserId }: { stream: any, auction: any, product: any, seller: any, initialChat?: ChatMessage[], currentUserId?: string }) {
   const { user } = useAuth();
-  const userName = user?.email?.split('@')[0] || (user as any)?.user_metadata?.name || 'Usuario';
+  const userName = user?.displayName || 'Usuario';
 
   const [isEnding, startEnding] = useTransition();
   const isSeller = currentUserId === seller.id;
@@ -388,7 +388,11 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
 
       chatChannel.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
-          await chatChannel.track({ online: true })
+          await chatChannel.track({
+            name: user ? userName : 'Espectador Anónimo',
+            avatarUrl: user?.avatarUrl || null,
+            isAuth: !!user
+          })
         }
       })
 
@@ -506,7 +510,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
 
   const sendChat = async () => {
     if (!chatInput.trim()) return
-    const msg = { id: Date.now().toString(), username: 'Tú', text: chatInput.trim(), color: 'text-lime-400' }
+    const msg = { id: Date.now().toString(), username: userName || 'Tú', text: chatInput.trim(), color: 'text-lime-400', avatarUrl: user?.avatarUrl }
     setChat((prev) => [...prev, msg])
     setChatInput('')
 
