@@ -156,9 +156,13 @@ function ViewersPill({ realSpectators, anonymousCount }: { realSpectators: any[]
 function SellerPill({ seller, initial }: { seller: Profile; initial: string }) {
   return (
     <div className="inline-flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15">
-      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-600 border border-amber-300/40 flex items-center justify-center font-black text-zinc-950 text-xs">
-        {initial}
-      </div>
+      {seller.avatarUrl ? (
+        <img src={seller.avatarUrl} alt={seller.displayName} className="h-7 w-7 rounded-full object-cover border border-amber-300/40" />
+      ) : (
+        <div className="h-7 w-7 rounded-full bg-gradient-to-br from-amber-400 to-fuchsia-600 border border-amber-300/40 flex items-center justify-center font-black text-white text-xs">
+          {initial}
+        </div>
+      )}
       <div className="flex flex-col leading-tight">
         <span className="text-xs font-black tracking-tight flex items-center gap-1 text-white">
           {seller.displayName}
@@ -657,7 +661,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           </div>
 
           {/* Zona 3: Chat Messages (SCROLLABLE, ESPACIO RESTANTE) */}
-          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 flex flex-col no-scrollbar bg-zinc-950/50">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 flex flex-col no-scrollbar relative z-10" style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
             <div className="mt-auto flex flex-col space-y-3">
                 {chat.map((msg) => (
                   <ChatMessageBubble key={msg.id} msg={msg} />
