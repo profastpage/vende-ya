@@ -180,153 +180,46 @@ function SellerPill({ seller, initial }: { seller: Profile; initial: string }) {
 }
 
 function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
+  if (msg.isBot) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, x: -8, y: 4 }}
+        animate={{ opacity: 1, x: 0, y: 0 }}
+        exit={{ opacity: 0, height: 0 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+        className="text-xs px-2.5 py-1.5 rounded-xl backdrop-blur-sm border bg-purple-500/15 border-purple-400/30 shadow-lg shadow-purple-500/10 text-white"
+      >
+        <span className="font-bold text-purple-400 mr-1.5">{msg.username}</span>
+        <span className="text-zinc-100/90 leading-relaxed">{msg.text}</span>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -8, y: 4 }}
       animate={{ opacity: 1, x: 0, y: 0 }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ type: 'spring', stiffness: 280, damping: 24 }}
-      className={`text-xs px-2.5 py-1.5 rounded-xl backdrop-blur-sm border ${
-        msg.isBot
-          ? 'bg-purple-500/15 border-purple-400/30 shadow-lg shadow-purple-500/10'
-          : 'bg-zinc-900/80 border-white/5 text-zinc-100 shadow-sm'
-      }`}
+      className="text-[13px] px-1 py-1 text-white"
+      style={{ textShadow: '0px 1px 3px rgba(0,0,0,0.9), 0px 1px 1px rgba(0,0,0,0.6)' }}
     >
-      <div className="flex items-center gap-1.5 flex-wrap">
+      <div className="flex items-start gap-2">
         {msg.avatarUrl ? (
-            <img src={msg.avatarUrl} alt={msg.username} className="h-4 w-4 rounded-full object-cover shrink-0" />
-          ) : (
-            <div className="h-4 w-4 rounded-full bg-white/10 shrink-0 flex items-center justify-center text-[8px] font-bold text-white">
-              {msg.username?.charAt(0)?.toUpperCase()}
-            </div>
-          )}
-          <span className={`font-bold ${msg.color}`}>{msg.username}</span>
-        {msg.isBot && (
-          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-purple-500/20 border border-purple-400/40 text-purple-300 text-[9px] font-black tracking-wider">
-            <Bot className="h-2.5 w-2.5" /> BOT AI
-          </span>
+          <img src={msg.avatarUrl} alt={msg.username} className="h-6 w-6 rounded-full object-cover shrink-0 mt-0.5 border border-white/20 shadow-sm" />
+        ) : (
+          <div className="h-6 w-6 rounded-full bg-white/20 shrink-0 flex items-center justify-center text-[10px] font-bold text-white mt-0.5 border border-white/20 shadow-sm">
+            {msg.username?.charAt(0)?.toUpperCase()}
+          </div>
         )}
-        {msg.isBot && <BadgeCheck className="h-3 w-3 text-purple-300" />}
+        <div className="flex flex-col leading-tight gap-0.5">
+          <span className="font-extrabold text-white/95 text-[12px]">{msg.username}</span>
+          <span className="text-white text-[13px] break-words leading-snug">{msg.text}</span>
+        </div>
       </div>
-      <p className="mt-0.5 text-zinc-100 leading-snug">{msg.text}</p>
     </motion.div>
   )
 }
-
-function ChatInputBar({
-  chatInput,
-  setChatInput,
-  onSend,
-  compact = false,
-}: {
-  chatInput: string
-  setChatInput: (v: string) => void
-  onSend: () => void
-  compact?: boolean
-}) {
-  return (
-    <div className={`flex items-center gap-2 ${compact ? '' : 'px-3 py-2.5'} bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-2xl`}>
-      <MessageCircle className="h-4 w-4 text-muted-foreground shrink-0" />
-      <input
-        type="text"
-        value={chatInput}
-        onChange={(e) => setChatInput(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && onSend()}
-        placeholder="Escribe..."
-        className="flex-1 bg-transparent text-xs text-white placeholder:text-zinc-500 outline-none py-1.5"
-      />
-      <motion.button
-        whileTap={{ scale: 0.92 }}
-        onClick={onSend}
-        className="h-8 w-8 rounded-xl bg-amber-400 hover:bg-amber-500 text-black flex items-center justify-center shadow-lg shadow-amber-400/20 transition-colors"
-        aria-label="Enviar mensaje"
-      >
-        <Send className="h-3.5 w-3.5 text-zinc-950" />
-      </motion.button>
-    </div>
-  )
-}
-
-function CountdownCard({
-  mm, ss, lowTime, size = 'md',
-}: {
-  mm: string
-  ss: string
-  lowTime: boolean
-  size?: 'sm' | 'md'
-}) {
-  return (
-    <motion.div
-      animate={lowTime ? { scale: [1, 1.04, 1] } : {}}
-      transition={{ duration: 0.8, repeat: lowTime ? Infinity : 0 }}
-      className={`relative overflow-hidden rounded-2xl border px-3 py-1.5 flex flex-col items-center min-w-[88px] ${
-        lowTime
-          ? 'bg-rose-500/20 border-rose-500/30'
-          : 'bg-zinc-900/80 border-white/5 text-zinc-100 shadow-sm'
-      }`}
-    >
-      <span className={`text-[9px] font-black tracking-widest uppercase ${lowTime ? 'text-rose-300' : 'text-amber-400'}`}>
-        <Clock className="inline h-2.5 w-2.5 mr-1" />
-        Cierra en
-      </span>
-      <span className={`font-mono font-black tabular-nums tracking-tight ${size === 'sm' ? 'text-base' : 'text-xl'} ${lowTime ? 'text-rose-200' : 'text-white'}`}>
-        {mm}:{ss}
-      </span>
-    </motion.div>
-  )
-}
-
-function BidPill({ amount, onBid }: { amount: number; onBid: (n: number) => void }) {
-  return (
-    <motion.button
-      whileTap={{ scale: 0.92 }}
-      whileHover={{ scale: 1.05, y: -2 }}
-      onClick={() => onBid(amount)}
-      className="flex-1 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/10 hover:border-amber-400/40 px-3 py-2 text-xs font-black text-amber-300 transition-colors flex items-center justify-center gap-0.5"
-    >
-      <span className="text-muted-foreground">+</span>S/{amount}
-    </motion.button>
-  )
-}
-
-function PujarButton({ increment, onBid, full = false }: { increment: number; onBid: (n: number) => void; full?: boolean }) {
-  return (
-    <motion.button
-      whileTap={{ scale: 0.97 }}
-      animate={{ boxShadow: ['0 0 20px rgba(251,191,36,0.3)', '0 0 32px rgba(251,191,36,0.5)', '0 0 20px rgba(251,191,36,0.3)'] }}
-      transition={{ duration: 2.4, repeat: Infinity }}
-      onClick={() => onBid(increment)}
-      className={`${full ? 'w-full' : 'flex-1'} relative overflow-hidden bg-amber-400 hover:bg-amber-500 text-zinc-950 font-black uppercase tracking-wider text-sm py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-amber-400/20`}
-    >
-      <Gavel className="h-4 w-4" />
-      Pujar ahora
-      <span className="ml-1 text-[10px] bg-background/30 px-1.5 py-0.5 rounded-md">+S/{increment}</span>
-    </motion.button>
-  )
-}
-
-function ComprarYaButton({
-  buyNowPrice, onBuy, full = false,
-}: {
-  buyNowPrice: number
-  onBuy: () => void
-  full?: boolean
-}) {
-  return (
-    <motion.button
-      whileTap={{ scale: 0.97 }}
-      whileHover={{ borderColor: 'rgba(245,158,11,0.5)' }}
-      onClick={onBuy}
-      className={`${full ? 'w-full' : ''} bg-zinc-900 border border-white/10 hover:border-amber-400/40 text-white shadow-sm text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-colors`}
-    >
-      <ShoppingBag className="h-4 w-4 text-amber-400" />
-      <span className="text-muted-foreground">Comprar ya</span>
-      <span className="text-white font-mono font-black">{formatPEN(buyNowPrice)}</span>
-    </motion.button>
-  )
-}
-
-/* ---------------- Main page ---------------- */
 
 export default function LiveRoomClient({ stream, auction, product, seller, initialChat, currentUserId }: { stream: any, auction: any, product: any, seller: any, initialChat?: ChatMessage[], currentUserId?: string }) {
   const { user } = useAuth();
@@ -670,73 +563,105 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
             </div>
           </div>
 
-          {/* Zona 4: Footer Fijo de Acción */}
-          <div className="shrink-0 p-3 pt-4 border-t border-white/10 bg-zinc-950 pb-safe">
-            <div className="flex gap-3 mb-3">
-               <div className="flex-1 flex gap-2">
-                 {safeAuction.id ? (
-                   <PujarButton increment={safeAuction.bidIncrement} onBid={executeRealtimeBid} full />
-                 ) : (
-                   <button onClick={() => setShowCheckout(true)} className="flex-1 h-12 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-lg">
-                     <ShoppingBag className="h-5 w-5" /> Comprar Ya - {formatPEN(Number(safeProduct?.basePrice) || Number(safeProduct?.price) || 0)}
-                   </button>
-                 )}
-               </div>
-               <div className="relative">
-                 {/* Floating Emojis */}
-                 <div className="absolute bottom-12 right-2 pointer-events-none overflow-visible z-50">
-                    <AnimatePresence>
-                      {floatingHearts.map(heart => (
-                        <motion.span
-                          key={heart.id}
-                          initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
-                          animate={{ opacity: 0, y: -150, x: heart.left, scale: 1.5 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 1.5, ease: "easeOut" }}
-                          className="absolute text-2xl select-none"
-                        >
-                          ❤️
-                        </motion.span>
-                      ))}
-                    </AnimatePresence>
-                 </div>
-                 <button onClick={handleLike} className="h-12 w-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center active:scale-95 transition-transform shrink-0">
-                 <Heart className={`h-6 w-6 ${liked ? 'fill-rose-500 text-rose-500' : 'text-zinc-400'}`} />
-               </button>
-                 </div>
-            </div>
-            
-            {/* Chat Input */}
-            {!user ? (
-              <div className="flex items-center justify-between p-3 bg-zinc-900/80 border border-white/10 rounded-2xl">
-                <span className="text-xs text-zinc-400 font-medium">¿Quieres comentar y pujar?</span>
+          {/* Zona 4: Footer Fijo de Acción (Estilo eBay Live) */}
+          <div className="shrink-0 pt-2 pb-safe bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+            {/* 4A: Chat Input & Like (eBay Style) */}
+            <div className="flex items-center gap-3 mb-2 px-3 relative">
+              {/* Floating Emojis */}
+              <div className="absolute bottom-12 right-6 pointer-events-none overflow-visible z-50">
+                <AnimatePresence>
+                  {floatingHearts.map(heart => (
+                    <motion.span
+                      key={heart.id}
+                      initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
+                      animate={{ opacity: 0, y: -150, x: heart.left, scale: 1.5 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 1.5, ease: "easeOut" }}
+                      className="absolute text-2xl select-none"
+                    >
+                      ❤️
+                    </motion.span>
+                  ))}
+                </AnimatePresence>
+              </div>
+
+              {!user ? (
                 <Link 
                   href="/login" 
-                  className="text-xs font-bold text-amber-400 bg-amber-400/10 px-4 py-2 rounded-xl transition-colors hover:bg-amber-400/20"
+                  className="w-full flex items-center justify-between px-4 h-10 border border-white/30 rounded-full bg-black/40 backdrop-blur-md transition-colors hover:bg-black/60"
                 >
-                  Iniciar sesión
+                  <span className="text-white/80 text-[13px] font-medium">Inicia sesión para comentar...</span>
                 </Link>
+              ) : (
+                <div className="w-full flex items-center px-4 h-10 border border-white/50 rounded-full bg-black/40 backdrop-blur-md focus-within:border-white transition-colors">
+                  <input
+                    type="text"
+                    placeholder="Agregar comentario..."
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && sendChat()}
+                    className="flex-1 bg-transparent text-[13px] text-white placeholder:text-white/80 focus:outline-none min-w-0 font-medium"
+                  />
+                  {chatInput.trim() ? (
+                    <button onClick={sendChat} className="flex items-center justify-center shrink-0 ml-2 active:scale-90 transition-transform text-white">
+                      <ChevronRight className="h-6 w-6" strokeWidth={3} />
+                    </button>
+                  ) : (
+                    <button onClick={handleLike} className="flex items-center justify-center shrink-0 ml-2 active:scale-90 transition-transform">
+                      <Heart className={`h-5 w-5 ${liked ? 'fill-rose-500 text-rose-500' : 'text-rose-500'}`} strokeWidth={0} />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* Pequeño Banner Informativo (estilo eBay) */}
+            <div className="px-4 py-1.5 mb-2 mx-3 bg-black/40 backdrop-blur-md rounded-md border border-white/5 flex items-center justify-center">
+              <p className="text-[10px] text-white/70 font-medium text-center truncate">
+                Vende Ya asegura tu compra hasta la entrega | Envíos a todo el Perú
+              </p>
+            </div>
+
+            {/* 4B: Product Box */}
+            <div className="bg-[#1c1c1e]/95 backdrop-blur-xl mx-3 mb-3 p-3.5 rounded-[20px] border border-white/10 shadow-2xl relative z-10">
+              <div className="flex justify-between items-start mb-2.5">
+                <div className="flex-1 pr-3">
+                  <p className="text-white text-[13px] font-semibold leading-tight line-clamp-2">
+                    {safeProduct?.id ? `#${safeProduct.id.substring(0,4).toUpperCase()} - ` : ''}{safeProduct?.title || 'Producto en Vivo'}
+                  </p>
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    <span className="text-white font-black text-sm tabular-nums">{formatPEN(buyNowPrice)}</span>
+                    <span className="text-zinc-400 text-[10px] font-medium truncate">+ Envío por pagar</span>
+                  </div>
+                  {safeAuction.id && (
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <Gavel className="h-3 w-3 text-emerald-400" />
+                      <span className="text-zinc-300 text-[10px] font-medium"><strong className="text-emerald-400">{bidCount}</strong> pujas registradas</span>
+                    </div>
+                  )}
+                </div>
+                <ChevronRight className="h-4 w-4 text-white/50 shrink-0 mt-0.5" />
               </div>
-            ) : (
-              <div className="flex items-center gap-2 bg-zinc-900 border border-white/10 rounded-2xl pl-3 pr-1.5 py-1.5 focus-within:border-white/20 transition-colors">
-                <MessageCircle className="h-5 w-5 text-zinc-500 shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Escribe en el chat..."
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && sendChat()}
-                  className="flex-1 bg-transparent text-sm text-white placeholder:text-zinc-500 focus:outline-none min-w-0"
-                />
-                <button
-                  onClick={sendChat}
-                  disabled={!chatInput.trim()}
-                  className="h-9 w-9 rounded-xl bg-amber-400 text-black flex items-center justify-center hover:bg-amber-300 disabled:opacity-50 disabled:bg-zinc-800 transition-colors shrink-0"
-                >
-                  <ChevronRight className="h-5 w-5" strokeWidth={3} />
-                </button>
+
+              <div className="flex gap-2.5 mt-3 pt-3 border-t border-white/10">
+                {safeAuction.id ? (
+                  <>
+                    <button className="flex-1 h-10 rounded-full border border-white/20 bg-transparent text-white text-[13px] font-bold active:bg-white/10 transition-colors">
+                      Oferta máxima
+                    </button>
+                    <button 
+                      onClick={() => executeRealtimeBid(safeAuction.bidIncrement)}
+                      className="flex-1 h-10 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-[13px] font-extrabold active:scale-95 transition-transform shadow-lg shadow-emerald-500/20">
+                      Ofertar {formatPEN(currentBid + safeAuction.bidIncrement)}
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => setShowCheckout(true)} className="w-full h-11 bg-white hover:bg-zinc-100 text-black text-[14px] font-extrabold rounded-full active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-xl">
+                    Comprar Ya
+                  </button>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
         </div>
@@ -746,7 +671,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}
         productId={safeProduct.id ?? id}
-        productName={safeProduct.title ?? 'Subasta'}
+        productName={safeProduct.title ?? 'Compra en Vivo'}
         price={buyNowPrice}
         source="live_stream"
         sellerId={seller.id}
@@ -757,9 +682,9 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           senderName: seller.displayName,
           senderPhone: '999888777',
           receiverDni: '87654321',
-          receiverName: 'Tú',
+          receiverName: user?.displayName || 'Usuario',
           receiverPhone: '999111222',
-          packageDescription: safeProduct.title ?? 'Subasta',
+          packageDescription: safeProduct.title ?? 'Paquete',
           weightKg: 0.5,
           declaredValue: buyNowPrice,
         }}
