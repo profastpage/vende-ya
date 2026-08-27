@@ -12,7 +12,7 @@ import { createBrowserClient } from '@supabase/ssr'
 import { notFound, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  PowerOff, ChevronLeft, ChevronRight, Flame, Eye, Heart, Share2, ShoppingBag,
+  PowerOff, ChevronLeft, ChevronRight, Flame, Eye, EyeOff, Heart, Share2, ShoppingBag,
   MessageCircle, Send, Gavel, Clock, BadgeCheck, ShieldCheck,
   Bot, Users, Crown, MapPin, Package, Star, Zap, X,
 Maximize, Minimize,
@@ -357,6 +357,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   // ¿Es participante activo? Solo quien pujó o compró puede emitir emojis.
   // Por ahora: si el usuario ha hecho al menos una puja o compra.
   const [hasParticipated, setHasParticipated] = React.useState(false)
+    const [hideUI, setHideUI] = React.useState(false)
 
   // Countdown ticker
   React.useEffect(() => {
@@ -505,7 +506,16 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
             </div>
           </div>
 
-          {/* REPRODUCTOR YOUTUBE */}
+          {/* Ocultar UI Toggle (Solo Mobile) */}
+            <button 
+              onClick={() => setHideUI(!hideUI)}
+              className="md:hidden absolute right-3 top-1/2 -translate-y-1/2 z-50 p-2.5 bg-black/40 backdrop-blur-md rounded-full border border-white/20 text-white shadow-lg active:scale-90 transition-transform"
+              title="Mostrar/Ocultar Interfaz"
+            >
+              {hideUI ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5 text-white/70" />}
+            </button>
+  
+            {/* REPRODUCTOR YOUTUBE */}
           <div className="flex-1 w-full relative flex items-center justify-center bg-black">
             
 
@@ -531,7 +541,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
         {/* ========================================================
             COLUMNA DERECHA: INTERACCION (PC) / ABAJO (MOBILE)
             ======================================================== */}
-        <div className="absolute inset-0 md:relative md:flex-1 md:w-1/3 lg:w-1/4 flex flex-col justify-end md:justify-start min-h-0 bg-transparent md:bg-zinc-950 z-10 w-full shadow-2xl md:border-l border-border pointer-events-none md:pointer-events-auto">
+        <div className={`absolute inset-0 md:relative md:flex-1 md:w-1/3 lg:w-1/4 flex flex-col justify-end md:justify-start min-h-0 bg-transparent md:bg-zinc-950 z-10 w-full shadow-2xl md:border-l border-border pointer-events-none md:pointer-events-auto transition-opacity duration-300 ${hideUI ? 'opacity-0' : 'opacity-100'}`}>
           
           {/* Header Vendedor (Siempre visible) */}
           <div className="shrink-0 p-3 border-b border-white/10 hidden md:flex items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10 pointer-events-auto">
@@ -543,7 +553,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           </div>
           
           {/* Header Vendedor Mobile */}
-          <div className="absolute top-14 left-0 right-0 p-3 flex md:hidden items-center justify-between bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-auto">
+          <div className={`absolute top-14 left-0 right-0 p-3 flex md:hidden items-center justify-between bg-gradient-to-b from-black/60 to-transparent z-10 ${hideUI ? 'pointer-events-none' : 'pointer-events-auto'}`}>
              <SellerPill seller={seller} initial={initial} />
              <div className="flex items-center gap-3">
                <ViewersPill realSpectators={realSpectators} anonymousCount={anonymousCount} />
@@ -552,7 +562,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           </div>
 
           {/* Zona 3: Chat Messages (SCROLLABLE, ESPACIO RESTANTE) */}
-          <div className="h-[35vh] md:flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 md:p-4 flex flex-col no-scrollbar relative z-10 pointer-events-auto" style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
+          <div className={`h-[35vh] md:flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 md:p-4 flex flex-col no-scrollbar relative z-10 ${hideUI ? 'pointer-events-none' : 'pointer-events-auto'}`} style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
             <div className="mt-auto flex flex-col space-y-3">
                 {chat.map((msg) => (
                   <ChatMessageBubble key={msg.id} msg={msg} />
@@ -562,7 +572,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           </div>
 
           {/* Zona 4: Footer Fijo de Acción (Estilo eBay Live) */}
-          <div className="shrink-0 pt-2 pb-safe bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-auto">
+          <div className={`shrink-0 pt-2 pb-safe bg-gradient-to-t from-black/80 via-black/40 to-transparent ${hideUI ? 'pointer-events-none' : 'pointer-events-auto'}`}>
             {/* 4A: Chat Input & Like (eBay Style) */}
             <div className="flex items-center gap-3 mb-2 px-3 relative">
               {/* Floating Emojis */}

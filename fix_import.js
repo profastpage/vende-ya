@@ -4,8 +4,8 @@ const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\app\\en
 let text = fs.readFileSync(file, 'utf8');
 
 text = text.replace(
-  /{\/\* REPRODUCTOR YOUTUBE \*\/}}/g,
-  `{/* REPRODUCTOR YOUTUBE */}`
+  /PowerOff, ChevronLeft, ChevronRight, Flame, Eye, Heart, Share2, ShoppingBag,/,
+  "PowerOff, ChevronLeft, ChevronRight, Flame, Eye, EyeOff, Heart, Share2, ShoppingBag,"
 );
 
 fs.writeFileSync(file, text, 'utf8');
