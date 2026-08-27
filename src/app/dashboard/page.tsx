@@ -23,6 +23,8 @@ import { formatPEN, timeAgoEs, initials } from '@/lib/vendeda/format'
 import { ROUTES } from '@/lib/vendeda/routes'
 import type { Profile } from '@/lib/vendeda/types'
 import { cn } from '@/lib/utils'
+import { requestPayout } from './actions'
+import { toast } from 'sonner'
 
 /* ------------------------------------------------------------------ */
 /* Framer Motion variants                                              */
@@ -489,6 +491,9 @@ function WalletPanel({
   isLoading: boolean
   error: string | null
 }) {
+  const [showPayout, setShowPayout] = React.useState(false);
+  const { user } = useAuth() as { user: any };
+
   const isActive = wallet?.status === 'active'
 
   return (
@@ -552,7 +557,7 @@ function WalletPanel({
                     <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">Disponible (Retiro)</p>
                     <p className="font-black text-lime-400 tabular-nums">{formatPEN(escrow?.availableBalance || 0)}</p>
                     {escrow && escrow.availableBalance > 0 && (
-                      <button onClick={() => alert("Retiros en desarrollo")} className="mt-2 w-full text-[10px] font-bold bg-lime-500/20 text-lime-400 border border-lime-500/30 py-1 rounded-md hover:bg-lime-500/30 transition-colors">Retirar</button>
+                      <button onClick={() => setShowPayout(true)} className="mt-2 w-full text-[10px] font-bold bg-lime-500/20 text-lime-400 border border-lime-500/30 py-1 rounded-md hover:bg-lime-500/30 transition-colors">Retirar</button>
                     )}
                   </div>
                   <div className="rounded-lg bg-muted border border-border px-3 py-2">
