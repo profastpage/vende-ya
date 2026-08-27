@@ -12,27 +12,24 @@ export async function createExpressProduct(streamId: string, sellerId: string, t
         status: 'active',
         stock: 1,
         isLiveOnly: true,
-        streamId: streamId,
-        imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60'
+        images: '["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60"]'
       }
     });
 
-    let auction = null;
-    if (isAuction) {
-      auction = await db.auction.create({
-        data: {
-          productId: product.id,
-          sellerId: sellerId,
-          streamId: streamId,
-          startingPrice: Math.max(1, basePrice * 0.5),
-          buyNowPrice: basePrice,
-          currentPrice: Math.max(1, basePrice * 0.5),
-          status: 'active',
-          startsAt: new Date(),
-          endsAt: new Date(Date.now() + 3 * 60 * 1000)
-        }
-      });
-    }
+    // We ALWAYS create an Auction record to link the product to the stream in the current schema
+    const auction = await db.auction.create({
+      data: {
+        productId: product.id,
+        sellerId: sellerId,
+        streamId: streamId,
+        startingPrice: isAuction ? Math.max(1, basePrice * 0.5) : basePrice,
+        buyNowPrice: basePrice,
+        currentPrice: isAuction ? Math.max(1, basePrice * 0.5) : basePrice,
+        status: 'active',
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3 * 60 * 1000)
+      }
+    });
 
     return { success: true, product, auction };
   } catch(e) {
