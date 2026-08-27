@@ -23,7 +23,7 @@ export function LayoutClientWrapper({ children }: { children: React.ReactNode })
     <>
       <DesktopTopNav />
       <MobileTopActions />
-      <main className="flex-1 w-full pt-14 md:pt-16 pb-24 md:pb-0 bg-background text-foreground">
+      <main className="flex flex-col flex-1 w-full pt-14 md:pt-16 pb-24 md:pb-0 bg-background text-foreground overflow-y-auto overscroll-none">
         {children}
       </main>
       <MobileBottomNav />

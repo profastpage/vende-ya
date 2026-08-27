@@ -79,11 +79,11 @@ export default async function Home() {
 
   // CERO MOCKS: Solo devolvemos los datos reales, si no hay ninguno, array vacio.
   return (
-    <main className="w-full h-[100dvh] bg-black">
+    <main className="w-full h-[calc(100dvh-152px)] md:h-[calc(100dvh-64px)] bg-black overflow-hidden flex flex-col">
       {feed.length > 0 ? (
         <SocialVideoFeed feed={feed} />
       ) : (
-        <div className="flex w-full h-[100dvh] items-center justify-center text-white/50 text-sm p-4 text-center">
+        <div className="flex w-full h-full items-center justify-center text-white/50 text-sm p-4 text-center">
           No hay transmisiones en vivo en este momento.
         </div>
       )}

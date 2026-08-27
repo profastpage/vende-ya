@@ -41,12 +41,12 @@ export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
   const viewersMap = useMultiLiveViewers(feed.map(f => ({ id: f.id, viewerCount: 0 })))
   // now adapting to light/dark themes
   return (
-    <div className="flex w-full h-[100dvh] bg-background text-foreground overflow-hidden">
+    <div className="flex w-full h-full bg-background text-foreground overflow-hidden">
       {/* Left Sidebar - Desktop Only */}
       
 
       {/* Main Feed Container */}
-      <div className="flex-1 w-full h-full snap-y snap-mandatory overflow-y-scroll no-scrollbar relative flex flex-col items-center">
+      <div className="flex-1 w-full h-full snap-y snap-mandatory overflow-y-auto overscroll-none no-scrollbar relative flex flex-col items-center touch-pan-y">
         {feed.map((item, index) => (
           <FeedItem key={item.id} item={item} viewers={viewersMap[item.id] || 0} />
         ))}
@@ -78,7 +78,7 @@ function FeedItem({ item, viewers = 0 }: { item: SocialFeedItem; viewers?: numbe
   const [isZoomed, setIsZoomed] = React.useState(false)
 
   return (
-    <div ref={containerRef} className="relative w-full md:w-auto h-[100dvh] md:h-[calc(100vh-64px)] snap-center snap-always flex justify-center shrink-0 md:py-4">
+    <div ref={containerRef} className="relative w-full md:w-auto h-full snap-center snap-always flex justify-center shrink-0 md:py-4">
       {/* Container that acts as the mobile screen on desktop */}
       <div className="relative w-full md:w-[350px] lg:w-[400px] h-full bg-zinc-900 md:rounded-2xl overflow-hidden flex shrink-0">
         

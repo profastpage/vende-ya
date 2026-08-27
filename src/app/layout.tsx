@@ -101,7 +101,7 @@ export default function RootLayout({
          */}
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${display.variable} antialiased bg-background text-foreground min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} ${display.variable} antialiased bg-background text-foreground h-[100dvh] flex flex-col overflow-hidden overscroll-none`}
       >
         <ThemeProvider
           attribute="class"
