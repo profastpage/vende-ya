@@ -493,4 +493,18 @@ model Wallet {
   availableBalance Decimal  @default(0.00) @db.Decimal(10, 2)
   frozenBalance    Decimal  @default(0.00) @db.Decimal(10, 2)
   updatedAt        DateTime @updatedAt
+  payouts          PayoutRequest[]
+}
+
+model PayoutRequest {
+  id        String   @id @default(cuid())
+  walletId  String
+  amount    Float
+  status    String   @default("pending") // pending | processing | completed | rejected
+  method    String   @default("yape") // yape | plin | bank
+  details   String?  // destination account info
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  wallet    Wallet   @relation(fields: [walletId], references: [id])
 }

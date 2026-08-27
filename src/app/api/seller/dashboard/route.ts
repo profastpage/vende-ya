@@ -33,25 +33,34 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const sellerId = searchParams.get('sellerId') ?? user.id;
 
-  const wallet = await db.sellerWallet.findUnique({
-    where: { id: sellerId },
-    include: {
-      ordersSeller: {
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-        include: { shipment: true },
+  const sellerWallet = await db.sellerWallet.findUnique({
+      where: { id: sellerId },
+      include: {
+        ordersSeller: {
+          take: 20,
+          orderBy: { createdAt: 'desc' },
+          include: { shipment: true },
+        },
+        copyrightReports: true,
       },
-      copyrightReports: {
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-      },
-      ordersBuyer: {
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-        include: { shipment: true, review: true, seller: true },
-      },
-    },
-  });
+    })
+    
+    // Fetch or create Escrow Wallet
+    let escrowWallet = await db.wallet.findUnique({
+      where: { userId: sellerId },
+      include: { payouts: { orderBy: { createdAt: 'desc' }, take: 5 } }
+    });
+    
+    if (!escrowWallet) {
+      escrowWallet = await db.wallet.create({
+        data: {
+          userId: sellerId,
+          availableBalance: 0,
+          frozenBalance: 0,
+        },
+        include: { payouts: true }
+      });
+    };
 
   let reviews: any[] = [];
   try {
@@ -73,7 +82,7 @@ export async function GET(request: Request) {
   } catch (e) { console.error("Notification fetch error", e); }
 
 
-  if (!wallet) {
+  if (!sellerWallet) {
     // Si el usuario es el propio vendedor y no tiene wallet, ofrecer crearla
     return NextResponse.json(
       {
@@ -86,38 +95,38 @@ export async function GET(request: Request) {
 
   // Calcular resumen financiero (últimas 20 órdenes)
   const summary = {
-    totalSales: wallet.ordersSeller.reduce((s, o) => s + o.totalAmount, 0),
-    totalCommissions: wallet.ordersSeller.reduce((s, o) => s + o.platformCommissionAmount, 0),
-    totalGatewayFees: wallet.ordersSeller.reduce((s, o) => s + o.gatewayFeeAmount, 0),
-    totalNet: wallet.ordersSeller.reduce((s, o) => s + o.sellerNetAmount, 0),
-    pendingEscrow: wallet.ordersSeller
+    totalSales: sellerWallet.ordersSeller.reduce((s, o) => s + o.totalAmount, 0),
+    totalCommissions: sellerWallet.ordersSeller.reduce((s, o) => s + o.platformCommissionAmount, 0),
+    totalGatewayFees: sellerWallet.ordersSeller.reduce((s, o) => s + o.gatewayFeeAmount, 0),
+    totalNet: sellerWallet.ordersSeller.reduce((s, o) => s + o.sellerNetAmount, 0),
+    pendingEscrow: sellerWallet.ordersSeller
       .filter((o) => o.paymentStatus === 'escrow_hold')
       .reduce((s, o) => s + o.sellerNetAmount, 0),
   };
 
   // Alertas de moderación
   const alerts: Array<{ level: 'info' | 'warning' | 'critical'; message: string }> = [];
-  if (!wallet.isVerified) {
+  if (!sellerWallet.isVerified) {
     alerts.push({
       level: 'warning',
       message: 'Tu cuenta no está verificada (KYC pendiente). No podrás recibir cobros.',
     });
   }
-  if (wallet.status === 'suspended') {
+  if (sellerWallet.status === 'suspended') {
     alerts.push({
       level: 'critical',
       message: 'Tu cuenta está suspendida. Contacta soporte para reactivarla.',
     });
   }
-  if (wallet.status === 'banned') {
+  if (sellerWallet.status === 'banned') {
     alerts.push({
       level: 'critical',
       message:
         'Tu cuenta fue baneada por infracción de propiedad intelectual. Tienes derecho a apelar.',
     });
   }
-  if (wallet.copyrightReports.length > 0) {
-    const pending = wallet.copyrightReports.filter((r) => r.status === 'pending').length;
+  if (sellerWallet.copyrightReports.length > 0) {
+    const pending = sellerWallet.copyrightReports.filter((r) => r.status === 'pending').length;
     if (pending > 0) {
       alerts.push({
         level: pending >= 3 ? 'critical' : 'warning',
@@ -127,21 +136,27 @@ export async function GET(request: Request) {
   }
 
   // Envíos pendientes de dropoff (necesitan acción del vendedor)
-  const pendingDropoffs = wallet.ordersSeller
+  const pendingDropoffs = sellerWallet.ordersSeller
     .flatMap((o) => (o.shipment ? [{ order: o, shipment: o.shipment }] : []))
     .filter((x) => x.shipment.shipmentStatus === 'pending_dropoff');
 
   return NextResponse.json({
     wallet: {
-      id: wallet.id,
-      gatewaySellerId: wallet.gatewaySellerId,
-      isVerified: wallet.isVerified,
-      status: wallet.status,
+      id: sellerWallet.id,
+      gatewaySellerId: sellerWallet.gatewaySellerId,
+      isVerified: sellerWallet.isVerified,
+      status: sellerWallet.status,
+    },
+    escrow: {
+      id: escrowWallet.id,
+      availableBalance: Number(escrowWallet.availableBalance),
+      frozenBalance: Number(escrowWallet.frozenBalance),
+      payouts: escrowWallet.payouts,
     },
     summary,
-    recentOrders: wallet.ordersSeller,
+    recentOrders: sellerWallet.ordersSeller,
     pendingDropoffs,
-    copyrightReports: wallet.copyrightReports,
+    copyrightReports: sellerWallet.copyrightReports,
     alerts,
       reviews,
       notifications,

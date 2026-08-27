@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 
 export async function markOrderAsDelivered(orderId: string) {
   const order = await db.order.findUnique({ where: { id: orderId } });
-  if (!order || order.status !== 'SHIPPED') {
+  if (!order || ['PENDING', 'PROCESSING', 'SHIPPED'].indexOf(order.status) === -1) {
     throw new Error('Orden no válida para liberación.');
   }
 

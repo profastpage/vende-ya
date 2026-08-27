@@ -182,6 +182,19 @@ export async function POST(request: Request) {
       },
     });
 
+    // ESCROW: Incrementar el Saldo Congelado (frozenBalance) del vendedor
+    await db.wallet.upsert({
+      where: { userId: sellerId },
+      create: {
+        userId: sellerId,
+        frozenBalance: totalAmount, // Retenemos el total hasta que se entregue
+        availableBalance: 0,
+      },
+      update: {
+        frozenBalance: { increment: totalAmount },
+      }
+    });
+
     // =================================================================
     // 7. SHALOM SHIPMENT (opcional) → escrow_hold
     // =================================================================

@@ -74,6 +74,12 @@ interface SellerDashboardData {
     isVerified: boolean;
     status: string;
   };
+  escrow: {
+    id: string;
+    availableBalance: number;
+    frozenBalance: number;
+    payouts: any[];
+  };
   summary: {
     totalSales: number;
     totalCommissions: number;
@@ -82,6 +88,7 @@ interface SellerDashboardData {
     pendingEscrow: number;
   };
   recentOrders: Array<{
+    status: string;
     id: string;
     buyerId: string;
     source: string;
@@ -212,11 +219,12 @@ function DashboardContent() {
         <section className="mt-5 md:mt-6 grid md:grid-cols-2 gap-4 md:gap-6">
           <StreamEngineLauncher />
           <WalletPanel
-            wallet={data?.wallet ?? null}
-            summary={data?.summary ?? null}
-            isLoading={isLoading}
-            error={error}
-          />
+              wallet={data?.wallet ?? null}
+              summary={data?.summary ?? null}
+              escrow={data?.escrow ?? null}
+              isLoading={isLoading}
+              error={error}
+            />
         </section>
 
         {/* ─── SHALOM LOGISTICS ────────────────────────────── */}
@@ -471,11 +479,13 @@ function StreamEngineLauncher() {
 function WalletPanel({
   wallet,
   summary,
+  escrow,
   isLoading,
   error,
 }: {
   wallet: WalletInfo | null
   summary: SellerDashboardData['summary'] | null
+  escrow: SellerDashboardData['escrow'] | null
   isLoading: boolean
   error: string | null
 }) {
@@ -539,12 +549,15 @@ function WalletPanel({
               {summary && (
                 <>
                   <div className="rounded-lg bg-muted border border-border px-3 py-2">
-                    <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">Neto</p>
-                    <p className="font-black text-lime-400 tabular-nums">{formatPEN(summary.totalNet)}</p>
+                    <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">Disponible (Retiro)</p>
+                    <p className="font-black text-lime-400 tabular-nums">{formatPEN(escrow?.availableBalance || 0)}</p>
+                    {escrow && escrow.availableBalance > 0 && (
+                      <button onClick={() => alert("Retiros en desarrollo")} className="mt-2 w-full text-[10px] font-bold bg-lime-500/20 text-lime-400 border border-lime-500/30 py-1 rounded-md hover:bg-lime-500/30 transition-colors">Retirar</button>
+                    )}
                   </div>
                   <div className="rounded-lg bg-muted border border-border px-3 py-2">
-                    <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">Escrow</p>
-                    <p className="font-black text-amber-600 dark:text-amber-400 tabular-nums">{formatPEN(summary.pendingEscrow)}</p>
+                    <p className="text-muted-foreground uppercase tracking-wider font-bold text-[10px]">Retenido (Escrow)</p>
+                    <p className="font-black text-amber-600 dark:text-amber-400 tabular-nums">{formatPEN(escrow?.frozenBalance || 0)}</p>
                   </div>
                 </>
               )}
@@ -852,6 +865,24 @@ function RecentOrdersCard({
                     {o.paymentMethod.replace('_', ' ')}
                   </span>
                 </div>
+                {o.status !== 'COMPLETED' && o.status !== 'CANCELLED' && (
+                  <div className="mt-2 text-right">
+                    <button onClick={async () => {
+                      if(confirm("¿Confirmas que el producto ha sido entregado al comprador? Los fondos pasarán de Escrow a Disponible.")) {
+                        try {
+                          const { markOrderAsDelivered } = await import('@/app/actions/logistics');
+                          await markOrderAsDelivered(o.id);
+                          alert('¡Orden completada! Fondos liberados.');
+                          window.location.reload();
+                        } catch(e) {
+                          alert('Error: ' + (e instanceof Error ? e.message : String(e)));
+                        }
+                      }
+                    }} className="text-[10px] font-bold bg-amber-500 text-zinc-950 px-3 py-1.5 rounded-lg hover:bg-amber-400 transition-colors">
+                      Marcar Entregado
+                    </button>
+                  </div>
+                )}
               </div>
             )
           })}
@@ -1133,7 +1164,7 @@ function useSellerDashboard(sellerId: string) {
         }
       } catch (e) {
         if (active) {
-          setError(e instanceof Error ? e.message : 'Error desconocido')
+          setError(e instanceof Error ? (e instanceof Error ? e.message : String(e)) : 'Error desconocido')
         }
       } finally {
         if (active) setIsLoading(false)
