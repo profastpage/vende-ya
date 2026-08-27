@@ -422,6 +422,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           streamId: id,
           username: userName,
             avatarUrl: user?.avatarUrl,
+            senderId: user?.id,
           text: msg.text,
           color: msg.color,
           isBot: false
@@ -551,7 +552,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           </div>
 
           {/* Zona 3: Chat Messages (SCROLLABLE, ESPACIO RESTANTE) */}
-          <div className="h-[40vh] md:flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 flex flex-col no-scrollbar relative z-10 pointer-events-auto" style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
+          <div className="h-[35vh] md:flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 md:p-4 flex flex-col no-scrollbar relative z-10 pointer-events-auto" style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
             <div className="mt-auto flex flex-col space-y-3">
                 {chat.map((msg) => (
                   <ChatMessageBubble key={msg.id} msg={msg} />
@@ -569,15 +570,15 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
                 <AnimatePresence>
                   {floatingEmojis.map(emoji => (
                     <motion.span
-                      key={emoji.id}
-                      initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
-                      animate={{ opacity: 0, y: -150, x: emoji.left, scale: 1.5 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 1.5, ease: "easeOut" }}
-                      className="absolute text-2xl select-none"
-                    >
-                      ❤️
-                    </motion.span>
+                        key={emoji.id}
+                        initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
+                        animate={{ opacity: 0, y: -150, x: emoji.left, scale: 1.5 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        className="absolute text-2xl select-none"
+                      >
+                        {emoji.char}
+                      </motion.span>
                   ))}
                 </AnimatePresence>
               </div>
@@ -615,14 +616,14 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
             </div>
             
             {/* Pequeño Banner Informativo (estilo eBay) */}
-            <div className="px-4 py-1.5 mb-2 mx-3 bg-black/40 backdrop-blur-md rounded-md border border-white/5 flex items-center justify-center">
+            <div className="px-4 py-1.5 mb-2 mx-3 bg-black/40 backdrop-blur-md rounded-md border border-white/5 hidden md:flex items-center justify-center">
               <p className="text-[10px] text-white/70 font-medium text-center truncate">
                 Vende Ya asegura tu compra hasta la entrega | Envíos a todo el Perú
               </p>
             </div>
 
             {/* 4B: Product Box */}
-            <div className="bg-[#1c1c1e]/95 backdrop-blur-xl mx-3 mb-3 p-3.5 rounded-[20px] border border-white/10 shadow-2xl relative z-10">
+            <div className="bg-[#1c1c1e]/95 backdrop-blur-xl mx-2 md:mx-3 mb-2 md:mb-3 p-2 md:p-3.5 rounded-[16px] md:rounded-[20px] border border-white/10 shadow-2xl relative z-10">
               <div className="flex justify-between items-start mb-2.5">
                 <div className="flex-1 pr-3">
                   <p className="text-white text-[13px] font-semibold leading-tight line-clamp-2">
