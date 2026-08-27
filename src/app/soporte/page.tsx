@@ -46,7 +46,7 @@ const CHANNELS = [
     icon: Mail,
     title: 'Email',
     desc: 'Respuesta en 24h',
-    detail: 'soporte@vendeya.pe',
+    detail: 'soporte@vendeya.live',
     cta: 'Enviar correo',
     accent: 'text-amber-400',
     gradient: 'from-amber-400/20 via-transparent to-orange-500/10',

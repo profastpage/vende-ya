@@ -75,7 +75,7 @@ export async function POST(request: Request) {
       },
     });
 
-    // TODO: Enviar email a moderación@vendeya.pe con el detalle
+    // TODO: Enviar email a moderación@vendeya.live con el detalle
     // TODO: Si hay 3+ reportes pendientes contra el mismo seller → auto-suspender
     // TODO: Trigger de IA moderadora (DeepSeek-V4) para análisis preliminar
 

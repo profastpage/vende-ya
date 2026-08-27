@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 
 export function DynamicLivePlayer({ provider, providerId, isActive = true }: { provider: string, providerId: string, isActive?: boolean }) {
-  const [hostname, setHostname] = useState('vende-ya-phi.vercel.app');
+  const [hostname, setHostname] = useState('vendeya.live');
   const [canRender, setCanRender] = useState(false);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export function DynamicLivePlayer({ provider, providerId, isActive = true }: { p
 }
 
 export function DynamicHubPlayer({ provider, providerId }: { provider: string, providerId: string }) {
-  const [hostname, setHostname] = useState('vende-ya-phi.vercel.app');
+  const [hostname, setHostname] = useState('vendeya.live');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

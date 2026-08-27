@@ -38,7 +38,7 @@ export async function GET(request: Request) {
   }
 
   const clientId = process.env.NEXT_PUBLIC_MP_CLIENT_ID;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://vende-ya-phi.vercel.app';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://vendeya.live';
   const redirectUri = `${appUrl}/api/wallet/oauth/callback`;
 
   if (!clientId) {

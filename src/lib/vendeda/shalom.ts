@@ -132,7 +132,7 @@ export async function createShipment(
       .toUpperCase()}`;
     return {
       trackingCode,
-      pdfLabelUrl: `https://demo.vendeya.pe/labels/${trackingCode}.pdf`,
+      pdfLabelUrl: `https://demo.vendeya.live/labels/${trackingCode}.pdf`,
       shippingCost: (await quoteShipment({
         originAgencyId: payload.originAgencyId,
         destinationAgencyId: payload.destinationAgencyId,

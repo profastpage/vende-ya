@@ -29,7 +29,7 @@ const display = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://vendeya.pe"),
+  metadataBase: new URL("https://vendeya.live"),
   title: {
     default: "Vende Ya â€” Subastas en Vivo & Marketplace",
     template: "%s Â· Vende Ya",

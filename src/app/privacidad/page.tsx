@@ -122,8 +122,8 @@ const SECTIONS: TocItem[] = [
         </ul>
         <p className="mt-3">
           Ejerce estos derechos desde Configuración → Privacidad, o escribiendo a{' '}
-          <a href="mailto:privacidad@vendeya.pe" className="text-amber-400 hover:text-amber-300 underline">
-            privacidad@vendeya.pe
+          <a href="mailto:privacidad@vendeya.live" className="text-amber-400 hover:text-amber-300 underline">
+            privacidad@vendeya.live
           </a>
           . Respondemos en un plazo máximo de 10 días hábiles.
         </p>
@@ -187,8 +187,8 @@ const SECTIONS: TocItem[] = [
         cuenta pertenece a un menor, la cancelamos inmediatamente y borramos todos
         los datos asociados en un plazo máximo de 72 horas. Si eres padre o tutor y
         detectas que tu menor de edad ha registrado una cuenta, escríbenos a{' '}
-        <a href="mailto:privacidad@vendeya.pe" className="text-amber-400 hover:text-amber-300 underline">
-          privacidad@vendeya.pe
+        <a href="mailto:privacidad@vendeya.live" className="text-amber-400 hover:text-amber-300 underline">
+          privacidad@vendeya.live
         </a>{' '}
         para proceder con la eliminación inmediata.
       </>
@@ -217,14 +217,14 @@ const SECTIONS: TocItem[] = [
         <div className="rounded-xl bg-muted border border-border p-4 space-y-2 text-sm">
           <div className="flex items-center justify-between gap-4">
             <span className="text-muted-foreground">Preguntas de privacidad</span>
-            <a href="mailto:privacidad@vendeya.pe" className="text-amber-400 hover:text-amber-300 font-bold">
-              privacidad@vendeya.pe
+            <a href="mailto:privacidad@vendeya.live" className="text-amber-400 hover:text-amber-300 font-bold">
+              privacidad@vendeya.live
             </a>
           </div>
           <div className="flex items-center justify-between gap-4">
             <span className="text-muted-foreground">Ejercer derechos ARCO</span>
-            <a href="mailto:datos@vendeya.pe" className="text-amber-400 hover:text-amber-300 font-bold">
-              datos@vendeya.pe
+            <a href="mailto:datos@vendeya.live" className="text-amber-400 hover:text-amber-300 font-bold">
+              datos@vendeya.live
             </a>
           </div>
           <div className="flex items-center justify-between gap-4">

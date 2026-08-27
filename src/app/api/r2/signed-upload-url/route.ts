@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     const key = `vendeya/${kind}s/${id}.${ext}`
 
     return NextResponse.json({
-      uploadUrl: `https://r2.vendeya.pe/upload/${key}`,
+      uploadUrl: `https://r2.vendeya.live/upload/${key}`,
       key,
       contentType,
       maxSize,

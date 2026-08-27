@@ -116,7 +116,7 @@ const PROTECTED_HOSTNAMES = [
   'vende-ya-profastpage-4762s-projects.vercel.app',
   'vende-ya-profastpage.vercel.app',
 ]
-const PUBLIC_HOSTNAME = 'vende-ya-phi.vercel.app'
+const PUBLIC_HOSTNAME = 'vendeya.live'
 
 function useIsProtectedUrl(): { isProtected: boolean; currentHost: string } {
   const [state, setState] = React.useState({
@@ -187,7 +187,7 @@ function LoginContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const identifier = mode === 'email' ? email : `${phone}@phone.vendeya.pe`
+    const identifier = mode === 'email' ? email : `${phone}@phone.vendeya.live`
     const { error } = await signIn(identifier, password)
     setLoading(false)
     if (error) {
@@ -221,7 +221,7 @@ function LoginContent() {
           description:
             'Pasaron 5s sin redirección. Probablemente estás en una URL ' +
             'protegida por Vercel SSO. Usa el botón superior "Ir a URL pública" ' +
-            'o abre vende-ya-phi.vercel.app manualmente.',
+            'o abre vendeya.live manualmente.',
           variant: 'destructive',
         })
         setTimeout(() => {

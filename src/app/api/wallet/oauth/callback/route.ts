@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   const error = searchParams.get('error');
   const errorDesc = searchParams.get('error_description');
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://vende-ya-phi.vercel.app';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://vendeya.live';
 
   // 1. Error reportado por MP
   if (error) {

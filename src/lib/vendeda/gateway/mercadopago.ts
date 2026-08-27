@@ -89,7 +89,7 @@ export async function callGatewaySplit(
     description: `Venta Vende Ya · Orden ${params.orderId ?? ''}`,
     payment_method_id: mpPaymentMethod,
     payer: {
-      email: params.buyerEmail ?? 'comprador@vendeya.pe',
+      email: params.buyerEmail ?? 'comprador@vendeya.live',
       // Para Yape/Plin: Mercado Pago generará el QR dinámico basado en el monto
     },
     // Split Modo A — Vende Ya retiene la comisión automáticamente
@@ -184,7 +184,7 @@ function simulatePayment(params: GatewaySplitParams): GatewaySplitResult {
 
   // Para Yape/Plin: simular QR con un string de "deep link"
   const fakeQr = isQR
-    ? `00020101021226980014vendeya.pe0114${transactionId}5204000053036045802PE5910VENDE YA DEMO6009LIMA6304${Math.random()
+    ? `00020101021226980014vendeya.live0114${transactionId}5204000053036045802PE5910VENDE YA DEMO6009LIMA6304${Math.random()
         .toString(36)
         .slice(2, 6)
         .toUpperCase()}`

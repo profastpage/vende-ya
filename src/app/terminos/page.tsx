@@ -237,7 +237,7 @@ export default function TermsPage() {
       pageHeader={
         <PageHeader
           title="Términos y condiciones"
-          subtitle="Las reglas que rigen el uso de Vende Ya Perú. Léelos con calma; si tienes dudas, escríbenos a legal@vendeya.pe."
+          subtitle="Las reglas que rigen el uso de Vende Ya Perú. Léelos con calma; si tienes dudas, escríbenos a legal@vendeya.live."
           icon={FileText}
           glow="bg-amber-500"
         />
@@ -276,10 +276,10 @@ export default function TermsPage() {
             <p className="text-sm text-muted-foreground">
               Para preguntas sobre estos Términos, escríbenos a{' '}
               <a
-                href="mailto:legal@vendeya.pe"
+                href="mailto:legal@vendeya.live"
                 className="text-amber-400 hover:text-amber-300 underline font-bold"
               >
-                legal@vendeya.pe
+                legal@vendeya.live
               </a>
             </p>
             <p className="text-xs text-muted-foreground mt-1">

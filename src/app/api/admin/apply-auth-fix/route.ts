@@ -21,7 +21,7 @@ export const dynamic = 'force-dynamic'
  *
  * Este endpoint ejecuta el SQL de fix **una sola vez** y queda operativo.
  * Llámalo desde el navegador o con curl:
- *   curl -X POST https://vende-ya-phi.vercel.app/api/admin/apply-auth-fix \
+ *   curl -X POST https://vendeya.live/api/admin/apply-auth-fix \
  *     -H "Content-Type: application/json" -d '{"secret":"vendeya-admin-fix"}'
  *
  * El `secret` se configura en Vercel como APPLY_AUTH_FIX_SECRET.

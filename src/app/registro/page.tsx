@@ -318,7 +318,7 @@ export default function RegistroPage() {
                 </Field>
 
                 {/* Username */}
-                <Field htmlFor="username" label="Usuario" hint="Se usará en tu URL pública: vendeya.pe/vendedores/@rosa.quispe">
+                <Field htmlFor="username" label="Usuario" hint="Se usará en tu URL pública: vendeya.live/vendedores/@rosa.quispe">
                   <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">
                     @
                   </span>

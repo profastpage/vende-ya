@@ -1065,10 +1065,10 @@ function CopyrightReportsCard({
         <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
           Si crees que es un error, contacta a{' '}
           <a
-            href="mailto:legal@vendeya.pe"
+            href="mailto:legal@vendeya.live"
             className="underline font-bold text-rose-300 hover:text-rose-200"
           >
-            legal@vendeya.pe
+            legal@vendeya.live
           </a>{' '}
           para apelar. La revisión toma máximo 72h hábiles y tu cuenta sigue operativa mientras tanto.
         </p>

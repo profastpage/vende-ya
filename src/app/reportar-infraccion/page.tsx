@@ -162,7 +162,7 @@ export default function ReportarInfraccionPage() {
                 required
                 value={form.targetOrderOrStreamId}
                 onChange={(e) => setForm({ ...form, targetOrderOrStreamId: e.target.value })}
-                placeholder="https://vendeya.pe/productos/xxx"
+                placeholder="https://vendeya.live/productos/xxx"
               />
               <p className="text-[10px] text-muted-foreground mt-1.5">
                 Copia la URL completa del producto, subasta o stream que contiene la infracción.
@@ -313,10 +313,10 @@ export default function ReportarInfraccionPage() {
           Ley N° 29571 (Código de Protección y Defensa del Consumidor). Para disputas
           complejas o requerimientos judiciales, contacta a{' '}
           <a
-            href="mailto:legal@vendeya.pe"
+            href="mailto:legal@vendeya.live"
             className="text-amber-400 hover:text-amber-300 underline font-bold"
           >
-            legal@vendeya.pe
+            legal@vendeya.live
           </a>
           .
         </p>
