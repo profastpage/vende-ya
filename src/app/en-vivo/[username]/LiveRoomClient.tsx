@@ -357,7 +357,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   // ¿Es participante activo? Solo quien pujó o compró puede emitir emojis.
   // Por ahora: si el usuario ha hecho al menos una puja o compra.
   const [hasParticipated, setHasParticipated] = React.useState(false)
-    const [hideUI, setHideUI] = React.useState(false)
+    const [hideUI, setHideUI] = React.useState(true)
 
   // Countdown ticker
   React.useEffect(() => {
@@ -669,7 +669,16 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
       </div>
       
       {/* Ocultar UI Toggle (Solo Mobile) - ROOT LEVEL PARA Z-INDEX ABSOLUTO */}
-          <button onClick={() => setHideUI(!hideUI)} className="md:hidden absolute right-3 top-1/2 -translate-y-1/2 z-[100] p-2.5 bg-black/80 backdrop-blur-md rounded-full border border-white/20 text-white shadow-2xl active:scale-90 transition-transform pointer-events-auto" title="Mostrar/Ocultar Interfaz">{hideUI ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5 text-white/90" />}</button>
+          <div className="md:hidden absolute right-3 top-1/2 -translate-y-1/2 z-[100] flex flex-col items-end gap-2 pointer-events-auto">
+            {hideUI && (
+              <div className="bg-gradient-to-r from-rose-500 to-rose-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-lg animate-bounce mr-1">
+                💬 Ver Chat y Compras
+              </div>
+            )}
+            <button onClick={() => setHideUI(!hideUI)} className="p-3 bg-black/80 backdrop-blur-md rounded-full border border-white/20 text-white shadow-2xl active:scale-90 transition-transform" title="Mostrar/Ocultar Interfaz">
+              {hideUI ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5 text-white/90" />}
+            </button>
+          </div>
       <CheckoutBottomSheet
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}
