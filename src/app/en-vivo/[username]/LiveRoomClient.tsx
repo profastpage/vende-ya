@@ -478,12 +478,12 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
 
     return (
     <>
-      <div className="flex flex-col md:flex-row w-full h-[100dvh] bg-background overflow-hidden text-foreground">
+      <div className="relative flex w-full h-[100dvh] bg-black overflow-hidden text-white">
         
         {/* ========================================================
             COLUMNA IZQUIERDA: VIDEO (PC) / ARRIBA (MOBILE)
             ======================================================== */}
-        <div className="w-full md:w-2/3 lg:w-3/4 h-[40vh] md:h-[100dvh] shrink-0 bg-black relative flex flex-col border-b md:border-b-0 md:border-r border-white/5 z-20">
+        <div className="absolute inset-0 md:relative md:w-2/3 lg:w-3/4 h-[100dvh] shrink-0 bg-black flex flex-col md:border-r border-white/5 z-0">
           
           {/* TOP BAR: Back & Finish Buttons */}
           <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between p-3 md:p-4 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
@@ -530,10 +530,10 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
         {/* ========================================================
             COLUMNA DERECHA: INTERACCION (PC) / ABAJO (MOBILE)
             ======================================================== */}
-        <div className="flex-1 md:w-1/3 lg:w-1/4 flex flex-col min-h-0 bg-zinc-950 relative z-10 w-full shadow-2xl border-l border-border">
+        <div className="absolute inset-0 md:relative md:flex-1 md:w-1/3 lg:w-1/4 flex flex-col justify-end md:justify-start min-h-0 bg-transparent md:bg-zinc-950 z-10 w-full shadow-2xl md:border-l border-border pointer-events-none md:pointer-events-auto">
           
           {/* Header Vendedor (Siempre visible) */}
-          <div className="shrink-0 p-3 border-b border-white/10 hidden md:flex items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10">
+          <div className="shrink-0 p-3 border-b border-white/10 hidden md:flex items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10 pointer-events-auto">
             <SellerPill seller={seller} initial={initial} />
             <div className="flex items-center gap-3">
               <ViewersPill realSpectators={realSpectators} anonymousCount={anonymousCount} />
@@ -542,7 +542,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           </div>
           
           {/* Header Vendedor Mobile */}
-          <div className="shrink-0 p-3 border-b border-white/10 flex md:hidden items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10">
+          <div className="absolute top-14 left-0 right-0 p-3 flex md:hidden items-center justify-between bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-auto">
              <SellerPill seller={seller} initial={initial} />
              <div className="flex items-center gap-3">
                <ViewersPill realSpectators={realSpectators} anonymousCount={anonymousCount} />
@@ -551,7 +551,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           </div>
 
           {/* Zona 3: Chat Messages (SCROLLABLE, ESPACIO RESTANTE) */}
-          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 flex flex-col no-scrollbar relative z-10" style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
+          <div className="h-[40vh] md:flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 flex flex-col no-scrollbar relative z-10 pointer-events-auto" style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
             <div className="mt-auto flex flex-col space-y-3">
                 {chat.map((msg) => (
                   <ChatMessageBubble key={msg.id} msg={msg} />
@@ -561,7 +561,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           </div>
 
           {/* Zona 4: Footer Fijo de Acción (Estilo eBay Live) */}
-          <div className="shrink-0 pt-2 pb-safe bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+          <div className="shrink-0 pt-2 pb-safe bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-auto">
             {/* 4A: Chat Input & Like (eBay Style) */}
             <div className="flex items-center gap-3 mb-2 px-3 relative">
               {/* Floating Emojis */}

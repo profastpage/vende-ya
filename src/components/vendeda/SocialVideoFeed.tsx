@@ -89,7 +89,7 @@ function FeedItem({ item, viewers = 0 }: { item: SocialFeedItem; viewers?: numbe
         >
           <div 
             className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-            style={{ backgroundImage: `url(${item.product?.thumbnail || item.thumbnailUrl || 'https://via.placeholder.com/1080x1920'})` }}
+            style={{ backgroundImage: `url(${item.product?.thumbnail || item.thumbnailUrl || 'https://placehold.co/1080x1920/1a1a1a/333333.png?text=Live'})` }}
           />
           <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
 

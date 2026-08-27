@@ -32,7 +32,7 @@ export default async function MarketplacePage() {
   // Map to MarketplaceProduct format for the UI
   const products: MarketplaceProduct[] = dbProducts.map(p => {
     // p.images is a JSON array string in this schema, need to parse or fallback
-    let imageUrl = 'https://via.placeholder.com/300x400'
+    let imageUrl = 'https://placehold.co/300x400/1a1a1a/333333.png?text=Product'
     try {
       const parsed = JSON.parse(p.images)
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -68,7 +68,7 @@ export default async function MarketplacePage() {
       id: 'empty',
       title: '¡Próximamente nuevos productos!',
       price: 0,
-      imageUrl: 'https://via.placeholder.com/300x400',
+      imageUrl: 'https://placehold.co/300x400/1a1a1a/333333.png?text=Product',
       isFreeShipping: true,
       stock: 0,
       category: 'General',

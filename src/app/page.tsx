@@ -48,8 +48,8 @@ export default async function Home() {
     
     return {
       id: stream.id,
-      videoUrl: stream.playbackId ? `https://customer-xxx.cloudflarestream.com/${stream.playbackId}/manifest/video.m3u8` : 'https://via.placeholder.com/1080x1920',
-      thumbnailUrl: stream.thumbnailUrl || 'https://via.placeholder.com/1080x1920',
+      videoUrl: stream.playbackId ? `https://customer-xxx.cloudflarestream.com/${stream.playbackId}/manifest/video.m3u8` : 'https://placehold.co/1080x1920/1a1a1a/333333.png?text=Live',
+      thumbnailUrl: stream.thumbnailUrl || 'https://placehold.co/1080x1920/1a1a1a/333333.png?text=Live',
       kickUsername: stream.kickUsername || undefined,
       youtubeLiveId: stream.youtubeLiveId || undefined,
       streamProvider: stream.streamProvider || undefined,
@@ -67,7 +67,7 @@ export default async function Home() {
         id: activeAuction.product.id,
         title: activeAuction.product.title,
         price: activeAuction.currentPrice,
-        thumbnail: 'https://via.placeholder.com/150x150' // Ideally from activeAuction.product.images
+        thumbnail: 'https://placehold.co/150x150/1a1a1a/333333.png?text=Item' // Ideally from activeAuction.product.images
       } : undefined,
       liveComments: stream.chatMessages ? stream.chatMessages.map((msg: any) => ({
         id: msg.id,
