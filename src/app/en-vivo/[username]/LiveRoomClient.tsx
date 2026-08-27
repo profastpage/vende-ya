@@ -59,12 +59,7 @@ const LIVE_EMOJIS = [
   { id: 'star',      char: '🌟', label: 'Estrella' },
 ] as const
 
-interface FloatingEmoji {
-  id: number
-  char: string
-  x: number
-  y: number
-}
+
 
 /* ---------------- Extracted presentational components ---------------- */
 
@@ -204,7 +199,7 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
       className="text-[13px] px-1 py-1 text-white"
       style={{ textShadow: '0px 1px 3px rgba(0,0,0,0.9), 0px 1px 1px rgba(0,0,0,0.6)' }}
     >
-      <div className="flex items-start gap-2">
+      <div className="flex items-start gap-2 w-full max-w-full">
         {msg.avatarUrl ? (
           <img src={msg.avatarUrl} alt={msg.username} className="h-6 w-6 rounded-full object-cover shrink-0 mt-0.5 border border-white/20 shadow-sm" />
         ) : (
@@ -352,11 +347,11 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   const [chatInput, setChatInput] = React.useState('')
   const [secondsLeft, setSecondsLeft] = React.useState(164)
   const [liked, setLiked] = React.useState(false)
-    const [floatingHearts, setFloatingHearts] = React.useState<{id: number, left: number}[]>([])
+    
   const [isZoomed, setIsZoomed] = React.useState(true)
   const [burstKey, setBurstKey] = React.useState(0)
   const [mobileTab, setMobileTab] = React.useState<'chat' | 'bid'>('bid')
-  const [floatingEmojis, setFloatingEmojis] = React.useState<FloatingEmoji[]>([])
+  const [floatingEmojis, setFloatingEmojis] = React.useState<{id: number, char: string, left: number}[]>([])
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false)
 
   // ¿Es participante activo? Solo quien pujó o compró puede emitir emojis.
@@ -395,14 +390,21 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
     } catch (e) {}
   }
   
-  const handleLike = () => {
+  const handleLike = (emoji = '❤️') => {
     setLiked(true);
-    setLikes((l) => l + 1); // allow multiple likes
-    const newHeart = { id: Date.now(), left: Math.random() * 60 - 30 }; // random X offset
-    setFloatingHearts(prev => [...prev, newHeart]);
+    setLikes(l => l + 1);
+    const newEmoji = { id: Date.now(), char: emoji, left: Math.random() * 60 - 30 };
+    setFloatingEmojis(prev => [...prev, newEmoji]);
     setTimeout(() => {
-      setFloatingHearts(prev => prev.filter(h => h.id !== newHeart.id));
+      setFloatingEmojis(prev => prev.filter(e => e.id !== newEmoji.id));
     }, 1500);
+    try {
+      supabase.channel(`chat_${id}`).send({
+        type: 'broadcast',
+        event: 'new_emoji',
+        payload: { char: emoji }
+      });
+    } catch(e) {}
   }
 
   const sendChat = async () => {
@@ -452,12 +454,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
       return
     }
     // Generar emoji flotante en posición aleatoria
-    const newEmoji: FloatingEmoji = {
-      id: Date.now() + Math.random(),
-      char: emojiChar,
-      x: 60 + Math.random() * 40, // 60-100% (cerca del botón)
-      y: 30 + Math.random() * 30, // 30-60% desde abajo
-    }
+    const newEmoji = { id: Date.now() + Math.random(), char: emojiChar, left: Math.random() * 60 - 30 }
     setFloatingEmojis((prev) => [...prev, newEmoji])
     // Remover tras animación
     setTimeout(() => {
@@ -570,11 +567,11 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
               {/* Floating Emojis */}
               <div className="absolute bottom-12 right-6 pointer-events-none overflow-visible z-50">
                 <AnimatePresence>
-                  {floatingHearts.map(heart => (
+                  {floatingEmojis.map(emoji => (
                     <motion.span
-                      key={heart.id}
+                      key={emoji.id}
                       initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
-                      animate={{ opacity: 0, y: -150, x: heart.left, scale: 1.5 }}
+                      animate={{ opacity: 0, y: -150, x: emoji.left, scale: 1.5 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 1.5, ease: "easeOut" }}
                       className="absolute text-2xl select-none"
@@ -607,9 +604,11 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
                       <ChevronRight className="h-6 w-6" strokeWidth={3} />
                     </button>
                   ) : (
-                    <button onClick={handleLike} className="flex items-center justify-center shrink-0 ml-2 active:scale-90 transition-transform">
-                      <Heart className={`h-5 w-5 ${liked ? 'fill-rose-500 text-rose-500' : 'text-rose-500'}`} strokeWidth={0} />
-                    </button>
+                    <div className="flex items-center shrink-0 gap-1.5 ml-1.5">
+                      <button onClick={() => handleLike('❤️')} className="flex items-center justify-center h-8 w-8 rounded-full hover:bg-white/10 active:scale-90 transition-all text-[16px]">❤️</button>
+                      <button onClick={() => handleLike('🔥')} className="flex items-center justify-center h-8 w-8 rounded-full hover:bg-white/10 active:scale-90 transition-all text-[16px]">🔥</button>
+                      <button onClick={() => handleLike('💸')} className="flex items-center justify-center h-8 w-8 rounded-full hover:bg-white/10 active:scale-90 transition-all text-[16px]">💸</button>
+                    </div>
                   )}
                 </div>
               )}
