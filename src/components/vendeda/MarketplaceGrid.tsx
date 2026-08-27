@@ -97,7 +97,7 @@ function ProductCard({ product }: { product: MarketplaceProduct }) {
         {/* Dynamic Labels */}
         <div className="absolute bottom-2 left-2 flex flex-col gap-1">
           {product.isFreeShipping && (
-            <span className="bg-card/90 backdrop-blur-md text-zinc-900 px-2 py-0.5 rounded-md text-[10px] font-bold shadow-sm">
+            <span className="bg-card/90 backdrop-blur-md text-foreground px-2 py-0.5 rounded-md text-[10px] font-bold shadow-sm">
               Envío Gratis
             </span>
           )}
@@ -111,19 +111,19 @@ function ProductCard({ product }: { product: MarketplaceProduct }) {
 
       {/* Product Metadata (No Borders) */}
       <div className="flex flex-col px-1">
-        <h3 className="text-zinc-900 text-sm font-medium line-clamp-2 leading-tight">
+        <h3 className="text-foreground text-sm font-medium line-clamp-2 leading-tight">
           {product.title}
         </h3>
         
         <div className="mt-1.5 flex items-baseline gap-2">
-          <span className="text-zinc-900 text-lg font-bold">{formatPEN(product.price)}</span>
+          <span className="text-foreground text-lg font-bold">{formatPEN(product.price)}</span>
           {product.originalPrice && product.originalPrice > product.price && (
             <span className="text-zinc-400 text-xs line-through">{formatPEN(product.originalPrice)}</span>
           )}
         </div>
 
         <div className="mt-1 flex items-center gap-1">
-          <span className="text-zinc-500 text-[11px] truncate">{product.seller.displayName}</span>
+          <span className="text-muted-foreground text-[11px] truncate">{product.seller.displayName}</span>
           {product.seller.isVerified && (
             <svg className="w-3 h-3 text-sky-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />

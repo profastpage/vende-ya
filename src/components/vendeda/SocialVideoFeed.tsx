@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { Heart, MessageCircle, Share2, Plus, ShoppingBag, Maximize, Minimize, Play } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { formatPEN } from '@/lib/vendeda/format'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 export type SocialFeedItem = {
@@ -137,9 +138,9 @@ function FeedItem({ item, viewers = 0 }: { item: SocialFeedItem; viewers?: numbe
 
           {/* Live Comments Stream */}
           {item.liveComments && item.liveComments.length > 0 && (
-            <div className="h-32 overflow-y-auto no-scrollbar pointer-events-none space-y-2 mt-2" style={{ maskImage: 'linear-gradient(to top, black 50%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to top, black 50%, transparent 100%)' }}>
-              {item.liveComments.map(comment => (
-                <div key={comment.id} className="text-sm">
+            <div className="h-20 overflow-y-hidden pointer-events-none space-y-1.5 mt-2" style={{ maskImage: 'linear-gradient(to top, black 60%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to top, black 60%, transparent 100%)' }}>
+              {item.liveComments.slice(0, 3).map(comment => (
+                <div key={comment.id} className="text-[12px] leading-tight">
                   <span className="font-bold text-white/80 drop-shadow-md">{comment.user}: </span>
                   <span className="text-white drop-shadow-md">{comment.text}</span>
                 </div>
