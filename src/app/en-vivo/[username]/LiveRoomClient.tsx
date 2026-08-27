@@ -474,7 +474,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   
   const videoId = stream?.streamProviderId || stream?.youtubeLiveId;
   const isValidYoutubeId = videoId && videoId.length === 11;
-  const youtubeUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&modestbranding=1&rel=0&controls=0`;
+  const youtubeUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&playsinline=1&modestbranding=1&rel=0&controls=1`;
 
     return (
     <>
