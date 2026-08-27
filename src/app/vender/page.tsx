@@ -172,7 +172,7 @@ function VenderInner() {
       const res = await createMultiStream(title, streamUrl, isAuction, Number(price))
         if (res?.error) throw new Error(res.error)
       toast({ title: '¡En Vivo!', description: 'Tu transmisión ha sido enlazada a Vende Ya exitosamente.' })
-      router.push('/')
+      router.push('/mi-dashboard') // TODO: Redirigir al nuevo Studio Panel
     } catch(err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' })
     } finally {
