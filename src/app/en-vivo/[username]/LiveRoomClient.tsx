@@ -257,7 +257,16 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
       })
       
       
-      chatChannel.on('broadcast', { event: 'new_message' }, (payload) => {
+      chatChannel.on('broadcast', { event: 'new_emoji' }, (payload) => {
+      const char = payload.payload?.char || '❤️';
+      setLikes((l) => l + 1);
+      const newEmoji = { id: Date.now() + Math.random(), char, left: Math.random() * 60 - 30 };
+      setFloatingEmojis((prev) => [...prev, newEmoji]);
+      setTimeout(() => {
+        setFloatingEmojis((prev) => prev.filter((e) => e.id !== newEmoji.id));
+      }, 1500);
+    })
+    chatChannel.on('broadcast', { event: 'new_message' }, (payload) => {
         setChat((prev) => {
           // prevent duplicates if it's our own message bouncing back
           if (prev.find(m => m.id === payload.payload.id)) return prev;
@@ -339,6 +348,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   const [showCheckout, setShowCheckout] = React.useState(false)
   const [chat, setChat] = React.useState<ChatMessage[]>(initialChat || [])
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const pendingLikesRef = React.useRef(0);
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chat]);
@@ -392,6 +402,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   }
   
   const handleLike = (emoji = '❤️') => {
+    pendingLikesRef.current += 1;
     setLiked(true);
     setLikes(l => l + 1);
     const newEmoji = { id: Date.now(), char: emoji, left: Math.random() * 60 - 30 };
@@ -440,6 +451,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
   }
 
   const handleEmojiTap = (emojiChar: string) => {
+    pendingLikesRef.current += 1;
     if (!hasParticipated) {
       // Si no es participante, mostrar chat msg de recordatorio.
       setChat((prev) => [
