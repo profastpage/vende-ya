@@ -201,7 +201,21 @@ function InteractionButtons({ item, isLiked, setIsLiked, isMobile, isZoomed, set
       </button>
 
       {/* Share */}
-      <button className="flex flex-col items-center gap-1 group">
+      <button className="flex flex-col items-center gap-1 group" onClick={async () => {
+        try {
+          const url = `${window.location.origin}/en-vivo/${item.seller.username}`;
+          if (navigator.share) {
+            await navigator.share({
+              title: `Vende Ya En Vivo - ${item.seller.displayName}`,
+              text: '¡Únete a esta transmisión en Vende Ya!',
+              url: url,
+            })
+          } else {
+            await navigator.clipboard.writeText(url)
+            alert('¡Enlace copiado al portapapeles!')
+          }
+        } catch (e) {}
+      }}>
         <div className={`p-2 rounded-full ${isMobile ? 'bg-background/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
           <Share2 className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-white' : 'text-foreground'}`} />
         </div>
