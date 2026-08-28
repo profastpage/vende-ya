@@ -77,7 +77,7 @@ function LiveBadge({ size = 'md' }: { size?: 'sm' | 'md' }) {
 }
 
 /** ViewersPill — solo texto bold + icono, sin fondo negro (mejor UX) */
-function ViewersPill({ realSpectators, anonymousCount }: { realSpectators: any[], anonymousCount: number }) {
+function ViewersPill({ realSpectators, anonymousCount, likes }: { realSpectators: any[], anonymousCount: number, likes: number }) {
   const viewers = realSpectators.length + anonymousCount;
   const [open, setOpen] = React.useState(false)
   const spectatorRef = React.useRef<HTMLDivElement>(null)
@@ -550,7 +550,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           <div className="shrink-0 p-3 border-b border-white/10 hidden md:flex items-center justify-between bg-zinc-900/40 backdrop-blur-sm z-10 pointer-events-auto">
             <SellerPill seller={seller} initial={initial} />
             <div className="flex items-center gap-3">
-              <ViewersPill realSpectators={realSpectators} anonymousCount={anonymousCount} />
+              <ViewersPill realSpectators={realSpectators} anonymousCount={anonymousCount} likes={likes} />
               <LiveBadge size="sm" />
             </div>
           </div>
@@ -559,7 +559,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           <div className={`absolute top-14 left-0 right-0 p-3 flex md:hidden items-center justify-between bg-gradient-to-b from-black/60 to-transparent z-10 ${hideUI ? 'pointer-events-none md:pointer-events-auto' : 'pointer-events-auto'}`}>
              <SellerPill seller={seller} initial={initial} />
              <div className="flex items-center gap-3">
-               <ViewersPill realSpectators={realSpectators} anonymousCount={anonymousCount} />
+               <ViewersPill realSpectators={realSpectators} anonymousCount={anonymousCount} likes={likes} />
                <LiveBadge size="sm" />
              </div>
           </div>

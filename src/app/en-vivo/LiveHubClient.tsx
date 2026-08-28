@@ -1,5 +1,4 @@
 'use client'
-import { DynamicHubPlayer } from '@/components/vendeda/DynamicLivePlayer';
 
 import * as React from 'react'
 import Link from 'next/link'
