@@ -37,3 +37,15 @@ export async function createExpressProduct(streamId: string, sellerId: string, t
     return { error: "Failed to create product" }
   }
 }
+
+export async function endStream(streamId: string) {
+  try {
+    await db.liveStream.update({
+      where: { id: streamId },
+      data: { isLive: false, status: 'ended', endedAt: new Date() }
+    });
+    return { success: true };
+  } catch(e) {
+    return { error: 'Failed to end stream' };
+  }
+}

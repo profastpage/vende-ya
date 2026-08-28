@@ -15,7 +15,7 @@ export async function parseStreamUrl(url: string) {
 }
 
 
-export async function createMultiStream(title: string, streamUrl: string, isAuction: boolean, price: number) {
+export async function createMultiStream(title: string, streamUrl: string, isAuction: boolean, price: number, coverImage: string = '') {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -78,7 +78,8 @@ try {
         youtubeLiveId: parsedStream.provider === 'YOUTUBE' ? parsedStream.id : null,
         
         streamProvider: parsedStream.provider,
-        streamProviderId: parsedStream.id
+        streamProviderId: parsedStream.id,
+        thumbnailUrl: coverImage || null
       }
     })
 

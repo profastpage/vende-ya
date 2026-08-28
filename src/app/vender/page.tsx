@@ -84,6 +84,7 @@ function VenderInner() {
   // Form state
   const [title, setTitle] = React.useState('')
   const [streamUrl, setStreamUrl] = React.useState('')
+  const [coverImage, setCoverImage] = React.useState('')
   const [description, setDescription] = React.useState('')
   const [price, setPrice] = React.useState('')
   const [category, setCategory] = React.useState('')
@@ -161,6 +162,39 @@ function VenderInner() {
     )
   }
 
+  
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Convert to WebP using Canvas
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        // Target 9:16 ratio (e.g. 720x1280)
+        const targetWidth = 720
+        const targetHeight = 1280
+        canvas.width = targetWidth
+        canvas.height = targetHeight
+
+        // Cover logic (crop to fill)
+        const scale = Math.max(targetWidth / img.width, targetHeight / img.height)
+        const x = (targetWidth / scale - img.width) / 2
+        const y = (targetHeight / scale - img.height) / 2
+
+        ctx?.drawImage(img, x, y, img.width, img.height, 0, 0, targetWidth, targetHeight)
+        
+        const webpDataUrl = canvas.toDataURL('image/webp', 0.8)
+        setCoverImage(webpDataUrl)
+      }
+      img.src = event.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title || !price || (isLive && !streamUrl)) {
@@ -169,10 +203,10 @@ function VenderInner() {
       }
     setSubmitting(true)
     try {
-      const res = await createMultiStream(title, streamUrl, isAuction, Number(price))
+      const res = await createMultiStream(title, streamUrl, isAuction, Number(price), coverImage)
         if (res?.error) throw new Error(res.error)
       toast({ title: '¡En Vivo!', description: 'Tu transmisión ha sido enlazada a Vende Ya exitosamente.' })
-      router.push('/mi-dashboard') // TODO: Redirigir al nuevo Studio Panel
+      router.push('/studio')
     } catch(err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' })
     } finally {

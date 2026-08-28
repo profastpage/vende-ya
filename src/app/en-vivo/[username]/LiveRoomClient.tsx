@@ -270,7 +270,10 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
         setFloatingEmojis((prev) => prev.filter((e) => e.id !== newEmoji.id));
       }, 1500);
     })
-    chatChannel.on('broadcast', { event: 'new_message' }, (payload) => {
+    chatChannel.on('broadcast', { event: 'new_product' }, () => {
+        router.refresh();
+      })
+      chatChannel.on('broadcast', { event: 'new_message' }, (payload) => {
         setChat((prev) => {
           // prevent duplicates if it's our own message bouncing back
           if (prev.find(m => m.id === payload.payload.id)) return prev;
