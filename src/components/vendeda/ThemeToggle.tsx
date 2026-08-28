@@ -41,7 +41,7 @@ export default function ThemeToggle() {
   if (!mounted) {
     return (
       <div
-        className="h-9 w-9 rounded-lg bg-muted animate-pulse"
+        className="h-9 w-9 animate-pulse"
         aria-hidden
       />
     )
@@ -54,10 +54,8 @@ export default function ThemeToggle() {
       type="button"
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       className={cn(
-        'h-9 w-9 rounded-lg flex items-center justify-center transition-all active:scale-90',
-        'border border-border',
-        'bg-muted hover:bg-accent',
-        'text-foreground',
+        'h-9 w-9 flex items-center justify-center transition-all active:scale-90',
+        'text-foreground hover:opacity-70',
       )}
       aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
       title={isDark ? 'Modo claro' : 'Modo oscuro'}

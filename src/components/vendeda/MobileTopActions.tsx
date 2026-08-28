@@ -114,7 +114,7 @@ export function MobileTopActions() {
             'relative flex items-center justify-center h-9 w-9 rounded-full transition-colors pointer-events-auto',
             notifActive
               ? 'bg-amber-500/15 border border-amber-400/40 text-amber-600 dark:text-amber-300'
-              : 'bg-muted border border-border text-foreground hover:bg-accent'
+              : 'text-foreground hover:opacity-70'
           )}
           aria-label="Ver notificaciones"
         >

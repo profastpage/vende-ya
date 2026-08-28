@@ -271,7 +271,7 @@ export default function RegistroPage() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-md"
           >
-            <div className="rounded-3xl border border-border bg-card backdrop-blur-xl p-8 shadow-2xl shadow-black/40">
+            <div className="md:rounded-3xl md:border border-border md:bg-card md:backdrop-blur-xl p-6 md:p-8 md:shadow-2xl md:shadow-black/40 pb-32 md:pb-8">
               {/* Mobile-only logo — imagen oficial /logo.png */}
               <Link href={ROUTES.home} className="mb-6 flex items-center gap-2.5 md:hidden">
                 <Image
