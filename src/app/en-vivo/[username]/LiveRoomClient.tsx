@@ -21,7 +21,7 @@ import type { Profile, Product, Auction } from '@/lib/vendeda/types'
 import {
   
 } from '@/lib/vendeda/mock-data'
-import { formatViewers, formatPEN, timeAgoEs } from '@/lib/vendeda/format'
+import { formatViewers, formatCompact, formatPEN, timeAgoEs } from '@/lib/vendeda/format'
 import CheckoutBottomSheet from '@/components/vendeda/CheckoutBottomSheet'
 
 /* ================================================================ *
