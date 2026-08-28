@@ -94,7 +94,7 @@ function ViewersPill({ realSpectators, anonymousCount, likes }: { realSpectators
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [open])
   return (
-    <div className="relative" ref={spectatorRef}>
+    <div className="relative flex items-center gap-1" ref={spectatorRef}>
       <button 
         onClick={() => setOpen(!open)}
         className="inline-flex items-center gap-1.5 text-white hover:bg-white/10 px-2 py-1 rounded-lg transition-colors cursor-pointer"
@@ -104,6 +104,10 @@ function ViewersPill({ realSpectators, anonymousCount, likes }: { realSpectators
           {formatViewers(viewers)}
         </span>
       </button>
+      <div className="inline-flex items-center gap-1 text-white hover:bg-white/10 px-2 py-1 rounded-lg transition-colors cursor-pointer">
+        <Heart className="h-3.5 w-3.5 text-[#FE2C55] fill-[#FE2C55]" />
+        <span className="text-xs font-black tabular-nums drop-shadow-lg">{formatViewers(likes)}</span>
+      </div>
       
       <AnimatePresence>
         {open && (
