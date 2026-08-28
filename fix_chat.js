@@ -1,50 +1,73 @@
 const fs = require('fs');
 const path = require('path');
-const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\app\\en-vivo\\[id]\\LiveRoomClient.tsx');
-let text = fs.readFileSync(file, 'utf8');
+const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\app\\en-vivo\\[username]\\LiveRoomClient.tsx');
+let code = fs.readFileSync(file, 'utf8');
 
-const regex = /React\.useEffect\(\(\) => \{\r?\n\s*if \(\!auction\?\.id\) return\r?\n\s*const chatChannel = supabase\.channel\(\`chat_\$\{id\}\`\)\r?\n\s*chatChannel\.on\('broadcast', \{ event: 'new_message' \}, \(payload\) => \{\r?\n\s*setChat\(\(prev\) => \[\.\.\.prev, payload\.payload\]\)\r?\n\s*\}\)\.subscribe\(\)\r?\n\r?\n\s*const channel = supabase\r?\n\s*\.channel\(\`auction_\$\{safeAuction\.id\}\`\)/;
+const targetSendChat = `  const sendChat = async () => {
+    if (!chatInput.trim()) return
+    const msg = { id: Date.now().toString(), username: userName || 'T', text: chatInput.trim(), color: 'text-lime-400', avatarUrl: user?.avatarUrl }
+    setChat((prev) => [...prev, msg])
+    setChatInput('')
 
-const newBlock = `React.useEffect(() => {
-      // Chat Realtime (Always active)
-      const chatChannel = supabase.channel(\`chat_\${id}\`)
-      chatChannel.on('broadcast', { event: 'new_message' }, (payload) => {
-        setChat((prev) => {
-          // prevent duplicates if it's our own message bouncing back
-          if (prev.find(m => m.id === payload.payload.id)) return prev;
-          return [...prev, payload.payload]
+    // Save to DB
+    try {
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          streamId: id,
+          username: msg.username,
+          text: msg.text,
+          color: msg.color,
+          senderId: user?.id
         })
-      }).subscribe()
+      })
+    } catch(e) {}
 
-      // Auction Realtime (Only if auction exists)
-      let auctionChannel = null
-      if (auction?.id) {
-        auctionChannel = supabase.channel(\`auction_\${safeAuction.id}\`)
-`;
+    // Broadcast to others
+    await supabase.channel(\`chat_\${id}\`).send({
+      type: 'broadcast',
+      event: 'new_message',
+      payload: { ...msg, username: 'Comprador' }
+    })
+  }`;
 
-if (regex.test(text)) {
-    text = text.replace(regex, newBlock);
-} else {
-    console.log('Regex 1 failed');
-}
+const replacementSendChat = `  const sendChat = async () => {
+    if (!chatInput.trim()) return
+    const currentText = chatInput.trim()
+    const msg = { id: Date.now().toString(), username: userName || 'T', text: currentText, color: 'text-lime-400', avatarUrl: user?.avatarUrl }
+    setChat((prev) => [...prev, msg])
+    setChatInput('')
 
-
-const regex2 = /\.subscribe\(\)\r?\n\s*return \(\) => \{ supabase\.removeChannel\(channel\); supabase\.removeChannel\(chatChannel\); \}\r?\n\s*\}, \[auction\?\.id, supabase\]\)/;
-const newBlock2 = `.subscribe()
+    // Moderate and Save to DB
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          streamId: id,
+          username: msg.username,
+          text: msg.text,
+          color: msg.color,
+          senderId: user?.id
+        })
+      })
+      const data = await res.json()
+      
+      if (data.flagged) {
+        setChat(prev => prev.map(m => m.id === msg.id ? { ...m, text: '[Mensaje bloqueado por la IA de Moderacin]', color: 'text-rose-500' } : m));
+        toast({ title: 'Mensaje bloqueado', description: 'Tu mensaje infringi nuestras normas de comunidad.' })
+        return; // No broadcast
       }
+    } catch(e) {}
 
-      return () => { 
-        supabase.removeChannel(chatChannel);
-        if (auctionChannel) supabase.removeChannel(auctionChannel); 
-      }
-    }, [auction?.id, id, supabase])`;
+    // Broadcast to others
+    await supabase.channel(\`chat_\${id}\`).send({
+      type: 'broadcast',
+      event: 'new_message',
+      payload: { ...msg, username: userName || 'Espectador' }
+    })
+  }`;
 
-if (regex2.test(text)) {
-    text = text.replace(regex2, newBlock2);
-} else {
-    console.log('Regex 2 failed');
-}
-
-
-fs.writeFileSync(file, text, 'utf8');
-console.log('Fixed chat channel useEffect');
+code = code.replace(/const sendChat = async \(\) => \{[\s\S]*?payload: \{ \.\.\.msg, username: 'Comprador' \}\r?\n\s*\}\)\r?\n\s*\}/, replacementSendChat);
+fs.writeFileSync(file, code, 'utf8');

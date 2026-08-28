@@ -73,7 +73,9 @@ export async function POST(request: Request) {
     // 2. PARSEO Y VALIDACIÓN DE CAMPOS
     // =================================================================
     const body: CheckoutRequest = await request.json();
-    const { sellerId, source, totalAmount, paymentMethod, gatewayToken, shipment } = body;
+    const { sellerId, source,
+        productId,
+        totalAmount, paymentMethod, gatewayToken, shipment } = body;
 
     if (!sellerId || !source || !totalAmount || !paymentMethod || !gatewayToken) {
       return NextResponse.json(
@@ -170,8 +172,9 @@ export async function POST(request: Request) {
       data: {
         buyerId,
         sellerId,
-        source,
-        totalAmount,
+          source,
+          productId,
+          totalAmount,
         platformCommissionRate: split.platformCommissionRate,
         platformCommissionAmount: split.platformCommissionAmount,
         gatewayFeeAmount: split.gatewayFeeWithIgv,

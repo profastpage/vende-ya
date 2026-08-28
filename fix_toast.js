@@ -1,11 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\app\\vender\\page.tsx');
-let text = fs.readFileSync(file, 'utf8');
+const file = path.join('C:\\dev\\CLIENTES\\VENDE YA\\vende-ya-main\\src\\app\\en-vivo\\[username]\\LiveRoomClient.tsx');
+let code = fs.readFileSync(file, 'utf8');
 
-text = text.replace(
-    /Tu transmisi.n de Kick ha sido enlazada a Vende Ya exitosamente\./,
-    `Tu transmisión de YouTube ha sido enlazada a Vende Ya exitosamente.`
-);
+code = code.replace(/import Link from 'next\/link'/, `import Link from 'next/link'\nimport { toast } from 'sonner'`);
+code = code.replace(/toast\(\{ title: 'Mensaje bloqueado', description: 'Tu mensaje infringi nuestras normas de comunidad.' \}\)/, `toast.error('Mensaje bloqueado', { description: 'Tu mensaje infringi nuestras normas de comunidad.' })`);
 
-fs.writeFileSync(file, text, 'utf8');
+fs.writeFileSync(file, code, 'utf8');

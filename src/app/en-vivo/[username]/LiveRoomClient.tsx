@@ -5,6 +5,7 @@ import {  endLiveStream } from '@/app/vender/actions'
 import { useTransition } from 'react'
 import { useAuth } from '@/components/vendeda/AuthProvider'
 import Link from 'next/link'
+import { toast } from 'sonner'
 import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer';
 
 import * as React from 'react'
@@ -426,34 +427,40 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
     } catch(e) {}
   }
 
-  const sendChat = async () => {
+    const sendChat = async () => {
     if (!chatInput.trim()) return
-    const msg = { id: Date.now().toString(), username: userName || 'Tú', text: chatInput.trim(), color: 'text-lime-400', avatarUrl: user?.avatarUrl }
+    const currentText = chatInput.trim()
+    const msg = { id: Date.now().toString(), username: userName || 'T', text: currentText, color: 'text-lime-400', avatarUrl: user?.avatarUrl }
     setChat((prev) => [...prev, msg])
     setChatInput('')
 
-    // Save to DB
+    // Moderate and Save to DB
     try {
-      fetch('/api/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           streamId: id,
-          username: userName,
-            avatarUrl: user?.avatarUrl,
-            senderId: user?.id,
+          username: msg.username,
           text: msg.text,
           color: msg.color,
-          isBot: false
+          senderId: user?.id
         })
       })
+      const data = await res.json()
+      
+      if (data.flagged) {
+        setChat(prev => prev.map(m => m.id === msg.id ? { ...m, text: '[Mensaje bloqueado por la IA de Moderacin]', color: 'text-rose-500' } : m));
+        toast.error('Mensaje bloqueado', { description: 'Tu mensaje infringi nuestras normas de comunidad.' })
+        return; // No broadcast
+      }
     } catch(e) {}
 
     // Broadcast to others
     await supabase.channel(`chat_${id}`).send({
       type: 'broadcast',
       event: 'new_message',
-      payload: { ...msg, username: 'Comprador' }
+      payload: { ...msg, username: userName || 'Espectador' }
     })
   }
 
