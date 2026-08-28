@@ -1,24 +1,14 @@
-
 'use client';
 import React, { useState, useEffect } from 'react';
 
 export function DynamicLivePlayer({ provider, providerId, isActive = true }: { provider: string, providerId: string, isActive?: boolean }) {
-  const [hostname, setHostname] = useState('vendeya.live');
   const [canRender, setCanRender] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setHostname(window.location.hostname);
-    }
-  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isActive) {
-      // Delay mounting by 400ms to ensure scroll snap is finished and iframe is 100% visible
       timer = setTimeout(() => setCanRender(true), 400);
     } else {
-      // Unmount immediately when out of view
       setCanRender(false);
     }
     return () => clearTimeout(timer);
@@ -36,68 +26,26 @@ export function DynamicLivePlayer({ provider, providerId, isActive = true }: { p
     );
   }
 
-  const domainParams = `parent=localhost&parent=${hostname}`;
-  const containerClasses = "relative w-full h-full bg-black";
+  const containerClasses = "relative w-full h-full bg-black pointer-events-auto";
 
-  if (provider === 'TWITCH') {
+  if (provider === 'YOUTUBE' || provider === 'youtube') {
     return (
       <div className={containerClasses}>
-        <iframe 
-          key={`twitch-${providerId}`}
-          src={`https://player.twitch.tv/?channel=${providerId}&${domainParams}&muted=true&autoplay=true&playsinline=true`} 
-          className="w-full h-full border-none" 
-          allowFullScreen 
+        <iframe
+          key={`yt-${providerId}`}
+          className="w-full h-full border-none pointer-events-auto"
+          src={`https://www.youtube.com/embed/${providerId}?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&rel=0`}
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowFullScreen
+          style={{ pointerEvents: 'auto' }}
         />
       </div>
     );
   }
 
-  if (provider === 'KICK') {
-    return (
-      <div className={containerClasses}>
-        <iframe src={`https://kick.com/${providerId}/embed`} className="w-full h-full border-none" allowFullScreen />
-      </div>
-    );
-  }
-
   return (
-    <div className={containerClasses}>
-      <iframe src={`https://www.youtube.com/embed/${providerId}?autoplay=1&mute=1&rel=0&modestbranding=1`} className="w-full h-full border-none" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
-    </div>
-  );
-}
-
-export function DynamicHubPlayer({ provider, providerId }: { provider: string, providerId: string }) {
-  const [hostname, setHostname] = useState('vendeya.live');
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setHostname(window.location.hostname);
-    }
-  }, []);
-
-  const domainParams = `parent=localhost&parent=${hostname}`;
-  const containerClasses = "relative w-full h-full bg-black pointer-events-none";
-
-  if (provider === 'TWITCH') {
-    return (
-      <div className={containerClasses}>
-        <iframe src={`https://player.twitch.tv/?channel=${providerId}&${domainParams}&muted=true&autoplay=true&playsinline=true`} className="w-full h-full border-none pointer-events-none" allowFullScreen />
-      </div>
-    );
-  }
-
-  if (provider === 'KICK') {
-    return (
-      <div className={containerClasses}>
-        <iframe src={`https://kick.com/${providerId}/embed`} className="w-full h-full border-none pointer-events-none" allowFullScreen />
-      </div>
-    );
-  }
-
-  return (
-    <div className={containerClasses}>
-      <iframe src={`https://www.youtube.com/embed/${providerId}?autoplay=1&mute=1&rel=0&modestbranding=1&controls=0`} className="w-full h-full border-none pointer-events-none" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
+    <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-white p-4 text-center">
+      <p>Proveedor de stream no soportado.</p>
     </div>
   );
 }

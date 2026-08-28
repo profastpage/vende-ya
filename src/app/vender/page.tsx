@@ -447,17 +447,17 @@ function VenderInner() {
                       🎥 Cómo transmitir
                     </p>
                     <ol className="list-decimal list-inside space-y-1.5 text-muted-foreground">
-                      <li>Inicia transmisión en tu plataforma favorita (Twitch, Kick o YouTube).</li>
+                      <li>Inicia transmisión en vivo desde YouTube.</li>
                       <li><strong className="text-amber-500">👉 RECOMENDACIÓN:</strong> Transmite en vertical desde tu celular para una mejor experiencia móvil de tus compradores.</li>
                       <li>Copia el enlace de tu transmisión.</li>
                       <li>Pégalo aquí abajo y nuestro sistema lo auto-detectará.</li>
                     </ol>
                   </div>
                 <div className="space-y-2">
-                  <Label htmlFor="youtubeUrl" className="text-foreground font-semibold">Enlace de tu transmisión (Twitch, Kick o YouTube) *</Label>
+                  <Label htmlFor="youtubeUrl" className="text-foreground font-semibold">Enlace de tu transmisión de YouTube (Live) *</Label>
                   <Input 
                     id="streamUrl" 
-                      placeholder="Ej. https://twitch.tv/mi_canal" 
+                      placeholder="Ej. https://youtube.com/live/xxxxxx" 
                       value={streamUrl}
                       onChange={(e) => setStreamUrl(e.target.value)}
                     className="h-11 bg-background"

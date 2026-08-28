@@ -7,12 +7,6 @@ import { revalidatePath } from 'next/cache'
 
 
 export async function parseStreamUrl(url: string) {
-  if (url.includes('twitch.tv/')) {
-    return { provider: 'TWITCH', id: url.split('twitch.tv/')[1].split('/')[0].split('?')[0] };
-  }
-  if (url.includes('kick.com/')) {
-    return { provider: 'KICK', id: url.split('kick.com/')[1].split('/')[0].split('?')[0] };
-  }
   if (url.includes('youtu') || url.includes('youtube')) {
     const ytMatch = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|live\/|watch\?v=|\&v=)([^#\&\?]*).*/);
     if (ytMatch && ytMatch[2].length === 11) return { provider: 'YOUTUBE', id: ytMatch[2] };
@@ -33,7 +27,7 @@ try {
 
     const parsedStream = await parseStreamUrl(streamUrl);
     if (!parsedStream) {
-      return { success: false, error: 'El enlace no es válido. Pega una URL correcta de Twitch, Kick o YouTube.' }
+      return { success: false, error: 'El enlace no es válido. El enlace no es válido. Pega una URL correcta de YouTube en vivo.' }
     }
 
     // 0. Ensure Profile exists to prevent Foreign Key constraints
@@ -82,7 +76,7 @@ try {
         isLive: true,
         status: 'live',
         youtubeLiveId: parsedStream.provider === 'YOUTUBE' ? parsedStream.id : null,
-        kickUsername: parsedStream.provider === 'KICK' ? parsedStream.id : null,
+        
         streamProvider: parsedStream.provider,
         streamProviderId: parsedStream.id
       }
