@@ -506,7 +506,7 @@ function LoginContent() {
                         });
                         (window as any).google.accounts.id.renderButton(
                           document.getElementById('google-btn-container'),
-                          { theme: 'outline', size: 'large', type: 'standard', text: 'continue_with', width: '100%' }
+                          { theme: 'outline', size: 'large', type: 'standard', text: 'continue_with', width: 320 }
                         );
                       }
                     }} 
