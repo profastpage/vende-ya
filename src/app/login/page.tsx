@@ -19,6 +19,7 @@
  * =====================================================================
  */
 import * as React from 'react'
+import Script from 'next/script'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -40,6 +41,7 @@ import {
   XCircle,
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/components/vendeda/AuthProvider'
 import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
@@ -160,6 +162,7 @@ function useEffectiveOrigin(): { origin: string; isPublic: boolean } {
 // LOGIN CONTENT
 // =====================================================================
 function LoginContent() {
+  const supabase = React.useMemo(() => createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!), [])
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -206,6 +209,36 @@ function LoginContent() {
   // ---------------------------------------------------------------
   // OAuth — wrapper con feedback visual de 3 pasos
   // ---------------------------------------------------------------
+  
+  const handleGoogleCredential = React.useCallback(async (response: any) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: response.credential,
+      })
+      if (error) throw error;
+      toast({ title: 'Sesión iniciada', description: 'Bienvenido de vuelta a Vende Ya.' });
+      router.push(searchParams.get('redirect') || ROUTES.dashboard);
+    } catch (err: any) {
+      toast({ title: 'Error de Google', description: err.message, variant: 'destructive' });
+      setLoading(false);
+    }
+  }, [supabase, router, searchParams, toast])
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).google) {
+      (window as any).google.accounts.id.initialize({
+        client_id: '520579680195-v6loj4ijvqkdt9qk10k2rhkt0tj2gnkp.apps.googleusercontent.com',
+        callback: handleGoogleCredential
+      });
+      (window as any).google.accounts.id.renderButton(
+        document.getElementById('google-btn-container'),
+        { theme: 'filled_blue', size: 'large', width: 320, text: 'continue_with' }
+      );
+    }
+  }, [handleGoogleCredential])
+
   const handleOAuth = React.useCallback(
     async (provider: 'google' | 'facebook' | 'apple') => {
       setOauthProvider(provider)
@@ -461,11 +494,23 @@ function LoginContent() {
                     </span>
                   )}
                 </div>
-                <GoogleButton
-                  state={oauthProvider === 'google' ? oauthStep : 'idle'}
-                  onClick={() => handleOAuth('google')}
-                  disabled={loading || oauthProvider !== null}
-                />
+                <div id="google-btn-container" className="flex justify-center min-h-[44px]"></div>
+                  <Script 
+                    src="https://accounts.google.com/gsi/client" 
+                    strategy="lazyOnload" 
+                    onLoad={() => {
+                      if (typeof window !== 'undefined' && (window as any).google) {
+                        (window as any).google.accounts.id.initialize({
+                          client_id: '520579680195-v6loj4ijvqkdt9qk10k2rhkt0tj2gnkp.apps.googleusercontent.com',
+                          callback: handleGoogleCredential
+                        });
+                        (window as any).google.accounts.id.renderButton(
+                          document.getElementById('google-btn-container'),
+                          { theme: 'outline', size: 'large', type: 'standard', text: 'continue_with', width: '100%' }
+                        );
+                      }
+                    }} 
+                  />
                 {isProtected && (
                   <p className="text-[11px] text-red-300/80 flex items-center gap-1">
                     <AlertTriangle className="h-3 w-3" />
