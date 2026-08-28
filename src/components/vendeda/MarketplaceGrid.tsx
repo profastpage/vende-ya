@@ -73,7 +73,7 @@ function ProductCard({ product }: { product: MarketplaceProduct }) {
   const [isLiked, setIsLiked] = React.useState(false)
 
   return (
-    <div className="group flex flex-col cursor-pointer">
+    <Link href={`/productos/${product.id}`} className="group flex flex-col cursor-pointer block">
       {/* Edge-to-edge Image Container */}
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-zinc-100 mb-3">
         <img 
@@ -131,6 +131,6 @@ function ProductCard({ product }: { product: MarketplaceProduct }) {
           )}
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
