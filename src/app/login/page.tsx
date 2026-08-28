@@ -477,23 +477,7 @@ function LoginContent() {
 
               {/* ====== GOOGLE — CTA principal (full width, grande) ====== */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-                    <ShieldCheck className="h-3 w-3" />
-                    Recomendado
-                  </span>
-                  {effectiveOrigin && (
-                    <span
-                      className={cn(
-                        'font-mono text-[10px] truncate max-w-[220px]',
-                        originIsPublic ? 'text-muted-foreground/70' : 'text-amber-400/80'
-                      )}
-                      title="URL de callback OAuth que se usará"
-                    >
-                      → {effectiveOrigin.replace(/^https?:\/\//, '')}/auth/callback
-                    </span>
-                  )}
-                </div>
+                
                 <div id="google-btn-container" className="flex justify-center min-h-[44px]"></div>
                   <Script 
                     src="https://accounts.google.com/gsi/client" 

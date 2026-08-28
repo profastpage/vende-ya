@@ -23,7 +23,8 @@ export function LayoutClientWrapper({ children }: { children: React.ReactNode })
     <>
       <DesktopTopNav />
       <MobileTopActions />
-      <main className="flex flex-col flex-1 w-full pt-14 md:pt-16 pb-32 md:pb-0 bg-background text-foreground overflow-y-auto overscroll-none">
+      {/* Dynamic background: Feed is always black to emulate native apps, other pages respect theme */}
+      <main className={`flex flex-col flex-1 w-full pt-14 md:pt-16 pb-32 md:pb-0 overflow-y-auto overscroll-none ${pathname === '/' ? 'bg-black text-white' : 'bg-background text-foreground'}`}>
         {children}
       </main>
       <MobileBottomNav />
