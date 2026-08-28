@@ -71,3 +71,16 @@ export async function killStream(streamId: string) {
   revalidatePath('/admin')
   revalidatePath('/')
 }
+
+export async function killAllGhostStreams() {
+  try {
+    await db.liveStream.updateMany({
+      where: { isLive: true },
+      data: { isLive: false, status: 'ended', endedAt: new Date() }
+    });
+    revalidatePath('/', 'layout');
+    return { success: true };
+  } catch(e) {
+    return { error: 'Failed to kill all streams' };
+  }
+}

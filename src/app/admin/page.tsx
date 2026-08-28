@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/vendeda/supabase-server'
 import { db } from '@/lib/db'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, ShoppingBag, Video, DollarSign, Activity, Ban, Skull } from 'lucide-react'
-import { banUser, unbanUser, killStream } from './actions'
+import { banUser, unbanUser, killStream, killAllGhostStreams } from './actions'
 
 const SUPER_ADMIN_EMAIL = 'profastpage@gmail.com'
 
@@ -116,7 +116,17 @@ export default async function AdminDashboardPage() {
 
         {/* ACTIVE STREAMS TO KILL */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold border-b border-zinc-800 pb-2 text-white">🔴 Transmisiones En Vivo (Botón del Pánico)</h2>
+          <div className="flex items-center justify-between border-b border-zinc-800 pb-2 mb-4">
+            <h2 className="text-xl font-bold text-white">📡 Transmisiones En Vivo (Apagar)</h2>
+            <form action={async () => {
+              'use server';
+              await killAllGhostStreams();
+            }}>
+              <button type="submit" className="bg-red-900/40 text-red-400 border border-red-900 hover:bg-red-800 hover:text-white font-bold py-1.5 px-4 rounded-lg flex items-center gap-2 transition-colors text-sm">
+                <Skull className="w-4 h-4" /> Apagar Todos los Fantasmas
+              </button>
+            </form>
+          </div>
           {activeStreamsList.length === 0 ? (
             <p className="text-zinc-500">No hay nadie transmitiendo en este momento.</p>
           ) : (

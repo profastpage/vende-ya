@@ -106,7 +106,7 @@ function ViewersPill({ realSpectators, anonymousCount, likes }: { realSpectators
       </button>
       <div className="inline-flex items-center gap-1 text-white hover:bg-white/10 px-2 py-1 rounded-lg transition-colors cursor-pointer">
         <Heart className="h-3.5 w-3.5 text-[#FE2C55] fill-[#FE2C55]" />
-        <span className="text-xs font-black tabular-nums drop-shadow-lg">{formatViewers(likes)}</span>
+        <span className="text-xs font-black tabular-nums drop-shadow-lg">{formatCompact(likes)}</span>
       </div>
       
       <AnimatePresence>
@@ -688,7 +688,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
       </div>
       
       {/* Ocultar UI Toggle (Solo Mobile) - ROOT LEVEL PARA Z-INDEX ABSOLUTO */}
-          <div className="md:hidden absolute right-3 top-28 z-[100] flex flex-col items-end gap-2 pointer-events-auto">
+          <div className="md:hidden absolute right-3 top-40 z-[100] flex flex-col items-end gap-2 pointer-events-auto">
             {hideUI && (
               <div className="bg-gradient-to-r from-rose-500 to-rose-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-lg animate-bounce mr-1">
                 💬 Ver Chat y Compras
