@@ -57,7 +57,8 @@ export default async function MarketplacePage() {
       category: p.category?.nameEs || 'Otros',
       seller: {
         displayName: p.seller.displayName,
-        isVerified: p.seller.isVerified
+        isVerified: p.seller.isVerified,
+        department: p.seller.department || 'Lima',
       }
     }
   })
@@ -74,7 +75,8 @@ export default async function MarketplacePage() {
       category: 'General',
       seller: {
         displayName: 'Vende Ya Oficial',
-        isVerified: true
+        isVerified: true,
+        department: 'Lima',
       }
     }
   ]

@@ -15,6 +15,7 @@ import {
   Radio, Eye, BadgeCheck, Gavel, Tag, Video, Clock,
   ExternalLink, CreditCard, Smartphone, Zap, ChevronRight,
   Trophy, MessageSquare, Heart, Settings, ShieldAlert,
+  MessageCircle,
 } from 'lucide-react'
 import { AuthGuard } from '@/components/vendeda/AuthGuard'
 import { useAuth } from '@/components/vendeda/AuthProvider'
@@ -870,8 +871,17 @@ function RecentOrdersCard({
                     {o.paymentMethod.replace('_', ' ')}
                   </span>
                 </div>
-                {o.status !== 'COMPLETED' && o.status !== 'CANCELLED' && (
-                  <div className="mt-2 text-right">
+                <div className="mt-3 pt-2 border-t border-border flex items-center justify-between gap-2">
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(`Hola, soy el vendedor de tu orden #${o.id} en Vende Ya. Te escribo para coordinar los detalles de entrega y envío por Shalom/Olva.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold transition-all"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                    WhatsApp
+                  </a>
+                  {o.status !== 'COMPLETED' && o.status !== 'CANCELLED' && (
                     <button onClick={async () => {
                       if(confirm("¿Confirmas que el producto ha sido entregado al comprador? Los fondos pasarán de Escrow a Disponible.")) {
                         try {
@@ -886,8 +896,8 @@ function RecentOrdersCard({
                     }} className="text-[10px] font-bold bg-amber-500 text-zinc-950 px-3 py-1.5 rounded-lg hover:bg-amber-400 transition-colors">
                       Marcar Entregado
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )
           })}
