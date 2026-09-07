@@ -4,9 +4,9 @@ import * as React from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Search, X, Heart, BadgeCheck, Clock, Gavel, Sparkles, PackageOpen } from 'lucide-react'
+import { Search, X, Heart, BadgeCheck, Clock, Gavel, Sparkles, PackageOpen, Loader2 } from 'lucide-react'
 import { StaticPageShell } from '@/components/vendeda/StaticPageShell'
-import { MOCK_PRODUCTS, MOCK_TRENDING_AUCTIONS, MOCK_PROFILES } from '@/lib/vendeda/mock-data'
+import { searchDatabase, type SearchResults } from './actions'
 import { formatPEN, initials } from '@/lib/vendeda/format'
 import { CATEGORIES } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
@@ -96,7 +96,7 @@ function AuctionBento({ auction }: { auction: Auction }) {
       whileHover={{ y: -4 }}
       className="group relative overflow-hidden rounded-2xl bg-card/80 border border-border backdrop-blur-sm"
     >
-      <Link href={ROUTES.auction(auction.id)} className="block relative aspect-square overflow-hidden bg-background">
+      <Link href={seller?.username ? ROUTES.stream(seller.username) : ROUTES.auction(auction.id)} className="block relative aspect-square overflow-hidden bg-background">
         {product?.images?.[0] && (
           <img
             src={product.images[0]}
@@ -194,31 +194,39 @@ function SearchInner() {
   const [query, setQuery] = React.useState(initialQ)
   const [tab, setTab] = React.useState<Tab>('all')
   const [cat, setCat] = React.useState<string>('all')
+  const [loading, setLoading] = React.useState(false)
+  const [data, setData] = React.useState<SearchResults>({ products: [], auctions: [], sellers: [] })
 
-  const q = query.toLowerCase().trim()
+  const q = query.trim()
 
-  const products = q
-    ? MOCK_PRODUCTS.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q)
-      )
-    : MOCK_PRODUCTS.slice(0, 6)
+  React.useEffect(() => {
+    let active = true
+    setLoading(true)
 
-  const auctions = q
-    ? MOCK_TRENDING_AUCTIONS.filter((a) => a.product?.title.toLowerCase().includes(q))
-    : MOCK_TRENDING_AUCTIONS.slice(0, 4)
+    const timer = setTimeout(() => {
+      searchDatabase(query, cat)
+        .then((res) => {
+          if (active) {
+            setData(res)
+            setLoading(false)
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+          if (active) setLoading(false)
+        })
+    }, 250)
 
-  const sellers = q
-    ? MOCK_PROFILES.filter(
-        (p) =>
-          p.displayName.toLowerCase().includes(q) ||
-          p.username.toLowerCase().includes(q) ||
-          (p.bio ?? '').toLowerCase().includes(q)
-      )
-    : []
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [query, cat])
 
-  const filteredProducts = cat === 'all' ? products : products.filter((p) => p.categoryId === cat)
+  const products = data.products
+  const auctions = data.auctions
+  const sellers = data.sellers
+  const filteredProducts = products
 
   const totalResults =
     (tab === 'all' || tab === 'products' ? filteredProducts.length : 0) +
@@ -296,18 +304,27 @@ function SearchInner() {
       </div>
 
       {/* Results count */}
-      {q && (
-        <p className="text-xs text-muted-foreground mb-4">
-          {totalResults > 0 ? (
-            <>
-              <span className="text-foreground font-bold">{totalResults}</span> resultado(s) para{' '}
-              <span className="text-amber-400 font-bold">"{query}"</span>
-            </>
-          ) : (
-            <>Sin resultados para <span className="text-amber-400">"{query}"</span></>
-          )}
-        </p>
-      )}
+      <div className="flex items-center justify-between mb-4">
+        {q ? (
+          <p className="text-xs text-muted-foreground">
+            {totalResults > 0 ? (
+              <>
+                <span className="text-foreground font-bold">{totalResults}</span> resultado(s) para{' '}
+                <span className="text-amber-400 font-bold">"{query}"</span>
+              </>
+            ) : !loading ? (
+              <>Sin resultados para <span className="text-amber-400">"{query}"</span></>
+            ) : null}
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground font-medium">Explorando catálogo reciente en Vende Ya</p>
+        )}
+        {loading && (
+          <span className="flex items-center gap-1.5 text-xs text-amber-400">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Buscando...
+          </span>
+        )}
+      </div>
 
       {/* Empty state */}
       {!q && (
