@@ -125,3 +125,84 @@ export async function endLiveStream(streamId: string) {
   revalidatePath('/marketplace');
   return { success: true };
 }
+
+export async function createMarketplaceProduct(data: {
+  title: string;
+  description: string;
+  basePrice: number;
+  categorySlug?: string;
+  condition: string;
+  stock: number;
+  images: string[];
+  shippingCost?: number;
+}) {
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Tu sesión ha expirado o no estás logueado. Por favor, vuelve a iniciar sesión.' }
+  }
+
+  try {
+    // 1. Ensure Profile exists
+    let profile = await db.profile.findUnique({ where: { id: user.id } });
+    if (!profile) {
+      profile = await db.profile.findUnique({ where: { authId: user.id } });
+    }
+    if (!profile) {
+      profile = await db.profile.create({
+        data: {
+          id: user.id,
+          authId: user.id,
+          username: `user_${user.id.substring(0,8)}`,
+          displayName: user.email?.split('@')[0] || 'Usuario',
+        }
+      });
+    }
+
+    // 2. Find category by slug if provided
+    let categoryId: string | null = null;
+    if (data.categorySlug) {
+      const cat = await db.category.findUnique({ where: { slug: data.categorySlug } });
+      if (cat) {
+        categoryId = cat.id;
+      }
+    }
+
+    const imagesJson = JSON.stringify(
+      data.images && data.images.length > 0
+        ? data.images
+        : ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=70']
+    );
+
+    const product = await db.product.create({
+      data: {
+        id: `prod-${Date.now()}`,
+        sellerId: user.id,
+        title: data.title,
+        description: data.description || 'Sin descripción',
+        basePrice: data.basePrice,
+        currency: 'PEN',
+        categoryId,
+        condition: data.condition || 'nuevo',
+        stock: Math.max(1, data.stock || 1),
+        images: imagesJson,
+        status: 'active',
+        isLiveOnly: false,
+        shipsNationwide: true,
+        shippingCost: data.shippingCost || 0,
+      }
+    });
+
+    revalidatePath('/marketplace');
+    revalidatePath('/');
+    if (profile.username) {
+      revalidatePath(`/vendedores/${profile.username}`);
+    }
+
+    return { success: true, productId: product.id };
+  } catch (error: any) {
+    console.error('Error in createMarketplaceProduct:', error);
+    return { success: false, error: 'Error al publicar producto: ' + (error.message || error.toString()) };
+  }
+}

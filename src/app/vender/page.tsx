@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Sparkles, Video, Radio, Tag, ArrowRight, ArrowLeft, ChevronRight,
   Loader2, Check, Image as ImageIcon, DollarSign, Package, Wallet,
-  ShieldCheck, Plug, ChevronRight as ChevronR, Plus, Rocket,
+  ShieldCheck, Plug, ChevronRight as ChevronR, Plus, Rocket, X, Trash2,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { AuthGuard } from '@/components/vendeda/AuthGuard'
@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { createMultiStream } from './actions'
+import { createMultiStream, createMarketplaceProduct } from './actions'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { CATEGORIES, PAYMENT_METHODS } from '@/lib/vendeda/constants'
 import { formatPEN } from '@/lib/vendeda/format'
@@ -95,6 +95,43 @@ function VenderInner() {
     const [startingPrice, setStartingPrice] = React.useState('')
   const [duration, setDuration] = React.useState('180')
   const [submitting, setSubmitting] = React.useState(false)
+  const [productImages, setProductImages] = React.useState<string[]>([])
+
+  const handleProductPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    Array.from(files).slice(0, 4 - productImages.length).forEach((file) => {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+          const targetWidth = 800
+          const targetHeight = 800
+          canvas.width = targetWidth
+          canvas.height = targetHeight
+
+          // Center crop to square
+          const scale = Math.max(targetWidth / img.width, targetHeight / img.height)
+          const x = (targetWidth / scale - img.width) / 2
+          const y = (targetHeight / scale - img.height) / 2
+
+          ctx?.drawImage(img, x, y, img.width, img.height, 0, 0, targetWidth, targetHeight)
+          const webp = canvas.toDataURL('image/webp', 0.82)
+          setProductImages((prev) => (prev.length < 4 ? [...prev, webp] : prev))
+        }
+        img.src = event.target?.result as string
+      }
+      reader.readAsDataURL(file)
+    })
+    e.target.value = ''
+  }
+
+  const removeProductPhoto = (index: number) => {
+    setProductImages((prev) => prev.filter((_, i) => i !== index))
+  }
 
   // Wallet status (drives hero CTA + banner)
   const [wallet, setWallet] = React.useState<{
@@ -197,39 +234,61 @@ function VenderInner() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title || !price || (isLive && !streamUrl)) {
-        toast({ title: 'Error', description: 'Todos los campos son obligatorios, y si es en vivo, el enlace de tu transmisión.', variant: 'destructive' })
+
+    if (isLive) {
+      if (!title || !price || !streamUrl) {
+        toast({ 
+          title: 'Faltan campos', 
+          description: 'Título, precio y el enlace de tu transmisión de YouTube son obligatorios para En Vivo.', 
+          variant: 'destructive' 
+        })
         return
       }
-    setSubmitting(true)
-    try {
-      const res = await createMultiStream(title, streamUrl, isAuction, Number(price), coverImage)
+      setSubmitting(true)
+      try {
+        const res = await createMultiStream(title, streamUrl, isAuction, Number(price), coverImage)
         if (res?.error) throw new Error(res.error)
-      toast({ title: '¡En Vivo!', description: 'Tu transmisión ha sido enlazada a Vende Ya exitosamente.' })
-      router.push('/studio')
-    } catch(err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' })
-    } finally {
-      setSubmitting(false)
+        toast({ title: '¡En Vivo!', description: 'Tu transmisión ha sido enlazada a Vende Ya exitosamente.' })
+        router.push('/studio')
+      } catch (err: any) {
+        toast({ title: 'Error', description: err.message, variant: 'destructive' })
+      } finally {
+        setSubmitting(false)
+      }
+    } else {
+      // Flujo de publicación exclusivo para el Marketplace
+      if (!title || !price) {
+        toast({ 
+          title: 'Faltan campos', 
+          description: 'Título y precio son obligatorios para publicar en el Marketplace.', 
+          variant: 'destructive' 
+        })
+        return
+      }
+      setSubmitting(true)
+      try {
+        const res = await createMarketplaceProduct({
+          title,
+          description,
+          basePrice: Number(price),
+          categorySlug: category || undefined,
+          condition,
+          stock: Number(stock) || 1,
+          images: productImages,
+          shippingCost: Number(shippingCost) || 0
+        })
+        if (res?.error) throw new Error(res.error)
+        toast({ 
+          title: '¡Producto Publicado!', 
+          description: 'Tu producto ya está disponible en el Marketplace.' 
+        })
+        router.push(ROUTES.marketplace)
+      } catch (err: any) {
+        toast({ title: 'Error', description: err.message, variant: 'destructive' })
+      } finally {
+        setSubmitting(false)
+      }
     }
-    return;
-    /*
-    e.preventDefault()
-    if (!title || !price) {
-      toast({ title: '⚠️ Faltan campos', description: 'Título y precio son obligatorios.', variant: 'destructive' })
-      return
-    }
-    setSubmitting(true)
-    await new Promise((r) => setTimeout(r, 1000))
-    setSubmitting(false)
-    toast({
-      title: isAuction ? '🎉 Subasta creada' : '🎉 Producto publicado',
-      description: isAuction
-        ? 'Tu subasta está activa. ¡Comparte el enlace!'
-        : 'Tu producto ya está en el marketplace.',
-    })
-    router.push(ROUTES.dashboard)
-  }*/
   }
 
   return (
@@ -597,23 +656,46 @@ function VenderInner() {
               {/* Photos */}
             {!isLive && (
               <div className="space-y-2">
-                <Label className="text-muted-foreground">Fotos</Label>
-                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                                      <label className="aspect-square rounded-lg border-2 border-dashed border-amber-400/30 flex flex-col items-center justify-center gap-1 text-muted-foreground hover:bg-muted hover:border-amber-400 transition-colors cursor-pointer bg-amber-400/5">
-                      <ImageIcon className="h-6 w-6 text-amber-400/70" />
-                      <span className="text-xs font-semibold text-amber-400">Portada *</span>
-                      <input type="file" accept="image/*" className="hidden" required />
-                    </label>
-                  {[1, 2].map((i) => (
-                    <div
-                      key={i}
-                      className="aspect-square rounded-lg bg-muted border border-border flex items-center justify-center text-xs text-muted-foreground"
-                    >
-                      Foto {i}
+                <Label className="text-muted-foreground flex items-center justify-between">
+                  <span>Fotos del producto</span>
+                  <span className="text-xs text-amber-400 font-medium">Auto-convertidas a WebP</span>
+                </Label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {productImages.map((img, idx) => (
+                    <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-border bg-muted group">
+                      <img src={img} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
+                      {idx === 0 && (
+                        <span className="absolute bottom-1 left-1 bg-black/70 backdrop-blur-sm text-[9px] font-bold text-amber-400 px-1.5 py-0.5 rounded">
+                          Portada
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeProductPhoto(idx)}
+                        className="absolute top-1 right-1 p-1 rounded-full bg-black/80 text-rose-400 hover:text-white hover:bg-rose-600 transition-colors"
+                        title="Eliminar foto"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     </div>
                   ))}
+
+                  {productImages.length < 4 && (
+                    <label className="aspect-square rounded-xl border-2 border-dashed border-amber-400/40 flex flex-col items-center justify-center gap-1.5 text-muted-foreground hover:bg-amber-400/10 hover:border-amber-400 transition-colors cursor-pointer bg-amber-400/5">
+                      <ImageIcon className="h-6 w-6 text-amber-400" />
+                      <span className="text-xs font-bold text-amber-400">
+                        {productImages.length === 0 ? '+ Portada' : '+ Foto extra'}
+                      </span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleProductPhotoUpload} 
+                        className="hidden" 
+                      />
+                    </label>
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground">Hasta 8 fotos. Primera foto = portada.</p>
+                <p className="text-xs text-muted-foreground">Sube hasta 4 fotos. Cada una se optimiza automáticamente en formato WebP liviano.</p>
               </div>
             )}
 
