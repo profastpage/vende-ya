@@ -49,3 +49,41 @@ export async function endStream(streamId: string) {
     return { error: 'Failed to end stream' };
   }
 }
+
+export async function blockUserFromStream(streamId: string, username: string, senderId?: string | null) {
+  try {
+    // 1. Ocultar todos los mensajes previos de este usuario en este stream
+    if (senderId) {
+      await db.liveChatMessage.updateMany({
+        where: { streamId, senderId },
+        data: { isHidden: true }
+      });
+    }
+    if (username) {
+      await db.liveChatMessage.updateMany({
+        where: { streamId, guestName: username },
+        data: { isHidden: true }
+      });
+    }
+
+    // 2. Registrar el bloqueo permanente para este stream
+    await db.liveChatMessage.create({
+      data: {
+        streamId,
+        senderId: senderId || null,
+        guestName: username,
+        content: `Usuario @${username} bloqueado por el streamer`,
+        type: 'streamer-ban',
+        isHidden: true,
+        aiFlagged: true,
+        aiCategory: 'blocked'
+      }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error blocking user from stream:', error);
+    return { error: 'No se pudo bloquear al usuario' };
+  }
+}
+

@@ -5,6 +5,25 @@ import { moderateChat } from '@/lib/vendeda/ai'
 export async function POST(req: Request) {
   try {
     const { streamId, username, text, color, isBot, senderId } = await req.json()
+
+    // 0. Verificar si el usuario fue bloqueado por el streamer en esta transmisión
+    const isBlocked = await db.liveChatMessage.findFirst({
+      where: {
+        streamId,
+        type: 'streamer-ban',
+        OR: [
+          ...(senderId ? [{ senderId }] : []),
+          ...(username ? [{ guestName: username }] : []),
+        ],
+      },
+    })
+
+    if (isBlocked) {
+      return NextResponse.json(
+        { flagged: true, blocked: true, reason: 'Has sido bloqueado por el streamer en esta transmisión.' },
+        { status: 403 }
+      )
+    }
     
     // IA Moderation
     if (!isBot) {

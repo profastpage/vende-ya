@@ -1,14 +1,14 @@
 'use client'
 
 import * as React from 'react'
-import { Plus, Package, MessageSquare, Video, ShieldAlert } from 'lucide-react'
-import { createExpressProduct, endStream } from '@/app/studio/actions'
+import { Plus, Package, MessageSquare, Video, ShieldAlert, Ban } from 'lucide-react'
+import { createExpressProduct, endStream, blockUserFromStream } from '@/app/studio/actions'
 import { toast } from 'sonner'
 import { createBrowserClient } from '@supabase/ssr'
 
 export function StreamControlPanel({ stream }: { stream: any }) {
   const [loading, setLoading] = React.useState(false)
-  const [chat, setChat] = React.useState<{id: string, user: string, text: string}[]>([])
+  const [chat, setChat] = React.useState<{id: string, user: string, text: string, senderId?: string}[]>([])
 
   const supabase = React.useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,12 +19,40 @@ export function StreamControlPanel({ stream }: { stream: any }) {
     const channel = supabase.channel(`chat_${stream.id}`)
     
     channel.on('broadcast', { event: 'new_message' }, (payload) => {
-      setChat(prev => [...prev, { id: payload.payload.id, user: payload.payload.username, text: payload.payload.text }].slice(-20))
+      setChat(prev => [...prev, { 
+        id: payload.payload.id, 
+        user: payload.payload.username, 
+        text: payload.payload.text,
+        senderId: payload.payload.senderId 
+      }].slice(-25))
+    })
+
+    channel.on('broadcast', { event: 'user_blocked' }, (payload) => {
+      const { username: blockedUser } = payload.payload || {}
+      if (blockedUser) {
+        setChat(prev => prev.filter(m => m.user !== blockedUser))
+      }
     })
 
     channel.subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [stream.id, supabase])
+
+  const handleBlockUser = async (msg: { id: string, user: string, text: string, senderId?: string }) => {
+    if (!confirm(`¿Deseas bloquear a @${msg.user} del chat? Sus comentarios serán eliminados de la sala.`)) return;
+    try {
+      await blockUserFromStream(stream.id, msg.user, msg.senderId);
+      await supabase.channel(`chat_${stream.id}`).send({
+        type: 'broadcast',
+        event: 'user_blocked',
+        payload: { username: msg.user, senderId: msg.senderId }
+      });
+      setChat(prev => prev.filter(m => m.user !== msg.user));
+      toast.success(`Usuario @${msg.user} bloqueado del chat`);
+    } catch (err) {
+      toast.error('Error al bloquear usuario');
+    }
+  };
 
   const handleExpressLaunch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -89,15 +117,25 @@ export function StreamControlPanel({ stream }: { stream: any }) {
         </div>
 
         {/* Chat Monitor */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-zinc-900/50">
+        <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-zinc-900/50">
           <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-2">
             <MessageSquare className="w-4 h-4" /> Monitor de Chat
           </h3>
           {chat.length === 0 && <p className="text-sm text-zinc-500">Esperando mensajes...</p>}
           {chat.map(msg => (
-            <div key={msg.id} className="text-sm">
-              <span className="font-bold text-lime-400">{msg.user}: </span>
-              <span className="text-zinc-300">{msg.text}</span>
+            <div key={msg.id} className="text-sm flex items-center justify-between group p-1.5 rounded hover:bg-zinc-800/60 transition-colors">
+              <div className="min-w-0 pr-2">
+                <span className="font-bold text-lime-400">{msg.user}: </span>
+                <span className="text-zinc-300 break-words">{msg.text}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleBlockUser(msg)}
+                title={`Bloquear a @${msg.user}`}
+                className="opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-300 hover:bg-rose-500/20 px-2 py-1 rounded text-xs flex items-center gap-1 transition-all shrink-0"
+              >
+                <Ban className="w-3 h-3" /> Bloquear
+              </button>
             </div>
           ))}
         </div>

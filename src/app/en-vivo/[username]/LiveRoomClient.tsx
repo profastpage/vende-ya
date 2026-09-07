@@ -6,6 +6,7 @@ import { useTransition } from 'react'
 import { useAuth } from '@/components/vendeda/AuthProvider'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { blockUserFromStream } from '@/app/studio/actions'
 import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer';
 
 import * as React from 'react'
@@ -16,7 +17,7 @@ import {
   PowerOff, ChevronLeft, ChevronRight, Flame, Eye, EyeOff, Heart, Share2, ShoppingBag,
   MessageCircle, Send, Gavel, Clock, BadgeCheck, ShieldCheck,
   Bot, Users, Crown, MapPin, Package, Star, Zap, X,
-Maximize, Minimize,
+Maximize, Minimize, Ban,
 } from 'lucide-react'
 import type { Profile, Product, Auction } from '@/lib/vendeda/types'
 import {
@@ -46,6 +47,7 @@ interface ChatMessage {
   color: string
   isBot?: boolean
   avatarUrl?: string | null
+  senderId?: string | null
 }
 
 
@@ -179,7 +181,15 @@ function SellerPill({ seller, initial }: { seller: Profile; initial: string }) {
   )
 }
 
-function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
+function ChatMessageBubble({ 
+  msg, 
+  isStreamer, 
+  onBlockUser 
+}: { 
+  msg: ChatMessage; 
+  isStreamer?: boolean; 
+  onBlockUser?: () => void; 
+}) {
   if (msg.isBot) {
     return (
       <motion.div
@@ -201,7 +211,7 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
       animate={{ opacity: 1, x: 0, y: 0 }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ type: 'spring', stiffness: 280, damping: 24 }}
-      className="text-[13px] px-1 py-1 text-white"
+      className="text-[13px] px-1 py-1 text-white group"
       style={{ textShadow: '0px 1px 3px rgba(0,0,0,0.9), 0px 1px 1px rgba(0,0,0,0.6)' }}
     >
       <div className="flex items-start gap-2 w-full max-w-full pointer-events-auto">
@@ -213,7 +223,23 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
           </div>
         )}
         <div className="flex flex-col leading-tight gap-0.5 min-w-0 flex-1 overflow-hidden">
-          <span className="font-extrabold text-white/95 text-[12px] truncate">{msg.username}</span>
+          <div className="flex items-center justify-between gap-1">
+            <span className="font-extrabold text-white/95 text-[12px] truncate">{msg.username}</span>
+            {isStreamer && !msg.isBot && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onBlockUser?.();
+                }}
+                title={`Bloquear a @${msg.username}`}
+                className="opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-300 hover:bg-rose-500/20 px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-all"
+              >
+                <Ban className="w-2.5 h-2.5" />
+                <span>Bloquear</span>
+              </button>
+            )}
+          </div>
           <span className="text-white text-[13px] break-words break-all leading-snug whitespace-normal">{msg.text}</span>
         </div>
       </div>
@@ -221,12 +247,33 @@ function ChatMessageBubble({ msg }: { msg: ChatMessage }) {
   )
 }
 
-export default function LiveRoomClient({ stream, auction, product, seller, initialChat, currentUserId }: { stream: any, auction: any, product: any, seller: any, initialChat?: ChatMessage[], currentUserId?: string }) {
+export default function LiveRoomClient({ 
+  stream, 
+  auction, 
+  product, 
+  seller, 
+  initialChat, 
+  currentUserId,
+  isInitiallyBlocked = false
+}: { 
+  stream: any, 
+  auction: any, 
+  product: any, 
+  seller: any, 
+  initialChat?: ChatMessage[], 
+  currentUserId?: string,
+  isInitiallyBlocked?: boolean
+}) {
   const { user } = useAuth();
   const userName = user?.displayName || 'Usuario';
+  const [isBlocked, setIsBlocked] = React.useState(Boolean(isInitiallyBlocked));
 
   const [isEnding, startEnding] = useTransition();
-  const isSeller = currentUserId === seller.id;
+  const isSeller = currentUserId === seller.id || user?.id === seller.id;
+  const isStreamer = Boolean(
+    isSeller || 
+    (user && (user.id === seller.id || user.email === 'profastpage@gmail.com' || (user as any)?.username === seller.username))
+  );
 
   const handleEndStream = () => {
     startEnding(async () => {
@@ -273,6 +320,21 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
     })
     chatChannel.on('broadcast', { event: 'new_product' }, () => {
         router.refresh();
+      })
+      chatChannel.on('broadcast', { event: 'user_blocked' }, (payload) => {
+        const { username: blockedUser, senderId: blockedSenderId } = payload.payload || {};
+        if (blockedUser || blockedSenderId) {
+          setChat((prev) => prev.filter((m) => 
+            m.username !== blockedUser && (!blockedSenderId || m.senderId !== blockedSenderId)
+          ));
+          const amIBlocked = 
+            (user && blockedSenderId && user.id === blockedSenderId) ||
+            (userName && userName.toLowerCase() === (blockedUser || '').toLowerCase());
+          if (amIBlocked) {
+            setIsBlocked(true);
+            toast.error('Has sido bloqueado por el streamer en esta transmisión');
+          }
+        }
       })
       chatChannel.on('broadcast', { event: 'new_message' }, (payload) => {
         setChat((prev) => {
@@ -427,10 +489,43 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
     } catch(e) {}
   }
 
-    const sendChat = async () => {
+  const handleBlockUser = async (msg: ChatMessage) => {
+    if (!isStreamer || msg.isBot) return;
+    const confirmBlock = window.confirm(
+      `¿Deseas bloquear a @${msg.username} de esta transmisión?\n\nSus comentarios serán eliminados y no podrá volver a comentar en este En Vivo.`
+    );
+    if (!confirmBlock) return;
+
+    try {
+      await blockUserFromStream(id, msg.username, msg.senderId);
+      await supabase.channel(`chat_${id}`).send({
+        type: 'broadcast',
+        event: 'user_blocked',
+        payload: { username: msg.username, senderId: msg.senderId }
+      });
+      setChat((prev) => prev.filter((m) => m.username !== msg.username && (!msg.senderId || m.senderId !== msg.senderId)));
+      toast.success(`Usuario @${msg.username} bloqueado del chat`);
+    } catch (err) {
+      console.error(err);
+      toast.error('No se pudo bloquear al usuario');
+    }
+  };
+
+  const sendChat = async () => {
+    if (isBlocked) {
+      toast.error('Has sido bloqueado por el streamer en esta transmisión');
+      return;
+    }
     if (!chatInput.trim()) return
     const currentText = chatInput.trim()
-    const msg = { id: Date.now().toString(), username: userName || 'T', text: currentText, color: 'text-lime-400', avatarUrl: user?.avatarUrl }
+    const msg: ChatMessage = { 
+      id: Date.now().toString(), 
+      username: userName || 'Tú', 
+      text: currentText, 
+      color: 'text-lime-400', 
+      avatarUrl: user?.avatarUrl,
+      senderId: user?.id 
+    }
     setChat((prev) => [...prev, msg])
     setChatInput('')
 
@@ -449,9 +544,16 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
       })
       const data = await res.json()
       
+      if (data.blocked) {
+        setIsBlocked(true);
+        setChat(prev => prev.filter(m => m.id !== msg.id));
+        toast.error('Has sido bloqueado por el streamer en esta transmisión');
+        return;
+      }
+
       if (data.flagged) {
-        setChat(prev => prev.map(m => m.id === msg.id ? { ...m, text: '[Mensaje bloqueado por la IA de Moderacin]', color: 'text-rose-500' } : m));
-        toast.error('Mensaje bloqueado', { description: 'Tu mensaje infringi nuestras normas de comunidad.' })
+        setChat(prev => prev.map(m => m.id === msg.id ? { ...m, text: '[Mensaje bloqueado por la IA de Moderación]', color: 'text-rose-500' } : m));
+        toast.error('Mensaje bloqueado', { description: 'Tu mensaje infringió nuestras normas de comunidad.' })
         return; // No broadcast
       }
     } catch(e) {}
@@ -460,7 +562,7 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
     await supabase.channel(`chat_${id}`).send({
       type: 'broadcast',
       event: 'new_message',
-      payload: { ...msg, username: userName || 'Espectador' }
+      payload: { ...msg, username: userName || 'Espectador', senderId: user?.id }
     })
   }
 
@@ -582,7 +684,12 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
           <div className={`h-[22vh] md:flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 md:p-4 flex flex-col no-scrollbar relative z-10 pointer-events-none md:pointer-events-auto`} style={{ WebkitMaskImage: 'linear-gradient(to top, black 80%, transparent 100%)' }}>
             <div className="mt-auto flex flex-col space-y-3">
                 {chat.map((msg) => (
-                  <ChatMessageBubble key={msg.id} msg={msg} />
+                  <ChatMessageBubble 
+                    key={msg.id} 
+                    msg={msg} 
+                    isStreamer={isStreamer} 
+                    onBlockUser={() => handleBlockUser(msg)} 
+                  />
                 ))}
                 <div ref={messagesEndRef} />
             </div>
@@ -610,7 +717,11 @@ export default function LiveRoomClient({ stream, auction, product, seller, initi
                 </AnimatePresence>
               </div>
 
-              {!user ? (
+              {isBlocked ? (
+                <div className="w-full flex items-center justify-center px-4 h-10 border border-rose-500/50 rounded-full bg-rose-950/80 backdrop-blur-md text-rose-300 text-xs font-bold gap-2 shadow-lg">
+                  <Ban className="w-4 h-4 text-rose-400 shrink-0" /> Has sido bloqueado por el streamer en esta transmisión
+                </div>
+              ) : !user ? (
                 <Link 
                   href="/login" 
                   className="w-full flex items-center justify-between px-4 h-10 border border-white/30 rounded-full bg-black/40 backdrop-blur-md transition-colors hover:bg-black/60"
