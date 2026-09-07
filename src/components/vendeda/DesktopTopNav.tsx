@@ -13,6 +13,7 @@ import { APP_NAME } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { cn } from '@/lib/utils'
 import ThemeToggle from './ThemeToggle'
+import { SearchWithSuggestions } from './SearchWithSuggestions'
 
 import { useAuth } from './AuthProvider'
 
@@ -106,21 +107,8 @@ export function DesktopTopNav() {
         })}
       </nav>
 
-      {/* Search */}
-      <form
-        action={ROUTES.search}
-        className="flex-1 max-w-xl relative"
-        role="search"
-      >
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <Input
-          type="search"
-          name="q"
-          placeholder="Buscar productos, vendedores, marcas..."
-          className="pl-10 h-10 bg-muted border border-border text-foreground placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-300"
-          aria-label="Buscar"
-        />
-      </form>
+      {/* Search with Live Suggestions */}
+      <SearchWithSuggestions className="flex-1 max-w-xl" />
 
       {/* Live indicator */}
       <Link
