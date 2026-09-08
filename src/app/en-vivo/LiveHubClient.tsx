@@ -10,6 +10,7 @@ import { formatViewers } from '@/lib/vendeda/format'
 import { ROUTES } from '@/lib/vendeda/routes'
 import type { LiveStream, Profile } from '@/lib/vendeda/types'
 import { useMultiLiveViewers } from '@/hooks/useMultiLiveViewers'
+import { safeStreamCover, DEFAULT_STREAM_COVER } from '@/lib/vendeda/images'
 
 /* ------------------------------------------------------------------ */
 /* Dark Stream Hub — /en-vivo index · "Ultra Inmersiva"               */
@@ -84,6 +85,7 @@ const itemVariants = {
 function FeaturedHeroCard({ stream, viewers }: { stream: LiveStream, viewers: number }) {
   const seller = stream.seller || { id: "0", displayName: "Usuario", rating: 5, department: "Lima", isVerified: false, username: "usuario" }
   const bucket = streamBucket(stream)
+  const cover = safeStreamCover(stream)
 
   return (
     <Link href={ROUTES.stream(stream.id)} className="block group" aria-label={`Unirse a ${stream.title}`}>
@@ -94,19 +96,16 @@ function FeaturedHeroCard({ stream, viewers }: { stream: LiveStream, viewers: nu
         className="relative aspect-video rounded-3xl overflow-hidden border border-border bg-card shadow-2xl shadow-black/60"
       >
         {/* Background Media */}
-        {stream.streamProviderId || stream.youtubeLiveId || stream.kickUsername ? (
-          <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
-            <div className="relative w-full aspect-video pointer-events-none">
-              <DynamicLivePlayer provider={stream.streamProvider || 'YOUTUBE'} providerId={stream.streamProviderId || stream.youtubeLiveId || stream.kickUsername || ''} />
-            </div>
-          </div>
-        ) : (
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-            style={{ backgroundImage: `url(${stream.thumbnailUrl ?? ''})` }}
-            aria-hidden
+        <div className="absolute inset-0 z-0 overflow-hidden bg-zinc-950">
+          <img
+            src={cover}
+            alt={stream.title}
+            onError={(e) => {
+              e.currentTarget.src = DEFAULT_STREAM_COVER
+            }}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-        )}
+        </div>
 
         {/* Overlays for readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20" />
@@ -238,25 +237,24 @@ function FilterChip({
 function StreamCard({ stream, viewers }: { stream: LiveStream, viewers: number }) {
   const seller = stream.seller || { id: "0", displayName: "Usuario", rating: 5, department: "Lima", isVerified: false, username: "usuario" }
   const bucket = streamBucket(stream)
+  const cover = safeStreamCover(stream)
 
   return (
     <motion.div variants={itemVariants} whileHover={{ y: -4 }}>
       <Link href={ROUTES.stream(stream.id)} className="group block h-full" aria-label={`Ver ${stream.title}`}>
         <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-border bg-card shadow-lg shadow-black/40">
-          {/* Background Media */}
-          {stream.streamProviderId || stream.youtubeLiveId || stream.kickUsername ? (
-            <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
-              <div className="relative w-full h-full pointer-events-none">
-                <DynamicLivePlayer provider={stream.streamProvider || 'YOUTUBE'} providerId={stream.streamProviderId || stream.youtubeLiveId || stream.kickUsername || ''} />
-              </div>
-            </div>
-          ) : (
-            <div
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-              style={{ backgroundImage: `url(${stream.thumbnailUrl ?? ''})` }}
-              aria-hidden
+          {/* Background Image */}
+          <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden">
+            <img
+              src={cover}
+              alt={stream.title}
+              onError={(e) => {
+                e.currentTarget.src = DEFAULT_STREAM_COVER
+              }}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
             />
-          )}
+          </div>
 
           {/* Bottom gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
@@ -352,33 +350,6 @@ function EmptyState() {
 /* ════════════════════════════════════════════════════════════════ */
 /* PAGE                                                                */
 /* ════════════════════════════════════════════════════════════════ */
-
-function DynamicLivePlayer({ provider, providerId }: { provider: string, providerId: string }) {
-  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'localhost';
-  const containerClasses = "relative w-full h-full bg-black pointer-events-none";
-
-  if (provider === 'TWITCH') {
-    return (
-      <div className={containerClasses}>
-        <iframe src={`https://player.twitch.tv/?channel=${providerId}&parent=${domain}&muted=true&autoplay=true&playsinline=true`} className="w-full h-full border-none" allowFullScreen />
-      </div>
-    );
-  }
-
-  if (provider === 'KICK') {
-    return (
-      <div className={containerClasses}>
-        <iframe src={`https://kick.com/${providerId}/embed`} className="w-full h-full border-none pointer-events-none" allowFullScreen />
-      </div>
-    );
-  }
-
-  return (
-    <div className={containerClasses}>
-      <iframe src={`https://www.youtube.com/embed/${providerId}?autoplay=1&mute=1&rel=0&modestbranding=1&controls=0`} className="w-full h-full border-none pointer-events-none" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
-    </div>
-  );
-}
 
 export default function LiveHubClient({ initialStreams }: { initialStreams: any[] }) {
   const [filter, setFilter] = React.useState<FilterKey>('all')

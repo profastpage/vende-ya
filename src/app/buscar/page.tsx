@@ -12,6 +12,7 @@ import { CATEGORIES } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
 import type { Product, Auction, Profile } from '@/lib/vendeda/types'
 import type { Breadcrumb } from '@/components/vendeda/AppShell'
+import { safeMainImage, DEFAULT_PRODUCT_IMAGE } from '@/lib/vendeda/images'
 
 const breadcrumbs: Breadcrumb[] = [{ label: 'Buscar' }]
 
@@ -33,14 +34,15 @@ function ProductBento({ product }: { product: Product }) {
       className="group relative overflow-hidden rounded-2xl bg-card/80 border border-border backdrop-blur-sm"
     >
       <Link href={ROUTES.product(product.id)} className="block relative aspect-square overflow-hidden bg-background">
-        {product.images?.[0] && (
-          <img
-            src={product.images[0]}
-            alt={product.title}
-            className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-            loading="lazy"
-          />
-        )}
+        <img
+          src={safeMainImage(product.images)}
+          alt={product.title}
+          onError={(e) => {
+            e.currentTarget.src = DEFAULT_PRODUCT_IMAGE
+          }}
+          className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           <span className="px-2 py-0.5 rounded-md bg-muted backdrop-blur-md text-foreground text-[9px] font-bold tracking-wider uppercase">
@@ -97,14 +99,15 @@ function AuctionBento({ auction }: { auction: Auction }) {
       className="group relative overflow-hidden rounded-2xl bg-card/80 border border-border backdrop-blur-sm"
     >
       <Link href={seller?.username ? ROUTES.stream(seller.username) : ROUTES.auction(auction.id)} className="block relative aspect-square overflow-hidden bg-background">
-        {product?.images?.[0] && (
-          <img
-            src={product.images[0]}
-            alt={product.title}
-            className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-            loading="lazy"
-          />
-        )}
+        <img
+          src={safeMainImage(product?.images)}
+          alt={product?.title || 'Subasta'}
+          onError={(e) => {
+            e.currentTarget.src = DEFAULT_PRODUCT_IMAGE
+          }}
+          className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
         {auction.status === 'live' && (
           <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/90 backdrop-blur-md border border-rose-300/30">

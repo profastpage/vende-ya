@@ -71,6 +71,8 @@ model Profile {
   paymentsSeller Payment[]    @relation("PaymentSeller")
   reviewsGiven Review[] @relation("Reviewer")
   reviewsRecv Review[] @relation("Reviewee")
+  sentMessages     DirectMessage[] @relation("SentMessages")
+  receivedMessages DirectMessage[] @relation("ReceivedMessages")
 }
 
 // ---------------------------------------------------------------------
@@ -508,3 +510,22 @@ model PayoutRequest {
 
   wallet    Wallet   @relation(fields: [walletId], references: [id])
 }
+
+// ---------------------------------------------------------------------
+// DIRECT MESSAGES — User to user transactional chat
+// ---------------------------------------------------------------------
+model DirectMessage {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  content    String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender     Profile  @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   Profile  @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId])
+  @@index([receiverId])
+}
+

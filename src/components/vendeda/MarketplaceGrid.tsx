@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Heart, MapPin, SlidersHorizontal, X, Check, Truck } from 'lucide-react'
 import { formatPEN } from '@/lib/vendeda/format'
 import { PERU_DEPARTMENTS } from '@/lib/vendeda/constants'
+import { DEFAULT_PRODUCT_IMAGE } from '@/lib/vendeda/images'
 
 export type MarketplaceProduct = {
   id: string;
@@ -198,10 +199,13 @@ function ProductCard({ product }: { product: MarketplaceProduct }) {
   return (
     <Link href={`/productos/${product.id}`} className="group flex flex-col cursor-pointer block">
       {/* Edge-to-edge Image Container */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-zinc-100 mb-3">
+      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-900 mb-3">
         <img 
           src={product.imageUrl} 
           alt={product.title} 
+          onError={(e) => {
+            e.currentTarget.src = DEFAULT_PRODUCT_IMAGE
+          }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
         />
         

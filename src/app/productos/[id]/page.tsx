@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
+import { safeProductImages } from '@/lib/vendeda/images'
 import ProductDetailsClient from './ProductDetailsClient'
 
 export default async function ProductDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -30,20 +31,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
     }
   })
 
-  // Parse images if needed
-  let images: string[] = ['https://placehold.co/800x1200/1a1a1a/333333.png?text=Product']
-  try {
-    const parsed = JSON.parse(product.images)
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      images = parsed
-    } else if (typeof product.images === 'string' && product.images.startsWith('http')) {
-      images = [product.images]
-    }
-  } catch (e) {
-    if (typeof product.images === 'string' && product.images.startsWith('http')) {
-      images = [product.images]
-    }
-  }
+  const images = safeProductImages(product.images)
 
   return <ProductDetailsClient product={{ ...product, images }} seller={product.seller} reviews={reviews} />
 }

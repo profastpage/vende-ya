@@ -20,6 +20,8 @@ import { MOCK_PRODUCTS, MOCK_TRENDING_AUCTIONS } from '@/lib/vendeda/mock-data'
 import { formatPEN, initials, timeAgoEs } from '@/lib/vendeda/format'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { cn } from '@/lib/utils'
+import { getMyProducts, getMyWonAuctions } from './actions'
+import { safeMainImage, DEFAULT_PRODUCT_IMAGE } from '@/lib/vendeda/images'
 
 const PAGE_TITLE = 'Mi perfil'
 
@@ -128,8 +130,28 @@ function ProfileContent() {
   const sessions = profile?.sessions ?? []
   const lastLogin = profile?.summary.lastLogin ?? null
 
-  const myProducts = MOCK_PRODUCTS.slice(0, 2)
-  const wonAuctions = MOCK_TRENDING_AUCTIONS.slice(0, 1)
+  const [myProducts, setMyProducts] = React.useState<any[]>([])
+  const [wonAuctions, setWonAuctions] = React.useState<any[]>([])
+  const [loadingProducts, setLoadingProducts] = React.useState(true)
+
+  React.useEffect(() => {
+    let isMounted = true
+    getMyProducts().then((res) => {
+      if (isMounted && res.success && res.products) {
+        setMyProducts(res.products)
+      }
+    }).finally(() => {
+      if (isMounted) setLoadingProducts(false)
+    })
+
+    getMyWonAuctions().then((res) => {
+      if (isMounted && res.success && res.auctions) {
+        setWonAuctions(res.auctions)
+      }
+    })
+
+    return () => { isMounted = false }
+  }, [authUser?.id])
 
   const stats = [
     { label: 'Ventas', value: salesCount.toString(), icon: ShoppingBag, color: 'text-amber-400', bg: 'from-amber-400/15 to-amber-500/5' },
@@ -149,7 +171,7 @@ function ProfileContent() {
   })()
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-24 md:pb-12">
+    <div className="min-h-screen bg-background text-foreground pb-40 md:pb-16">
       {/* Mobile compact header */}
       <header className="md:hidden sticky top-0 z-30 bg-background/85 backdrop-blur-xl border-b border-border pt-safe">
         <div className="flex items-center gap-3 px-4 h-14">
@@ -374,16 +396,19 @@ function ProfileContent() {
                         className="group rounded-xl border border-border bg-background/50 overflow-hidden hover:border-amber-400/30 hover:shadow-lg hover:shadow-amber-500/10 transition-all"
                       >
                         <div className="aspect-square bg-muted overflow-hidden">
-                          {p.images[0] && (
-                            <img
-                              src={p.images[0]}
-                              alt={p.title}
-                              className="h-full w-full object-cover group-hover:scale-105 transition-transform"
-                            />
-                          )}
+                          <img
+                            src={safeMainImage(p.images)}
+                            alt={p.title}
+                            onError={(e) => {
+                              e.currentTarget.src = DEFAULT_PRODUCT_IMAGE
+                            }}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform"
+                          />
                         </div>
                         <div className="p-3">
-                          <p className="text-xs font-medium text-foreground line-clamp-1 mb-1">{p.title}</p>
+                          <p className="text-xs font-medium text-foreground line-clamp-2 leading-snug min-h-[2.25rem] break-words mb-1">
+                            {p.title}
+                          </p>
                           <div className="flex items-center justify-between">
                             <p className="text-sm font-bold text-amber-300 font-mono">{formatPEN(p.basePrice)}</p>
                             <span className="text-[10px] text-muted-foreground">Stock: {p.stock}</span>
@@ -394,7 +419,7 @@ function ProfileContent() {
                   </div>
                 )}
 
-                <Link href={ROUTES.vender}>
+                <Link href={`${ROUTES.vender}?mode=marketplace`}>
                   <Button className="w-full mt-4 h-11 bg-gradient-to-r from-amber-400 to-fuchsia-600 hover:from-amber-500 hover:to-fuchsia-700 text-zinc-950 font-bold border-0 shadow-lg shadow-fuchsia-500/30">
                     <ShoppingBag className="h-4 w-4 mr-2" /> Vender algo nuevo
                   </Button>
@@ -431,9 +456,14 @@ function ProfileContent() {
                         className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-muted hover:border-border transition-colors"
                       >
                         <div className="h-12 w-12 rounded-lg overflow-hidden bg-muted shrink-0">
-                          {a.product?.images[0] && (
-                            <img src={a.product.images[0]} alt="" className="h-full w-full object-cover" />
-                          )}
+                          <img
+                            src={safeMainImage(a.product?.images)}
+                            alt=""
+                            onError={(e) => {
+                              e.currentTarget.src = DEFAULT_PRODUCT_IMAGE
+                            }}
+                            className="h-full w-full object-cover"
+                          />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">{a.product?.title}</p>

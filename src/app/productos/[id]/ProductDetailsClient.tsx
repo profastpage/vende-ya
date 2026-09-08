@@ -14,6 +14,7 @@ import { MOCK_PRODUCTS, MOCK_PROFILES } from '@/lib/vendeda/mock-data'
 import { formatPEN, initials, timeAgoEs } from '@/lib/vendeda/format'
 import { PAYMENT_METHODS, SHIPPING_CARRIERS } from '@/lib/vendeda/constants'
 import { ROUTES } from '@/lib/vendeda/routes'
+import { safeMainImage, DEFAULT_PRODUCT_IMAGE } from '@/lib/vendeda/images'
 import {
   GlassCard, GradientButton, GhostButton, StatusBadge,
   staggerContainer, staggerItem,
@@ -602,13 +603,14 @@ export default function ProductDetailsClient({ product, seller, reviews }: { pro
                   className="group rounded-2xl bg-card/80 border border-border overflow-hidden hover:border-amber-400/30 transition-colors"
                 >
                   <div className="aspect-square bg-card overflow-hidden">
-                    {p.images[0] && (
-                      <img
-                        src={p.images[0]}
-                        alt={p.title}
-                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    )}
+                    <img
+                      src={safeMainImage(p.images)}
+                      alt={p.title}
+                      onError={(e) => {
+                        e.currentTarget.src = DEFAULT_PRODUCT_IMAGE
+                      }}
+                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
                   <div className="p-2.5">
                     <p className="text-xs font-medium text-foreground line-clamp-2 leading-tight">{p.title}</p>

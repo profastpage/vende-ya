@@ -1,5 +1,6 @@
 import { MarketplaceGrid, MarketplaceProduct } from '@/components/vendeda/MarketplaceGrid'
 import { db } from '@/lib/db'
+import { safeMainImage } from '@/lib/vendeda/images'
 
 export default async function MarketplacePage() {
   // Fetch real categories and products from Prisma, with fallback to prevent build crashes
@@ -31,20 +32,7 @@ export default async function MarketplacePage() {
 
   // Map to MarketplaceProduct format for the UI
   const products: MarketplaceProduct[] = dbProducts.map(p => {
-    // p.images is a JSON array string in this schema, need to parse or fallback
-    let imageUrl = 'https://placehold.co/300x400/1a1a1a/333333.png?text=Product'
-    try {
-      const parsed = JSON.parse(p.images)
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        imageUrl = parsed[0]
-      } else if (typeof p.images === 'string' && p.images.startsWith('http')) {
-        imageUrl = p.images
-      }
-    } catch {
-      if (typeof p.images === 'string' && p.images.startsWith('http')) {
-        imageUrl = p.images
-      }
-    }
+    const imageUrl = safeMainImage(p.images)
 
     return {
       id: p.id,

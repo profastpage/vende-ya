@@ -10,6 +10,7 @@ import { formatPEN, formatViewers, formatCountdown, initials, timeAgoEs } from '
 import type { Auction, LiveStream, Product, Profile } from '@/lib/vendeda/types'
 import { ROUTES } from '@/lib/vendeda/routes'
 import { cn } from '@/lib/utils'
+import { safeMainImage, DEFAULT_PRODUCT_IMAGE } from '@/lib/vendeda/images'
 
 // =====================================================================
 // AUCTION CARD — used in the marketplace grid
@@ -28,14 +29,15 @@ export function AuctionCard({ auction, className }: { auction: Auction; classNam
       )}>
         {/* Image */}
         <div className="relative aspect-square overflow-hidden bg-muted">
-          {product?.images[0] && (
-            <img
-              src={product.images[0]}
-              alt={product.title}
-              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-            />
-          )}
+          <img
+            src={safeMainImage(product?.images)}
+            alt={product?.title || 'Subasta'}
+            onError={(e) => {
+              e.currentTarget.src = DEFAULT_PRODUCT_IMAGE
+            }}
+            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+          />
           {/* LIVE badge */}
           {auction.status === 'live' && (
             <div className="absolute top-2 left-2 flex items-center gap-1.5 rounded-full glass px-2 py-0.5">
@@ -108,14 +110,15 @@ export function ProductCard({ product, className }: { product: Product; classNam
         'group relative overflow-hidden rounded-xl border bg-card shadow-soft hover:shadow-lift transition-all duration-300 cursor-pointer h-full'
       )}>
         <div className="relative aspect-square overflow-hidden bg-muted">
-          {product.images[0] && (
-            <img
-              src={product.images[0]}
-              alt={product.title}
-              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-            />
-          )}
+          <img
+            src={safeMainImage(product.images)}
+            alt={product.title}
+            onError={(e) => {
+              e.currentTarget.src = DEFAULT_PRODUCT_IMAGE
+            }}
+            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+          />
           <Badge
             variant="secondary"
             className="absolute top-2 left-2 text-[9px] glass border-0"

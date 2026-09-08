@@ -108,18 +108,18 @@ function VenderInner() {
         img.onload = () => {
           const canvas = document.createElement('canvas')
           const ctx = canvas.getContext('2d')
-          const targetWidth = 800
-          const targetHeight = 800
+          const targetWidth = 1080
+          const targetHeight = 1080
           canvas.width = targetWidth
           canvas.height = targetHeight
 
-          // Center crop to square
+          // Center crop to square at 1080x1080 px
           const scale = Math.max(targetWidth / img.width, targetHeight / img.height)
           const x = (targetWidth / scale - img.width) / 2
           const y = (targetHeight / scale - img.height) / 2
 
           ctx?.drawImage(img, x, y, img.width, img.height, 0, 0, targetWidth, targetHeight)
-          const webp = canvas.toDataURL('image/webp', 0.82)
+          const webp = canvas.toDataURL('image/webp', 0.85)
           setProductImages((prev) => (prev.length < 4 ? [...prev, webp] : prev))
         }
         img.src = event.target?.result as string

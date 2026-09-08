@@ -14,6 +14,7 @@ import {
 } from '@/lib/vendeda/mock-data'
 import { formatPEN, formatViewers, timeAgoEs, initials } from '@/lib/vendeda/format'
 import { ROUTES } from '@/lib/vendeda/routes'
+import { safeMainImage, DEFAULT_PRODUCT_IMAGE } from '@/lib/vendeda/images'
 import {
   GlassCard, GradientButton, GhostButton, StatusBadge,
   staggerContainer, staggerItem,
@@ -404,17 +405,14 @@ export default function SellerProfileClient({ seller, activeStream, pastStreams,
                       className="group block rounded-2xl bg-card/80 border border-border overflow-hidden hover:border-amber-400/30 transition-colors h-full"
                     >
                       <div className="aspect-square bg-card overflow-hidden">
-                        {p.images && p.images[0] ? (
-                          <img
-                            src={p.images[0]}
-                            alt={p.title || 'Producto'}
-                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="h-full w-full bg-muted flex items-center justify-center">
-                            <Package className="w-8 h-8 text-muted-foreground opacity-40" />
-                          </div>
-                        )}
+                        <img
+                          src={safeMainImage(p.images)}
+                          alt={p.title || 'Producto'}
+                          onError={(e) => {
+                            e.currentTarget.src = DEFAULT_PRODUCT_IMAGE
+                          }}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
                       </div>
                       <div className="p-3">
                         <p className="text-xs font-medium text-foreground line-clamp-2 leading-tight min-h-[2rem]">
@@ -456,13 +454,14 @@ export default function SellerProfileClient({ seller, activeStream, pastStreams,
                       className="group block rounded-2xl bg-card/80 border border-border overflow-hidden hover:border-amber-400/30 transition-colors h-full"
                     >
                       <div className="aspect-square bg-card relative overflow-hidden">
-                        {a.product?.images && a.product.images[0] && (
-                          <img
-                            src={a.product.images[0]}
-                            alt=""
-                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        )}
+                        <img
+                          src={safeMainImage(a.product?.images)}
+                          alt=""
+                          onError={(e) => {
+                            e.currentTarget.src = DEFAULT_PRODUCT_IMAGE
+                          }}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
                         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                         {a.status === 'live' ? (
                           <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-md bg-rose-500/90 backdrop-blur-sm">
