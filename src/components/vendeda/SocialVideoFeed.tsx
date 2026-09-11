@@ -1,14 +1,16 @@
 'use client'
-import { useMultiLiveViewers } from '@/hooks/useMultiLiveViewers'
-
-import { InStreamCheckoutDrawer } from './InStreamCheckoutDrawer'
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { Heart, MessageCircle, Share2, Plus, ShoppingBag, Maximize, Minimize, Play } from 'lucide-react'
 import { motion } from 'framer-motion'
+import {
+  Heart, MessageCircle, Share2, Plus, Volume2, VolumeX, Eye, Radio,
+} from 'lucide-react'
+import { useMultiLiveViewers } from '@/hooks/useMultiLiveViewers'
+import { InStreamCheckoutDrawer } from './InStreamCheckoutDrawer'
+import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer'
 import { formatPEN } from '@/lib/vendeda/format'
-import { toast } from 'sonner'
+import { DEFAULT_STREAM_COVER } from '@/lib/vendeda/images'
 import { cn } from '@/lib/utils'
 
 export type SocialFeedItem = {
@@ -38,17 +40,13 @@ interface SocialVideoFeedProps {
 }
 
 export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
-  // Mobile-first immersive container
   const viewersMap = useMultiLiveViewers(feed.map(f => ({ id: f.id, viewerCount: 0 })))
-  // now adapting to light/dark themes
+
   return (
     <div className="flex w-full h-full bg-background text-foreground overflow-hidden">
-      {/* Left Sidebar - Desktop Only */}
-      
-
       {/* Main Feed Container */}
       <div className="flex-1 w-full h-full snap-y snap-mandatory overflow-y-auto overscroll-none no-scrollbar relative flex flex-col items-center touch-pan-y">
-        {feed.map((item, index) => (
+        {feed.map((item) => (
           <FeedItem key={item.id} item={item} viewers={viewersMap[item.id] || 0} />
         ))}
       </div>
@@ -57,69 +55,153 @@ export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
 }
 
 function FeedItem({ item, viewers = 0 }: { item: SocialFeedItem; viewers?: number }) {
-  const router = useRouter();
-  const [isActive, setIsActive] = React.useState(false);
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const router = useRouter()
+  const [isActive, setIsActive] = React.useState(false)
+  const [isMuted, setIsMuted] = React.useState(true)
+  const [isLiked, setIsLiked] = React.useState(false)
+  const [isZoomed, setIsZoomed] = React.useState(false)
+  const containerRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          setIsActive(entry.isIntersecting);
-        });
+          setIsActive(entry.isIntersecting)
+        })
       },
       { threshold: 0.6 }
-    );
+    )
     if (containerRef.current) {
-      observer.observe(containerRef.current);
+      observer.observe(containerRef.current)
     }
-    return () => observer.disconnect();
-  }, []);
-  const [isLiked, setIsLiked] = React.useState(false)
-  const [isZoomed, setIsZoomed] = React.useState(false)
+    return () => observer.disconnect()
+  }, [])
+
+  const provider = item.streamProvider || (item.youtubeLiveId ? 'YOUTUBE' : item.kickUsername ? 'KICK' : 'YOUTUBE')
+  const providerId = item.streamProviderId || item.youtubeLiveId || item.kickUsername || ''
+  const hasLiveVideo = Boolean(providerId && providerId.trim().length >= 2)
+  const hasDirectVideo = Boolean(
+    item.videoUrl &&
+    item.videoUrl.startsWith('http') &&
+    (item.videoUrl.endsWith('.mp4') || item.videoUrl.endsWith('.webm') || item.videoUrl.includes('.m3u8'))
+  )
+  const coverImage = item.thumbnailUrl || item.product?.thumbnail || DEFAULT_STREAM_COVER
+
+  const navigateToRoom = () => {
+    router.push(`/en-vivo/${item.seller.username}`)
+  }
 
   return (
     <div ref={containerRef} className="relative w-full md:w-auto h-full snap-center snap-always flex justify-center shrink-0 md:py-4">
       {/* Container that acts as the mobile screen on desktop */}
-      <div className="relative w-full md:w-[350px] lg:w-[400px] h-full bg-zinc-900 md:rounded-2xl overflow-hidden flex shrink-0">
+      <div className="relative w-full md:w-[350px] lg:w-[400px] h-full bg-zinc-950 md:rounded-2xl overflow-hidden flex shrink-0 shadow-2xl border border-white/5">
         
-        {/* Fondo de Portada (Imagen del Producto o Placeholder) */}
+        {/* Layer 1: Poster / Thumbnail Fallback Background */}
         <div 
-          className="absolute inset-0 w-full h-full cursor-pointer z-0 group" 
-          onClick={() => router.push(`/en-vivo/${item.seller.username}`)}
+          className="absolute inset-0 w-full h-full bg-cover bg-center transition-transform duration-700"
+          style={{ backgroundImage: `url(${coverImage})` }}
         >
-          <div 
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-            style={{ backgroundImage: `url(${item.product?.thumbnail || item.thumbnailUrl || 'https://placehold.co/1080x1920/1a1a1a/333333.png?text=Live'})` }}
-          />
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+        </div>
 
-          {/* Overlay central para invitar a entrar */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-            <div className="w-20 h-20 rounded-full bg-[#FE2C55] flex items-center justify-center animate-pulse shadow-lg shadow-[#FE2C55]/30 group-hover:scale-110 transition-transform">
-              <Play className="w-10 h-10 text-white ml-2" fill="white" />
-            </div>
-            <span className="text-white font-bold mt-6 drop-shadow-md text-lg tracking-wide uppercase">Toca para entrar al En Vivo</span>
-            
-            {item.streamProvider && (
-              <span className="mt-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold text-white/90">
-                Transmitiendo vía {item.streamProvider}
+        {/* Layer 2: Natural Live Video Stream (eBay Live / TikTok Live style) */}
+        {isActive && (
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            {hasDirectVideo ? (
+              <video
+                src={item.videoUrl}
+                autoPlay
+                loop
+                muted={isMuted}
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            ) : hasLiveVideo ? (
+              <DynamicLivePlayer
+                provider={provider}
+                providerId={providerId}
+                isActive={isActive}
+                isMuted={isMuted}
+                pointerEvents="none"
+                fillMode="cover"
+              />
+            ) : null}
+          </div>
+        )}
+
+        {/* Layer 3: Subtle Top & Bottom Gradients for UI clarity */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 pointer-events-none z-10" />
+
+        {/* Layer 4: Tap-anywhere to enter the Live Room */}
+        <div 
+          className="absolute inset-0 z-10 cursor-pointer"
+          onClick={navigateToRoom}
+          aria-label={`Entrar a la transmisión de ${item.seller.displayName}`}
+        />
+
+        {/* Top Badges & Audio Controls */}
+        <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
+          {/* LIVE + Viewers Badge */}
+          <div className="flex items-center gap-2 pointer-events-auto">
+            <div className="flex items-center gap-1.5 bg-rose-600/90 backdrop-blur-md border border-rose-400/30 rounded-full px-3 py-1 shadow-lg shadow-rose-600/30">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inset-0 rounded-full bg-white animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
               </span>
+              <span className="text-[11px] font-black uppercase tracking-wider text-white">
+                EN VIVO
+              </span>
+            </div>
+            {viewers > 0 && (
+              <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md border border-white/10 rounded-full px-2.5 py-1 text-white text-[11px] font-bold">
+                <Eye className="w-3.5 h-3.5 text-amber-400" />
+                <span>{viewers}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Audio Mute/Unmute Toggle Button */}
+          <div className="flex items-center gap-2 pointer-events-auto">
+            {hasLiveVideo && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsMuted(!isMuted)
+                }}
+                className="p-2.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white hover:bg-black/80 transition-all shadow-lg active:scale-90"
+                title={isMuted ? 'Activar sonido' : 'Silenciar'}
+                aria-label={isMuted ? 'Activar sonido' : 'Silenciar'}
+              >
+                {isMuted ? (
+                  <VolumeX className="w-5 h-5 text-white/80" />
+                ) : (
+                  <Volume2 className="w-5 h-5 text-amber-400 animate-pulse" />
+                )}
+              </button>
             )}
           </div>
         </div>
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none z-10" />
+        {/* Enter Room Pill Button (Subtle guidance) */}
+        <div className="absolute top-16 left-4 z-20 pointer-events-none">
+          <button
+            onClick={navigateToRoom}
+            className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white text-[11px] font-bold transition-colors shadow-md"
+          >
+            <span>Toca para interactuar</span>
+            <span className="text-amber-400">→</span>
+          </button>
+        </div>
 
-        {/* Bottom Info & Product Pin (Inside Video Container) */}
-        <div className="absolute bottom-4 left-4 right-16 flex flex-col justify-end gap-3 z-20 pb-16 md:pb-4 md:right-4">
-          
+        {/* Bottom Info & Product Pin */}
+        <div className="absolute bottom-4 left-4 right-16 flex flex-col justify-end gap-3 z-20 pb-16 md:pb-4 md:right-4 pointer-events-none">
           {/* Clickable Product Pin */}
           {item.product && (
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-3 bg-muted/80 backdrop-blur-md p-2 rounded-xl border border-border shadow-lg w-fit max-w-[90%] cursor-pointer hover:bg-muted/90 transition-colors"
+              className="pointer-events-auto flex items-center gap-3 bg-muted/90 backdrop-blur-md p-2 rounded-xl border border-border shadow-lg w-fit max-w-[90%] cursor-pointer hover:bg-muted transition-colors"
             >
               <img src={item.product.thumbnail} alt={item.product.title} className="w-12 h-12 rounded-lg object-cover shrink-0" />
               <div className="flex flex-col min-w-0">
@@ -131,7 +213,7 @@ function FeedItem({ item, viewers = 0 }: { item: SocialFeedItem; viewers?: numbe
           )}
 
           {/* Stream Info */}
-          <div>
+          <div className="pointer-events-auto" onClick={navigateToRoom}>
             <h3 className="text-white font-bold text-base drop-shadow-md hover:underline cursor-pointer">@{item.seller.displayName}</h3>
             <p className="text-white/90 text-sm mt-1 line-clamp-2 drop-shadow-md">{item.description}</p>
           </div>
@@ -149,21 +231,33 @@ function FeedItem({ item, viewers = 0 }: { item: SocialFeedItem; viewers?: numbe
           )}
         </div>
 
-        {/* Mobile Right Interaction Panel (Inside Video Container) - Hidden on md+ */}
-        <div className="absolute right-2 bottom-20 flex flex-col items-center gap-5 z-20 md:hidden">
+        {/* Mobile Right Interaction Panel */}
+        <div className="absolute right-2 bottom-20 flex flex-col items-center gap-5 z-20 md:hidden pointer-events-auto">
           <InteractionButtons item={item} isLiked={isLiked} setIsLiked={setIsLiked} isMobile={true} isZoomed={isZoomed} setIsZoomed={setIsZoomed} />
         </div>
       </div>
 
-      {/* Desktop Right Interaction Panel (Outside Video Container) - Visible only on md+ */}
-      <div className="hidden md:flex flex-col items-center gap-5 z-20 ml-4 self-end pb-8">
+      {/* Desktop Right Interaction Panel */}
+      <div className="hidden md:flex flex-col items-center gap-5 z-20 ml-4 self-end pb-8 pointer-events-auto">
         <InteractionButtons item={item} isLiked={isLiked} setIsLiked={setIsLiked} isMobile={false} isZoomed={isZoomed} setIsZoomed={setIsZoomed} />
       </div>
     </div>
   )
 }
 
-function InteractionButtons({ item, isLiked, setIsLiked, isMobile, isZoomed, setIsZoomed }: { item: SocialFeedItem, isLiked: boolean, setIsLiked: (v: boolean) => void, isMobile: boolean, isZoomed: boolean, setIsZoomed: (v: boolean) => void }) {
+function InteractionButtons({
+  item,
+  isLiked,
+  setIsLiked,
+  isMobile,
+}: {
+  item: SocialFeedItem;
+  isLiked: boolean;
+  setIsLiked: (v: boolean) => void;
+  isMobile: boolean;
+  isZoomed: boolean;
+  setIsZoomed: (v: boolean) => void;
+}) {
   return (
     <>
       {/* Avatar */}
@@ -187,10 +281,6 @@ function InteractionButtons({ item, isLiked, setIsLiked, isMobile, isZoomed, set
         </div>
         <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{item.likes + (isLiked ? 1 : 0)}</span>
       </button>
-
-      
-      
-
 
       {/* Comments */}
       <button className="flex flex-col items-center gap-1 group">

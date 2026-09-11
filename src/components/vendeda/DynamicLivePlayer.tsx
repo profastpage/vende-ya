@@ -5,9 +5,21 @@ interface DynamicLivePlayerProps {
   provider: string;
   providerId: string;
   isActive?: boolean;
+  isMuted?: boolean;
+  pointerEvents?: 'none' | 'auto';
+  fillMode?: 'cover' | 'contain';
+  className?: string;
 }
 
-export function DynamicLivePlayer({ provider, providerId, isActive = true }: DynamicLivePlayerProps) {
+export function DynamicLivePlayer({
+  provider,
+  providerId,
+  isActive = true,
+  isMuted = false,
+  pointerEvents = 'auto',
+  fillMode = 'contain',
+  className = '',
+}: DynamicLivePlayerProps) {
   const [canRender, setCanRender] = useState(false);
   const [hostname, setHostname] = useState('vendeya.live');
 
@@ -18,7 +30,8 @@ export function DynamicLivePlayer({ provider, providerId, isActive = true }: Dyn
 
     let timer: NodeJS.Timeout;
     if (isActive) {
-      timer = setTimeout(() => setCanRender(true), 300);
+      // Delay mounting slightly (200ms) to ensure smooth scroll snap without lag
+      timer = setTimeout(() => setCanRender(true), 200);
     } else {
       setCanRender(false);
     }
@@ -28,39 +41,36 @@ export function DynamicLivePlayer({ provider, providerId, isActive = true }: Dyn
   const cleanId = providerId ? providerId.trim() : '';
 
   if (!cleanId || cleanId.length < 2) {
-    return (
-      <div className="relative w-full h-full bg-zinc-950 flex flex-col items-center justify-center text-white/50 p-4 text-center">
-        <p className="text-sm font-medium text-zinc-400">Transmisión no configurada</p>
-      </div>
-    );
+    return null;
   }
 
   if (!canRender) {
-    return (
-      <div className="relative w-full h-full bg-zinc-950 flex flex-col items-center justify-center text-white/50">
-        <svg className="w-8 h-8 animate-spin text-amber-400 mb-3" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <span className="text-xs font-semibold text-zinc-400">Cargando transmisión...</span>
-      </div>
-    );
+    return null;
   }
 
-  const containerClasses = "relative w-full h-full bg-black pointer-events-auto overflow-hidden";
+  const pointerClass = pointerEvents === 'none' ? 'pointer-events-none' : 'pointer-events-auto';
+  const containerClasses = `relative w-full h-full bg-black overflow-hidden ${pointerClass} ${className}`;
+
+  // When fillMode is 'cover', scale 16:9 video to cover 9:16 vertical container perfectly without letterboxing
+  const iframeClasses =
+    fillMode === 'cover'
+      ? 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-full aspect-video min-w-full max-w-none border-none'
+      : 'w-full h-full border-none';
+
   const upperProvider = (provider || 'YOUTUBE').toUpperCase();
 
   if (upperProvider === 'TWITCH') {
-    // Twitch requires every parent domain where the iframe is embedded
     const parents = Array.from(new Set([hostname, 'vendeya.live', 'localhost'])).filter(Boolean);
-    const parentParams = parents.map(p => `parent=${encodeURIComponent(p)}`).join('&');
-    const twitchSrc = `https://player.twitch.tv/?channel=${encodeURIComponent(cleanId)}&${parentParams}&muted=false&autoplay=true&playsinline=true`;
+    const parentParams = parents.map((p) => `parent=${encodeURIComponent(p)}`).join('&');
+    const twitchSrc = `https://player.twitch.tv/?channel=${encodeURIComponent(
+      cleanId
+    )}&${parentParams}&muted=${isMuted ? 'true' : 'false'}&autoplay=true&playsinline=true`;
 
     return (
       <div className={containerClasses}>
         <iframe
-          key={`twitch-${cleanId}`}
-          className="w-full h-full border-none"
+          key={`twitch-${cleanId}-${isMuted}`}
+          className={iframeClasses}
           src={twitchSrc}
           allowFullScreen
           allow="autoplay; fullscreen"
@@ -73,9 +83,11 @@ export function DynamicLivePlayer({ provider, providerId, isActive = true }: Dyn
     return (
       <div className={containerClasses}>
         <iframe
-          key={`kick-${cleanId}`}
-          className="w-full h-full border-none"
-          src={`https://player.kick.com/${encodeURIComponent(cleanId)}?autoplay=true&muted=false`}
+          key={`kick-${cleanId}-${isMuted}`}
+          className={iframeClasses}
+          src={`https://player.kick.com/${encodeURIComponent(cleanId)}?autoplay=true&muted=${
+            isMuted ? 'true' : 'false'
+          }`}
           allowFullScreen
           allow="autoplay; fullscreen"
         />
@@ -87,9 +99,13 @@ export function DynamicLivePlayer({ provider, providerId, isActive = true }: Dyn
   return (
     <div className={containerClasses}>
       <iframe
-        key={`yt-${cleanId}`}
-        className="w-full h-full border-none"
-        src={`https://www.youtube.com/embed/${encodeURIComponent(cleanId)}?autoplay=1&mute=0&playsinline=1&controls=1&modestbranding=1&rel=0`}
+        key={`yt-${cleanId}-${isMuted}`}
+        className={iframeClasses}
+        src={`https://www.youtube.com/embed/${encodeURIComponent(
+          cleanId
+        )}?autoplay=1&mute=${isMuted ? 1 : 0}&playsinline=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${encodeURIComponent(
+          cleanId
+        )}`}
         allow="autoplay; encrypted-media; picture-in-picture"
         allowFullScreen
       />

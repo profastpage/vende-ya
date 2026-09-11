@@ -1,5 +1,6 @@
 import { SocialVideoFeed, SocialFeedItem } from '@/components/vendeda/SocialVideoFeed'
 import { db } from '@/lib/db'
+import { safeStreamCover, safeMainImage } from '@/lib/vendeda/images'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,8 +49,8 @@ export default async function Home() {
     
     return {
       id: stream.id,
-      videoUrl: stream.playbackId ? `https://customer-xxx.cloudflarestream.com/${stream.playbackId}/manifest/video.m3u8` : 'https://placehold.co/1080x1920/1a1a1a/333333.png?text=Live',
-      thumbnailUrl: stream.thumbnailUrl || 'https://placehold.co/1080x1920/1a1a1a/333333.png?text=Live',
+      videoUrl: stream.playbackId ? `https://customer-xxx.cloudflarestream.com/${stream.playbackId}/manifest/video.m3u8` : '',
+      thumbnailUrl: safeStreamCover(stream),
       kickUsername: stream.kickUsername || undefined,
       youtubeLiveId: stream.youtubeLiveId || undefined,
       streamProvider: stream.streamProvider || undefined,
@@ -67,7 +68,7 @@ export default async function Home() {
         id: activeAuction.product.id,
         title: activeAuction.product.title,
         price: activeAuction.currentPrice,
-        thumbnail: 'https://placehold.co/150x150/1a1a1a/333333.png?text=Item' // Ideally from activeAuction.product.images
+        thumbnail: safeMainImage(activeAuction.product?.images)
       } : undefined,
       liveComments: stream.chatMessages ? stream.chatMessages.map((msg: any) => ({
         id: msg.id,
