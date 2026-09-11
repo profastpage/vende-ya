@@ -41,23 +41,39 @@ interface SocialVideoFeedProps {
 
 export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
   const viewersMap = useMultiLiveViewers(feed.map(f => ({ id: f.id, viewerCount: 0 })))
+  const [isMuted, setIsMuted] = React.useState(true)
 
   return (
     <div className="flex w-full h-full bg-background text-foreground overflow-hidden">
       {/* Main Feed Container */}
       <div className="flex-1 w-full h-full snap-y snap-mandatory overflow-y-auto overscroll-none no-scrollbar relative flex flex-col items-center touch-pan-y">
         {feed.map((item) => (
-          <FeedItem key={item.id} item={item} viewers={viewersMap[item.id] || 0} />
+          <FeedItem 
+            key={item.id} 
+            item={item} 
+            viewers={viewersMap[item.id] || 0} 
+            isMuted={isMuted}
+            setIsMuted={setIsMuted}
+          />
         ))}
       </div>
     </div>
   )
 }
 
-function FeedItem({ item, viewers = 0 }: { item: SocialFeedItem; viewers?: number }) {
+function FeedItem({ 
+  item, 
+  viewers = 0,
+  isMuted,
+  setIsMuted,
+}: { 
+  item: SocialFeedItem; 
+  viewers?: number;
+  isMuted: boolean;
+  setIsMuted: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const router = useRouter()
   const [isActive, setIsActive] = React.useState(false)
-  const [isMuted, setIsMuted] = React.useState(true)
   const [isLiked, setIsLiked] = React.useState(false)
   const [isZoomed, setIsZoomed] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
