@@ -180,16 +180,16 @@ function SellerPill({
           {initial}
         </div>
       )}
-      <div className="flex flex-col leading-tight text-left">
+      <div className="flex flex-col leading-tight text-left min-w-0">
         <span className="text-xs font-black tracking-tight flex items-center gap-1 text-white">
-          {seller.displayName}
-          {seller.isVerified && <BadgeCheck className="h-3 w-3 text-sky-400" />}
+          <span className="truncate max-w-[130px] sm:max-w-[180px]">{seller.displayName}</span>
+          {seller.isVerified && <BadgeCheck className="h-3 w-3 text-sky-400 shrink-0" />}
         </span>
         <span className="text-[10px] text-zinc-300 flex items-center gap-1">
-          <Star className="h-2.5 w-2.5 text-amber-400 fill-amber-400" />
+          <Star className="h-2.5 w-2.5 text-amber-400 fill-amber-400 shrink-0" />
           <span className="font-bold text-amber-300">{seller.rating.toFixed(1)}</span>
           <span className="text-zinc-500">·</span>
-          <span className="text-zinc-300">{seller.department}</span>
+          <span className="text-zinc-300 truncate max-w-[80px] sm:max-w-[120px]">{seller.department}</span>
         </span>
       </div>
     </div>
@@ -686,50 +686,95 @@ export default function LiveRoomClient({
             ======================================================== */}
         <div className="absolute inset-0 md:relative md:w-2/3 lg:w-3/4 h-[100dvh] shrink-0 bg-black flex flex-col md:border-r border-white/5 z-0">
           
-          {/* BARRA SUPERIOR UNIFICADA (Móvil y Desktop en una sola fila elegante) */}
-          <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between p-3 md:p-4 bg-gradient-to-b from-black/75 via-black/25 to-transparent pointer-events-none">
-            {/* Lado Izquierdo: Volver + Info Vendedor + Acciones */}
-            <div className="flex items-center gap-2 pointer-events-auto">
-              <button 
-                onClick={() => router.back()} 
-                className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 flex items-center justify-center transition-colors text-white shadow-lg active:scale-95 shrink-0"
-                title="Volver"
-              >
-                <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
-              </button>
-              
-              <SellerPill 
-                seller={seller} 
-                initial={initial} 
-                onClick={() => setShowProfileConfirmModal(true)} 
-              />
+          {/* BARRA SUPERIOR EN DOS FILAS (Organizada, limpia y profesional para móvil y desktop) */}
+          <div className="absolute top-0 left-0 right-0 z-30 flex flex-col gap-2 p-2.5 sm:p-3 md:p-4 bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-none">
+            {/* FILA 1: NAVEGACIÓN Y ESTADO DEL EN VIVO */}
+            <div className="flex items-center justify-between w-full">
+              {/* Lado Izquierdo: Botón Volver + Fin Stream + Super Admin */}
+              <div className="flex items-center gap-2 pointer-events-auto">
+                <button 
+                  onClick={() => router.back()} 
+                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 flex items-center justify-center transition-colors text-white shadow-lg active:scale-95 shrink-0"
+                  title="Volver"
+                  aria-label="Volver"
+                >
+                  <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                </button>
+                
+                {isSeller && (
+                  <button 
+                    onClick={handleEndStream}
+                    disabled={isEnding}
+                    className="h-8 px-2.5 sm:h-9 sm:px-3 rounded-full bg-red-600/90 backdrop-blur-md border border-red-500/50 hover:bg-red-500 transition-all text-white flex items-center gap-1.5 shadow-lg disabled:opacity-50 shrink-0 text-xs font-bold"
+                    title="Finalizar Transmisión"
+                  >
+                    {isEnding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PowerOff className="h-3.5 w-3.5" />}
+                    <span className="text-[11px]">Finalizar</span>
+                  </button>
+                )}
+                {isSuperAdmin && (
+                  <button 
+                    onClick={() => setShowAdminModal(true)}
+                    className="h-8 px-2.5 sm:h-9 sm:px-3 rounded-full bg-amber-500/95 hover:bg-amber-400 text-black font-black text-[11px] flex items-center gap-1 shadow-lg border border-amber-300 backdrop-blur-md transition-all active:scale-95 shrink-0"
+                    title="Control Super Admin"
+                  >
+                    <ShieldAlert className="h-3.5 w-3.5" />
+                    <span>ADMIN</span>
+                  </button>
+                )}
+              </div>
 
-              {isSeller && (
-                <button 
-                  onClick={handleEndStream}
-                  disabled={isEnding}
-                  className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-red-600/90 backdrop-blur-md border border-red-500/50 hover:bg-red-500 transition-all text-white flex items-center justify-center shadow-lg disabled:opacity-50 shrink-0"
-                  title="Finalizar Transmisión"
-                >
-                  {isEnding ? <Loader2 className="h-4 w-4 animate-spin" /> : <PowerOff className="h-4 w-4" />}
-                </button>
-              )}
-              {isSuperAdmin && (
-                <button 
-                  onClick={() => setShowAdminModal(true)}
-                  className="h-8 px-2.5 md:h-9 md:px-3 rounded-full bg-amber-500/95 hover:bg-amber-400 text-black font-black text-[11px] flex items-center gap-1 shadow-lg border border-amber-300 backdrop-blur-md transition-all active:scale-95 shrink-0"
-                  title="Control Super Admin"
-                >
-                  <ShieldAlert className="h-3.5 w-3.5" />
-                  <span>ADMIN</span>
-                </button>
-              )}
+              {/* Lado Derecho: Badge EN VIVO + Espectadores + Likes */}
+              <div className="flex items-center gap-2 pointer-events-auto shrink-0">
+                <LiveBadge size="sm" />
+                <ViewersPill realSpectators={realSpectators} anonymousCount={anonymousCount} likes={likes} />
+              </div>
             </div>
 
-            {/* Lado Derecho: Espectadores + Badge EN VIVO */}
-            <div className="flex items-center gap-2 pointer-events-auto shrink-0">
-              <ViewersPill realSpectators={realSpectators} anonymousCount={anonymousCount} likes={likes} />
-              <LiveBadge size="sm" />
+            {/* FILA 2: VENDEDOR Y CONTROLES DE PANTALLA */}
+            <div className="flex items-center justify-between w-full">
+              {/* Lado Izquierdo: Info del Vendedor con Modal de Confirmación */}
+              <div className="flex items-center gap-2 pointer-events-auto min-w-0">
+                <SellerPill 
+                  seller={seller} 
+                  initial={initial} 
+                  onClick={() => setShowProfileConfirmModal(true)} 
+                />
+              </div>
+
+              {/* Lado Derecho: Controles de pantalla y visibilidad */}
+              <div className="flex items-center gap-1.5 pointer-events-auto shrink-0">
+                {hideUI && (
+                  <motion.div 
+                    initial={{ opacity: 0, x: 6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-1 bg-black/80 backdrop-blur-md border border-white/20 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow-md"
+                  >
+                    <span>Ver chat</span>
+                    <span className="text-rose-400 font-bold">→</span>
+                  </motion.div>
+                )}
+                
+                {/* Botón para alternar Aspect Ratio: Llenar pantalla completa vs Ajustar al centro */}
+                <button 
+                  onClick={() => setIsFitMode(!isFitMode)} 
+                  className="p-2 sm:p-2.5 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full border border-white/20 text-white shadow-xl active:scale-90 transition-all" 
+                  title={isFitMode ? "Llenar pantalla completa" : "Ajustar al centro"}
+                  aria-label={isFitMode ? "Llenar pantalla completa" : "Ajustar al centro"}
+                >
+                  {isFitMode ? <Maximize className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300" /> : <Minimize className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/80" />}
+                </button>
+
+                {/* Botón de Ocultar/Mostrar Chat y Compras */}
+                <button 
+                  onClick={() => setHideUI(!hideUI)} 
+                  className="p-2 sm:p-2.5 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full border border-white/20 text-white shadow-xl active:scale-90 transition-all" 
+                  title={hideUI ? "Ver chat y compras" : "Ocultar interfaz"}
+                  aria-label={hideUI ? "Ver chat y compras" : "Ocultar interfaz"}
+                >
+                  {hideUI ? <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400 animate-pulse" /> : <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/80" />}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -903,39 +948,7 @@ export default function LiveRoomClient({
         </div>
       </div>
       
-      {/* Controles Flotantes en Móvil: Toggle de UI y de Modo Pantalla */}
-      <div className="md:hidden absolute right-3 top-20 z-[100] flex items-center gap-1.5 pointer-events-auto">
-        {hideUI && (
-          <motion.div 
-            initial={{ opacity: 0, x: 8 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-1 bg-black/85 backdrop-blur-md border border-white/20 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-lg"
-          >
-            <span>Ver chat</span>
-            <span className="text-rose-400 font-bold">→</span>
-          </motion.div>
-        )}
-        
-        {/* Botón para alternar Aspect Ratio: Llenar pantalla completa vs Ajustar al centro */}
-        <button 
-          onClick={() => setIsFitMode(!isFitMode)} 
-          className="p-2.5 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full border border-white/20 text-white shadow-xl active:scale-90 transition-all" 
-          title={isFitMode ? "Llenar pantalla completa" : "Ajustar al centro"}
-          aria-label={isFitMode ? "Llenar pantalla completa" : "Ajustar al centro"}
-        >
-          {isFitMode ? <Maximize className="w-4 h-4 text-amber-300" /> : <Minimize className="w-4 h-4 text-white/80" />}
-        </button>
 
-        {/* Botón de Ocultar/Mostrar Chat y Compras */}
-        <button 
-          onClick={() => setHideUI(!hideUI)} 
-          className="p-2.5 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full border border-white/20 text-white shadow-xl active:scale-90 transition-all" 
-          title={hideUI ? "Ver chat y compras" : "Ocultar interfaz"}
-          aria-label={hideUI ? "Ver chat y compras" : "Ocultar interfaz"}
-        >
-          {hideUI ? <Eye className="w-4 h-4 text-rose-400 animate-pulse" /> : <EyeOff className="w-4 h-4 text-white/80" />}
-        </button>
-      </div>
 
       {/* Super Admin Moderation Modal */}
       <AnimatePresence>

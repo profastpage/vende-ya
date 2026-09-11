@@ -33,6 +33,7 @@ export type SocialFeedItem = {
     title: string;
     price: number;
     thumbnail: string;
+    isAuction?: boolean;
   };
   liveComments?: { id: string; user: string; text: string }[];
 }
@@ -164,17 +165,17 @@ function FeedItem({
         )}
 
         {/* Layer 3: Subtle Top & Bottom Gradients for UI clarity */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 pointer-events-none z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/90 pointer-events-none z-10" />
 
-        {/* Layer 4: Tap-anywhere to enter the Live Room */}
+        {/* Layer 4: Tap-anywhere to enter the Live Room (intercepts touches before video iframe) */}
         <div 
-          className="absolute inset-0 z-10 cursor-pointer"
+          className="absolute inset-0 z-[15] cursor-pointer"
           onClick={navigateToRoom}
           aria-label={`Entrar a la transmisión de ${item.seller.displayName}`}
         />
 
         {/* Top Badges & Audio Controls */}
-        <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
+        <div className="absolute top-3.5 left-3.5 right-3.5 z-20 flex items-center justify-between pointer-events-none">
           {/* LIVE + Viewers Badge */}
           <div className="flex items-center gap-2 pointer-events-auto">
             <div className="flex items-center gap-1.5 bg-rose-600/90 backdrop-blur-md border border-rose-400/30 rounded-full px-3 py-1 shadow-lg shadow-rose-600/30">
@@ -228,48 +229,50 @@ function FeedItem({
           </div>
         </div>
 
-        {/* Enter Room Pill Button (Subtle guidance) */}
-        <div className="absolute top-16 left-4 z-20 pointer-events-none">
-          <button
-            onClick={navigateToRoom}
-            className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white text-[11px] font-bold transition-colors shadow-md"
-          >
-            <span>Toca para interactuar</span>
-            <span className="text-amber-400">→</span>
-          </button>
-        </div>
-
         {/* Bottom Info & Product Pin */}
-        <div className="absolute bottom-4 left-4 right-16 flex flex-col justify-end gap-3 z-20 pb-16 md:pb-4 md:right-4 pointer-events-none">
+        <div className="absolute bottom-3 left-3.5 right-16 flex flex-col justify-end gap-2.5 z-20 pointer-events-none">
           {/* Clickable Product Pin */}
           {item.product && (
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               onClick={navigateToRoom}
-              className="pointer-events-auto flex items-center gap-3 bg-muted/90 backdrop-blur-md p-2 rounded-xl border border-border shadow-lg w-fit max-w-[90%] cursor-pointer hover:bg-muted transition-colors"
+              className="pointer-events-auto flex items-center gap-2.5 bg-black/65 hover:bg-black/85 backdrop-blur-md p-2 rounded-xl border border-white/15 shadow-xl w-fit max-w-[90%] cursor-pointer transition-all active:scale-95"
             >
-              <img src={item.product.thumbnail} alt={item.product.title} className="w-12 h-12 rounded-lg object-cover shrink-0" />
-              <div className="flex flex-col min-w-0">
-                <span className="text-white text-xs font-semibold line-clamp-1">{item.product.title}</span>
-                <span className="text-amber-400 text-sm font-bold">{formatPEN(item.product.price)}</span>
+              <img src={item.product.thumbnail} alt={item.product.title} className="w-11 h-11 rounded-lg object-cover shrink-0 border border-white/10" />
+              <div className="flex flex-col min-w-0 pr-1">
+                <span className="text-white text-xs font-bold truncate">{item.product.title}</span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-amber-400 text-xs font-black">{formatPEN(item.product.price)}</span>
+                  <span className="text-[9px] px-1.5 py-0.5 bg-rose-500/80 text-white rounded font-bold uppercase tracking-wider">
+                    {item.product.isAuction ? 'Subasta' : 'En vivo'}
+                  </span>
+                </div>
               </div>
             </motion.div>
           )}
 
           {/* Stream Info */}
-          <div className="pointer-events-auto" onClick={navigateToRoom}>
-            <h3 className="text-white font-bold text-base drop-shadow-md hover:underline cursor-pointer">@{item.seller.displayName}</h3>
-            <p className="text-white/90 text-sm mt-1 line-clamp-2 drop-shadow-md">{item.description}</p>
+          <div className="pointer-events-auto cursor-pointer" onClick={navigateToRoom}>
+            <h3 className="text-white font-extrabold text-sm sm:text-base drop-shadow-md hover:underline flex items-center gap-1.5">
+              <span>@{item.seller.displayName}</span>
+              <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 border border-amber-400/40 px-1.5 py-0.5 rounded-full">
+                Vendedor
+              </span>
+            </h3>
+            <p className="text-white/95 text-xs sm:text-sm mt-1 line-clamp-2 drop-shadow-md font-medium">{item.description}</p>
           </div>
 
-          {/* Live Comments Stream */}
+          {/* Live Comments Stream — Burbujas estilo TikTok Live */}
           {item.liveComments && item.liveComments.length > 0 && (
-            <div className="h-20 overflow-y-hidden pointer-events-none space-y-1.5 mt-2" style={{ maskImage: 'linear-gradient(to top, black 60%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to top, black 60%, transparent 100%)' }}>
-              {item.liveComments.slice(0, 3).map(comment => (
-                <div key={comment.id} className="text-[12px] leading-tight">
-                  <span className="font-bold text-white/80 drop-shadow-md">{comment.user}: </span>
-                  <span className="text-white drop-shadow-md">{comment.text}</span>
+            <div className="max-h-24 overflow-hidden pointer-events-none flex flex-col justify-end gap-1.5 mt-1">
+              {item.liveComments.slice(-3).map((comment) => (
+                <div 
+                  key={comment.id} 
+                  className="w-fit max-w-[92%] bg-black/55 backdrop-blur-md rounded-full px-3 py-1 text-[11px] border border-white/10 flex items-center gap-1.5 shadow-sm"
+                >
+                  <span className="font-bold text-amber-300 shrink-0">{comment.user}:</span>
+                  <span className="text-white truncate font-medium">{comment.text}</span>
                 </div>
               ))}
             </div>
@@ -277,7 +280,7 @@ function FeedItem({
         </div>
 
         {/* Mobile Right Interaction Panel */}
-        <div className="absolute right-2 bottom-20 flex flex-col items-center gap-5 z-20 md:hidden pointer-events-auto">
+        <div className="absolute right-2.5 bottom-6 flex flex-col items-center gap-3.5 z-20 md:hidden pointer-events-auto">
           <InteractionButtons item={item} isLiked={isLiked} setIsLiked={setIsLiked} isMobile={true} isZoomed={isZoomed} setIsZoomed={setIsZoomed} onCommentClick={navigateToRoom} />
         </div>
       </div>

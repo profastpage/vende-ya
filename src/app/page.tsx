@@ -18,7 +18,15 @@ export default async function Home() {
         }
       },
       include: {
-        seller: true,
+        seller: {
+          include: {
+            products: {
+              where: { status: 'active' },
+              take: 1,
+              orderBy: { createdAt: 'desc' }
+            }
+          }
+        },
         auctions: {
           include: { product: true },
           where: { status: 'live' },
@@ -49,6 +57,8 @@ export default async function Home() {
   // Map to SocialFeedItem format
   const feed: SocialFeedItem[] = uniqueStreams.map((stream: any) => {
     const activeAuction = stream.auctions[0]
+    const fallbackProduct = stream.seller?.products?.[0]
+    const featuredProduct = activeAuction?.product || fallbackProduct
     
     return {
       id: stream.id,
@@ -67,11 +77,12 @@ export default async function Home() {
       likes: stream.likeCount,
       comments: stream.chatMessages?.length || 0, // approximation
       shares: stream.shareCount,
-      product: activeAuction ? {
-        id: activeAuction.product.id,
-        title: activeAuction.product.title,
-        price: activeAuction.currentPrice,
-        thumbnail: safeMainImage(activeAuction.product?.images)
+      product: featuredProduct ? {
+        id: featuredProduct.id,
+        title: featuredProduct.title,
+        price: activeAuction ? activeAuction.currentPrice : featuredProduct.price,
+        thumbnail: safeMainImage(featuredProduct.images),
+        isAuction: Boolean(activeAuction)
       } : undefined,
       liveComments: stream.chatMessages ? stream.chatMessages.map((msg: any) => ({
         id: msg.id,
