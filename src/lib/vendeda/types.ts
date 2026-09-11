@@ -81,7 +81,7 @@ export interface LiveStream {
   playbackId?: string | null
   kickUsername?: string | null
   youtubeLiveId?: string | null
-  streamProvider?: 'TWITCH' | 'KICK' | 'YOUTUBE' | null
+  streamProvider?: 'KICK' | 'YOUTUBE' | null
   streamProviderId?: string | null
   title: string
   description?: string | null

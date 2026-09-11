@@ -84,3 +84,71 @@ export async function killAllGhostStreams() {
     return { error: 'Failed to kill all streams' };
   }
 }
+
+export async function deleteStream(streamId: string) {
+  await verifySuperAdmin()
+  
+  try {
+    await db.auction.updateMany({
+      where: { streamId },
+      data: { status: 'canceled' }
+    })
+    
+    await db.liveChatMessage.deleteMany({
+      where: { streamId }
+    }).catch(() => {})
+    
+    await db.liveStream.delete({
+      where: { id: streamId }
+    })
+    
+    revalidatePath('/admin')
+    revalidatePath('/')
+    revalidatePath('/en-vivo')
+    return { success: true }
+  } catch (error: any) {
+    console.error('Error deleting stream:', error)
+    return { error: error.message || 'Error al eliminar la transmisión' }
+  }
+}
+
+export async function suspendSellerAndKillStream(streamId: string) {
+  await verifySuperAdmin()
+  
+  try {
+    const stream = await db.liveStream.findUnique({
+      where: { id: streamId },
+      select: { sellerId: true }
+    })
+    
+    if (stream) {
+      await db.liveStream.update({
+        where: { id: streamId },
+        data: { status: 'ended', isLive: false, endedAt: new Date() }
+      })
+      
+      await db.auction.updateMany({
+        where: { streamId, status: 'live' },
+        data: { status: 'canceled' }
+      })
+      
+      if (stream.sellerId) {
+        await db.profile.update({
+          where: { id: stream.sellerId },
+          data: { 
+            isBanned: true, 
+            bannedReason: 'Cuenta suspendida por el Super Admin por infracción en transmisión en vivo' 
+          }
+        })
+      }
+    }
+    
+    revalidatePath('/admin')
+    revalidatePath('/')
+    revalidatePath('/en-vivo')
+    return { success: true }
+  } catch (error: any) {
+    console.error('Error suspending seller:', error)
+    return { error: error.message || 'Error al suspender al vendedor' }
+  }
+}

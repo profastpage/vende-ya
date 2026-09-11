@@ -13,6 +13,9 @@ export default async function Home() {
       where: {
         status: 'live',
         isLive: true,
+        streamProvider: {
+          not: 'TWITCH'
+        }
       },
       include: {
         seller: true,

@@ -4,10 +4,12 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
-  Heart, MessageCircle, Share2, Plus, Volume2, VolumeX, Eye, Radio,
+  Heart, MessageCircle, Share2, Plus, Volume2, VolumeX, Eye, ShieldAlert,
 } from 'lucide-react'
+import { useAuth } from '@/components/vendeda/AuthProvider'
+import { killStream, suspendSellerAndKillStream } from '@/app/admin/actions'
+import { toast } from 'sonner'
 import { useMultiLiveViewers } from '@/hooks/useMultiLiveViewers'
-import { InStreamCheckoutDrawer } from './InStreamCheckoutDrawer'
 import { DynamicLivePlayer } from '@/components/vendeda/DynamicLivePlayer'
 import { formatPEN } from '@/lib/vendeda/format'
 import { DEFAULT_STREAM_COVER } from '@/lib/vendeda/images'
@@ -73,6 +75,22 @@ function FeedItem({
   setIsMuted: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const router = useRouter()
+  const { user } = useAuth()
+  const isSuperAdmin = user?.email === 'profastpage@gmail.com'
+
+  const handleAdminKillInFeed = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const confirmAction = confirm(`¿Super Admin: Deseas FINALIZAR la transmisión de @${item.seller.username}?`)
+    if (!confirmAction) return
+    try {
+      await killStream(item.id)
+      toast.success('Transmisión finalizada con éxito')
+      router.refresh()
+    } catch(err: any) {
+      toast.error(err.message || 'Error al finalizar')
+    }
+  }
+
   const [isActive, setIsActive] = React.useState(false)
   const [isLiked, setIsLiked] = React.useState(false)
   const [isZoomed, setIsZoomed] = React.useState(false)
@@ -176,8 +194,19 @@ function FeedItem({
             )}
           </div>
 
-          {/* Audio Mute/Unmute Toggle Button */}
+          {/* Audio Mute/Unmute Toggle & Super Admin Button */}
           <div className="flex items-center gap-2 pointer-events-auto">
+            {isSuperAdmin && (
+              <button
+                type="button"
+                onClick={handleAdminKillInFeed}
+                className="p-2.5 rounded-full bg-amber-500/90 hover:bg-amber-400 text-black border border-amber-300 shadow-lg active:scale-90 transition-all font-bold"
+                title="Super Admin: Finalizar este Live"
+                aria-label="Super Admin: Finalizar este Live"
+              >
+                <ShieldAlert className="w-5 h-5 text-black" />
+              </button>
+            )}
             {hasLiveVideo && (
               <button
                 type="button"
@@ -217,14 +246,14 @@ function FeedItem({
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              onClick={navigateToRoom}
               className="pointer-events-auto flex items-center gap-3 bg-muted/90 backdrop-blur-md p-2 rounded-xl border border-border shadow-lg w-fit max-w-[90%] cursor-pointer hover:bg-muted transition-colors"
             >
               <img src={item.product.thumbnail} alt={item.product.title} className="w-12 h-12 rounded-lg object-cover shrink-0" />
               <div className="flex flex-col min-w-0">
-                <span className="text-foreground text-xs font-medium line-clamp-1">{item.product.title}</span>
-                <span className="text-[#FE2C55] font-bold text-sm">{formatPEN(item.product.price)}</span>
+                <span className="text-white text-xs font-semibold line-clamp-1">{item.product.title}</span>
+                <span className="text-amber-400 text-sm font-bold">{formatPEN(item.product.price)}</span>
               </div>
-              <InStreamCheckoutDrawer product={item.product} />
             </motion.div>
           )}
 
@@ -249,13 +278,13 @@ function FeedItem({
 
         {/* Mobile Right Interaction Panel */}
         <div className="absolute right-2 bottom-20 flex flex-col items-center gap-5 z-20 md:hidden pointer-events-auto">
-          <InteractionButtons item={item} isLiked={isLiked} setIsLiked={setIsLiked} isMobile={true} isZoomed={isZoomed} setIsZoomed={setIsZoomed} />
+          <InteractionButtons item={item} isLiked={isLiked} setIsLiked={setIsLiked} isMobile={true} isZoomed={isZoomed} setIsZoomed={setIsZoomed} onCommentClick={navigateToRoom} />
         </div>
       </div>
 
       {/* Desktop Right Interaction Panel */}
       <div className="hidden md:flex flex-col items-center gap-5 z-20 ml-4 self-end pb-8 pointer-events-auto">
-        <InteractionButtons item={item} isLiked={isLiked} setIsLiked={setIsLiked} isMobile={false} isZoomed={isZoomed} setIsZoomed={setIsZoomed} />
+        <InteractionButtons item={item} isLiked={isLiked} setIsLiked={setIsLiked} isMobile={false} isZoomed={isZoomed} setIsZoomed={setIsZoomed} onCommentClick={navigateToRoom} />
       </div>
     </div>
   )
@@ -266,6 +295,7 @@ function InteractionButtons({
   isLiked,
   setIsLiked,
   isMobile,
+  onCommentClick,
 }: {
   item: SocialFeedItem;
   isLiked: boolean;
@@ -273,11 +303,16 @@ function InteractionButtons({
   isMobile: boolean;
   isZoomed: boolean;
   setIsZoomed: (v: boolean) => void;
+  onCommentClick?: () => void;
 }) {
   return (
     <>
       {/* Avatar */}
-      <div className="relative">
+      <div 
+        className="relative cursor-pointer"
+        onClick={onCommentClick}
+        title={`Ver en vivo de @${item.seller.displayName}`}
+      >
         <div className={cn("w-12 h-12 rounded-full border-2 overflow-hidden", isMobile ? "border-white bg-zinc-800" : "border-background bg-muted")}>
           {item.seller.avatarUrl ? (
             <img src={item.seller.avatarUrl} alt={item.seller.displayName} className="w-full h-full object-cover" />
@@ -286,7 +321,7 @@ function InteractionButtons({
           )}
         </div>
         <button className={cn("absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#FE2C55] rounded-full p-0.5 border-2", isMobile ? "border-black" : "border-background")}>
-          <Plus className="w-3 h-3 text-foreground" />
+          <Plus className="w-3 h-3 text-white" />
         </button>
       </div>
 
@@ -299,7 +334,11 @@ function InteractionButtons({
       </button>
 
       {/* Comments */}
-      <button className="flex flex-col items-center gap-1 group">
+      <button 
+        onClick={onCommentClick}
+        className="flex flex-col items-center gap-1 group"
+        title="Abrir sala para comentar"
+      >
         <div className={`p-2 rounded-full ${isMobile ? 'bg-background/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
           <MessageCircle className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-white' : 'text-foreground'}`} />
         </div>

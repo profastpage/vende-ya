@@ -2,6 +2,7 @@
 import { Loader2 } from 'lucide-react';
 
 import {  endLiveStream } from '@/app/vender/actions'
+import { killStream, deleteStream, suspendSellerAndKillStream } from '@/app/admin/actions'
 import { useTransition } from 'react'
 import { useAuth } from '@/components/vendeda/AuthProvider'
 import Link from 'next/link'
@@ -17,7 +18,7 @@ import {
   PowerOff, ChevronLeft, ChevronRight, Flame, Eye, EyeOff, Heart, Share2, ShoppingBag,
   MessageCircle, Send, Gavel, Clock, BadgeCheck, ShieldCheck,
   Bot, Users, Crown, MapPin, Package, Star, Zap, X,
-Maximize, Minimize, Ban,
+  Maximize, Minimize, Ban, ShieldAlert, Trash2, UserX,
 } from 'lucide-react'
 import type { Profile, Product, Auction } from '@/lib/vendeda/types'
 import {
@@ -286,7 +287,53 @@ export default function LiveRoomClient({
     });
   };
 
-    const router = useRouter()
+  const isSuperAdmin = user?.email === 'profastpage@gmail.com';
+  const [showAdminModal, setShowAdminModal] = React.useState(false);
+  const [adminActionLoading, setAdminActionLoading] = React.useState(false);
+
+  const handleAdminKill = async () => {
+    if (!confirm('¿Confirmas FINALIZAR esta transmisión en vivo de inmediato?')) return;
+    setAdminActionLoading(true);
+    try {
+      await killStream(stream.id);
+      toast.success('Transmisión finalizada por el Super Admin');
+      router.push('/');
+    } catch (e: any) {
+      toast.error(e.message || 'Error al finalizar');
+    } finally {
+      setAdminActionLoading(false);
+    }
+  };
+
+  const handleAdminSuspendSeller = async () => {
+    if (!confirm(`¿Confirmas SUSPENDER la cuenta del vendedor @${seller.username} y terminar la transmisión?`)) return;
+    setAdminActionLoading(true);
+    try {
+      await suspendSellerAndKillStream(stream.id);
+      toast.success('Vendedor suspendido y transmisión cerrada');
+      router.push('/');
+    } catch (e: any) {
+      toast.error(e.message || 'Error al suspender');
+    } finally {
+      setAdminActionLoading(false);
+    }
+  };
+
+  const handleAdminDelete = async () => {
+    if (!confirm('¿Confirmas ELIMINAR permanentemente esta transmisión de la base de datos?')) return;
+    setAdminActionLoading(true);
+    try {
+      await deleteStream(stream.id);
+      toast.success('Transmisión eliminada definitivamente');
+      router.push('/');
+    } catch (e: any) {
+      toast.error(e.message || 'Error al eliminar');
+    } finally {
+      setAdminActionLoading(false);
+    }
+  };
+
+  const router = useRouter()
   const id = stream?.id || 'demo'
 
   
@@ -631,19 +678,29 @@ export default function LiveRoomClient({
                   {isEnding ? <Loader2 className="h-5 w-5 animate-spin" /> : <PowerOff className="h-5 w-5" />}
                 </button>
               )}
+              {isSuperAdmin && (
+                <button 
+                  onClick={() => setShowAdminModal(true)}
+                  className="h-10 px-3.5 rounded-full bg-amber-500/90 hover:bg-amber-500 text-black font-black text-xs flex items-center gap-1.5 shadow-lg border border-amber-300 backdrop-blur-md transition-all active:scale-95"
+                  title="Control Super Admin"
+                >
+                  <ShieldAlert className="h-4 w-4" />
+                  <span>ADMIN</span>
+                </button>
+              )}
             </div>
           </div>
 
-          {/* REPRODUCTOR YOUTUBE */}
+          {/* REPRODUCTOR EN VIVO NATURAL */}
           <div className="flex-1 w-full relative flex items-center justify-center bg-black">
-            
-
-            {isValidYoutubeId ? (
-              <iframe
-                src={youtubeUrl}
-                className="absolute inset-0 w-full h-full border-none"
-                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                allowFullScreen
+            {Boolean(stream.streamProviderId || stream.youtubeLiveId || stream.kickUsername) ? (
+              <DynamicLivePlayer
+                provider={stream.streamProvider || (stream.youtubeLiveId ? 'YOUTUBE' : stream.kickUsername ? 'KICK' : 'YOUTUBE')}
+                providerId={stream.streamProviderId || stream.youtubeLiveId || stream.kickUsername || ''}
+                isActive={true}
+                isMuted={false}
+                pointerEvents="auto"
+                fillMode="contain"
               />
             ) : (
               <div className="flex flex-col items-center justify-center w-full h-full text-white/50 bg-zinc-900">
@@ -816,6 +873,74 @@ export default function LiveRoomClient({
               {hideUI ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5 text-white/90" />}
             </button>
           </div>
+
+      {/* Super Admin Moderation Modal */}
+      <AnimatePresence>
+        {showAdminModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md pointer-events-auto">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md bg-zinc-900 border border-amber-500/50 rounded-2xl p-6 shadow-2xl text-white flex flex-col gap-4"
+            >
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-amber-500/20 border border-amber-500/40 rounded-xl text-amber-400">
+                    <ShieldAlert className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-white">Panel Super Admin</h3>
+                    <p className="text-xs text-amber-400 font-mono">profastpage@gmail.com</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowAdminModal(false)}
+                  className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="bg-black/50 rounded-xl p-3 text-xs border border-white/5 flex flex-col gap-1 text-zinc-300">
+                <div><span className="font-semibold text-zinc-400">Transmisión:</span> {stream.title}</div>
+                <div><span className="font-semibold text-zinc-400">Vendedor:</span> @{seller.username} ({seller.displayName})</div>
+                <div><span className="font-semibold text-zinc-400">ID Stream:</span> <span className="font-mono text-zinc-400">{stream.id}</span></div>
+              </div>
+
+              <div className="flex flex-col gap-2.5 pt-1">
+                <button
+                  onClick={handleAdminKill}
+                  disabled={adminActionLoading}
+                  className="w-full py-3 px-4 rounded-xl bg-red-600/20 border border-red-500/40 hover:bg-red-600/30 text-red-400 font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 active:scale-98"
+                >
+                  <PowerOff className="w-4 h-4" />
+                  <span>Finalizar En Vivo (Detener ahora)</span>
+                </button>
+
+                <button
+                  onClick={handleAdminSuspendSeller}
+                  disabled={adminActionLoading}
+                  className="w-full py-3 px-4 rounded-xl bg-amber-600/20 border border-amber-500/40 hover:bg-amber-600/30 text-amber-400 font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 active:scale-98"
+                >
+                  <UserX className="w-4 h-4" />
+                  <span>Suspender Vendedor y Cerrar En Vivo</span>
+                </button>
+
+                <button
+                  onClick={handleAdminDelete}
+                  disabled={adminActionLoading}
+                  className="w-full py-3 px-4 rounded-xl bg-rose-600/20 border border-rose-600/40 hover:bg-rose-600/30 text-rose-300 font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 active:scale-98"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Eliminar Transmisión Definitivamente</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <CheckoutBottomSheet
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}

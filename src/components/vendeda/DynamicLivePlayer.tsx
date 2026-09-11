@@ -21,12 +21,8 @@ export function DynamicLivePlayer({
   className = '',
 }: DynamicLivePlayerProps) {
   const [canRender, setCanRender] = useState(false);
-  const [hostname, setHostname] = useState('vendeya.live');
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setHostname(window.location.hostname || 'vendeya.live');
-    }
 
     let timer: NodeJS.Timeout;
     if (isActive) {
@@ -59,26 +55,6 @@ export function DynamicLivePlayer({
 
   const upperProvider = (provider || 'YOUTUBE').toUpperCase();
 
-  if (upperProvider === 'TWITCH') {
-    const parents = Array.from(new Set([hostname, 'vendeya.live', 'localhost'])).filter(Boolean);
-    const parentParams = parents.map((p) => `parent=${encodeURIComponent(p)}`).join('&');
-    const twitchSrc = `https://player.twitch.tv/?channel=${encodeURIComponent(
-      cleanId
-    )}&${parentParams}&muted=${isMuted ? 'true' : 'false'}&autoplay=true&playsinline=true`;
-
-    return (
-      <div className={containerClasses}>
-        <iframe
-          key={`twitch-${cleanId}-${isMuted}`}
-          className={iframeClasses}
-          src={twitchSrc}
-          allowFullScreen
-          allow="autoplay; fullscreen"
-        />
-      </div>
-    );
-  }
-
   if (upperProvider === 'KICK') {
     return (
       <div className={containerClasses}>
@@ -103,7 +79,7 @@ export function DynamicLivePlayer({
         className={iframeClasses}
         src={`https://www.youtube.com/embed/${encodeURIComponent(
           cleanId
-        )}?autoplay=1&mute=${isMuted ? 1 : 0}&playsinline=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${encodeURIComponent(
+        )}?autoplay=1&mute=${isMuted ? 1 : 0}&playsinline=1&controls=0&modestbranding=1&rel=0&disablekb=1&iv_load_policy=3&loop=1&playlist=${encodeURIComponent(
           cleanId
         )}`}
         allow="autoplay; encrypted-media; picture-in-picture"

@@ -103,9 +103,5 @@ export function safeStreamCover(stream: {
     return `https://img.youtube.com/vi/${ytId.trim()}/hqdefault.jpg`
   }
 
-  if (stream.streamProvider === 'TWITCH' && stream.streamProviderId) {
-    return `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.streamProviderId.trim().toLowerCase()}-640x360.jpg`
-  }
-
   return DEFAULT_STREAM_COVER
 }
