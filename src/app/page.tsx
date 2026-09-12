@@ -80,7 +80,7 @@ export default async function Home() {
       product: featuredProduct ? {
         id: featuredProduct.id,
         title: featuredProduct.title,
-        price: activeAuction ? activeAuction.currentPrice : featuredProduct.price,
+        price: Number(activeAuction ? activeAuction.currentPrice : (featuredProduct.basePrice ?? featuredProduct.price ?? 0)),
         thumbnail: safeMainImage(featuredProduct.images),
         isAuction: Boolean(activeAuction)
       } : undefined,

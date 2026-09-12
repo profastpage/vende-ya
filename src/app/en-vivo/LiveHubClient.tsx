@@ -88,13 +88,20 @@ function FeaturedHeroCard({ stream, viewers }: { stream: LiveStream, viewers: nu
   const cover = safeStreamCover(stream)
 
   return (
-    <Link href={ROUTES.stream(stream.id)} className="block group" aria-label={`Unirse a ${stream.title}`}>
+    <Link href={ROUTES.stream(stream.seller?.username || stream.id)} className="block group" aria-label={`Unirse a ${stream.title}`}>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative aspect-video rounded-3xl overflow-hidden border border-border bg-card shadow-2xl shadow-black/60"
       >
+        {/* Ambient blurred backdrop */}
+        <img
+          src={cover}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-40 pointer-events-none"
+        />
         {/* Background Media */}
         <div className="absolute inset-0 z-0 overflow-hidden bg-zinc-950">
           <img
@@ -118,16 +125,16 @@ function FeaturedHeroCard({ stream, viewers }: { stream: LiveStream, viewers: nu
               <span className="absolute inset-0 rounded-full bg-white animate-ping" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
             </span>
-            <span className="text-[11px] font-black uppercase tracking-wider text-foreground">
+            <span className="text-[11px] font-black uppercase tracking-wider text-white">
               En vivo
             </span>
           </div>
         )}
 
         {/* Viewers pill — top-right */}
-        <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/60 backdrop-blur-md border border-border rounded-full px-3 py-1.5">
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/60 backdrop-blur-md border border-white/20 rounded-full px-3 py-1.5">
           <Eye className="h-3.5 w-3.5 text-amber-400" />
-          <span className="text-[11px] font-bold text-foreground tabular-nums">
+          <span className="text-[11px] font-bold text-white tabular-nums">
             {viewers}
           </span>
         </div>
@@ -140,20 +147,20 @@ function FeaturedHeroCard({ stream, viewers }: { stream: LiveStream, viewers: nu
               <span className="text-[10px] font-black uppercase tracking-wider text-amber-400">
                 {bucketLabel(bucket)}
               </span>
-              <span className="text-foreground/30" aria-hidden>·</span>
-              <span className="text-[10px] font-medium text-muted-foreground">
+              <span className="text-white/30" aria-hidden>·</span>
+              <span className="text-[10px] font-medium text-zinc-300">
                 {formatViewers(viewers)}
               </span>
             </div>
 
             {/* Title */}
-            <h2 className="text-xl md:text-3xl font-black tracking-tight text-foreground drop-shadow-lg line-clamp-2 mb-3">
+            <h2 className="text-xl md:text-3xl font-black tracking-tight text-white drop-shadow-lg line-clamp-2 mb-3">
               {stream.title}
             </h2>
 
             {/* Description — desktop only for depth */}
             {stream.description && (
-              <p className="hidden md:block text-sm text-muted-foreground line-clamp-2 mb-4 max-w-xl leading-relaxed">
+              <p className="hidden md:block text-sm text-zinc-200 line-clamp-2 mb-4 max-w-xl leading-relaxed">
                 {stream.description}
               </p>
             )}
@@ -161,19 +168,19 @@ function FeaturedHeroCard({ stream, viewers }: { stream: LiveStream, viewers: nu
             {/* Seller chip */}
             <div className="flex items-center gap-2 mb-4">
               <div
-                className={`h-8 w-8 rounded-full bg-gradient-to-br ${avatarGradient(seller.id)} flex items-center justify-center font-black text-zinc-950 text-xs border border-border`}
+                className={`h-8 w-8 rounded-full bg-gradient-to-br ${avatarGradient(seller.id)} flex items-center justify-center font-black text-zinc-950 text-xs border border-white/20`}
                 aria-hidden
               >
                 {seller.displayName.slice(0, 2).toUpperCase()}
               </div>
-              <span className="text-sm font-bold text-foreground">
+              <span className="text-sm font-bold text-white">
                 {seller.displayName}
               </span>
               {seller.isVerified && (
                 <BadgeCheck className="h-4 w-4 text-sky-400" aria-label="Vendedor verificado" />
               )}
               {seller.department && (
-                <span className="text-[10px] text-muted-foreground font-medium">
+                <span className="text-[10px] text-zinc-300 font-medium">
                   · {seller.department}
                 </span>
               )}
@@ -241,10 +248,18 @@ function StreamCard({ stream, viewers }: { stream: LiveStream, viewers: number }
 
   return (
     <motion.div variants={itemVariants} whileHover={{ y: -4 }}>
-      <Link href={ROUTES.stream(stream.id)} className="group block h-full" aria-label={`Ver ${stream.title}`}>
-        <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-border bg-card shadow-lg shadow-black/40">
-          {/* Background Image */}
-          <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden">
+      <Link href={ROUTES.stream(stream.seller?.username || stream.id)} className="group block h-full" aria-label={`Ver ${stream.title}`}>
+        <div className="relative aspect-[9/16] rounded-2xl overflow-hidden border border-border bg-card shadow-lg shadow-black/30">
+          {/* Ambient blurred backdrop — fills any edges with no black borders */}
+          <img
+            src={cover}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 w-full h-full object-cover blur-lg scale-125 opacity-40 pointer-events-none"
+          />
+
+          {/* Main video/cover fill */}
+          <div className="absolute inset-0 z-0 overflow-hidden bg-zinc-950">
             <img
               src={cover}
               alt={stream.title}
@@ -266,12 +281,12 @@ function StreamCard({ stream, viewers }: { stream: LiveStream, viewers: number }
                 <span className="absolute inset-0 rounded-full bg-white animate-ping" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
               </span>
-              <span className="text-[9px] font-black uppercase tracking-wider text-foreground">
+              <span className="text-[9px] font-black uppercase tracking-wider text-white">
                 Live
               </span>
             </div>
           ) : (
-            <div className="absolute top-2.5 left-2.5 flex items-center gap-1 bg-background/80 backdrop-blur-md border border-border rounded-full px-2 py-1">
+            <div className="absolute top-2.5 left-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-md border border-white/20 rounded-full px-2 py-1">
               <span className="text-[9px] font-black uppercase tracking-wider text-amber-400">
                 Próximo
               </span>
@@ -279,29 +294,29 @@ function StreamCard({ stream, viewers }: { stream: LiveStream, viewers: number }
           )}
 
           {/* Viewers pill — top-right */}
-          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-md border border-border rounded-full px-2 py-1">
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-md border border-white/20 rounded-full px-2 py-1">
             <Eye className="h-3 w-3 text-amber-400" />
-            <span className="text-[10px] font-bold text-foreground tabular-nums">
+            <span className="text-[10px] font-bold text-white tabular-nums">
               {viewers}
             </span>
           </div>
 
           {/* Bottom info */}
-          <div className="absolute inset-x-0 bottom-0 p-3">
-            <p className="text-[10px] font-black uppercase tracking-wider text-amber-400 mb-1.5">
+          <div className="absolute inset-x-0 bottom-0 p-3 text-white">
+            <p className="text-[10px] font-black uppercase tracking-wider text-amber-400 mb-1">
               {bucketLabel(bucket)}
             </p>
-            <h3 className="text-sm font-bold text-foreground line-clamp-2 leading-snug mb-2">
+            <h3 className="text-sm font-bold text-white line-clamp-2 leading-snug mb-2">
               {stream.title}
             </h3>
             <div className="flex items-center gap-1.5">
               <div
-                className={`h-5 w-5 rounded-full bg-gradient-to-br ${avatarGradient(seller.id)} flex items-center justify-center font-black text-[9px] text-zinc-950 border border-border`}
+                className={`h-5 w-5 rounded-full bg-gradient-to-br ${avatarGradient(seller.id)} flex items-center justify-center font-black text-[9px] text-zinc-950 border border-white/20`}
                 aria-hidden
               >
                 {seller.displayName.slice(0, 1).toUpperCase()}
               </div>
-              <span className="text-[11px] font-semibold text-foreground truncate">
+              <span className="text-[11px] font-semibold text-zinc-100 truncate">
                 {seller.displayName}
               </span>
               {seller.isVerified && (
@@ -376,7 +391,7 @@ export default function LiveHubClient({ initialStreams }: { initialStreams: any[
   const totalViewers = liveStreams.reduce((sum, s) => sum + (viewersMap[s.id] || s.viewerCount), 0)
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground dark">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 md:px-6 pt-6 md:pt-10 pb-24 md:pb-16">
         {/* ────────────────────────────────────────────────────────
             HERO — Transmisiones destacadas

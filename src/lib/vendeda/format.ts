@@ -6,8 +6,9 @@ import type { Currency } from './types'
 
 /** Format an amount as PEN currency. S/. 1,234.50 */
 export function formatPEN(amount: number, currency: Currency = DEFAULT_CURRENCY): string {
-  if (currency === 'USD') return USD_FORMATTER.format(amount)
-  return PEN_FORMATTER.format(amount).replace('PEN', 'S/.').trim()
+  const validAmount = typeof amount === 'number' && Number.isFinite(amount) ? amount : 0
+  if (currency === 'USD') return USD_FORMATTER.format(validAmount)
+  return PEN_FORMATTER.format(validAmount).replace('PEN', 'S/.').trim()
 }
 
 /** Compact formatter: 1.2K, 3.4M viewers */

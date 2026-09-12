@@ -231,21 +231,25 @@ function FeedItem({
 
         {/* Bottom Info & Product Pin */}
         <div className="absolute bottom-3 left-3.5 right-16 flex flex-col justify-end gap-2.5 z-20 pointer-events-none">
-          {/* Clickable Product Pin */}
+          {/* Clickable Product Pin — Estilo TikTok / eBay Live */}
           {item.product && (
             <motion.div 
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              onClick={navigateToRoom}
-              className="pointer-events-auto flex items-center gap-2.5 bg-black/65 hover:bg-black/85 backdrop-blur-md p-2 rounded-xl border border-white/15 shadow-xl w-fit max-w-[90%] cursor-pointer transition-all active:scale-95"
+              onClick={(e) => {
+                e.stopPropagation()
+                router.push(`/productos/${item.product!.id}`)
+              }}
+              className="pointer-events-auto flex items-center gap-2 bg-black/75 hover:bg-black/90 backdrop-blur-md p-1.5 rounded-xl border border-white/20 shadow-xl w-fit max-w-[85%] sm:max-w-[80%] cursor-pointer transition-all active:scale-95"
+              title={`Ver detalles de ${item.product.title}`}
             >
-              <img src={item.product.thumbnail} alt={item.product.title} className="w-11 h-11 rounded-lg object-cover shrink-0 border border-white/10" />
-              <div className="flex flex-col min-w-0 pr-1">
-                <span className="text-white text-xs font-bold truncate">{item.product.title}</span>
+              <img src={item.product.thumbnail} alt={item.product.title} className="w-10 h-10 rounded-lg object-cover shrink-0 border border-white/10" />
+              <div className="flex flex-col min-w-0 pr-1.5">
+                <span className="text-white text-[11px] font-bold truncate max-w-[140px] sm:max-w-[180px]">{item.product.title}</span>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="text-amber-400 text-xs font-black">{formatPEN(item.product.price)}</span>
-                  <span className="text-[9px] px-1.5 py-0.5 bg-rose-500/80 text-white rounded font-bold uppercase tracking-wider">
-                    {item.product.isAuction ? 'Subasta' : 'En vivo'}
+                  <span className="text-[8px] px-1.5 py-0.5 bg-rose-500/90 text-white rounded font-black uppercase tracking-wider">
+                    {item.product.isAuction ? 'Subasta' : 'En venta'}
                   </span>
                 </div>
               </div>
