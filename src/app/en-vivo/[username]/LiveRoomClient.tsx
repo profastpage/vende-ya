@@ -796,6 +796,7 @@ export default function LiveRoomClient({
                 isMuted={false}
                 pointerEvents="auto"
                 fillMode={isMobileScreen ? (isFitMode ? 'contain' : 'cover') : 'contain'}
+                immediate={true}
               />
             ) : (
               <div className="flex flex-col items-center justify-center w-full h-full text-white/50 bg-zinc-900 z-10">

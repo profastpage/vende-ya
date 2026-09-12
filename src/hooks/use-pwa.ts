@@ -74,13 +74,11 @@ export function usePWA() {
       e.preventDefault()
       installEventRef.current = e as BeforeInstallPromptEvent
       setCanInstall(true)
-      console.log('[PWA] Install prompt available')
     }
     const onAppInstalled = () => {
       setInstalled(true)
       setCanInstall(false)
       installEventRef.current = null
-      console.log('[PWA] App installed')
     }
 
     window.addEventListener('beforeinstallprompt', onBeforeInstall)

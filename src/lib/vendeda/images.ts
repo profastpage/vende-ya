@@ -99,8 +99,8 @@ export function safeStreamCover(stream: {
   }
 
   const ytId = stream.youtubeLiveId || (stream.streamProvider === 'YOUTUBE' ? stream.streamProviderId : null)
-  if (ytId && typeof ytId === 'string' && ytId.trim().length === 11) {
-    return `https://img.youtube.com/vi/${ytId.trim()}/hqdefault.jpg`
+  if (ytId && typeof ytId === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(ytId.trim())) {
+    return `https://i.ytimg.com/vi/${ytId.trim()}/hqdefault.jpg`
   }
 
   return DEFAULT_STREAM_COVER

@@ -9,6 +9,7 @@ interface DynamicLivePlayerProps {
   pointerEvents?: 'none' | 'auto';
   fillMode?: 'cover' | 'contain';
   className?: string;
+  immediate?: boolean;
 }
 
 export function DynamicLivePlayer({
@@ -19,20 +20,25 @@ export function DynamicLivePlayer({
   pointerEvents = 'auto',
   fillMode = 'contain',
   className = '',
+  immediate = false,
 }: DynamicLivePlayerProps) {
-  const [canRender, setCanRender] = useState(false);
+  const [canRender, setCanRender] = useState(immediate || false);
 
   useEffect(() => {
+    if (immediate && isActive) {
+      setCanRender(true);
+      return;
+    }
 
     let timer: NodeJS.Timeout;
     if (isActive) {
-      // Delay mounting slightly (200ms) to ensure smooth scroll snap without lag
-      timer = setTimeout(() => setCanRender(true), 200);
+      // Delay mounting slightly (150ms) in feed to ensure smooth scroll snap without lag
+      timer = setTimeout(() => setCanRender(true), 150);
     } else {
       setCanRender(false);
     }
     return () => clearTimeout(timer);
-  }, [isActive]);
+  }, [isActive, immediate]);
 
   const cleanId = providerId ? providerId.trim() : '';
 

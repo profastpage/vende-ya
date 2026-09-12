@@ -8,16 +8,15 @@ import { MOCK_PROFILES } from '@/lib/vendeda/mock-data'
 export const dynamic = 'force-dynamic'
 
 export default async function StreamDetailPage({ params }: { params: Promise<{ username: string }> }) {
-  const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
   const { username } = await params
   const cleanParam = decodeURIComponent(username).replace(/^@/, '').replace('%40', '').trim()
 
-  // 1. Try to find stream by ID or by seller username
-  let stream: any = null
-  try {
-    stream = await db.liveStream.findFirst({
+  // 1. FAST SINGLE PARALLEL FETCH:
+  // Query Supabase server client and the LiveStream simultaneously.
+  // We include seller, live auctions with product, and recent chat messages in ONE single SQL query.
+  const [supabaseClient, stream] = await Promise.all([
+    createServerClient().catch(() => null),
+    db.liveStream.findFirst({
       where: {
         OR: [
           { id: cleanParam },
@@ -26,50 +25,61 @@ export default async function StreamDetailPage({ params }: { params: Promise<{ u
           { seller: { username: { equals: cleanParam, mode: 'insensitive' } } }
         ]
       },
-      include: { seller: true },
+      include: {
+        seller: true,
+        auctions: {
+          where: { status: 'live' },
+          include: { product: true },
+          take: 1
+        },
+        chatMessages: {
+          where: {
+            isHidden: false,
+            type: { not: 'streamer-ban' }
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 50,
+          include: { sender: true }
+        }
+      },
       orderBy: { createdAt: 'desc' }
+    }).catch((err) => {
+      console.error('[StreamDetailPage] Error fetching stream:', err)
+      return null
     })
-  } catch (err) {
-    console.error('[StreamDetailPage] Error fetching stream:', err)
-  }
+  ])
 
-  // 2. Check if stream is currently live
-  const isLive = stream && (stream.isLive === true || stream.status === 'live')
+  // 2. If stream is live, return immediately (sub-150ms response)
+  const isLive = Boolean(stream && (stream.isLive === true || stream.status === 'live'))
 
   if (isLive && stream) {
-    // Fetch active auction for this stream
-    const auction = await db.auction.findFirst({
-      where: { streamId: stream.id, status: 'live' },
-      include: { product: true }
-    })
-
+    const auction = stream.auctions?.[0] || null
     const product = auction?.product || null
     const seller = stream.seller || MOCK_PROFILES[0]
 
-    const initialChatMessages = await db.liveChatMessage.findMany({
-      where: { 
-        streamId: stream.id,
-        isHidden: false,
-        type: { not: 'streamer-ban' }
-      },
-      orderBy: { createdAt: 'asc' },
-      take: 100,
-      include: { sender: true }
-    })
-
+    let currentUserId: string | undefined = undefined
     let isInitiallyBlocked = false
-    if (user) {
-      const banRecord = await db.liveChatMessage.findFirst({
-        where: {
-          streamId: stream.id,
-          type: 'streamer-ban',
-          senderId: user.id
+
+    if (supabaseClient) {
+      try {
+        const { data } = await supabaseClient.auth.getUser()
+        if (data?.user) {
+          currentUserId = data.user.id
+          const banRecord = await db.liveChatMessage.findFirst({
+            where: {
+              streamId: stream.id,
+              type: 'streamer-ban',
+              senderId: data.user.id
+            },
+            select: { id: true }
+          })
+          if (banRecord) isInitiallyBlocked = true
         }
-      })
-      if (banRecord) isInitiallyBlocked = true
+      } catch {}
     }
 
-    const initialChat = initialChatMessages.map(msg => ({
+    const initialChatMessages = (stream.chatMessages || []).reverse()
+    const initialChat = initialChatMessages.map((msg: any) => ({
       id: msg.id,
       username: msg.sender?.displayName || msg.guestName || 'Usuario',
       avatarUrl: msg.sender?.avatarUrl || undefined,
@@ -81,7 +91,7 @@ export default async function StreamDetailPage({ params }: { params: Promise<{ u
 
     return (
       <LiveRoomClient 
-        currentUserId={user?.id}
+        currentUserId={currentUserId}
         stream={stream} 
         auction={auction} 
         product={product} 
@@ -92,7 +102,7 @@ export default async function StreamDetailPage({ params }: { params: Promise<{ u
     )
   }
 
-  // 3. If stream is NOT live (or not found), find the seller profile for the OFFLINE experience
+  // 3. If stream is OFFLINE: find seller profile
   let seller = stream?.seller || null
   if (!seller) {
     try {
@@ -116,25 +126,17 @@ export default async function StreamDetailPage({ params }: { params: Promise<{ u
     notFound()
   }
 
-  // 4. Fetch seller's active products
-  let products: any[] = []
-  try {
-    products = await db.product.findMany({
+  // 4. In parallel: fetch products and other live streams
+  const [products, otherLiveStreams] = await Promise.all([
+    db.product.findMany({
       where: {
         sellerId: seller.id,
         status: 'active'
       },
       orderBy: { createdAt: 'desc' },
       take: 12
-    })
-  } catch (err) {
-    console.error('[StreamDetailPage] Error fetching seller products:', err)
-  }
-
-  // 5. Fetch other live streams for recommendations
-  let otherLiveStreams: any[] = []
-  try {
-    otherLiveStreams = await db.liveStream.findMany({
+    }).catch(() => []),
+    db.liveStream.findMany({
       where: {
         isLive: true,
         ...(stream ? { id: { not: stream.id } } : {})
@@ -142,10 +144,8 @@ export default async function StreamDetailPage({ params }: { params: Promise<{ u
       include: { seller: true },
       orderBy: { viewerCount: 'desc' },
       take: 4
-    })
-  } catch (err) {
-    console.error('[StreamDetailPage] Error fetching other live streams:', err)
-  }
+    }).catch(() => [])
+  ])
 
   return (
     <OfflineChannelClient

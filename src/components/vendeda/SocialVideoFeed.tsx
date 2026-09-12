@@ -1,10 +1,11 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
-  Heart, MessageCircle, Share2, Plus, Volume2, VolumeX, Eye, ShieldAlert,
+  Heart, MessageCircle, Share2, Plus, Volume2, VolumeX, Eye, ShieldAlert, Loader2
 } from 'lucide-react'
 import { useAuth } from '@/components/vendeda/AuthProvider'
 import { killStream, suspendSellerAndKillStream } from '@/app/admin/actions'
@@ -43,8 +44,18 @@ interface SocialVideoFeedProps {
 }
 
 export function SocialVideoFeed({ feed }: SocialVideoFeedProps) {
+  const router = useRouter()
   const viewersMap = useMultiLiveViewers(feed.map(f => ({ id: f.id, viewerCount: 0 })))
   const [isMuted, setIsMuted] = React.useState(true)
+
+  // Prefetch live stream routes for all items in feed so navigation is instantaneous
+  React.useEffect(() => {
+    feed.forEach((item) => {
+      if (item.seller?.username) {
+        router.prefetch(`/en-vivo/${item.seller.username}`)
+      }
+    })
+  }, [feed, router])
 
   return (
     <div className="flex w-full h-full bg-background text-foreground overflow-hidden">
@@ -95,7 +106,15 @@ function FeedItem({
   const [isActive, setIsActive] = React.useState(false)
   const [isLiked, setIsLiked] = React.useState(false)
   const [isZoomed, setIsZoomed] = React.useState(false)
+  const [isNavigating, setIsNavigating] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
+
+  // Prefetch route on mount for zero-latency entrance
+  React.useEffect(() => {
+    if (item.seller?.username) {
+      router.prefetch(`/en-vivo/${item.seller.username}`)
+    }
+  }, [item.seller?.username, router])
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
@@ -123,6 +142,7 @@ function FeedItem({
   const coverImage = item.thumbnailUrl || item.product?.thumbnail || DEFAULT_STREAM_COVER
 
   const navigateToRoom = () => {
+    setIsNavigating(true)
     router.push(`/en-vivo/${item.seller.username}`)
   }
 
@@ -131,11 +151,17 @@ function FeedItem({
       {/* Container that acts as the mobile screen on desktop */}
       <div className="relative w-full md:w-[350px] lg:w-[400px] h-full bg-zinc-950 md:rounded-2xl overflow-hidden flex shrink-0 shadow-2xl border border-white/5">
         
-        {/* Layer 1: Poster / Thumbnail Fallback Background */}
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center transition-transform duration-700"
-          style={{ backgroundImage: `url(${coverImage})` }}
-        >
+        {/* Layer 1: Poster / Thumbnail Fallback Background with safe onError */}
+        <div className="absolute inset-0 w-full h-full overflow-hidden bg-zinc-950">
+          <img
+            src={coverImage}
+            alt={item.description || 'Live Stream'}
+            onError={(e) => {
+              e.currentTarget.src = DEFAULT_STREAM_COVER
+            }}
+            className="w-full h-full object-cover transition-transform duration-700 scale-105"
+            loading="eager"
+          />
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
         </div>
 
@@ -167,12 +193,23 @@ function FeedItem({
         {/* Layer 3: Subtle Top & Bottom Gradients for UI clarity */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/90 pointer-events-none z-10" />
 
-        {/* Layer 4: Tap-anywhere to enter the Live Room (intercepts touches before video iframe) */}
-        <div 
+        {/* Layer 4: Tap-anywhere to enter the Live Room (Immediate prefetch link with 0ms feedback) */}
+        <Link 
+          href={`/en-vivo/${item.seller.username}`}
+          prefetch={true}
+          onClick={() => setIsNavigating(true)}
           className="absolute inset-0 z-[15] cursor-pointer"
-          onClick={navigateToRoom}
           aria-label={`Entrar a la transmisión de ${item.seller.displayName}`}
-        />
+        >
+          {isNavigating && (
+            <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-white gap-2 transition-opacity animate-in fade-in duration-100">
+              <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+              <span className="text-[11px] font-black uppercase tracking-wider bg-black/80 px-3.5 py-1.5 rounded-full border border-white/20 text-zinc-100 shadow-xl">
+                Entrando al Live...
+              </span>
+            </div>
+          )}
+        </Link>
 
         {/* Top Badges & Audio Controls */}
         <div className="absolute top-3.5 left-3.5 right-3.5 z-20 flex items-center justify-between pointer-events-none">
@@ -257,7 +294,12 @@ function FeedItem({
           )}
 
           {/* Stream Info */}
-          <div className="pointer-events-auto cursor-pointer" onClick={navigateToRoom}>
+          <Link 
+            href={`/en-vivo/${item.seller.username}`}
+            prefetch={true}
+            onClick={() => setIsNavigating(true)}
+            className="pointer-events-auto cursor-pointer block"
+          >
             <h3 className="text-white font-extrabold text-sm sm:text-base drop-shadow-md hover:underline flex items-center gap-1.5">
               <span>@{item.seller.displayName}</span>
               <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 border border-amber-400/40 px-1.5 py-0.5 rounded-full">
@@ -265,7 +307,7 @@ function FeedItem({
               </span>
             </h3>
             <p className="text-white/95 text-xs sm:text-sm mt-1 line-clamp-2 drop-shadow-md font-medium">{item.description}</p>
-          </div>
+          </Link>
 
           {/* Live Comments Stream — Burbujas estilo TikTok Live */}
           {item.liveComments && item.liveComments.length > 0 && (
@@ -314,10 +356,11 @@ function InteractionButtons({
 }) {
   return (
     <>
-      {/* Avatar */}
-      <div 
-        className="relative cursor-pointer"
-        onClick={onCommentClick}
+      {/* Avatar / Profile */}
+      <Link 
+        href={`/en-vivo/${item.seller.username}`}
+        prefetch={true}
+        className="relative block cursor-pointer"
         title={`Ver en vivo de @${item.seller.displayName}`}
       >
         <div className={cn("w-12 h-12 rounded-full border-2 overflow-hidden", isMobile ? "border-white bg-zinc-800" : "border-background bg-muted")}>
@@ -330,7 +373,7 @@ function InteractionButtons({
         <button className={cn("absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#FE2C55] rounded-full p-0.5 border-2", isMobile ? "border-black" : "border-background")}>
           <Plus className="w-3 h-3 text-white" />
         </button>
-      </div>
+      </Link>
 
       {/* Like */}
       <button className="flex flex-col items-center gap-1 group" onClick={() => setIsLiked(!isLiked)}>
@@ -340,17 +383,18 @@ function InteractionButtons({
         <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{item.likes + (isLiked ? 1 : 0)}</span>
       </button>
 
-      {/* Comments */}
-      <button 
-        onClick={onCommentClick}
+      {/* Comments / Room Entry */}
+      <Link 
+        href={`/en-vivo/${item.seller.username}`}
+        prefetch={true}
         className="flex flex-col items-center gap-1 group"
-        title="Abrir sala para comentar"
+        title="Abrir sala para comentar y comprar"
       >
         <div className={`p-2 rounded-full ${isMobile ? 'bg-background/20 backdrop-blur-sm' : 'bg-muted hover:bg-accent'} group-active:scale-90 transition-all`}>
           <MessageCircle className={`w-6 h-6 md:w-7 md:h-7 ${isMobile ? 'text-white' : 'text-foreground'}`} />
         </div>
         <span className={cn("text-xs font-semibold drop-shadow-md", isMobile ? "text-white/90" : "text-foreground/90")}>{item.comments}</span>
-      </button>
+      </Link>
 
       {/* Share */}
       <button className="flex flex-col items-center gap-1 group" onClick={async () => {
