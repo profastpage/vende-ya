@@ -41,6 +41,19 @@ export function DynamicLivePlayer({
   }, [isActive, immediate]);
 
   const cleanId = providerId ? providerId.trim() : '';
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
+
+  // Send mute/unmute command via postMessage without remounting iframe
+  useEffect(() => {
+    if (!iframeRef.current || !iframeRef.current.contentWindow) return;
+    try {
+      const func = isMuted ? 'mute' : 'unMute';
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func, args: '' }),
+        '*'
+      );
+    } catch {}
+  }, [isMuted]);
 
   if (!cleanId || cleanId.length < 2) {
     return null;
@@ -65,7 +78,8 @@ export function DynamicLivePlayer({
     return (
       <div className={containerClasses}>
         <iframe
-          key={`kick-${cleanId}-${isMuted}`}
+          ref={iframeRef}
+          key={`kick-${cleanId}`}
           className={iframeClasses}
           src={`https://player.kick.com/${encodeURIComponent(cleanId)}?autoplay=true&muted=${
             isMuted ? 'true' : 'false'
@@ -77,15 +91,16 @@ export function DynamicLivePlayer({
     );
   }
 
-  // Default: YouTube
+  // Default: YouTube (with enablejsapi=1 for dynamic mute/unmute control)
   return (
     <div className={containerClasses}>
       <iframe
-        key={`yt-${cleanId}-${isMuted}`}
+        ref={iframeRef}
+        key={`yt-${cleanId}`}
         className={iframeClasses}
         src={`https://www.youtube.com/embed/${encodeURIComponent(
           cleanId
-        )}?autoplay=1&mute=${isMuted ? 1 : 0}&playsinline=1&controls=0&modestbranding=1&rel=0&disablekb=1&iv_load_policy=3&fs=0&loop=1&playlist=${encodeURIComponent(
+        )}?enablejsapi=1&autoplay=1&mute=${isMuted ? 1 : 0}&playsinline=1&controls=0&modestbranding=1&rel=0&disablekb=1&iv_load_policy=3&fs=0&loop=1&playlist=${encodeURIComponent(
           cleanId
         )}`}
         allow="autoplay; encrypted-media; picture-in-picture"

@@ -12,12 +12,14 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 });
 
 // Display font for headlines — warm, modern, distinct from body
@@ -25,7 +27,7 @@ const display = Bricolage_Grotesque({
   variable: "--font-display",
   subsets: ["latin"],
   display: "swap",
-  weight: ["500", "600", "700", "800"],
+  preload: false,
 });
 
 export const metadata: Metadata = {

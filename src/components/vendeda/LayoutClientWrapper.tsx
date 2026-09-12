@@ -7,6 +7,48 @@ import { MobileBottomNav } from "./MobileBottomNav"
 
 export function LayoutClientWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+
+  // Suppress external browser/embed noise (Chromium WebGPU Windows diagnostic & PWA infobar notice)
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const originalWarn = console.warn
+    console.warn = (...args: any[]) => {
+      const text = typeof args[0] === 'string' ? args[0] : (args[0]?.message || '')
+      if (
+        text.includes('powerPreference') ||
+        text.includes('requestAdapter') ||
+        text.includes('was preloaded using link preload')
+      ) {
+        return
+      }
+      originalWarn.apply(console, args)
+    }
+
+    const originalLog = console.log
+    console.log = (...args: any[]) => {
+      const text = typeof args[0] === 'string' ? args[0] : ''
+      if (text.includes('beforeinstallprompt') || text.includes('Banner not shown')) {
+        return
+      }
+      originalLog.apply(console, args)
+    }
+
+    const originalInfo = console.info
+    console.info = (...args: any[]) => {
+      const text = typeof args[0] === 'string' ? args[0] : ''
+      if (text.includes('beforeinstallprompt') || text.includes('Banner not shown')) {
+        return
+      }
+      originalInfo.apply(console, args)
+    }
+
+    return () => {
+      console.warn = originalWarn
+      console.log = originalLog
+      console.info = originalInfo
+    }
+  }, [])
   
   // Define full-screen routes where navs and padding are completely hidden.
   // We use strict matching so that index pages like /en-vivo and /subastas still scroll normally!
